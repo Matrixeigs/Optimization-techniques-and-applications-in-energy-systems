@@ -10,6 +10,10 @@ from pypower import case9
 from numpy import power, array
 from scipy import hstack, vstack
 
+# import test cases
+from Two_stage_stochastic_optimization.power_flow_modelling import case_converters
+from Two_stage_stochastic_optimization.power_flow_modelling import case_converters
+
 
 class Multiple_Microgrids_Direct_Current_Networks():
     """
@@ -52,4 +56,5 @@ if __name__ == '__main__':
     # A test hybrid AC DC network is connected via BIC networks
     caseDC = case9.case9()
     mmDC = Multiple_Microgrids_Direct_Current_Networks()
+
     sol = mmDC.run()
