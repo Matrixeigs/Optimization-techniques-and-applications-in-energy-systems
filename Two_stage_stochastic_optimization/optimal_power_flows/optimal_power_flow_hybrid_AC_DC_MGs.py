@@ -6,13 +6,15 @@ Two versions of optimal power flow models are proposed.
 @author: Tianyang Zhao
 @email: zhaoty@ntu.edu.sg
 """
-from pypower import case9
+
 from numpy import power, array, zeros
 from scipy import hstack, vstack
 
 # import test cases
-from Two_stage_stochastic_optimization.power_flow_modelling import case_converters
-from Two_stage_stochastic_optimization.power_flow_modelling import case_converters
+from Two_stage_stochastic_optimization.power_flow_modelling import case33
+from pypower import case9, case30, case118
+
+M = 1e7
 
 
 class MultipleMicrogridsDirect_CurrentNetworks():
@@ -22,9 +24,9 @@ class MultipleMicrogridsDirect_CurrentNetworks():
     """
 
     def __init__(self):
-        self.logger = MultipleMicrogridsDirect_CurrentNetworks.run()
+        self.name = "Test_MGs_DC_networks"
 
-    def run(self):
+    def run(self, case_MGs=None, case_DC_network=None, case_AC_networks=None, T=1):
         # 1) Optimal power flow modelling for MGs
         # 2) Optimal power flow modelling for DC networks
         # 3) Connnection matrix between MGs and DC networks
@@ -36,20 +38,68 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         # 4.2) Bi-directional power flows on BICs
         # 4.3) Relaxation of DC power flows
         # 4.4) Stochastic simulation
+        if T == 1:
+            # Static modelling
+            pass
+        else:
+            model_MGs = MultipleMicrogridsDirect_CurrentNetworks.optimal_power_flow_microgrid(self, case_MGs, T)
+            pass
 
         sol = {"x": 0}
         return sol
 
-    # def optimal_power_flow_microgrid(self):
-    #
+    def optimal_power_flow_microgrid(self, caseMGs, T):
+        from Two_stage_stochastic_optimization.power_flow_modelling.idx_MGs_RO import PG, QG, BETA_PG, PUG, QUG, \
+            BETA_UG, PBIC_AC2DC, PBIC_DC2AC, QBIC, PESS_C, PESS_DC, BETA_ESS, EESS, PMG, NX
+        NMG = len(caseMGs)  # Number of hybrid AC/DC micro-grirds
+        nx = NMG * T * NX
+        lx = zeros((nx, 1))
+        ux = zeros((nx, 1))
+        if T == 1:
+            pass
+        else:  # Dynamic optimal power flow for multiple MGs
+            for i in range(NMG):
+                for j in range(T):
+                    # The lower boundary
+                    lx[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["PMIN"]
+                    lx[i * T * NX + j * NX + QG] = caseMGs[i]["DG"]["QMIN"]
+                    lx[i * T * NX + j * NX + BETA_PG] = 0
+                    lx[i * T * NX + j * NX + PUG] = caseMGs[i]["UG"]["PMIN"]
+                    lx[i * T * NX + j * NX + QUG] = caseMGs[i]["UG"]["QMIN"]
+                    lx[i * T * NX + j * NX + BETA_UG] = 0
+                    lx[i * T * NX + j * NX + PBIC_AC2DC] = 0
+                    lx[i * T * NX + j * NX + PBIC_DC2AC] = 0
+                    lx[i * T * NX + j * NX + QBIC] = -caseMGs[i]["BIC"]["SMAX"]
+                    lx[i * T * NX + j * NX + PESS_C] = 0
+                    lx[i * T * NX + j * NX + PESS_DC] = 0
+                    lx[i * T * NX + j * NX + BETA_ESS] = 0
+                    lx[i * T * NX + j * NX + EESS] = caseMGs[i]["ESS"]["SOC_MIN"] * caseMGs[i]["ESS"]["CAP"]
+                    lx[i * T * NX + j * NX + PMG] = -M
+                    # The upper boundary
+                    ux[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["PMAX"]
+                    ux[i * T * NX + j * NX + QG] = caseMGs[i]["DG"]["QMAX"]
+                    ux[i * T * NX + j * NX + BETA_PG] = 1
+                    ux[i * T * NX + j * NX + PUG] = caseMGs[i]["UG"]["PMAX"]
+                    ux[i * T * NX + j * NX + QUG] = caseMGs[i]["UG"]["QMAX"]
+                    ux[i * T * NX + j * NX + BETA_UG] = 1
+                    ux[i * T * NX + j * NX + PBIC_AC2DC] = caseMGs[i]["BIC"]["SMAX"]
+                    ux[i * T * NX + j * NX + PBIC_DC2AC] = caseMGs[i]["BIC"]["SMAX"]
+                    ux[i * T * NX + j * NX + QBIC] = caseMGs[i]["BIC"]["SMAX"]
+                    ux[i * T * NX + j * NX + PESS_C] = caseMGs[i]["ESS"]["PMAX_CH"]
+                    ux[i * T * NX + j * NX + PESS_DC] = caseMGs[i]["ESS"]["PMAX_DIS"]
+                    ux[i * T * NX + j * NX + BETA_ESS] = 1
+                    ux[i * T * NX + j * NX + EESS] = caseMGs[i]["ESS"]["SOC_MAX"] * caseMGs[i]["ESS"]["CAP"]
+                    ux[i * T * NX + j * NX + PMG] = M
+
+
+        model = {"lx": lx,
+                 "ux": ux}
+        return model
     # def optimal_power_flow_direct_current_networks(self):
     #
     # def optimal_power_flow_solving(self):
     #
     # def optimal_power_flow_solving_result_check(self):
-
-
-# 1）
 
 
 if __name__ == '__main__':
@@ -95,6 +145,8 @@ if __name__ == '__main__':
     # 4) Schedulable resources information
     Pdg_max = array([200, 100, 100])
     Pdg_min = array([40, 20, 20])
+    Qdg_max = array([200, 100, 100])
+    Qdg_min = array([-200, -100, -100])
     Ru_dg = array([80, 40, 40])
     Rd_dg = array([80, 40, 40])
     Pbic_max = array([200, 100, 100])
@@ -120,12 +172,16 @@ if __name__ == '__main__':
     for i in range(NMG):
         DG_temp = {"PMAX": Pdg_max[i],
                    "PMIN": Pdg_min[i],
+                   "QMIN": -Pdg_max[i],
+                   "QMAX": Pdg_max[i],
                    "RU": Ru_dg[i],
                    "RD": Rd_dg[i],
                    "C": C_dg[i],
                    "Q": Q_dg[i]}
         UG_temp = {"PMAX": Pug_max[i],
                    "PMIN": Pug_min[i],
+                   "QMIN": 0,
+                   "QMAX": Pug_max[i],
                    "C": Price_Wholesale}
         BIC_temp = {"SMAX": Pbic_max[i],
                     "EFF_AC2DC": eff_bic[i],
@@ -134,6 +190,8 @@ if __name__ == '__main__':
                     "CAP": Capacity_ESS[i],
                     "SOC_MAX": 1,
                     "SOC_MIN": 0.1,
+                    "PMAX_DIS": Pc_max[i],
+                    "PMAX_CH": Pc_max[i],
                     "EFF_DIS": eff_dc[i],
                     "EFF_CH": eff_c[i],
                     "COST_DIS": C_ess[i],
@@ -151,13 +209,17 @@ if __name__ == '__main__':
                    "LOAD_AC": Load_ac_temp,
                    "LOAD_DC": Load_dc_temp,
                    "PV": PV_temp,
-                   "AREA": i}
+                   "AREA_AC": i,
+                   "AREA_DC": i}
         MG.append(MG_temp)
         del DG_temp, UG_temp, BIC_temp, ESS_temp, Load_ac_temp, Load_dc_temp, PV_temp, MG_temp
-    # 5.2) Connection matrix between each MG and the transmission networks
 
-    # A test hybrid AC DC network is connected via BIC networks
+    # The test MG system
+    caseMGs = MG
+    # The test DC system
     caseDC = case9.case9()
-    mmDC = MultipleMicrogridsDirect_CurrentNetworks()
+    # The test AC system
+    caseAC = case33.case33()
 
-    sol = mmDC.run()
+    mmDC = MultipleMicrogridsDirect_CurrentNetworks()
+    sol = mmDC.run(case_MGs=caseMGs, case_DC_network=caseDC, case_AC_networks=caseAC, T=T)
