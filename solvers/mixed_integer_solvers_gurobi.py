@@ -116,14 +116,11 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                     if A[i, j] != 0:
                         expr.addTerms(A[i, j], x[j])
                 gurobi_model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b[i])
-                # gurobi_model.addConstr(b[i] >= quicksum(A[i, j] * x[j] for j in range(nx)))
-                # gurobi_model.addConstr(x.prod(A[i, :]) == b[i])
         # Set the objective function
         obj = LinExpr()
         for i in range(nx):
             if c[i] != 0:
                 obj.addTerms(c[i], x[i])
-        # obj = x.prod(c)
 
         gurobi_model.setObjective(obj)
 
@@ -131,7 +128,6 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         gurobi_model.Params.LogToConsole = 0
         gurobi_model.Params.DisplayInterval = 1
         gurobi_model.Params.LogFile = ""
-        elapse_time0 = time.time() - t0
 
         gurobi_model.optimize()
         xx = []

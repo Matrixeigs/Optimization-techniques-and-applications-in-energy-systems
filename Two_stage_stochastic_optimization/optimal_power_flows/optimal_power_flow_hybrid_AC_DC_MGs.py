@@ -14,6 +14,8 @@ from scipy import hstack, vstack
 from Two_stage_stochastic_optimization.power_flow_modelling import case33
 from pypower import case9, case30, case118
 
+from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as milp
+
 M = 1e7
 
 
@@ -38,12 +40,13 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         # 4.2) Bi-directional power flows on BICs
         # 4.3) Relaxation of DC power flows
         # 4.4) Stochastic simulation
-        if T == 1:
-            # Static modelling
-            pass
-        else:
-            model_MGs = MultipleMicrogridsDirect_CurrentNetworks.optimal_power_flow_microgrid(self, case_MGs, T)
-            pass
+
+        model_MGs = MultipleMicrogridsDirect_CurrentNetworks.optimal_power_flow_microgrid(self, case_MGs, T)
+        nx = len(model_MGs["lx"])
+        vtypes = ["c"] * nx
+        sol = milp(c=model_MGs["c"], Aeq=model_MGs["Aeq"], beq=model_MGs["beq"], A=model_MGs["A"], b=model_MGs["b"],
+                   xmin=model_MGs["lx"], xmax=model_MGs["ux"], vtypes=vtypes)
+
 
         sol = {"x": 0}
         return sol
@@ -152,11 +155,11 @@ class MultipleMicrogridsDirect_CurrentNetworks():
             for j in range(T - 1):
                 A_ramp_up[i * T + j, i * T * NX + (j + 1) * NX + PG] = 1
                 A_ramp_up[i * T + j, i * T * NX + j * NX + PG] = -1
-                b_ramp_up[i * T + j] = -caseMGs[i]["DG"]["RU"]
+                b_ramp_up[i * T + j] = caseMGs[i]["DG"]["RU"]
 
                 A_ramp_down[i * T + j, i * T * NX + (j + 1) * NX + PG] = -1
                 A_ramp_down[i * T + j, i * T * NX + j * NX + PG] = 1
-                b_ramp_down[(i - 1) * T + j] = -caseMGs[i]["DG"]["RD"]
+                b_ramp_down[(i - 1) * T + j] = caseMGs[i]["DG"]["RD"]
 
         # Additional constraints on beta and set-points
         A_re_DG_up = zeros((T * NMG, nx))
@@ -200,14 +203,17 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         for i in range(NMG):
             for j in range(T):
                 c[i * T * NX + j * NX + PUG] = caseMGs[i]["UG"]["C"][i]
-                c[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["C"][i]
-                c[i * T * NX + j * NX + PESS_DC] = caseMGs[i]["ESS"]["COST_DIS"][i]
-                c[i * T * NX + j * NX + PESS_C] = caseMGs[i]["ESS"]["COST_DIS"][i]
+                c[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["C"]
+                c[i * T * NX + j * NX + PESS_DC] = caseMGs[i]["ESS"]["COST_DIS"]
+                c[i * T * NX + j * NX + PESS_C] = caseMGs[i]["ESS"]["COST_DIS"]
 
         model = {"lx": lx,
                  "ux": ux,
                  "Aeq": Aeq,
-                 "beq": beq}
+                 "beq": beq,
+                 "A": A,
+                 "b": b,
+                 "c": c}
         return model
 
 
