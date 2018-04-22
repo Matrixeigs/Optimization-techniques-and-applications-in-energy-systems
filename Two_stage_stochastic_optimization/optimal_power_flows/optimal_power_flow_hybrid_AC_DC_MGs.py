@@ -7,7 +7,7 @@ Two versions of optimal power flow models are proposed.
 @email: zhaoty@ntu.edu.sg
 """
 
-from numpy import power, array, zeros
+from numpy import power, array, zeros, ones, vstack, hstack
 from scipy import hstack, vstack
 
 # import test cases
@@ -53,53 +53,162 @@ class MultipleMicrogridsDirect_CurrentNetworks():
             BETA_UG, PBIC_AC2DC, PBIC_DC2AC, QBIC, PESS_C, PESS_DC, BETA_ESS, EESS, PMG, NX
         NMG = len(caseMGs)  # Number of hybrid AC/DC micro-grirds
         nx = NMG * T * NX
+        # Boundary information
         lx = zeros((nx, 1))
         ux = zeros((nx, 1))
-        if T == 1:
-            pass
-        else:  # Dynamic optimal power flow for multiple MGs
-            for i in range(NMG):
-                for j in range(T):
-                    # The lower boundary
-                    lx[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["PMIN"]
-                    lx[i * T * NX + j * NX + QG] = caseMGs[i]["DG"]["QMIN"]
-                    lx[i * T * NX + j * NX + BETA_PG] = 0
-                    lx[i * T * NX + j * NX + PUG] = caseMGs[i]["UG"]["PMIN"]
-                    lx[i * T * NX + j * NX + QUG] = caseMGs[i]["UG"]["QMIN"]
-                    lx[i * T * NX + j * NX + BETA_UG] = 0
-                    lx[i * T * NX + j * NX + PBIC_AC2DC] = 0
-                    lx[i * T * NX + j * NX + PBIC_DC2AC] = 0
-                    lx[i * T * NX + j * NX + QBIC] = -caseMGs[i]["BIC"]["SMAX"]
-                    lx[i * T * NX + j * NX + PESS_C] = 0
-                    lx[i * T * NX + j * NX + PESS_DC] = 0
-                    lx[i * T * NX + j * NX + BETA_ESS] = 0
-                    lx[i * T * NX + j * NX + EESS] = caseMGs[i]["ESS"]["SOC_MIN"] * caseMGs[i]["ESS"]["CAP"]
-                    lx[i * T * NX + j * NX + PMG] = -M
-                    # The upper boundary
-                    ux[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["PMAX"]
-                    ux[i * T * NX + j * NX + QG] = caseMGs[i]["DG"]["QMAX"]
-                    ux[i * T * NX + j * NX + BETA_PG] = 1
-                    ux[i * T * NX + j * NX + PUG] = caseMGs[i]["UG"]["PMAX"]
-                    ux[i * T * NX + j * NX + QUG] = caseMGs[i]["UG"]["QMAX"]
-                    ux[i * T * NX + j * NX + BETA_UG] = 1
-                    ux[i * T * NX + j * NX + PBIC_AC2DC] = caseMGs[i]["BIC"]["SMAX"]
-                    ux[i * T * NX + j * NX + PBIC_DC2AC] = caseMGs[i]["BIC"]["SMAX"]
-                    ux[i * T * NX + j * NX + QBIC] = caseMGs[i]["BIC"]["SMAX"]
-                    ux[i * T * NX + j * NX + PESS_C] = caseMGs[i]["ESS"]["PMAX_CH"]
-                    ux[i * T * NX + j * NX + PESS_DC] = caseMGs[i]["ESS"]["PMAX_DIS"]
-                    ux[i * T * NX + j * NX + BETA_ESS] = 1
-                    ux[i * T * NX + j * NX + EESS] = caseMGs[i]["ESS"]["SOC_MAX"] * caseMGs[i]["ESS"]["CAP"]
-                    ux[i * T * NX + j * NX + PMG] = M
+        for i in range(NMG):
+            for j in range(T):
+                # The lower boundary
+                lx[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["PMIN"]
+                lx[i * T * NX + j * NX + QG] = caseMGs[i]["DG"]["QMIN"]
+                lx[i * T * NX + j * NX + BETA_PG] = 0
+                lx[i * T * NX + j * NX + PUG] = caseMGs[i]["UG"]["PMIN"]
+                lx[i * T * NX + j * NX + QUG] = caseMGs[i]["UG"]["QMIN"]
+                lx[i * T * NX + j * NX + BETA_UG] = 0
+                lx[i * T * NX + j * NX + PBIC_AC2DC] = 0
+                lx[i * T * NX + j * NX + PBIC_DC2AC] = 0
+                lx[i * T * NX + j * NX + QBIC] = -caseMGs[i]["BIC"]["SMAX"]
+                lx[i * T * NX + j * NX + PESS_C] = 0
+                lx[i * T * NX + j * NX + PESS_DC] = 0
+                lx[i * T * NX + j * NX + BETA_ESS] = 0
+                lx[i * T * NX + j * NX + EESS] = caseMGs[i]["ESS"]["SOC_MIN"] * caseMGs[i]["ESS"]["CAP"]
+                lx[i * T * NX + j * NX + PMG] = -M
+                # The upper boundary
+                ux[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["PMAX"]
+                ux[i * T * NX + j * NX + QG] = caseMGs[i]["DG"]["QMAX"]
+                ux[i * T * NX + j * NX + BETA_PG] = 1
+                ux[i * T * NX + j * NX + PUG] = caseMGs[i]["UG"]["PMAX"]
+                ux[i * T * NX + j * NX + QUG] = caseMGs[i]["UG"]["QMAX"]
+                ux[i * T * NX + j * NX + BETA_UG] = 1
+                ux[i * T * NX + j * NX + PBIC_AC2DC] = caseMGs[i]["BIC"]["SMAX"]
+                ux[i * T * NX + j * NX + PBIC_DC2AC] = caseMGs[i]["BIC"]["SMAX"]
+                ux[i * T * NX + j * NX + QBIC] = caseMGs[i]["BIC"]["SMAX"]
+                ux[i * T * NX + j * NX + PESS_C] = caseMGs[i]["ESS"]["PMAX_CH"]
+                ux[i * T * NX + j * NX + PESS_DC] = caseMGs[i]["ESS"]["PMAX_DIS"]
+                ux[i * T * NX + j * NX + BETA_ESS] = 1
+                ux[i * T * NX + j * NX + EESS] = caseMGs[i]["ESS"]["SOC_MAX"] * caseMGs[i]["ESS"]["CAP"]
+                ux[i * T * NX + j * NX + PMG] = M
 
+        # The participating factors
+        Aeq_beta = zeros((T * NMG, nx))
+        beq_beta = ones((T * NMG, 1))
+        for i in range(NMG):
+            for j in range(T):
+                Aeq_beta[i * T + j, i * T * NX + j * NX + BETA_ESS] = 1
+                Aeq_beta[i * T + j, i * T * NX + j * NX + BETA_PG] = 1
+                Aeq_beta[i * T + j, i * T * NX + j * NX + BETA_UG] = 1
+        # AC bus power balance equation
+        Aeq_power_balance_equation_AC = zeros((T * NMG, nx))
+        beq_power_balance_equation_AC = zeros((T * NMG, 1))
+        for i in range(NMG):
+            for j in range(T):
+                Aeq_power_balance_equation_AC[i * T + j, i * T * NX + j * NX + PG] = 1
+                Aeq_power_balance_equation_AC[i * T + j, i * T * NX + j * NX + PUG] = 1
+                Aeq_power_balance_equation_AC[i * T + j, i * T * NX + j * NX + PBIC_DC2AC] = caseMGs[i]["BIC"][
+                    "EFF_DC2AC"]
+                Aeq_power_balance_equation_AC[i * T + j, i * T * NX + j * NX + PBIC_AC2DC] = -1
+                beq_power_balance_equation_AC[i * T + j] = caseMGs[i]["LOAD_AC"]["P"][j]
+        # DC bus power balance equation
+        Aeq_power_balance_equation_DC = zeros((T * NMG, nx))
+        beq_power_balance_equation_DC = zeros((T * NMG, 1))
+        for i in range(NMG):
+            for j in range(T):
+                Aeq_power_balance_equation_DC[i * T + j, i * T * NX + j * NX + PESS_DC] = 1
+                Aeq_power_balance_equation_DC[i * T + j, i * T * NX + j * NX + PESS_C] = -1
+                Aeq_power_balance_equation_DC[i * T + j, i * T * NX + j * NX + PBIC_DC2AC] = -1
+                Aeq_power_balance_equation_DC[i * T + j, i * T * NX + j * NX + PBIC_AC2DC] = caseMGs[i]["BIC"][
+                    "EFF_AC2DC"]
+                Aeq_power_balance_equation_DC[i * T + j, i * T * NX + j * NX + PMG] = -1
+                beq_power_balance_equation_DC[i * T + j] = caseMGs[i]["LOAD_DC"]["P"][j] - caseMGs[i]["PV"]["P"][j]
+        # Energy storage system
+        Aeq_energy_storage_system = zeros((T * NMG, nx))
+        beq_energy_storage_system = zeros((T * NMG, 1))
+        for i in range(NMG):
+            for j in range(T - 1):
+                Aeq_energy_storage_system[i * T + j, i * T * NX + (j + 1) * NX + EESS] = 1
+                Aeq_energy_storage_system[i * T + j, i * T * NX + j * NX + EESS] = 1
+                Aeq_energy_storage_system[i * T + j, i * T * NX + (j + 1) * NX + PESS_C] = caseMGs[i]["ESS"]["EFF_CH"]
+                Aeq_energy_storage_system[i * T + j, i * T * NX + (j + 1) * NX + PESS_DC] = -caseMGs[i]["ESS"][
+                    "EFF_DIS"]
+        for i in range(NMG):
+            Aeq_energy_storage_system[(i + 1 * T) - 1, i * T * NX + EESS] = 1
+            Aeq_energy_storage_system[(i + 1 * T) - 1, i * T * NX + PESS_C] = -caseMGs[i]["ESS"]["EFF_CH"]
+            Aeq_energy_storage_system[(i + 1 * T) - 1, i * T * NX + PESS_DC] = 1 / caseMGs[i]["ESS"][
+                "EFF_DIS"]
+            beq_energy_storage_system[(i + 1 * T) - 1] = caseMGs[i]["ESS"]["E0"]
+        Aeq = vstack(
+            [Aeq_power_balance_equation_AC, Aeq_power_balance_equation_DC, Aeq_energy_storage_system, Aeq_beta])
+        beq = vstack(
+            [beq_power_balance_equation_AC, beq_power_balance_equation_DC, beq_energy_storage_system, beq_beta])
+        neq = len(beq)
 
+        ## Inequality constraints
+        # The ramp up and down constraint of diesel generators
+        A_ramp_up = zeros((T * NMG, nx))
+        b_ramp_up = zeros((T * NMG, 1))
+        A_ramp_down = zeros((T * NMG, nx))
+        b_ramp_down = zeros((T * NMG, 1))
+        for i in range(NMG):
+            for j in range(T - 1):
+                A_ramp_up[i * T + j, i * T * NX + (j + 1) * NX + PG] = 1
+                A_ramp_up[i * T + j, i * T * NX + j * NX + PG] = -1
+                b_ramp_up[i * T + j] = -caseMGs[i]["DG"]["RU"]
+
+                A_ramp_down[i * T + j, i * T * NX + (j + 1) * NX + PG] = -1
+                A_ramp_down[i * T + j, i * T * NX + j * NX + PG] = 1
+                b_ramp_down[(i - 1) * T + j] = -caseMGs[i]["DG"]["RD"]
+
+        # Additional constraints on beta and set-points
+        A_re_DG_up = zeros((T * NMG, nx))
+        A_re_DG_down = zeros((T * NMG, nx))
+        b_re_DG_up = zeros((T * NMG, 1))
+        b_re_DG_down = zeros((T * NMG, 1))
+
+        A_re_ESS_up = zeros((T * NMG, nx))
+        A_re_ESS_down = zeros((T * NMG, nx))
+        b_re_ESS_up = zeros((T * NMG, 1))
+        b_re_ESS_down = zeros((T * NMG, 1))
+        for i in range(NMG):
+            for j in range(T):
+                A_re_DG_up[i * T + j, i * T * NX + j * NX + PG] = -1
+                A_re_DG_up[i * T + j, i * T * NX + j * NX + BETA_PG] = caseMGs[i]["PV"]["DELTA"] + \
+                                                                       caseMGs[i]["LOAD_AC"]["DELTA"] + \
+                                                                       caseMGs[i]["LOAD_DC"]["DELTA"]
+                b_re_DG_up[i * T + j] = -caseMGs[i]["DG"]["PMIN"]
+
+                A_re_DG_down[i * T + j, i * T * NX + j * NX + PG] = 1
+                A_re_DG_down[i * T + j, i * T * NX + j * NX + BETA_PG] = caseMGs[i]["PV"]["DELTA"] + \
+                                                                         caseMGs[i]["LOAD_AC"]["DELTA"] + \
+                                                                         caseMGs[i]["LOAD_DC"]["DELTA"]
+                b_re_DG_down[i * T + j] = caseMGs[i]["DG"]["PMAX"]
+
+                A_re_ESS_up[i * T + j, i * T * NX + j * NX + EESS] = 1
+                A_re_ESS_up[i * T + j, i * T * NX + j * NX + BETA_ESS] = caseMGs[i]["PV"]["DELTA"] + \
+                                                                         caseMGs[i]["LOAD_AC"]["DELTA"] + \
+                                                                         caseMGs[i]["LOAD_DC"]["DELTA"]
+                b_re_ESS_up[i * T + j] = caseMGs[i]["ESS"]["SOC_MAX"] * caseMGs[i]["ESS"]["CAP"]
+
+                A_re_ESS_down[i * T + j, i * T * NX + j * NX + EESS] = -1
+                A_re_ESS_down[i * T + j, i * T * NX + j * NX + BETA_ESS] = caseMGs[i]["PV"]["DELTA"] + \
+                                                                           caseMGs[i]["LOAD_AC"]["DELTA"] + \
+                                                                           caseMGs[i]["LOAD_DC"]["DELTA"]
+                b_re_ESS_down[i * T + j] = -caseMGs[i]["ESS"]["SOC_MIN"] * caseMGs[i]["ESS"]["CAP"]
+
+        A = vstack([A_ramp_up, A_ramp_down, A_re_DG_up, A_re_DG_down, A_re_ESS_up, A_re_ESS_down])
+        b = vstack([b_ramp_up, b_ramp_down, b_re_DG_up, b_re_DG_down, b_re_ESS_up, b_re_ESS_down])
+        
         model = {"lx": lx,
-                 "ux": ux}
+                 "ux": ux,
+                 "Aeq": Aeq,
+                 "beq": beq}
         return model
-    # def optimal_power_flow_direct_current_networks(self):
-    #
-    # def optimal_power_flow_solving(self):
-    #
-    # def optimal_power_flow_solving_result_check(self):
+
+
+# def optimal_power_flow_direct_current_networks(self):
+#
+# def optimal_power_flow_solving(self):
+#
+# def optimal_power_flow_solving_result_check(self):
 
 
 if __name__ == '__main__':
@@ -200,7 +309,7 @@ if __name__ == '__main__':
                         "DELAT": (Load_profile_interval_MGs_max[i, :] - Load_profile_interval_MGs_min[i, :]) / 2}
         Load_dc_temp = {"P": Load_profile_MGs[i, :] / 2,
                         "DELAT": (Load_profile_interval_MGs_max[i, :] - Load_profile_interval_MGs_min[i, :]) / 2}
-        PV_temp = {"P": PV_profile_MGs[i, :] / 2,
+        PV_temp = {"P": PV_profile_MGs[i, :],
                    "DELAT": PV_profile_MGs_max[i, :] - PV_profile_MGs_min[i, :]}
         MG_temp = {"DG": DG_temp,
                    "UG": UG_temp,
