@@ -7,8 +7,7 @@ Two versions of optimal power flow models are proposed.
 @email: zhaoty@ntu.edu.sg
 """
 
-from numpy import power, array, zeros, ones, vstack, hstack
-from scipy import hstack, vstack
+from numpy import power, array, zeros, ones, vstack, shape,concatenate
 
 # import test cases
 from Two_stage_stochastic_optimization.power_flow_modelling import case33
@@ -42,10 +41,13 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         # 4.4) Stochastic simulation
 
         model_MGs = MultipleMicrogridsDirect_CurrentNetworks.optimal_power_flow_microgrid(self, case_MGs, T)
-        nx = len(model_MGs["lx"])
-        vtypes = ["c"] * nx
-        sol = milp(c=model_MGs["c"], Aeq=model_MGs["Aeq"], beq=model_MGs["beq"], A=model_MGs["A"], b=model_MGs["b"],
-                   xmin=model_MGs["lx"], xmax=model_MGs["ux"], vtypes=vtypes)
+
+        # nx = len(model_MGs["lx"])
+        # vtypes = ["c"] * nx
+        # sol = milp(c=model_MGs["c"], Aeq=model_MGs["Aeq"], beq=model_MGs["beq"], A=model_MGs["A"], b=model_MGs["b"],
+        #            xmin=model_MGs["lx"], xmax=model_MGs["ux"], vtypes=vtypes)
+
+        model_DC = MultipleMicrogridsDirect_CurrentNetworks.optimal_power_flow_direct_current_networks(self, case_DC_network)
 
 
         sol = {"x": 0}
@@ -213,12 +215,100 @@ class MultipleMicrogridsDirect_CurrentNetworks():
                  "beq": beq,
                  "A": A,
                  "b": b,
-                 "c": c}
+                 "c": c,
+                 "nx": nx}
+        return model
+
+    def optimal_power_flow_direct_current_networks(self, case):
+        """
+            :param case:
+            :return: formulated AC networks models
+            """
+        from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
+        from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
+        from pypower.idx_gen import GEN_BUS, VG, PG, QG, PMAX, PMIN, QMAX, QMIN
+        from pypower.ext2int import ext2int
+        from scipy.sparse import csr_matrix as sparse
+        from scipy.sparse import hstack, vstack, diags
+
+        case = ext2int(case)
+        baseMVA, bus, gen, branch, gencost = case["baseMVA"], case["bus"], case["gen"], case["branch"], case["gencost"]
+
+        nb = shape(case['bus'])[0]  ## number of buses
+        nl = shape(case['branch'])[0]  ## number of branches
+        ng = shape(case['gen'])[0]  ## number of dispatchable injections
+
+        f = branch[:, F_BUS]  ## list of "from" buses
+        t = branch[:, T_BUS]  ## list of "to" buses
+        i = range(nl)  ## double set of row indices
+
+        # Connection matrix
+        Cf = sparse((ones(nl), (i, f)), (nl, nb))
+        Ct = sparse((ones(nl), (i, t)), (nl, nb))
+        Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
+
+        # Modify the branch resistance
+        Branch_R = branch[:, BR_R]
+        for i in range(nl):
+            if Branch_R[i] <= 0:
+                Branch_R[i] = max(Branch_R)
+
+        Cf = Cf.T
+        Ct = Ct.T
+        # Obtain the boundary information
+        Slmax = branch[:, RATE_A] / baseMVA
+        Pij_l = -Slmax
+        Iij_l = zeros(nl)
+        Vm_l = power(bus[:, VMIN], 2)
+        Pg_l = gen[:, PMIN] / baseMVA
+
+        Pij_u = Slmax
+        Iij_u = Slmax
+        # Vm_u = [max(turn_to_power(bus[:, VMAX], 2))] * nb
+        Vm_u = power(bus[:, VMAX], 2)
+        Pg_u = gen[:, PMAX] / baseMVA
+        # Pg_l = -Pg_u
+        lx = concatenate([Pij_l, Iij_l, Vm_l, Pg_l])
+        ux = concatenate([Pij_u, Iij_u, Vm_u, Pg_u])
+
+        # KCL equation
+        Aeq_p = hstack([Ct - Cf, -diags(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg])
+        beq_p = bus[:, PD] / baseMVA
+        # KVL equation
+        Aeq_KVL = hstack([-2 * diags(Branch_R), diags(power(Branch_R, 2)), Cf.T - Ct.T, zeros((nl, ng))])
+        beq_KVL = zeros(nl)
+
+        Aeq = vstack([Aeq_p, Aeq_KVL])
+        Aeq = Aeq.todense()
+        beq = concatenate([beq_p, beq_KVL])
+        neq = len(beq)
+
+        nx = 2 * nl + nb + ng
+
+        Q = zeros((nx, nx))
+        c = zeros(nx)
+        c0 = zeros(nx)
+        for i in range(ng):
+            Q[i + 2 * nl + nb, i + 2 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
+            c[i + 2 * nl + nb] = gencost[i, 5] * baseMVA
+            c0[i + 2 * nl + nb] = gencost[i, 6]
+
+        model = {"Q": Q,
+                 "c": c,
+                 "c0": c0,
+                 "Aeq": Aeq,
+                 "beq": beq,
+                 "lx": lx,
+                 "ux": ux,
+                 "nx": nx,
+                 "nb": nb,
+                 "nl": nl,
+                 "ng": ng,
+                 "f": f}
+
         return model
 
 
-# def optimal_power_flow_direct_current_networks(self):
-#
 # def optimal_power_flow_solving(self):
 #
 # def optimal_power_flow_solving_result_check(self):
