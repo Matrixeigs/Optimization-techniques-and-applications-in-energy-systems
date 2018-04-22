@@ -171,32 +171,39 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         for i in range(NMG):
             for j in range(T):
                 A_re_DG_up[i * T + j, i * T * NX + j * NX + PG] = -1
-                A_re_DG_up[i * T + j, i * T * NX + j * NX + BETA_PG] = caseMGs[i]["PV"]["DELTA"] + \
-                                                                       caseMGs[i]["LOAD_AC"]["DELTA"] + \
-                                                                       caseMGs[i]["LOAD_DC"]["DELTA"]
+                A_re_DG_up[i * T + j, i * T * NX + j * NX + BETA_PG] = caseMGs[i]["PV"]["DELTA"][j] + \
+                                                                       caseMGs[i]["LOAD_AC"]["DELTA"][j] + \
+                                                                       caseMGs[i]["LOAD_DC"]["DELTA"][j]
                 b_re_DG_up[i * T + j] = -caseMGs[i]["DG"]["PMIN"]
 
                 A_re_DG_down[i * T + j, i * T * NX + j * NX + PG] = 1
-                A_re_DG_down[i * T + j, i * T * NX + j * NX + BETA_PG] = caseMGs[i]["PV"]["DELTA"] + \
-                                                                         caseMGs[i]["LOAD_AC"]["DELTA"] + \
-                                                                         caseMGs[i]["LOAD_DC"]["DELTA"]
+                A_re_DG_down[i * T + j, i * T * NX + j * NX + BETA_PG] = caseMGs[i]["PV"]["DELTA"][j] + \
+                                                                         caseMGs[i]["LOAD_AC"]["DELTA"][j] + \
+                                                                         caseMGs[i]["LOAD_DC"]["DELTA"][j]
                 b_re_DG_down[i * T + j] = caseMGs[i]["DG"]["PMAX"]
 
                 A_re_ESS_up[i * T + j, i * T * NX + j * NX + EESS] = 1
-                A_re_ESS_up[i * T + j, i * T * NX + j * NX + BETA_ESS] = caseMGs[i]["PV"]["DELTA"] + \
-                                                                         caseMGs[i]["LOAD_AC"]["DELTA"] + \
-                                                                         caseMGs[i]["LOAD_DC"]["DELTA"]
+                A_re_ESS_up[i * T + j, i * T * NX + j * NX + BETA_ESS] = caseMGs[i]["PV"]["DELTA"][j] + \
+                                                                         caseMGs[i]["LOAD_AC"]["DELTA"][j] + \
+                                                                         caseMGs[i]["LOAD_DC"]["DELTA"][j]
                 b_re_ESS_up[i * T + j] = caseMGs[i]["ESS"]["SOC_MAX"] * caseMGs[i]["ESS"]["CAP"]
 
                 A_re_ESS_down[i * T + j, i * T * NX + j * NX + EESS] = -1
-                A_re_ESS_down[i * T + j, i * T * NX + j * NX + BETA_ESS] = caseMGs[i]["PV"]["DELTA"] + \
-                                                                           caseMGs[i]["LOAD_AC"]["DELTA"] + \
-                                                                           caseMGs[i]["LOAD_DC"]["DELTA"]
+                A_re_ESS_down[i * T + j, i * T * NX + j * NX + BETA_ESS] = caseMGs[i]["PV"]["DELTA"][j] + \
+                                                                           caseMGs[i]["LOAD_AC"]["DELTA"][j] + \
+                                                                           caseMGs[i]["LOAD_DC"]["DELTA"][j]
                 b_re_ESS_down[i * T + j] = -caseMGs[i]["ESS"]["SOC_MIN"] * caseMGs[i]["ESS"]["CAP"]
 
         A = vstack([A_ramp_up, A_ramp_down, A_re_DG_up, A_re_DG_down, A_re_ESS_up, A_re_ESS_down])
         b = vstack([b_ramp_up, b_ramp_down, b_re_DG_up, b_re_DG_down, b_re_ESS_up, b_re_ESS_down])
-        
+        c = zeros((nx, 1))
+        for i in range(NMG):
+            for j in range(T):
+                c[i * T * NX + j * NX + PUG] = caseMGs[i]["UG"]["C"][i]
+                c[i * T * NX + j * NX + PG] = caseMGs[i]["DG"]["C"][i]
+                c[i * T * NX + j * NX + PESS_DC] = caseMGs[i]["ESS"]["COST_DIS"][i]
+                c[i * T * NX + j * NX + PESS_C] = caseMGs[i]["ESS"]["COST_DIS"][i]
+
         model = {"lx": lx,
                  "ux": ux,
                  "Aeq": Aeq,
@@ -306,11 +313,11 @@ if __name__ == '__main__':
                     "COST_DIS": C_ess[i],
                     "COST_CH": C_ess[i], }
         Load_ac_temp = {"P": Load_profile_MGs[i, :] / 2,
-                        "DELAT": (Load_profile_interval_MGs_max[i, :] - Load_profile_interval_MGs_min[i, :]) / 2}
+                        "DELTA": (Load_profile_interval_MGs_max[i, :] - Load_profile_interval_MGs_min[i, :]) / 2}
         Load_dc_temp = {"P": Load_profile_MGs[i, :] / 2,
-                        "DELAT": (Load_profile_interval_MGs_max[i, :] - Load_profile_interval_MGs_min[i, :]) / 2}
+                        "DELTA": (Load_profile_interval_MGs_max[i, :] - Load_profile_interval_MGs_min[i, :]) / 2}
         PV_temp = {"P": PV_profile_MGs[i, :],
-                   "DELAT": PV_profile_MGs_max[i, :] - PV_profile_MGs_min[i, :]}
+                   "DELTA": PV_profile_MGs_max[i, :] - PV_profile_MGs_min[i, :]}
         MG_temp = {"DG": DG_temp,
                    "UG": UG_temp,
                    "BIC": BIC_temp,
