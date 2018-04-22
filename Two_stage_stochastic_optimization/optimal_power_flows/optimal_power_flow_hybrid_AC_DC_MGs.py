@@ -15,7 +15,7 @@ from pypower import case9, case30, case118
 
 from gurobipy import *
 
-M = 1e7
+M = 1e3
 
 
 class MultipleMicrogridsDirect_CurrentNetworks():
@@ -52,8 +52,8 @@ class MultipleMicrogridsDirect_CurrentNetworks():
                                                                                                        caseMGs)
         # Formulate the dynamic optimal power optimal power flow problem
         neq = shape(model_DC["Aeq"])[0]
-        nx = model_DC["nx"] * T
         NX = model_DC["nx"]
+        nx = NX * T
         Q = zeros((nx, 1))
         c = zeros((nx, 1))
         c0 = zeros((nx, 1))
@@ -71,16 +71,59 @@ class MultipleMicrogridsDirect_CurrentNetworks():
             c0[i * NX:(i + 1) * NX] = model_DC["c0"]
             Aeq[i * neq:(i + 1) * neq, i * NX:(i + 1) * NX] = model_DC["Aeq"]
 
+        # model = Model("OPF")
+        # x = {}
+        #
+        # for i in range(nx):
+        #     x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
+        #
+        # for i in range(neq * T):
+        #     expr = 0
+        #     for j in range(nx):
+        #         # if Aeq_agg[i, j] != 0:
+        #         expr += x[j] * Aeq[i, j]
+        #     model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
+        # # Add conic constraints
+        # for i in range(T):
+        #     for j in range(model_DC["nl"]):
+        #         model.addConstr(
+        #             x[i * NX + j] * x[i * NX + j] <= x[
+        #                 i * NX + j + model_DC["nl"]] * x[
+        #                 i * NX + model_DC["f"][j] + 2 * model_DC["nl"]])
+        #
+        # obj = 0
+        # for i in range(nx):
+        #     obj += Q[i, 0] * x[i] * x[i] + c[i, 0] * x[i] + c0[i, 0]
+        #
+        # model.setObjective(obj)
+        # model.Params.OutputFlag = 0
+        # model.Params.LogToConsole = 0
+        # model.Params.DisplayInterval = 1
+        # model.optimize()
+        #
+        # xx = []
+        # for v in model.getVars():
+        #     xx.append(v.x)
+        #
+        # obj = obj.getValue()
+        # primal_residual = zeros(model_DC["nl"] * T)
+        #
+        # for i in range(T):
+        #     for j in range(model_DC["nl"]):
+        #         primal_residual[i * model_DC["nl"] + j] = xx[i * NX + j] * xx[i * NX + j] - xx[
+        #             i * NX + j + model_DC["nl"]] * xx[
+        #                                                       i * NX + int(model_DC["f"][j]) + 2 * model_DC["nl"]]
+
         # Formulate the centralized optimization problem
         nx_agg = nx + model_MGs["nx"]
         neq_agg = neq * T + model_MGs["neq"]
         nineq_agg = model_MGs["nineq"]
 
-        LX = vstack([model_MGs["lx"], lx])
-        UX = vstack([model_MGs["ux"], ux])
+        lx_agg = vstack([model_MGs["lx"], lx])
+        ux_agg = vstack([model_MGs["ux"], ux])
 
         Q_agg = vstack([zeros((model_MGs["nx"], 1)), Q])
-        C_agg = vstack([model_MGs["c"], c])
+        c_agg = vstack([model_MGs["c"], c])
         c0_agg = vstack([zeros((model_MGs["nx"], 1)), c0])
 
         Aeq_agg = zeros((neq_agg, nx_agg))
@@ -90,10 +133,74 @@ class MultipleMicrogridsDirect_CurrentNetworks():
 
         A_agg = zeros((nineq_agg, nx_agg))
         A_agg[0:model_MGs["nineq"], 0:model_MGs["nx"]] = model_MGs["A"]
+        b_agg = model_MGs["b"]
         # The additional constraints for the interconnection
+        nmg = len(case_MGs)
+        Aeq_coupling = zeros((T * nmg, nx_agg))
 
+        for i in range(nmg):
+            for j in range(T):
+                Aeq_coupling[
+                    i * T + j, i * T * model_MGs["NX"] + j * model_MGs["NX"] + model_MGs["PMG"]] = 1 / case_DC_network[
+                    "baseMVA"]  # The index in
+                Aeq_coupling[
+                    i * T + j, model_MGs["nx"] + j * model_DC["nx"] + 2 * model_DC["nl"] + model_DC["nb"] + model_DC[
+                        "ng"] + i] = -1
+        Aeq_agg = vstack([Aeq_agg, Aeq_coupling])
+        beq_agg = vstack([beq_agg, zeros((T * nmg, 1))])
+        neq_agg = len(beq_agg)
         # Formulate the optimization problem
         model = Model("OPF")
+        x = {}
+
+        for i in range(nx_agg):
+            x[i] = model.addVar(lb=lx_agg[i], ub=ux_agg[i], vtype=GRB.CONTINUOUS)
+
+        for i in range(neq_agg):
+            expr = 0
+            for j in range(nx_agg):
+                # if Aeq_agg[i, j] != 0:
+                expr += x[j] * Aeq_agg[i, j]
+            model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq_agg[i])
+
+        for i in range(nineq_agg):
+            expr = 0
+            for j in range(nx_agg):
+                # if A_agg[i, j] != 0:
+                expr += x[j] * A_agg[i, j]
+            model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b_agg[i])
+
+        # Add conic constraints
+        for i in range(T):
+            for j in range(model_DC["nl"]):
+                model.addConstr(
+                    x[model_MGs["nx"] + i * NX + j] * x[model_MGs["nx"] + i * NX + j] <= x[
+                        model_MGs["nx"] + i * NX + j + model_DC["nl"]] * x[
+                        model_MGs["nx"] + i * NX + model_DC["f"][j] + 2 * model_DC["nl"]])
+
+        obj = 0
+        for i in range(nx):
+            obj += Q_agg[i, 0] * x[i] * x[i] + c_agg[i, 0] * x[i] + c0_agg[i, 0]
+
+        model.setObjective(obj)
+        model.Params.OutputFlag = 0
+        model.Params.LogToConsole = 0
+        model.Params.DisplayInterval = 1
+        model.optimize()
+
+        xx = []
+        for v in model.getVars():
+            xx.append(v.x)
+
+        obj = obj.getValue()
+        primal_residual = zeros(model_DC["nl"] * T)
+
+        for i in range(T):
+            for j in range(model_DC["nl"]):
+                primal_residual[i * model_DC["nl"] + j] = xx[model_MGs["nx"] + i * NX + j] * xx[
+                    model_MGs["nx"] + i * NX + j] - xx[model_MGs["nx"] + i * NX + j + model_DC["nl"]] * xx[
+                                                              model_MGs["nx"] + i * NX + int(model_DC["f"][j]) + 2 *
+                                                              model_DC["nl"]]
 
         sol = {"x": 0}
         return sol
@@ -263,7 +370,9 @@ class MultipleMicrogridsDirect_CurrentNetworks():
                  "c": c,
                  "nx": nx,
                  "neq": len(beq),
-                 "nineq": len(b)}
+                 "nineq": len(b),
+                 "NX": NX,
+                 "PMG": PMG}
         return model
 
     def optimal_power_flow_direct_current_networks(self, case, caseMGs):
@@ -298,7 +407,7 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         Cf = sparse((ones(nl), (i, f)), (nl, nb))
         Ct = sparse((ones(nl), (i, t)), (nl, nb))
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
-        Cmg = sparse((ones(nmg) / baseMVA, (index_MG, range(nmg))), (nb, ng))
+        Cmg = sparse((ones(nmg), (index_MG, range(nmg))), (nb, nmg))
         # Modify the branch resistance
         Branch_R = branch[:, BR_R]
         for i in range(nl):
@@ -308,7 +417,7 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         Cf = Cf.T
         Ct = Ct.T
         # Obtain the boundary information
-        Slmax = branch[:, RATE_A] / baseMVA
+        Slmax = branch[:, RATE_A]
         Pij_l = -Slmax
         Iij_l = zeros(nl)
         Vm_l = power(bus[:, VMIN], 2)
@@ -351,6 +460,9 @@ class MultipleMicrogridsDirect_CurrentNetworks():
             c[i + 2 * nl + nb, 0] = gencost[i, 5] * baseMVA
             c0[i + 2 * nl + nb, 0] = gencost[i, 6]
 
+        for i in range(nl):
+            c[nl + i, 0] = Branch_R[i]
+
         model = {"Q": Q,
                  "c": c,
                  "c0": c0,
@@ -362,7 +474,8 @@ class MultipleMicrogridsDirect_CurrentNetworks():
                  "nb": nb,
                  "nl": nl,
                  "ng": ng,
-                 "f": f}
+                 "f": f,
+                 "MGs": index_MG}
 
         return model
 
@@ -487,7 +600,7 @@ if __name__ == '__main__':
     # The test MG system
     caseMGs = MG
     # The test DC system
-    caseDC = case9.case9()
+    caseDC = case30.case30()
     # The test AC system
     caseAC = case33.case33()
 
