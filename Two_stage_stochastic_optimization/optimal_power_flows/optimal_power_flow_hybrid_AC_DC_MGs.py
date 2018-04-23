@@ -15,7 +15,7 @@ from pypower import case9, case30, case118, case6ww
 
 from gurobipy import *
 
-M = 1e2
+M = 1e5
 
 
 class MultipleMicrogridsDirect_CurrentNetworks():
@@ -438,6 +438,10 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         # KCL equation
         Aeq_p = hstack([Ct - Cf, -diags(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg, Cmg])
         beq_p = bus[:, PD] / baseMVA
+        beq_p = zeros(nb)
+        Pg_l = zeros(ng)
+        Pg_u = zeros(ng)
+
         # KVL equation
         Aeq_KVL = hstack(
             [-2 * diags(Branch_R), diags(power(Branch_R, 2)), Cf.T - Ct.T, zeros((nl, ng)), zeros((nl, nmg))])
@@ -605,7 +609,7 @@ if __name__ == '__main__':
     # The test MG system
     caseMGs = MG
     # The test DC system
-    caseDC = case6ww.case6ww()
+    caseDC = case30.case30()
     # The test AC system
     caseAC = case33.case33()
 
