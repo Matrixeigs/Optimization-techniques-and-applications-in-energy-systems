@@ -177,8 +177,8 @@ def AC_network_formulation(case):
     Qij_u = Slmax
     Iij_u = Slmax
     Vm_u = power(bus[:, VMAX], 2)
-    Pg_u = 2 * gen[:, PMAX] / baseMVA
-    Qg_u = 2 * gen[:, QMAX] / baseMVA
+    Pg_u = gen[:, PMAX] / baseMVA
+    Qg_u = gen[:, QMAX] / baseMVA
 
     # Problem formulation
     lx = concatenate([Pij_l, Qij_l, Iij_l, Vm_l, Pg_l, Qg_l])
@@ -211,6 +211,9 @@ def AC_network_formulation(case):
         Q[i + 3 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
         c[i + 3 * nl + nb] = gencost[i, 5] * baseMVA
         c0[i + 3 * nl + nb] = gencost[i, 6]
+
+    for i in range(nl):
+        c[i + 3 * nl] = Branch_R[i]
 
     model = {"Q": Q,
              "c": c,
@@ -495,7 +498,7 @@ def BIC_network_formulation(case_AC, case_DC, case_BIC):
 if __name__ == '__main__':
     # A test hybrid AC DC network is connected via BIC networks
     caseAC = case33.case33()
-    caseDC = case30.case30()
+    caseDC = case118.case118()
     converters = case_converters.con()
 
     sol = main(Case_AC=caseAC, Case_DC=caseDC, Converters=converters)
