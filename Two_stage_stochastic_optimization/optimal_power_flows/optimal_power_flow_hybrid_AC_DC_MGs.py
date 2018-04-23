@@ -11,11 +11,11 @@ from numpy import power, array, zeros, ones, vstack, shape, concatenate, matlib
 
 # import test cases
 from Two_stage_stochastic_optimization.power_flow_modelling import case33
-from pypower import case9, case30, case118
+from pypower import case9, case30, case118, case6ww
 
 from gurobipy import *
 
-M = 1e3
+M = 1e2
 
 
 class MultipleMicrogridsDirect_CurrentNetworks():
@@ -395,6 +395,11 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         nl = shape(case['branch'])[0]  ## number of branches
         ng = shape(case['gen'])[0]  ## number of dispatchable injections
         nmg = len(caseMGs)
+        mg_l = zeros(nmg)
+        mg_u = zeros(nmg)
+        for i in range(nmg):
+            mg_l[i] = -2 * caseMGs[i]["BIC"]["SMAX"]
+            mg_u[i] = 2 * caseMGs[i]["BIC"]["SMAX"]
 
         f = branch[:, F_BUS]  ## list of "from" buses
         t = branch[:, T_BUS]  ## list of "to" buses
@@ -409,7 +414,7 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
         Cmg = sparse((ones(nmg), (index_MG, range(nmg))), (nb, nmg))
         # Modify the branch resistance
-        Branch_R = branch[:, BR_R]
+        Branch_R = branch[:, BR_X]
         for i in range(nl):
             if Branch_R[i] <= 0:
                 Branch_R[i] = max(Branch_R)
@@ -449,8 +454,8 @@ class MultipleMicrogridsDirect_CurrentNetworks():
 
         lx = zeros((nx, 1))
         ux = zeros((nx, 1))
-        lx[:, 0] = concatenate([Pij_l, Iij_l, Vm_l, Pg_l, -ones(nmg) * M])
-        ux[:, 0] = concatenate([Pij_u, Iij_u, Vm_u, Pg_u, ones(nmg) * M])
+        lx[:, 0] = concatenate([Pij_l, Iij_l, Vm_l, Pg_l, mg_l])
+        ux[:, 0] = concatenate([Pij_u, Iij_u, Vm_u, Pg_u, mg_u])
 
         Q = zeros((nx, 1))
         c = zeros((nx, 1))
@@ -460,8 +465,8 @@ class MultipleMicrogridsDirect_CurrentNetworks():
             c[i + 2 * nl + nb, 0] = gencost[i, 5] * baseMVA
             c0[i + 2 * nl + nb, 0] = gencost[i, 6]
 
-        for i in range(nl):
-            c[nl + i, 0] = Branch_R[i]
+        # for i in range(nl):
+        #     c[nl + i, 0] = Branch_R[i]
 
         model = {"Q": Q,
                  "c": c,
@@ -600,7 +605,7 @@ if __name__ == '__main__':
     # The test MG system
     caseMGs = MG
     # The test DC system
-    caseDC = case30.case30()
+    caseDC = case6ww.case6ww()
     # The test AC system
     caseAC = case33.case33()
 
