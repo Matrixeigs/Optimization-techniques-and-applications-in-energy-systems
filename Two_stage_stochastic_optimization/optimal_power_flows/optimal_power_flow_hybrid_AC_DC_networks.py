@@ -77,7 +77,7 @@ def DC_network_formulation(case):
     Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
 
     # Modify the branch resistance
-    Branch_R = branch[:, BR_R]
+    Branch_R = branch[:, BR_X]
     for i in range(nl):
         if Branch_R[i] <= 0:
             Branch_R[i] = max(Branch_R)
