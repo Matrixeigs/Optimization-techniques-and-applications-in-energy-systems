@@ -176,8 +176,8 @@ def AC_network_formulation(case):
     Pij_u = Slmax
     Qij_u = Slmax
     Iij_u = Slmax
-    Vm_u = power(bus[:, VMAX], 2)
-    Pg_u = gen[:, PMAX] / baseMVA
+    Vm_u = 2 * power(bus[:, VMAX], 2)
+    Pg_u = 2 * gen[:, PMAX] / baseMVA
     Qg_u = gen[:, QMAX] / baseMVA
 
     # Problem formulation
