@@ -51,6 +51,8 @@ def main(Case_AC=None, Case_DC=None, Converters=None):
     # 3) Connect two systems via the BIC networks
     model_converters = BIC_network_formulation(model_AC, model_DC, Converters)
     # 4) Solve the merged functions
+    # 4.1) Solve the problem
+    return model_converters
 
 
 def DC_network_formulation(case):
@@ -112,11 +114,11 @@ def DC_network_formulation(case):
 
     nx = 2 * nl + nb + ng
 
-    Q = zeros((nx, nx))
+    Q = zeros(nx)
     c = zeros(nx)
     c0 = zeros(nx)
     for i in range(ng):
-        Q[i + 2 * nl + nb, i + 2 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
+        Q[i + 2 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
         c[i + 2 * nl + nb] = gencost[i, 5] * baseMVA
         c0[i + 2 * nl + nb] = gencost[i, 6]
 
@@ -131,7 +133,8 @@ def DC_network_formulation(case):
              "nb": nb,
              "nl": nl,
              "ng": ng,
-             "f": f}
+             "f": f,
+             "neq": neq}
 
     return model
 
@@ -201,11 +204,11 @@ def AC_network_formulation(case):
     neq = len(beq)
     nx = 3 * nl + nb + 2 * ng
 
-    Q = zeros((nx, nx))
+    Q = zeros(nx)
     c = zeros(nx)
     c0 = zeros(nx)
     for i in range(ng):
-        Q[i + 3 * nl + nb, i + 3 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
+        Q[i + 3 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
         c[i + 3 * nl + nb] = gencost[i, 5] * baseMVA
         c0[i + 3 * nl + nb] = gencost[i, 6]
 
@@ -220,7 +223,8 @@ def AC_network_formulation(case):
              "nb": nb,
              "nl": nl,
              "ng": ng,
-             "f": f}
+             "f": f,
+             "neq": neq}
 
     return model
 
@@ -263,7 +267,7 @@ def AC_opf_solver(case):
 
     obj = 0
     for i in range(nx):
-        obj += Q[i, i] * x[i] * x[i] + c[i] * x[i] + c0[i]
+        obj += Q[i] * x[i] * x[i] + c[i] * x[i] + c0[i]
 
     model.setObjective(obj)
     model.Params.OutputFlag = 0
@@ -336,7 +340,7 @@ def DC_opf_solver(case):
 
     obj = 0
     for i in range(nx):
-        obj += Q[i, i] * x[i] * x[i] + c[i] * x[i] + c0[i]
+        obj += Q[i] * x[i] * x[i] + c[i] * x[i] + c0[i]
 
     model.setObjective(obj)
     model.Params.OutputFlag = 0
@@ -376,6 +380,116 @@ def BIC_network_formulation(case_AC, case_DC, case_BIC):
     :param case_BIC:
     :return:
     """
+    from Two_stage_stochastic_optimization.power_flow_modelling.case_converters import AC_ID, DC_ID, EFF_A2D, EFF_D2A, \
+        SMAX
+
+    nx_BIC = shape(case_BIC["con"])[0]
+    nx_AC = case_AC["nx"]
+    nx_DC = case_DC["nx"]
+    nx = nx_AC + nx_DC + nx_BIC * 2
+    lx = concatenate([case_AC["lx"], case_DC["lx"], zeros(2 * nx_BIC)])
+    ux = concatenate([case_AC["ux"], case_DC["ux"], case_BIC["con"][:, SMAX] / case_BIC["baseMVA"],
+                      case_BIC["con"][:, SMAX] / case_BIC["baseMVA"]])
+    Q = concatenate([case_AC["Q"], case_DC["Q"], zeros(nx_BIC * 2)])
+    c = concatenate([case_AC["c"], case_DC["c"], zeros(nx_BIC * 2)])
+    c0 = concatenate([case_AC["c0"], case_DC["c0"], zeros(nx_BIC * 2)])
+    # Update the equality constraints
+    neq = case_AC["neq"] + case_DC["neq"]
+    Aeq = zeros((neq, nx))
+    Aeq[0:case_AC["neq"], 0:case_AC["nx"]] = case_AC["Aeq"]
+    Aeq[case_AC["neq"]:neq, case_AC["nx"]:case_AC["nx"] + case_DC["nx"]] = case_DC["Aeq"]
+    # Update the KCL equations
+    for i in range(nx_BIC):
+        # Update the AC network information
+        Aeq[int(case_BIC["con"][i][AC_ID]), case_AC["nx"] + case_DC["nx"] + i] = -1
+        Aeq[int(case_BIC["con"][i][AC_ID]), case_AC["nx"] + case_DC["nx"] + nx_BIC + i] = case_BIC["con"][
+            i, EFF_D2A]
+        # Update the DC network information
+        Aeq[case_AC["nx"] + int(case_BIC["con"][i][DC_ID]), case_AC["nx"] + case_DC["nx"] + nx_BIC + i] = -1
+        Aeq[case_AC["nx"] + int(case_BIC["con"][i][DC_ID]), case_AC["nx"] + case_DC["nx"] + i] = \
+            case_BIC["con"][i, EFF_A2D]
+
+    beq = concatenate([case_AC["beq"], case_DC["beq"]])
+
+    model = Model("OPF_AC_DC")
+    # Define the decision variables
+    x = {}
+    for i in range(nx):
+        x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
+    for i in range(neq):
+        expr = 0
+        for j in range(nx):
+            expr += x[j] * Aeq[i, j]
+        model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
+
+    for i in range(case_AC["nl"]):
+        model.addConstr(x[i] * x[i] + x[i + case_AC["nl"]] * x[i + case_AC["nl"]] <= x[i + 2 * case_AC["nl"]] * x[
+            case_AC["f"][i] + 3 * case_AC["nl"]])
+
+    for i in range(case_DC["nl"]):
+        model.addConstr(
+            x[case_AC["nx"] + i] * x[case_AC["nx"] + i] <= x[case_AC["nx"] + i + case_DC["nl"]] * x[
+                case_AC["nx"] + case_DC["f"][i] + 2 * case_DC["nl"]])
+
+    obj = 0
+    for i in range(nx):
+        obj += Q[i] * x[i] * x[i] + c[i] * x[i] + c0[i]
+
+    model.setObjective(obj)
+    model.Params.OutputFlag = 0
+    model.Params.LogToConsole = 0
+    model.Params.DisplayInterval = 1
+    model.optimize()
+
+    xx = []
+    for v in model.getVars():
+        xx.append(v.x)
+
+    obj = obj.getValue()
+
+    Pij_AC = xx[0:case_AC["nl"]]
+    Qij_AC = xx[case_AC["nl"]:2 * case_AC["nl"]]
+    Iij_AC = xx[2 * case_AC["nl"]:3 * case_AC["nl"]]
+    Vi_AC = xx[3 * case_AC["nl"]:3 * case_AC["nl"] + case_AC["nb"]]
+    Pg_AC = xx[3 * case_AC["nl"] + case_AC["nb"]:3 * case_AC["nl"] + case_AC["nb"] + case_AC["ng"]]
+    Qg_AC = xx[3 * case_AC["nl"] + case_AC["nb"] + case_AC["ng"]:3 * case_AC["nl"] + case_AC["nb"] + 2 * case_AC["ng"]]
+
+    primal_residual_AC = zeros(case_AC["nl"])
+    for i in range(case_AC["nl"]):
+        primal_residual_AC[i] = Pij_AC[i] * Pij_AC[i] + Qij_AC[i] * Qij_AC[i] - Iij_AC[i] * Vi_AC[int(case_AC["f"][i])]
+
+    Pij_DC = xx[case_AC["nx"]:case_AC["nx"] + case_DC["nl"]]
+    Iij_DC = xx[case_AC["nx"] + case_DC["nl"]:case_AC["nx"] + 2 * case_DC["nl"]]
+    Vi_DC = xx[case_AC["nx"] + 2 * case_DC["nl"]:case_AC["nx"] + 2 * case_DC["nl"] + case_DC["nb"]]
+    Pg_DC = xx[case_AC["nx"] + 2 * case_DC["nl"] + case_DC["nb"]:case_AC["nx"] + 2 * case_DC["nl"] + case_DC["nb"] +
+                                                                 case_DC["ng"]]
+
+    primal_residual_DC = zeros(case_DC["nl"])
+    for i in range(case_DC["nl"]):
+        primal_residual_DC[i] = Pij_DC[i] * Pij_DC[i] - Iij_DC[i] * Vi_DC[int(case_DC["f"][i])]
+
+    primal_residual_BIC = zeros(nx_BIC)
+    for i in range(nx_BIC):
+        primal_residual_BIC[i] = xx[case_AC["nx"] + 2 * case_DC["nl"] + case_DC["nb"] +
+                                    case_DC["ng"] + i] * xx[case_AC["nx"] + 2 * case_DC["nl"] + case_DC["nb"] +
+                                                            case_DC["ng"] + i + nx_BIC]
+
+    sol = {"Pij_AC": Pij_AC,
+           "Qij_AC": Qij_AC,
+           "Iij_AC": Iij_AC,
+           "Vm_AC": power(Vi_AC, 0.5),
+           "Pg_AC": Pg_AC,
+           "Qg_AC": Qg_AC,
+           "Pij_DC": Pij_DC,
+           "Iij_DC": Iij_DC,
+           "Vm_DC": power(Vi_DC, 0.5),
+           "Pg_DC": Pg_DC,
+           "residual_AC": primal_residual_AC,
+           "residual_DC": primal_residual_DC,
+           "residual_BIC": primal_residual_BIC,
+           "obj": obj}
+
+    return sol
 
 
 if __name__ == '__main__':
@@ -384,4 +498,4 @@ if __name__ == '__main__':
     caseDC = case30.case30()
     converters = case_converters.con()
 
-    main(Case_AC=caseAC, Case_DC=caseDC, Converters=converters)
+    sol = main(Case_AC=caseAC, Case_DC=caseDC, Converters=converters)
