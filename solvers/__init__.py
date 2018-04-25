@@ -12,7 +12,19 @@ The following packages can ba adopted in place of these packages.
 1) CVXOPT
 2) Mosek
 3) Gurobi
-4)
+
+The following packages are required for the data modelling
+1) Numpy
+2) Scipy*
+3)
+
+Notes:
+    * Scipy is used for the sparse matrix functionalists, especially the csr_matrix function.
+    todense and csr_matrix
+
+
+
+
 
 
 
