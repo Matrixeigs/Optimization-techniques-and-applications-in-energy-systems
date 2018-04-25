@@ -4,4 +4,5 @@ Branch and bound method for mixed-integer linear programming problems
 @author: Zhao Tianyang
 @e-mail:zhaoty@ntu.edu.sg
 This algorithm is developed as a test algorithm for solving mixed-integer linear programming problems.
+This algorithm is based on the interior point methods, under the same documentary.
 """
