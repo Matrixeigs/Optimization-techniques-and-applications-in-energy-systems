@@ -12,6 +12,7 @@ The following packages can ba adopted in place of these packages.
 1) CVXOPT
 2) Mosek
 3) Gurobi
+4) CPLEX
 
 The following packages are required for the data modelling
 1) Numpy
