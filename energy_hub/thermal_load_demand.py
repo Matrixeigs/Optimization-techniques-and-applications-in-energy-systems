@@ -10,12 +10,17 @@ Some useful references can be found in Ref.[3] and Ref.[4].
 [3] Thermal Battery Modeling of Inverter Air Conditioning for Demand Response
 [4]A Novel Thermal Energy Storage System in Smart Building Based on Phase Change Material
 
+Three stages and two-stage decision making.
+
+
 
 Data sources:
 1) Weather information
 https://www.timeanddate.com/weather/singapore/singapore/hourly
 2) The test system is a commercial building
 
+The calculation of CVaR is borrowed from
+http://faculty.chicagobooth.edu/ruey.tsay/teaching/bs41202/sp2011/lec9-11.pdf
 
 @author:Tianyang Zhao
 @e-mail:zhaoty@ntu.edu.sg
@@ -107,14 +112,10 @@ if __name__ == "__main__":
 
     AC_PD_tck = interpolate.splrep(Time_first_stage, AC_PD, s=0)
     DC_PD_tck = interpolate.splrep(Time_first_stage, DC_PD, s=0)
-    HD_tck = interpolate.splrep(Time_first_stage, HD, s=0)
-    CD_tck = interpolate.splrep(Time_first_stage, CD, s=0)
     PV_PG_tck = interpolate.splrep(Time_first_stage, PV_PG, s=0)
 
     AC_PD_second_stage = interpolate.splev(Time_second_stage, AC_PD_tck, der=0)
     DC_PD_second_stage = interpolate.splev(Time_second_stage, DC_PD_tck, der=0)
-    HD_second_stage = interpolate.splev(Time_second_stage, HD_tck, der=0)
-    CD_second_stage = interpolate.splev(Time_second_stage, CD_tck, der=0)
     PV_PG_second_stage = interpolate.splev(Time_second_stage, PV_PG_tck, der=0)
 
     for i in range(T_second_stage):
@@ -122,10 +123,6 @@ if __name__ == "__main__":
             AC_PD_second_stage[i] = 0
         if DC_PD_second_stage[i] < 0:
             DC_PD_second_stage[i] = 0
-        if HD_second_stage[i] < 0:
-            HD_second_stage[i] = 0
-        if CD_second_stage[i] < 0:
-            CD_second_stage[i] = 0
         if PV_PG_second_stage[i] < 0:
             PV_PG_second_stage[i] = 0
 
@@ -146,5 +143,8 @@ if __name__ == "__main__":
             "EFF_C": eff_CHP_h,
             "EFF_H": eff_CHP_h,
             "COST": Gas_price}
+    HVAC = {
+
+    }
 
     THERMAL = {}
