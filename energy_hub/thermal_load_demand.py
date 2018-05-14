@@ -45,7 +45,10 @@ class EnergyHubManagement():
         :param THERMAL: Thermal load information
         :return:
         """
-        from energy_hub.data_format import CCHP, UG, PAC2DC, PDC2AC, PHVAC, EESS, PESSCH, PESSDC, NX
+        from energy_hub.data_format import CCHP, UG, PAC2DC, PDC2AC, PHVAC, PESS, PESSCH, PESSDC, TESS, TESSCH, TESSDC, \
+            NX
+
+
 
         return ELEC
 
