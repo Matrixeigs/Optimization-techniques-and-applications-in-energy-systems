@@ -35,6 +35,18 @@ class EnergyHubManagement():
         self.name = "hybrid AC/DC embedded energy hub"
 
     def problem_formulation(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None):
+        """
+        Problem formulation for energy hub management
+        :param ELEC: Electrical system with the load and utility grid information
+        :param BIC: Bi-directional converter information
+        :param ESS: Energy storage system information (Battery ESS and Thermal ESS)
+        :param CCHP: Combined heat and power units information
+        :param HVAC: Heat, ventilation and air-conditioning information
+        :param THERMAL: Thermal load information
+        :return:
+        """
+        from energy_hub.data_format import CCHP, UG, PAC2DC, PDC2AC, PHVAC, EESS, PESSCH, PESSDC, NX
+
         return ELEC
 
 
@@ -171,13 +183,23 @@ if __name__ == "__main__":
            "EFF": eff_BIC,
            }
 
-    ESS = {"E0": E0,
-           "E_MAX": Emax,
-           "E_MIN": Emin,
-           "PC_MAX": PESS_CH_MAX,
-           "PD_MAX": PESS_DC_MAX,
-           "COST": Eess_cost,
-           }
+    BESS = {"E0": E0,
+            "E_MAX": Emax,
+            "E_MIN": Emin,
+            "PC_MAX": PESS_CH_MAX,
+            "PD_MAX": PESS_DC_MAX,
+            "COST": Eess_cost,
+            }
+
+    TESS = {"E0": E0,
+            "E_MAX": Emax,
+            "E_MIN": Emin,
+            "PC_MAX": PESS_CH_MAX,
+            "PD_MAX": PESS_DC_MAX,
+            "COST": Eess_cost,
+            }
+    ESS = {"BESS": BESS,
+           "TESS": TESS}
 
     energy_hub_management = EnergyHubManagement()
     model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,

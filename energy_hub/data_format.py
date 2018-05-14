@@ -1,5 +1,5 @@
 # The data format for microgrid embedded energy hub
-GAS = 0  # CHP input
+CCHP = 0  # CHP input
 UG = 1  # Utility grid input
 PAC2DC = 2  # Electrical energy from AC to DC
 PDC2AC = 3  # Electrical energy from AC to DC
