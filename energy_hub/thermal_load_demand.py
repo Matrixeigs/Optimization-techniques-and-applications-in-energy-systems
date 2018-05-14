@@ -30,11 +30,15 @@ from scipy import interpolate
 from matplotlib import pyplot
 
 
-class ThermalLoadManagement():
+class EnergyHubManagement():
     def __init__(self):
-        self.name = "thermal_load_management"
+        self.name = "hybrid AC/DC embedded energy hub"
 
-    # def run(self,Delta_t,Profile,HVAC,):
+    def problem_formulation(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None):
+        return ELEC
+
+
+# def run(self,Delta_t,Profile,HVAC,):
 
 
 if __name__ == "__main__":
@@ -42,7 +46,7 @@ if __name__ == "__main__":
     # 1) System level configuration
     T = 24
     Delta_t = 1
-    delat_t = 0.25
+    delat_t = 1
     T_second_stage = int(T / delat_t)
 
     # For the HVAC system
@@ -64,6 +68,7 @@ if __name__ == "__main__":
                 0, 0])
 
     # 3) Electricity system configuration
+    PUG_MAX = 200
     PV_CAP = 50
     AC_PD_cap = 100
     DC_PD_cap = 100
@@ -110,21 +115,21 @@ if __name__ == "__main__":
     Time_first_stage = arange(0, T, Delta_t)
     Time_second_stage = arange(0, T, delat_t)
 
-    AC_PD_tck = interpolate.splrep(Time_first_stage, AC_PD, s=0)
-    DC_PD_tck = interpolate.splrep(Time_first_stage, DC_PD, s=0)
-    PV_PG_tck = interpolate.splrep(Time_first_stage, PV_PG, s=0)
-
-    AC_PD_second_stage = interpolate.splev(Time_second_stage, AC_PD_tck, der=0)
-    DC_PD_second_stage = interpolate.splev(Time_second_stage, DC_PD_tck, der=0)
-    PV_PG_second_stage = interpolate.splev(Time_second_stage, PV_PG_tck, der=0)
-
-    for i in range(T_second_stage):
-        if AC_PD_second_stage[i] < 0:
-            AC_PD_second_stage[i] = 0
-        if DC_PD_second_stage[i] < 0:
-            DC_PD_second_stage[i] = 0
-        if PV_PG_second_stage[i] < 0:
-            PV_PG_second_stage[i] = 0
+    # AC_PD_tck = interpolate.splrep(Time_first_stage, AC_PD, s=0)
+    # DC_PD_tck = interpolate.splrep(Time_first_stage, DC_PD, s=0)
+    # PV_PG_tck = interpolate.splrep(Time_first_stage, PV_PG, s=0)
+    #
+    # AC_PD_second_stage = interpolate.splev(Time_second_stage, AC_PD_tck, der=0)
+    # DC_PD_second_stage = interpolate.splev(Time_second_stage, DC_PD_tck, der=0)
+    # PV_PG_second_stage = interpolate.splev(Time_second_stage, PV_PG_tck, der=0)
+    #
+    # for i in range(T_second_stage):
+    #     if AC_PD_second_stage[i] < 0:
+    #         AC_PD_second_stage[i] = 0
+    #     if DC_PD_second_stage[i] < 0:
+    #         DC_PD_second_stage[i] = 0
+    #     if PV_PG_second_stage[i] < 0:
+    #         PV_PG_second_stage[i] = 0
 
     # CCHP system
     Gas_price = 0.1892
@@ -143,8 +148,39 @@ if __name__ == "__main__":
             "EFF_C": eff_CHP_h,
             "EFF_H": eff_CHP_h,
             "COST": Gas_price}
-    HVAC = {
 
-    }
+    HVAC = {"CAP": QHVAC_max,
+            "EFF": eff_HVAC,
+            "C_AIR": c_air,
+            "R_T": r_t,
+            "TEMPERATURE": ambinent_temprature,
+            "TEMP_MIN": temprature_in_min,
+            "TEMP_MAX": temprature_in_max}
 
-    THERMAL = {}
+    THERMAL = {"HD": HD,
+               "CD": CD, }
+
+    ELEC = {"UG_MAX": PUG_MAX,
+            "UG_PRICE": electricity_price,
+            "AC_PD": AC_PD,
+            "DC_PD": DC_PD,
+            "PV_PG": PV_PG
+            }
+
+    BIC = {"CAP": BIC_CAP,
+           "EFF": eff_BIC,
+           }
+
+    ESS = {"E0": E0,
+           "E_MAX": Emax,
+           "E_MIN": Emin,
+           "PC_MAX": PESS_CH_MAX,
+           "PD_MAX": PESS_DC_MAX,
+           "COST": Eess_cost,
+           }
+
+    energy_hub_management = EnergyHubManagement()
+    model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
+                                                      HVAC=HVAC)
+
+    print(model)
