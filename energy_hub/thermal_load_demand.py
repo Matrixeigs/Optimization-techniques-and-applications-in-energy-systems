@@ -34,7 +34,8 @@ class EnergyHubManagement():
     def __init__(self):
         self.name = "hybrid AC/DC embedded energy hub"
 
-    def problem_formulation(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None, T=None):
+    def problem_formulation(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None, CHIL=None,
+                            BOIL=None, T=None):
         """
         Problem formulation for energy hub management
         :param ELEC: Electrical system with the load and utility grid information
@@ -54,29 +55,55 @@ class EnergyHubManagement():
         ub = zeros((nx, 1))  # The upper boundary
         # Update the boundary information
         for i in range(T):
-            lb[i * NX + CCHP] = 0
-            lb[i * NX + UG] = 0
+            lb[i * NX + PUG] = 0
+            lb[i * NX + PCHP] = 0
             lb[i * NX + PAC2DC] = 0
             lb[i * NX + PDC2AC] = 0
-            lb[i * NX + PHVAC] = 0
+            lb[i * NX + PIAC] = 0
             lb[i * NX + EESS] = ESS["BESS"]["E_MIN"]
-            lb[i * NX + PESSCH] = 0
-            lb[i * NX + PESSDC] = 0
-            lb[i * NX + TESS] = ESS["TESS"]["E_MIN"]
-            lb[i * NX + TESSCH] = 0
-            lb[i * NX + TESSDC] = 0
+            lb[i * NX + PESS_DC] = 0
+            lb[i * NX + PESS_CH] = 0
+            lb[i * NX + PPV] = 0
+            lb[i * NX + QCHP] = 0
+            lb[i * NX + QGAS] = 0
+            lb[i * NX + ETSS] = ESS["TESS"]["E_MIN"]
+            lb[i * NX + QES_DC] = 0
+            lb[i * NX + QES_CH] = 0
+            lb[i * NX + QAC] = 0
+            lb[i * NX + QTD] = 0
+            lb[i * NX + QCE] = 0
+            lb[i * NX + QIAC] = 0
+            lb[i * NX + ECSS] = ESS["CESS"]["E_MIN"]
+            lb[i * NX + QCS_DC] = 0
+            lb[i * NX + QCS_CH] = 0
+            lb[i * NX + QCD] = 0
+            lb[i * NX + VCHP] = 0
+            lb[i * NX + VGAS] = 0
 
-            ub[i * NX + CCHP] = CCHP["MAX"] * CCHP["EFF_E"]
-            ub[i * NX + UG] = ELEC["UG_MAX"]
+            ub[i * NX + PUG] = ELEC["UG_MAX"]
+            ub[i * NX + PCHP] = CCHP["MAX"] * CCHP["EFF_E"]
             ub[i * NX + PAC2DC] = BIC["CAP"]
             ub[i * NX + PDC2AC] = BIC["CAP"]
-            ub[i * NX + PHVAC] = HVAC["CAP"]
+            ub[i * NX + PIAC] = HVAC["CAP"]
             ub[i * NX + EESS] = ESS["BESS"]["E_MAX"]
-            ub[i * NX + PESSCH] = ESS["BESS"]["PC_MAX"]
-            ub[i * NX + PESSDC] = ESS["BESS"]["PD_MAX"]
-            ub[i * NX + TESS] = ESS["TESS"]["E_MAX"]
-            ub[i * NX + TESSCH] = ESS["TESS"]["TC_MAX"]
-            ub[i * NX + TESSDC] = ESS["TESS"]["TD_MAX"]
+            ub[i * NX + PESS_DC] = ESS["BESS"]["PC_MAX"]
+            ub[i * NX + PESS_CH] = ESS["BESS"]["PD_MAX"]
+            ub[i * NX + PPV] = ELEC["PV_PG"]
+            ub[i * NX + QCHP] = CCHP["MAX"] * CCHP["EFF_H"]
+            ub[i * NX + QGAS] = CCHP["MAX"] * CCHP["EFF_H"]
+            ub[i * NX + ETSS] = ESS["TESS"]["E_MAX"]
+            ub[i * NX + QES_DC] = ESS["TESS"]["TD_MAX"]
+            ub[i * NX + QES_CH] = ESS["TESS"]["TC_MAX"]
+            ub[i * NX + QAC] = CHIL["CAP"]
+            ub[i * NX + QTD] = THERMAL["CAP"]
+            ub[i * NX + QCE] = CHIL["CAP"]
+            ub[i * NX + QIAC] = HVAC["CAP"]
+            ub[i * NX + ECSS] = ESS["CESS"]["E_MIN"]
+            ub[i * NX + QCS_DC] = ESS["TESS"]["TD_MAX"]
+            ub[i * NX + QCS_CH] = ESS["TESS"]["TC_MAX"]
+            ub[i * NX + QCD] = THERMAL["CAP"]
+            ub[i * NX + VCHP] = CCHP["MAXP"]
+            ub[i * NX + VGAS] = BOIL["CAP"]
 
         # 1.2 Formulate the constraint set
         # 1.2.1) The constraints for the battery energy storage systems
@@ -284,8 +311,20 @@ if __name__ == "__main__":
             "COST": Eess_cost,
             }
 
+    CESS = {"E0": E0,
+            "E_MAX": Emax,
+            "E_MIN": Emin,
+            "TC_MAX": PESS_CH_MAX,
+            "TD_MAX": PESS_DC_MAX,
+            "EFF_CH": EFF_CH,
+            "EFF_DC": EFF_DC,
+            "EFF_SD": EFF_CH,  # The self discharging
+            "COST": Eess_cost,
+            }
+
     ESS = {"BESS": BESS,
-           "TESS": TESS}
+           "TESS": TESS,
+           "CESS": CESS}
 
     energy_hub_management = EnergyHubManagement()
     model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
