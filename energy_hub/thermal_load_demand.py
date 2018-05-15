@@ -45,8 +45,8 @@ class EnergyHubManagement():
         :param THERMAL: Thermal load information
         :return:
         """
-        from energy_hub.data_format import CCHP, UG, PAC2DC, PDC2AC, PHVAC, EESS, PESSCH, PESSDC, TESS, TESSCH, TESSDC, \
-            NX
+        from energy_hub.data_format import PUG, PCHP, PAC2DC, PDC2AC, PIAC, EESS, PESS_CH, PESS_DC, PPV, QCHP, QGAS, \
+            ETSS, QES_DC, QES_CH, QAC, QTD, QCE, QIAC, ECSS, QCS_DC, QCS_CH, QCD, VCHP, VGAS, NX
         # 1） Formulate the day-ahead operation plan
         # 1.1) The decision variables
         nx = NX * T
@@ -79,7 +79,53 @@ class EnergyHubManagement():
             ub[i * NX + TESSDC] = ESS["TESS"]["TD_MAX"]
 
         # 1.2 Formulate the constraint set
+        # 1.2.1) The constraints for the battery energy storage systems
+        Aeq_bess = zeros((T, NX))
+        beq_bess = zeros((T, 1))
+        for i in range(T):
+            Aeq_bess[i, i * NX + EESS] = 1
+            Aeq_bess[i, i * NX + PESSCH] = -ESS["BESS"]["EFF_CH"]
+            Aeq_bess[i, i * NX + PESSDC] = 1 / ESS["BESS"]["EFF_DC"]
+            if i != 0:
+                Aeq_bess[i, (i - 1) * NX + EESS] = -1
+                beq_bess[i, 0] = 0
+            else:
+                beq_bess[i, 0] = ESS["BESS"]["E0"]
 
+        # 1.2.2) The constraints for the thermal energy storage systems
+        Aeq_tess = zeros((T, NX))
+        beq_tess = zeros((T, 1))
+        for i in range(T):
+            Aeq_tess[i, i * NX + EESS] = 1
+            Aeq_tess[i, i * NX + PESSCH] = -ESS["TESS"]["EFF_CH"]
+            Aeq_tess[i, i * NX + PESSDC] = 1 / ESS["TESS"]["EFF_DC"]
+            if i != 0:
+                Aeq_tess[i, (i - 1) * NX + EESS] = -ESS["TESS"]["EFF_SD"]
+                beq_tess[i, 0] = 0
+            else:
+                beq_tess[i, 0] = ESS["TESS"]["EFF_SD"] * ESS["TESS"]["E0"]
+        # 1.2.3) The power balance for the AC bus in the hybrid AC/DC micro-grid
+        Aeq_ac = zeros((T, NX))
+        beq_ac = zeros((T, 1))
+        for i in range(T):
+            Aeq_ac[i, i * NX + CCHP] = CCHP["EFF_E"]
+            Aeq_ac[i, i * NX + UG] = 1
+            Aeq_ac[i, i * NX + PAC2DC] = -1
+            Aeq_ac[i, i * NX + PDC2AC] = BIC["EFF"]
+            beq_ac[i, 1] = ELEC["AC_PD"][i]
+        # 1.2.4) The power balance for the DC bus in the hybrid AC/DC micro-grid
+        Aeq_dc = zeros((T, NX))
+        beq_dc = zeros((T, 1))
+        for i in range(T):
+            Aeq_dc[i, i * NX + PHVAC] = -1  # Provide cooling service
+            Aeq_dc[i, i * NX + PAC2DC] = BIC["EFF"]  #
+            Aeq_dc[i, i * NX + PDC2AC] = -1
+            Aeq_dc[i, i * NX + PESSCH] = -1
+            Aeq_dc[i, i * NX + PESSDC] = 1
+            beq_dc[i, 1] = ELEC["DC_PD"][i] - ELEC["PV_PG"][i]
+        # 1.2.5) Thermal hub balance
+
+        # 1.2.6) Cooling hub balance
 
         return ELEC
 
@@ -222,6 +268,8 @@ if __name__ == "__main__":
             "E_MIN": Emin,
             "PC_MAX": PESS_CH_MAX,
             "PD_MAX": PESS_DC_MAX,
+            "EFF_CH": EFF_CH,
+            "EFF_DC": EFF_DC,
             "COST": Eess_cost,
             }
 
@@ -230,8 +278,12 @@ if __name__ == "__main__":
             "E_MIN": Emin,
             "TC_MAX": PESS_CH_MAX,
             "TD_MAX": PESS_DC_MAX,
+            "EFF_CH": EFF_CH,
+            "EFF_DC": EFF_DC,
+            "EFF_SD": EFF_CH,  # The self discharging
             "COST": Eess_cost,
             }
+
     ESS = {"BESS": BESS,
            "TESS": TESS}
 
