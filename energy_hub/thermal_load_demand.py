@@ -25,7 +25,7 @@ http://faculty.chicagobooth.edu/ruey.tsay/teaching/bs41202/sp2011/lec9-11.pdf
 @author:Tianyang Zhao
 @e-mail:zhaoty@ntu.edu.sg
 """
-from numpy import array, arange
+from numpy import array, arange, zeros, ones
 from scipy import interpolate
 from matplotlib import pyplot
 
@@ -34,7 +34,7 @@ class EnergyHubManagement():
     def __init__(self):
         self.name = "hybrid AC/DC embedded energy hub"
 
-    def problem_formulation(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None):
+    def problem_formulation(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None, T=None):
         """
         Problem formulation for energy hub management
         :param ELEC: Electrical system with the load and utility grid information
@@ -45,9 +45,40 @@ class EnergyHubManagement():
         :param THERMAL: Thermal load information
         :return:
         """
-        from energy_hub.data_format import CCHP, UG, PAC2DC, PDC2AC, PHVAC, PESS, PESSCH, PESSDC, TESS, TESSCH, TESSDC, \
+        from energy_hub.data_format import CCHP, UG, PAC2DC, PDC2AC, PHVAC, EESS, PESSCH, PESSDC, TESS, TESSCH, TESSDC, \
             NX
+        # 1） Formulate the day-ahead operation plan
+        # 1.1) The decision variables
+        nx = NX * T
+        lb = zeros((nx, 1))  # The lower boundary
+        ub = zeros((nx, 1))  # The upper boundary
+        # Update the boundary information
+        for i in range(T):
+            lb[i * NX + CCHP] = 0
+            lb[i * NX + UG] = 0
+            lb[i * NX + PAC2DC] = 0
+            lb[i * NX + PDC2AC] = 0
+            lb[i * NX + PHVAC] = 0
+            lb[i * NX + EESS] = ESS["BESS"]["E_MIN"]
+            lb[i * NX + PESSCH] = 0
+            lb[i * NX + PESSDC] = 0
+            lb[i * NX + TESS] = ESS["TESS"]["E_MIN"]
+            lb[i * NX + TESSCH] = 0
+            lb[i * NX + TESSDC] = 0
 
+            ub[i * NX + CCHP] = CCHP["MAX"] * CCHP["EFF_E"]
+            ub[i * NX + UG] = ELEC["UG_MAX"]
+            ub[i * NX + PAC2DC] = BIC["CAP"]
+            ub[i * NX + PDC2AC] = BIC["CAP"]
+            ub[i * NX + PHVAC] = HVAC["CAP"]
+            ub[i * NX + EESS] = ESS["BESS"]["E_MAX"]
+            ub[i * NX + PESSCH] = ESS["BESS"]["PC_MAX"]
+            ub[i * NX + PESSDC] = ESS["BESS"]["PD_MAX"]
+            ub[i * NX + TESS] = ESS["TESS"]["E_MAX"]
+            ub[i * NX + TESSCH] = ESS["TESS"]["TC_MAX"]
+            ub[i * NX + TESSDC] = ESS["TESS"]["TD_MAX"]
+
+        # 1.2 Formulate the constraint set
 
 
         return ELEC
@@ -197,8 +228,8 @@ if __name__ == "__main__":
     TESS = {"E0": E0,
             "E_MAX": Emax,
             "E_MIN": Emin,
-            "PC_MAX": PESS_CH_MAX,
-            "PD_MAX": PESS_DC_MAX,
+            "TC_MAX": PESS_CH_MAX,
+            "TD_MAX": PESS_DC_MAX,
             "COST": Eess_cost,
             }
     ESS = {"BESS": BESS,
@@ -206,6 +237,6 @@ if __name__ == "__main__":
 
     energy_hub_management = EnergyHubManagement()
     model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
-                                                      HVAC=HVAC)
+                                                      HVAC=HVAC, T=T)
 
     print(model)
