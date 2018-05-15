@@ -132,7 +132,7 @@ class EnergyHubManagement():
             else:
                 beq_tess[i, 0] = ESS["TESS"]["EFF_SD"] * ESS["TESS"]["E0"]
 
-        # 1.2.23 The constraints for the cooling storage
+        # 1.2.3) The constraints for the cooling storage
         Aeq_cess = zeros((T, nx))
         beq_cess = zeros((T, 1))
         for i in range(T):
@@ -145,28 +145,34 @@ class EnergyHubManagement():
             else:
                 beq_cess[i, 0] = ESS["CESS"]["EFF_SD"] * ESS["CESS"]["E0"]
 
-        # 1.2.3) The power balance for the AC bus in the hybrid AC/DC micro-grid
-        Aeq_ac = zeros((T, NX))
+        # 1.2.4) The power balance for the AC bus in the hybrid AC/DC micro-grid
+        Aeq_ac = zeros((T, nx))
         beq_ac = zeros((T, 1))
         for i in range(T):
-            Aeq_ac[i, i * NX + CCHP] = CCHP["EFF_E"]
-            Aeq_ac[i, i * NX + UG] = 1
+            Aeq_ac[i, i * NX + PCHP] = 1
+            Aeq_ac[i, i * NX + PUG] = 1
             Aeq_ac[i, i * NX + PAC2DC] = -1
             Aeq_ac[i, i * NX + PDC2AC] = BIC["EFF"]
-            beq_ac[i, 1] = ELEC["AC_PD"][i]
-        # 1.2.4) The power balance for the DC bus in the hybrid AC/DC micro-grid
-        Aeq_dc = zeros((T, NX))
+            beq_ac[i, 0] = ELEC["AC_PD"][i]
+        # 1.2.5) The power balance for the DC bus in the hybrid AC/DC micro-grid
+        Aeq_dc = zeros((T, nx))
         beq_dc = zeros((T, 1))
         for i in range(T):
-            Aeq_dc[i, i * NX + PHVAC] = -1  # Provide cooling service
+            Aeq_dc[i, i * NX + PIAC] = -1  # Provide cooling service
             Aeq_dc[i, i * NX + PAC2DC] = BIC["EFF"]  #
             Aeq_dc[i, i * NX + PDC2AC] = -1
-            Aeq_dc[i, i * NX + PESSCH] = -1
-            Aeq_dc[i, i * NX + PESSDC] = 1
-            beq_dc[i, 1] = ELEC["DC_PD"][i] - ELEC["PV_PG"][i]
-        # 1.2.5) Thermal hub balance
+            Aeq_dc[i, i * NX + PESS_CH] = -1
+            Aeq_dc[i, i * NX + PESS_DC] = 1
+            Aeq_dc[i, i * NX + PPV] = 1
+            beq_dc[i, 0] = ELEC["DC_PD"][i]
 
-        # 1.2.6) Cooling hub balance
+        # 1.2.6) Thermal hub balance
+
+        # 1.2.7) Cooling hub balance
+
+        # 1.2.8) Constraints for the
+
+
 
         return ELEC
 
