@@ -88,49 +88,63 @@ class EnergyHubManagement():
             ub[i * NX + EESS] = ESS["BESS"]["E_MAX"]
             ub[i * NX + PESS_DC] = ESS["BESS"]["PC_MAX"]
             ub[i * NX + PESS_CH] = ESS["BESS"]["PD_MAX"]
-            ub[i * NX + PPV] = ELEC["PV_PG"]
+            ub[i * NX + PPV] = ELEC["PV_PG"][i]
             ub[i * NX + QCHP] = CCHP["MAX"] * CCHP["EFF_H"]
             ub[i * NX + QGAS] = CCHP["MAX"] * CCHP["EFF_H"]
             ub[i * NX + ETSS] = ESS["TESS"]["E_MAX"]
             ub[i * NX + QES_DC] = ESS["TESS"]["TD_MAX"]
             ub[i * NX + QES_CH] = ESS["TESS"]["TC_MAX"]
             ub[i * NX + QAC] = CHIL["CAP"]
-            ub[i * NX + QTD] = THERMAL["CAP"]
+            ub[i * NX + QTD] = THERMAL["HD"][i]
             ub[i * NX + QCE] = CHIL["CAP"]
             ub[i * NX + QIAC] = HVAC["CAP"]
             ub[i * NX + ECSS] = ESS["CESS"]["E_MIN"]
             ub[i * NX + QCS_DC] = ESS["TESS"]["TD_MAX"]
             ub[i * NX + QCS_CH] = ESS["TESS"]["TC_MAX"]
-            ub[i * NX + QCD] = THERMAL["CAP"]
-            ub[i * NX + VCHP] = CCHP["MAXP"]
+            ub[i * NX + QCD] = THERMAL["CD"][i]
+            ub[i * NX + VCHP] = CCHP["MAX"]
             ub[i * NX + VGAS] = BOIL["CAP"]
 
         # 1.2 Formulate the constraint set
         # 1.2.1) The constraints for the battery energy storage systems
-        Aeq_bess = zeros((T, NX))
+        Aeq_bess = zeros((T, nx))
         beq_bess = zeros((T, 1))
         for i in range(T):
             Aeq_bess[i, i * NX + EESS] = 1
-            Aeq_bess[i, i * NX + PESSCH] = -ESS["BESS"]["EFF_CH"]
-            Aeq_bess[i, i * NX + PESSDC] = 1 / ESS["BESS"]["EFF_DC"]
+            Aeq_bess[i, i * NX + PESS_CH] = -ESS["BESS"]["EFF_CH"]
+            Aeq_bess[i, i * NX + PESS_DC] = 1 / ESS["BESS"]["EFF_DC"]
             if i != 0:
                 Aeq_bess[i, (i - 1) * NX + EESS] = -1
                 beq_bess[i, 0] = 0
             else:
                 beq_bess[i, 0] = ESS["BESS"]["E0"]
 
-        # 1.2.2) The constraints for the thermal energy storage systems
-        Aeq_tess = zeros((T, NX))
+        # 1.2.2) The constraints for the heat storage
+        Aeq_tess = zeros((T, nx))
         beq_tess = zeros((T, 1))
         for i in range(T):
-            Aeq_tess[i, i * NX + EESS] = 1
-            Aeq_tess[i, i * NX + PESSCH] = -ESS["TESS"]["EFF_CH"]
-            Aeq_tess[i, i * NX + PESSDC] = 1 / ESS["TESS"]["EFF_DC"]
+            Aeq_tess[i, i * NX + ETSS] = 1
+            Aeq_tess[i, i * NX + QES_CH] = -ESS["TESS"]["EFF_CH"]
+            Aeq_tess[i, i * NX + QES_DC] = 1 / ESS["TESS"]["EFF_DC"]
             if i != 0:
                 Aeq_tess[i, (i - 1) * NX + EESS] = -ESS["TESS"]["EFF_SD"]
                 beq_tess[i, 0] = 0
             else:
                 beq_tess[i, 0] = ESS["TESS"]["EFF_SD"] * ESS["TESS"]["E0"]
+
+        # 1.2.23 The constraints for the cooling storage
+        Aeq_cess = zeros((T, nx))
+        beq_cess = zeros((T, 1))
+        for i in range(T):
+            Aeq_cess[i, i * NX + ECSS] = 1
+            Aeq_cess[i, i * NX + QCS_CH] = -ESS["CESS"]["EFF_CH"]
+            Aeq_cess[i, i * NX + QCS_DC] = 1 / ESS["CESS"]["EFF_DC"]
+            if i != 0:  # Not the first period
+                Aeq_cess[i, (i - 1) * NX + ECSS] = -ESS["CESS"]["EFF_SD"]
+                beq_cess[i, 0] = 0
+            else:
+                beq_cess[i, 0] = ESS["CESS"]["EFF_SD"] * ESS["CESS"]["E0"]
+
         # 1.2.3) The power balance for the AC bus in the hybrid AC/DC micro-grid
         Aeq_ac = zeros((T, NX))
         beq_ac = zeros((T, 1))
@@ -255,6 +269,13 @@ if __name__ == "__main__":
     Gmax = 200
     eff_CHP_e = 0.4
     eff_CHP_h = 0.35
+    # Boiler information
+    Boil_max = 100
+    eff_boil = 0.9
+    # Chiller information
+    Chiller_max = 100
+    eff_chiller = 0.9
+
     # pyplot.plot(Time_first_stage, AC_PD, 'x', Time_second_stage, AC_PD_second_stage, 'b')
     # pyplot.plot(Time_first_stage, DC_PD, 'x', Time_second_stage, DC_PD_second_stage, 'b')
     # pyplot.plot(Time_first_stage, HD, 'x', Time_second_stage, HD_second_stage, 'b')
@@ -326,8 +347,14 @@ if __name__ == "__main__":
            "TESS": TESS,
            "CESS": CESS}
 
+    BOIL = {"CAP": Boil_max,
+            "EFF": eff_boil}
+
+    CHIL = {"CAP": Chiller_max,
+            "EFF": eff_chiller}
+
     energy_hub_management = EnergyHubManagement()
     model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
-                                                      HVAC=HVAC, T=T)
+                                                      HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
 
     print(model)
