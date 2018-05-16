@@ -1,5 +1,4 @@
 from Two_stage_stochastic_optimization.power_flow_modelling import idx_bus
-from os.path import dirname, join
 from pypower.loadcase import loadcase
 from pypower.ext2int import ext2int
 from numpy import zeros, c_, shape, ix_,ones,r_,arange,sum,diag,concatenate

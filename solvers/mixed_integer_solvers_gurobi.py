@@ -75,7 +75,7 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
     if b is None or len(b) == 0: b = GRB.INFINITY * ones(nineq)
     if xmin is None or len(xmin) == 0: xmin = -GRB.INFINITY * ones(nx)
     if xmax is None or len(xmax) == 0: xmax = GRB.INFINITY * ones(nx)
-
+    if vtypes is None:vtypes=["c"]*nx
     # modelling based on the high level gurobi api
     try:
         gurobi_model = Model("MIP")

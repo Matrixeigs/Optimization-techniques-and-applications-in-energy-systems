@@ -26,9 +26,11 @@ http://faculty.chicagobooth.edu/ruey.tsay/teaching/bs41202/sp2011/lec9-11.pdf
 @e-mail:zhaoty@ntu.edu.sg
 """
 from numpy import array, arange, zeros, ones, concatenate
+import numpy as np
 from scipy import interpolate
 from matplotlib import pyplot
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+# from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
 
 
 class EnergyHubManagement():
@@ -98,15 +100,23 @@ class EnergyHubManagement():
             ub[i * NX + QES_CH] = ESS["TESS"]["TC_MAX"]
             ub[i * NX + QAC] = CHIL["CAP"]
             ub[i * NX + QTD] = THERMAL["HD"][i]
+
             ub[i * NX + QCE] = CHIL["CAP"]
-            ub[i * NX + QIAC] = HVAC["CAP"]
-            ub[i * NX + ECSS] = ESS["CESS"]["E_MIN"]
-            ub[i * NX + QCS_DC] = ESS["TESS"]["TD_MAX"]
-            ub[i * NX + QCS_CH] = ESS["TESS"]["TC_MAX"]
+            ub[i * NX + QIAC] = HVAC["CAP"] * HVAC["EFF"]
+            ub[i * NX + ECSS] = ESS["CESS"]["E_MAX"]
+            ub[i * NX + QCS_DC] = ESS["CESS"]["TD_MAX"]
+            ub[i * NX + QCS_CH] = ESS["CESS"]["TC_MAX"]
             ub[i * NX + QCD] = THERMAL["CD"][i]
             ub[i * NX + VCHP] = CCHP["MAX"]
             ub[i * NX + VGAS] = BOIL["CAP"]
-
+            # Add the energy status constraints
+            if i == T - 1:
+                lb[i * NX + EESS] = ESS["BESS"]["E0"]
+                ub[i * NX + EESS] = ESS["BESS"]["E0"]
+                lb[i * NX + ETSS] = ESS["TESS"]["E0"]
+                ub[i * NX + ETSS] = ESS["TESS"]["E0"]
+                lb[i * NX + ECSS] = ESS["CESS"]["E0"]
+                ub[i * NX + ECSS] = ESS["CESS"]["E0"]
         # 1.2 Formulate the equality constraint set
         # 1.2.1) The constraints for the battery energy storage systems
         Aeq_bess = zeros((T, nx))
@@ -129,7 +139,7 @@ class EnergyHubManagement():
             Aeq_tess[i, i * NX + QES_CH] = -ESS["TESS"]["EFF_CH"]
             Aeq_tess[i, i * NX + QES_DC] = 1 / ESS["TESS"]["EFF_DC"]
             if i != 0:
-                Aeq_tess[i, (i - 1) * NX + EESS] = -ESS["TESS"]["EFF_SD"]
+                Aeq_tess[i, (i - 1) * NX + ETSS] = -ESS["TESS"]["EFF_SD"]
                 beq_tess[i, 0] = 0
             else:
                 beq_tess[i, 0] = ESS["TESS"]["EFF_SD"] * ESS["TESS"]["E0"]
@@ -152,13 +162,13 @@ class EnergyHubManagement():
         Aeq_chp_e = zeros((T, nx))
         beq_chp_e = zeros((T, 1))
         for i in range(T):
-            Aeq_chp_e[i, i * NX + VGAS] = CCHP["EFF_E"]
+            Aeq_chp_e[i, i * NX + VCHP] = CCHP["EFF_E"]
             Aeq_chp_e[i, i * NX + PCHP] = -1
         # 1.2.4.2）For the combined heat and power unit, heat
         Aeq_chp_h = zeros((T, nx))
         beq_chp_h = zeros((T, 1))
         for i in range(T):
-            Aeq_chp_h[i, i * NX + VGAS] = CCHP["EFF_H"]
+            Aeq_chp_h[i, i * NX + VCHP] = CCHP["EFF_H"]
             Aeq_chp_h[i, i * NX + QCHP] = -1
         # 1.2.4.3) For the Gas boiler
         Aeq_boil = zeros((T, nx))
@@ -256,13 +266,6 @@ class EnergyHubManagement():
             c[i * NX + VGAS] = CCHP["COST"]
 
         # Combine the constraint set
-        # Aeq = concatenate(
-        #     [Aeq_bess, Aeq_tess, Aeq_cess, Aeq_chp_e, Aeq_chp_h, Aeq_boil, Aeq_chil, Aeq_iac, Aeq_ac, Aeq_dc, Aeq_hh,
-        #      Aeq_ch])
-        # beq = concatenate(
-        #     [beq_bess, beq_tess, beq_cess, beq_chp_e, beq_chp_h, beq_boil, beq_chil, beq_iac, beq_ac, beq_dc, beq_hh,
-        #      beq_ch])
-
         Aeq = concatenate(
             [Aeq_bess, Aeq_tess, Aeq_cess, Aeq_chp_e, Aeq_chp_h, Aeq_boil, Aeq_chil, Aeq_iac, Aeq_ac, Aeq_dc, Aeq_hh,
              Aeq_ch])
@@ -323,7 +326,12 @@ class EnergyHubManagement():
             qcd[i, 0] = x[i * NX + QCD]
             vchp[i, 0] = x[i * NX + VCHP]
             vgas[i, 0] = x[i * NX + VGAS]
-
+        x = array(x)
+        # Check the relaxations
+        bic_relaxation = np.multiply(pac2dc, pdc2ac)
+        ess_relaxation = np.multiply(pess_dc, pess_ch)
+        tes_relaxation = np.multiply(qes_dc, qes_ch)
+        ces_relaxation = np.multiply(qcs_ch, qcs_dc)
         return x, objvalue, status
 
 
@@ -340,7 +348,7 @@ if __name__ == "__main__":
 
     # For the HVAC system
     # 2) Thermal system configuration
-    QHVAC_max = 1000
+    QHVAC_max = 100
     eff_HVAC = 0.9
     c_air = 1.85
     r_t = 1.3
@@ -357,22 +365,22 @@ if __name__ == "__main__":
                 0, 0])
 
     # 3) Electricity system configuration
-    PUG_MAX = 2000
+    PUG_MAX = 200
     PV_CAP = 50
-    AC_PD_cap = 10
-    DC_PD_cap = 10
-    HD_cap = 50
-    CD_cap = 0
+    AC_PD_cap = 100
+    DC_PD_cap = 100
+    HD_cap = 100
+    CD_cap = 100
 
-    PESS_CH_MAX = 10000
-    PESS_DC_MAX = 10000
+    PESS_CH_MAX = 100
+    PESS_DC_MAX = 100
     EFF_DC = 0.9
     EFF_CH = 0.9
-    E0 = 1000
-    Emax = 100000
-    Emin = 200
+    E0 = 10
+    Emax = 100
+    Emin = 20
 
-    BIC_CAP = 1000
+    BIC_CAP = 100
     eff_BIC = 0.95
 
     electricity_price = array(
@@ -389,7 +397,7 @@ if __name__ == "__main__":
         [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.03, 0.05, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35,
          0.14, 0.02, 0.02, 0.00, 0.00, 0.00])
 
-    ELEC_PRICE = electricity_price / 1000
+    ELEC_PRICE = electricity_price / 300
 
     Eess_cost = 0.01
 
@@ -426,11 +434,11 @@ if __name__ == "__main__":
     eff_CHP_e = 0.4
     eff_CHP_h = 0.35
     # Boiler information
-    Boil_max = 1000
-    eff_boil = 2.4
+    Boil_max = 100
+    eff_boil = 0.7
     # Chiller information
-    Chiller_max = 1000
-    eff_chiller = 4
+    Chiller_max = 100
+    eff_chiller = 0.9
 
     # pyplot.plot(Time_first_stage, AC_PD, 'x', Time_second_stage, AC_PD_second_stage, 'b')
     # pyplot.plot(Time_first_stage, DC_PD, 'x', Time_second_stage, DC_PD_second_stage, 'b')
@@ -457,7 +465,7 @@ if __name__ == "__main__":
                "CD": CD, }
 
     ELEC = {"UG_MAX": PUG_MAX,
-            "UG_PRICE": electricity_price,
+            "UG_PRICE": ELEC_PRICE,
             "AC_PD": AC_PD,
             "DC_PD": DC_PD,
             "PV_PG": PV_PG
@@ -484,7 +492,7 @@ if __name__ == "__main__":
             "TD_MAX": PESS_DC_MAX,
             "EFF_CH": EFF_CH,
             "EFF_DC": EFF_DC,
-            "EFF_SD": EFF_CH,  # The self discharging
+            "EFF_SD": 0.9,  # The self discharging
             "COST": Eess_cost,
             }
 
@@ -495,7 +503,7 @@ if __name__ == "__main__":
             "TD_MAX": PESS_DC_MAX,
             "EFF_CH": EFF_CH,
             "EFF_DC": EFF_DC,
-            "EFF_SD": EFF_CH,  # The self discharging
+            "EFF_SD": 0.9,  # The self discharging
             "COST": Eess_cost,
             }
 
