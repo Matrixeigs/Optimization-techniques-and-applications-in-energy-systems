@@ -272,9 +272,59 @@ class EnergyHubManagement():
 
         # Try to solve the linear programing problem
         (x, objvalue, status) = lp(c, Aeq=Aeq, beq=beq, xmin=lb, xmax=ub)
-        # Obtain the solution
 
-        return ELEC
+        # decouple the solution
+        pug = zeros((T, 1))
+        pchp = zeros((T, 1))
+        pac2dc = zeros((T, 1))
+        pdc2ac = zeros((T, 1))
+        piac = zeros((T, 1))
+        eess = zeros((T, 1))
+        pess_ch = zeros((T, 1))
+        pess_dc = zeros((T, 1))
+        ppv = zeros((T, 1))
+        qchp = zeros((T, 1))
+        qgas = zeros((T, 1))
+        etss = zeros((T, 1))
+        qes_dc = zeros((T, 1))
+        qes_ch = zeros((T, 1))
+        qac = zeros((T, 1))
+        qtd = zeros((T, 1))
+        qce = zeros((T, 1))
+        qiac = zeros((T, 1))
+        ecss = zeros((T, 1))
+        qcs_dc = zeros((T, 1))
+        qcs_ch = zeros((T, 1))
+        qcd = zeros((T, 1))
+        vchp = zeros((T, 1))
+        vgas = zeros((T, 1))
+        for i in range(T):
+            pug[i, 0] = x[i * NX + PUG]
+            pchp[i, 0] = x[i * NX + PCHP]
+            pac2dc[i, 0] = x[i * NX + PAC2DC]
+            pdc2ac[i, 0] = x[i * NX + PDC2AC]
+            piac[i, 0] = x[i * NX + PIAC]
+            eess[i, 0] = x[i * NX + EESS]
+            pess_ch[i, 0] = x[i * NX + PESS_CH]
+            pess_dc[i, 0] = x[i * NX + PESS_DC]
+            ppv[i, 0] = x[i * NX + PPV]
+            qchp[i, 0] = x[i * NX + QCHP]
+            qgas[i, 0] = x[i * NX + QGAS]
+            etss[i, 0] = x[i * NX + ETSS]
+            qes_dc[i, 0] = x[i * NX + QES_DC]
+            qes_ch[i, 0] = x[i * NX + QES_CH]
+            qac[i, 0] = x[i * NX + QAC]
+            qtd[i, 0] = x[i * NX + QTD]
+            qce[i, 0] = x[i * NX + QCE]
+            qiac[i, 0] = x[i * NX + QIAC]
+            ecss[i, 0] = x[i * NX + ECSS]
+            qcs_dc[i, 0] = x[i * NX + QCS_DC]
+            qcs_ch[i, 0] = x[i * NX + QCS_CH]
+            qcd[i, 0] = x[i * NX + QCD]
+            vchp[i, 0] = x[i * NX + VCHP]
+            vgas[i, 0] = x[i * NX + VGAS]
+
+        return x, objvalue, status
 
 
 # def run(self,Delta_t,Profile,HVAC,):
