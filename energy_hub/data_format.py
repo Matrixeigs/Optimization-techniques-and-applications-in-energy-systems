@@ -51,9 +51,9 @@ PPV = 8  # HVAC consumption
 ## Group 2: Heating ##
 QCHP = 9
 QGAS = 10
-ETSS = 11
-QES_DC = 12
-QES_CH = 13
+EHSS = 11
+QHS_DC = 12
+QHS_CH = 13
 QAC = 14
 QTD = 15
 ## Group 3: Cooling ##

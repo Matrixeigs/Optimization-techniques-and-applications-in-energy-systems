@@ -50,7 +50,7 @@ class EnergyHubManagement():
         :return:
         """
         from energy_hub.data_format import PUG, PCHP, PAC2DC, PDC2AC, PIAC, EESS, PESS_CH, PESS_DC, PPV, QCHP, QGAS, \
-            ETSS, QES_DC, QES_CH, QAC, QTD, QCE, QIAC, ECSS, QCS_DC, QCS_CH, QCD, VCHP, VGAS, NX
+            EHSS, QHS_DC, QHS_CH, QAC, QTD, QCE, QIAC, ECSS, QCS_DC, QCS_CH, QCD, VCHP, VGAS, NX
 
         # 1） Formulate the day-ahead operation plan
         # 1.1) The decision variables
@@ -70,9 +70,9 @@ class EnergyHubManagement():
             lb[i * NX + PPV] = 0
             lb[i * NX + QCHP] = 0
             lb[i * NX + QGAS] = 0
-            lb[i * NX + ETSS] = ESS["TESS"]["E_MIN"]
-            lb[i * NX + QES_DC] = 0
-            lb[i * NX + QES_CH] = 0
+            lb[i * NX + EHSS] = ESS["TESS"]["E_MIN"]
+            lb[i * NX + QHS_DC] = 0
+            lb[i * NX + QHS_CH] = 0
             lb[i * NX + QAC] = 0
             lb[i * NX + QTD] = 0
             lb[i * NX + QCE] = 0
@@ -95,9 +95,9 @@ class EnergyHubManagement():
             ub[i * NX + PPV] = ELEC["PV_PG"][i]
             ub[i * NX + QCHP] = CCHP["MAX"] * CCHP["EFF_H"]
             ub[i * NX + QGAS] = CCHP["MAX"] * CCHP["EFF_H"]
-            ub[i * NX + ETSS] = ESS["TESS"]["E_MAX"]
-            ub[i * NX + QES_DC] = ESS["TESS"]["TD_MAX"]
-            ub[i * NX + QES_CH] = ESS["TESS"]["TC_MAX"]
+            ub[i * NX + EHSS] = ESS["TESS"]["E_MAX"]
+            ub[i * NX + QHS_DC] = ESS["TESS"]["TD_MAX"]
+            ub[i * NX + QHS_CH] = ESS["TESS"]["TC_MAX"]
             ub[i * NX + QAC] = CHIL["CAP"]
             ub[i * NX + QTD] = THERMAL["HD"][i]
 
@@ -113,8 +113,8 @@ class EnergyHubManagement():
             if i == T - 1:
                 lb[i * NX + EESS] = ESS["BESS"]["E0"]
                 ub[i * NX + EESS] = ESS["BESS"]["E0"]
-                lb[i * NX + ETSS] = ESS["TESS"]["E0"]
-                ub[i * NX + ETSS] = ESS["TESS"]["E0"]
+                lb[i * NX + EHSS] = ESS["TESS"]["E0"]
+                ub[i * NX + EHSS] = ESS["TESS"]["E0"]
                 lb[i * NX + ECSS] = ESS["CESS"]["E0"]
                 ub[i * NX + ECSS] = ESS["CESS"]["E0"]
         # 1.2 Formulate the equality constraint set
@@ -135,11 +135,11 @@ class EnergyHubManagement():
         Aeq_tess = zeros((T, nx))
         beq_tess = zeros((T, 1))
         for i in range(T):
-            Aeq_tess[i, i * NX + ETSS] = 1
-            Aeq_tess[i, i * NX + QES_CH] = -ESS["TESS"]["EFF_CH"]
-            Aeq_tess[i, i * NX + QES_DC] = 1 / ESS["TESS"]["EFF_DC"]
+            Aeq_tess[i, i * NX + EHSS] = 1
+            Aeq_tess[i, i * NX + QHS_CH] = -ESS["TESS"]["EFF_CH"]
+            Aeq_tess[i, i * NX + QHS_DC] = 1 / ESS["TESS"]["EFF_DC"]
             if i != 0:
-                Aeq_tess[i, (i - 1) * NX + ETSS] = -ESS["TESS"]["EFF_SD"]
+                Aeq_tess[i, (i - 1) * NX + EHSS] = -ESS["TESS"]["EFF_SD"]
                 beq_tess[i, 0] = 0
             else:
                 beq_tess[i, 0] = ESS["TESS"]["EFF_SD"] * ESS["TESS"]["E0"]
@@ -216,8 +216,8 @@ class EnergyHubManagement():
         for i in range(T):
             Aeq_hh[i, i * NX + QCHP] = 1
             Aeq_hh[i, i * NX + QGAS] = 1
-            Aeq_hh[i, i * NX + QES_DC] = 1
-            Aeq_hh[i, i * NX + QES_CH] = -1
+            Aeq_hh[i, i * NX + QHS_DC] = 1
+            Aeq_hh[i, i * NX + QHS_CH] = -1
             Aeq_hh[i, i * NX + QAC] = -1
             Aeq_hh[i, i * NX + QTD] = -1
             beq_hh[i, 0] = THERMAL["HD"][i]
@@ -249,9 +249,9 @@ class EnergyHubManagement():
 
             c[i * NX + QCHP] = 0
             c[i * NX + QGAS] = 0
-            c[i * NX + ETSS] = 0
-            c[i * NX + QES_DC] = ESS["TESS"]["COST"]
-            c[i * NX + QES_CH] = ESS["TESS"]["COST"]
+            c[i * NX + EHSS] = 0
+            c[i * NX + QHS_DC] = ESS["TESS"]["COST"]
+            c[i * NX + QHS_CH] = ESS["TESS"]["COST"]
             c[i * NX + QAC] = 0
             c[i * NX + QTD] = 0
 
@@ -313,9 +313,9 @@ class EnergyHubManagement():
             ppv[i, 0] = x[i * NX + PPV]
             qchp[i, 0] = x[i * NX + QCHP]
             qgas[i, 0] = x[i * NX + QGAS]
-            etss[i, 0] = x[i * NX + ETSS]
-            qes_dc[i, 0] = x[i * NX + QES_DC]
-            qes_ch[i, 0] = x[i * NX + QES_CH]
+            etss[i, 0] = x[i * NX + EHSS]
+            qes_dc[i, 0] = x[i * NX + QHS_DC]
+            qes_ch[i, 0] = x[i * NX + QHS_CH]
             qac[i, 0] = x[i * NX + QAC]
             qtd[i, 0] = x[i * NX + QTD]
             qce[i, 0] = x[i * NX + QCE]
@@ -332,6 +332,7 @@ class EnergyHubManagement():
         ess_relaxation = np.multiply(pess_dc, pess_ch)
         tes_relaxation = np.multiply(qes_dc, qes_ch)
         ces_relaxation = np.multiply(qcs_ch, qcs_dc)
+
         return x, objvalue, status
 
 
@@ -518,6 +519,7 @@ if __name__ == "__main__":
             "EFF": eff_chiller}
 
     energy_hub_management = EnergyHubManagement()
+
     model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
                                                       HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
 
