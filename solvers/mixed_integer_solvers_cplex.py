@@ -10,7 +10,7 @@ import sys
 
 def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
                                      opt=None):
-    t0 = time.time()
+    # t0 = time.time()
     if type(c) == list:
         nx = len(c)
     else:
@@ -31,12 +31,46 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
             neq = 0
     else:
         neq = 0
+
+    if vtypes == None:
+        vtypes = ["c"] * nx
     # Fulfilling the missing informations
     if beq is None or len(beq) == 0: beq = -cplex.infinity * ones(neq)
     if b is None or len(b) == 0: b = cplex.infinity * ones(nineq)
     if xmin is None or len(xmin) == 0: xmin = -cplex.infinity * ones(nx)
     if xmax is None or len(xmax) == 0: xmax = cplex.infinity * ones(nx)
+    # Convert the data format
+    try:
+        c = c[:, 0]
+        c = c.tolist()
+    except:
+        pass
 
+    try:
+        b = b[:, 0]
+        b = b.tolist()
+    except:
+        pass
+
+    try:
+        beq = beq[:, 0]
+        beq = beq.tolist()
+    except:
+        pass
+
+    try:
+        xmin = xmin[:, 0]
+        xmin = xmin.tolist()
+    except:
+        pass
+
+    try:
+        xmax = xmax[:, 0]
+        xmax = xmax.tolist()
+    except:
+        pass
+    if neq == 0: beq = []
+    if nineq == 0: b = []
     # modelling based on the high level gurobi api
     try:
         prob = cplex.Cplex()
@@ -50,10 +84,12 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
             elif vtypes[i] == "d" or vtypes[i] == "D":
                 var_types[i] = prob.variables.type.integer
         prob.variables.add()
-        prob.variables.add(obj=c.tolist(), lb=xmin, ub=xmax, types=var_types, names=varnames)
+        prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
         # Populate by non-zero to accelerate the formulation
-        rhs = beq.tolist() + b.tolist()
+
+        rhs = beq + b
         sense = ['E'] * neq + ["L"] * nineq
+
         rows = []
         cols = []
         vals = []
@@ -77,7 +113,6 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                                     senses=sense)
         prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
 
-        print(time.time() - t0)
         prob.solve()
         obj = prob.solution.get_objective_value()
         x = prob.solution.get_values()
@@ -96,8 +131,8 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         obj = 0
         success = 0
 
-    elapse_time = time.time() - t0
-    print(elapse_time)
+    # elapse_time = time.time() - t0
+    # print(elapse_time)
     return x, obj, success
 
 

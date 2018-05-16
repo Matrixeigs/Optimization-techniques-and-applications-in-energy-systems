@@ -25,9 +25,10 @@ http://faculty.chicagobooth.edu/ruey.tsay/teaching/bs41202/sp2011/lec9-11.pdf
 @author:Tianyang Zhao
 @e-mail:zhaoty@ntu.edu.sg
 """
-from numpy import array, arange, zeros, ones
+from numpy import array, arange, zeros, ones, concatenate
 from scipy import interpolate
 from matplotlib import pyplot
+from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
 
 
 class EnergyHubManagement():
@@ -48,6 +49,7 @@ class EnergyHubManagement():
         """
         from energy_hub.data_format import PUG, PCHP, PAC2DC, PDC2AC, PIAC, EESS, PESS_CH, PESS_DC, PPV, QCHP, QGAS, \
             ETSS, QES_DC, QES_CH, QAC, QTD, QCE, QIAC, ECSS, QCS_DC, QCS_CH, QCD, VCHP, VGAS, NX
+
         # 1） Formulate the day-ahead operation plan
         # 1.1) The decision variables
         nx = NX * T
@@ -105,7 +107,7 @@ class EnergyHubManagement():
             ub[i * NX + VCHP] = CCHP["MAX"]
             ub[i * NX + VGAS] = BOIL["CAP"]
 
-        # 1.2 Formulate the constraint set
+        # 1.2 Formulate the equality constraint set
         # 1.2.1) The constraints for the battery energy storage systems
         Aeq_bess = zeros((T, nx))
         beq_bess = zeros((T, 1))
@@ -146,8 +148,38 @@ class EnergyHubManagement():
                 beq_cess[i, 0] = ESS["CESS"]["EFF_SD"] * ESS["CESS"]["E0"]
 
         # 1.2.4) Energy conversion relationship
+        # 1.2.4.1）For the combined heat and power unit, electricity
+        Aeq_chp_e = zeros((T, nx))
+        beq_chp_e = zeros((T, 1))
+        for i in range(T):
+            Aeq_chp_e[i, i * NX + VGAS] = CCHP["EFF_E"]
+            Aeq_chp_e[i, i * NX + PCHP] = -1
+        # 1.2.4.2）For the combined heat and power unit, heat
+        Aeq_chp_h = zeros((T, nx))
+        beq_chp_h = zeros((T, 1))
+        for i in range(T):
+            Aeq_chp_h[i, i * NX + VGAS] = CCHP["EFF_H"]
+            Aeq_chp_h[i, i * NX + QCHP] = -1
+        # 1.2.4.3) For the Gas boiler
+        Aeq_boil = zeros((T, nx))
+        beq_boil = zeros((T, 1))
+        for i in range(T):
+            Aeq_boil[i, i * NX + VGAS] = BOIL["EFF"]
+            Aeq_boil[i, i * NX + QGAS] = -1
+        # 1.2.4.4) For the absorption chiller
+        Aeq_chil = zeros((T, nx))
+        beq_chil = zeros((T, 1))
+        for i in range(T):
+            Aeq_chil[i, i * NX + QAC] = CHIL["EFF"]
+            Aeq_chil[i, i * NX + QCE] = -1
+        # 1.2.4.5) For the inverter air-conditioning
+        Aeq_iac = zeros((T, nx))
+        beq_iac = zeros((T, 1))
+        for i in range(T):
+            Aeq_iac[i, i * NX + PIAC] = HVAC["EFF"]
+            Aeq_iac[i, i * NX + QIAC] = -1
 
-        # 1.2.4) The power balance for the AC bus in the hybrid AC/DC micro-grid
+        # 1.2.5) The power balance for the AC bus in the hybrid AC/DC micro-grid
         Aeq_ac = zeros((T, nx))
         beq_ac = zeros((T, 1))
         for i in range(T):
@@ -156,7 +188,7 @@ class EnergyHubManagement():
             Aeq_ac[i, i * NX + PAC2DC] = -1
             Aeq_ac[i, i * NX + PDC2AC] = BIC["EFF"]
             beq_ac[i, 0] = ELEC["AC_PD"][i]
-        # 1.2.5) The power balance for the DC bus in the hybrid AC/DC micro-grid
+        # 1.2.6) The power balance for the DC bus in the hybrid AC/DC micro-grid
         Aeq_dc = zeros((T, nx))
         beq_dc = zeros((T, 1))
         for i in range(T):
@@ -168,7 +200,7 @@ class EnergyHubManagement():
             Aeq_dc[i, i * NX + PPV] = 1
             beq_dc[i, 0] = ELEC["DC_PD"][i]
 
-        # 1.2.6) heating hub balance
+        # 1.2.7) heating hub balance
         Aeq_hh = zeros((T, nx))
         beq_hh = zeros((T, 1))
         for i in range(T):
@@ -179,7 +211,7 @@ class EnergyHubManagement():
             Aeq_hh[i, i * NX + QAC] = -1
             Aeq_hh[i, i * NX + QTD] = -1
             beq_hh[i, 0] = THERMAL["HD"][i]
-        # 1.2.7) Cooling hub balance
+        # 1.2.8) Cooling hub balance
         Aeq_ch = zeros((T, nx))
         beq_ch = zeros((T, 1))
         for i in range(T):
@@ -189,7 +221,58 @@ class EnergyHubManagement():
             Aeq_ch[i, i * NX + QCS_CH] = -1
             Aeq_ch[i, i * NX + QCD] = -1
             beq_ch[i, 0] = THERMAL["CD"][i]
-        # 1.2.8) Constraints for the
+        # 1.3) For the inequality constraints
+        # In this version, it seems that, there is none inequality constraints
+
+        # 1.4) For the objective function
+        c = zeros((nx, 1))
+        for i in range(T):
+            c[i * NX + PUG] = ELEC["UG_PRICE"][i]
+            c[i * NX + PCHP] = 0
+            c[i * NX + PAC2DC] = 0
+            c[i * NX + PDC2AC] = 0
+            c[i * NX + PIAC] = 0
+            c[i * NX + EESS] = 0
+            c[i * NX + PESS_DC] = ESS["BESS"]["COST"]
+            c[i * NX + PESS_CH] = ESS["BESS"]["COST"]
+            c[i * NX + PPV] = 0
+
+            c[i * NX + QCHP] = 0
+            c[i * NX + QGAS] = 0
+            c[i * NX + ETSS] = 0
+            c[i * NX + QES_DC] = ESS["TESS"]["COST"]
+            c[i * NX + QES_CH] = ESS["TESS"]["COST"]
+            c[i * NX + QAC] = 0
+            c[i * NX + QTD] = 0
+
+            c[i * NX + QCE] = 0
+            c[i * NX + QIAC] = 0
+            c[i * NX + ECSS] = 0
+            c[i * NX + QCS_DC] = ESS["CESS"]["COST"]
+            c[i * NX + QCS_CH] = ESS["CESS"]["COST"]
+            c[i * NX + QCD] = 0
+
+            c[i * NX + VCHP] = CCHP["COST"]
+            c[i * NX + VGAS] = CCHP["COST"]
+
+        # Combine the constraint set
+        # Aeq = concatenate(
+        #     [Aeq_bess, Aeq_tess, Aeq_cess, Aeq_chp_e, Aeq_chp_h, Aeq_boil, Aeq_chil, Aeq_iac, Aeq_ac, Aeq_dc, Aeq_hh,
+        #      Aeq_ch])
+        # beq = concatenate(
+        #     [beq_bess, beq_tess, beq_cess, beq_chp_e, beq_chp_h, beq_boil, beq_chil, beq_iac, beq_ac, beq_dc, beq_hh,
+        #      beq_ch])
+
+        Aeq = concatenate(
+            [Aeq_bess, Aeq_tess, Aeq_cess, Aeq_chp_e, Aeq_chp_h, Aeq_boil, Aeq_chil, Aeq_iac, Aeq_ac, Aeq_dc, Aeq_hh,
+             Aeq_ch])
+        beq = concatenate(
+            [beq_bess, beq_tess, beq_cess, beq_chp_e, beq_chp_h, beq_boil, beq_chil, beq_iac, beq_ac, beq_dc, beq_hh,
+             beq_ch])
+
+        # Try to solve the linear programing problem
+        (x, objvalue, status) = lp(c, Aeq=Aeq, beq=beq, xmin=lb, xmax=ub)
+        # Obtain the solution
 
         return ELEC
 
@@ -207,7 +290,7 @@ if __name__ == "__main__":
 
     # For the HVAC system
     # 2) Thermal system configuration
-    QHVAC_max = 100
+    QHVAC_max = 1000
     eff_HVAC = 0.9
     c_air = 1.85
     r_t = 1.3
@@ -224,22 +307,22 @@ if __name__ == "__main__":
                 0, 0])
 
     # 3) Electricity system configuration
-    PUG_MAX = 200
+    PUG_MAX = 2000
     PV_CAP = 50
-    AC_PD_cap = 100
-    DC_PD_cap = 100
+    AC_PD_cap = 10
+    DC_PD_cap = 10
     HD_cap = 50
-    CD_cap = 50
+    CD_cap = 0
 
-    PESS_CH_MAX = 100
-    PESS_DC_MAX = 100
+    PESS_CH_MAX = 10000
+    PESS_DC_MAX = 10000
     EFF_DC = 0.9
     EFF_CH = 0.9
-    E0 = 100
-    Emax = 200
-    Emin = 20
+    E0 = 1000
+    Emax = 100000
+    Emin = 200
 
-    BIC_CAP = 100
+    BIC_CAP = 1000
     eff_BIC = 0.95
 
     electricity_price = array(
@@ -289,15 +372,15 @@ if __name__ == "__main__":
 
     # CCHP system
     Gas_price = 0.1892
-    Gmax = 200
+    Gmax = 2000
     eff_CHP_e = 0.4
     eff_CHP_h = 0.35
     # Boiler information
-    Boil_max = 100
-    eff_boil = 0.9
+    Boil_max = 1000
+    eff_boil = 2.4
     # Chiller information
-    Chiller_max = 100
-    eff_chiller = 0.9
+    Chiller_max = 1000
+    eff_chiller = 4
 
     # pyplot.plot(Time_first_stage, AC_PD, 'x', Time_second_stage, AC_PD_second_stage, 'b')
     # pyplot.plot(Time_first_stage, DC_PD, 'x', Time_second_stage, DC_PD_second_stage, 'b')
