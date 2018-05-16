@@ -367,8 +367,8 @@ if __name__ == "__main__":
     # 3) Electricity system configuration
     PUG_MAX = 200
     PV_CAP = 50
-    AC_PD_cap = 100
-    DC_PD_cap = 100
+    AC_PD_cap = 50
+    DC_PD_cap = 50
     HD_cap = 100
     CD_cap = 100
 
