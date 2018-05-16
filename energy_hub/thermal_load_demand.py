@@ -145,12 +145,14 @@ class EnergyHubManagement():
             else:
                 beq_cess[i, 0] = ESS["CESS"]["EFF_SD"] * ESS["CESS"]["E0"]
 
+        # 1.2.4) Energy conversion relationship
+
         # 1.2.4) The power balance for the AC bus in the hybrid AC/DC micro-grid
         Aeq_ac = zeros((T, nx))
         beq_ac = zeros((T, 1))
         for i in range(T):
-            Aeq_ac[i, i * NX + PCHP] = 1
             Aeq_ac[i, i * NX + PUG] = 1
+            Aeq_ac[i, i * NX + PCHP] = 1
             Aeq_ac[i, i * NX + PAC2DC] = -1
             Aeq_ac[i, i * NX + PDC2AC] = BIC["EFF"]
             beq_ac[i, 0] = ELEC["AC_PD"][i]
@@ -166,13 +168,28 @@ class EnergyHubManagement():
             Aeq_dc[i, i * NX + PPV] = 1
             beq_dc[i, 0] = ELEC["DC_PD"][i]
 
-        # 1.2.6) Thermal hub balance
-
+        # 1.2.6) heating hub balance
+        Aeq_hh = zeros((T, nx))
+        beq_hh = zeros((T, 1))
+        for i in range(T):
+            Aeq_hh[i, i * NX + QCHP] = 1
+            Aeq_hh[i, i * NX + QGAS] = 1
+            Aeq_hh[i, i * NX + QES_DC] = 1
+            Aeq_hh[i, i * NX + QES_CH] = -1
+            Aeq_hh[i, i * NX + QAC] = -1
+            Aeq_hh[i, i * NX + QTD] = -1
+            beq_hh[i, 0] = THERMAL["HD"][i]
         # 1.2.7) Cooling hub balance
-
+        Aeq_ch = zeros((T, nx))
+        beq_ch = zeros((T, 1))
+        for i in range(T):
+            Aeq_ch[i, i * NX + QIAC] = 1
+            Aeq_ch[i, i * NX + QCE] = 1
+            Aeq_ch[i, i * NX + QCS_DC] = 1
+            Aeq_ch[i, i * NX + QCS_CH] = -1
+            Aeq_ch[i, i * NX + QCD] = -1
+            beq_ch[i, 0] = THERMAL["CD"][i]
         # 1.2.8) Constraints for the
-
-
 
         return ELEC
 
