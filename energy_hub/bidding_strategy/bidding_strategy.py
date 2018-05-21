@@ -275,7 +275,8 @@ class EnergyHubManagement():
                  "b": None,
                  "c": c,
                  "lb": lb,
-                 "ub": ub}
+                 "ub": ub,
+                 "ac_eq": [9 * T, 10 * T]}
 
         return model
 

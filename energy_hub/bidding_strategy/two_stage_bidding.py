@@ -13,9 +13,11 @@ The electricity prices are assumed to be ex-ante.
 """
 
 from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
-from numpy import zeros, ones, array
+from numpy import zeros, ones, array, eye,hstack,vstack
 import numpy as np
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+
+
 # from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
 
 
@@ -46,11 +48,11 @@ class TwoStageBidding():
 
         neq = model["Aeq"].shape[0]
         nx = model["Aeq"].shape[1]
-        Aeq = zeros((neq * N, nx * N))
-        beq = zeros((neq * N, 1))
-        lb = zeros((nx * N, 1))
-        ub = zeros((nx * N, 1))
-        c = zeros((nx * N, 1))
+        Aeq_second_stage = zeros((neq * N, nx * N))
+        beq_second_stage = zeros((neq * N, 1))
+        lb_second_stage = zeros((nx * N, 1))
+        ub_second_stage = zeros((nx * N, 1))
+        c_second_stage = zeros((nx * N, 1))
         elec = [0] * N  # using the list to store the data set
         model_second_stage = [0] * N
         for i in range(N):
@@ -63,17 +65,30 @@ class TwoStageBidding():
                                                                               BIC=BIC, ESS=ESS,
                                                                               HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
             # print(model_second_stage[i])
-            Aeq[i * neq:(i + 1) * neq, i * nx:(i + 1) * nx] = model_second_stage[i]["Aeq"]
-            beq[i * neq:(i + 1) * neq] = model_second_stage[i]["beq"]
-            lb[i * nx:(i + 1) * nx] = model_second_stage[i]["lb"]
-            ub[i * nx:(i + 1) * nx] = model_second_stage[i]["ub"]
-            c[i * nx:(i + 1) * nx] = model_second_stage[i]["c"]
+            Aeq_second_stage[i * neq:(i + 1) * neq, i * nx:(i + 1) * nx] = model_second_stage[i]["Aeq"]
+            beq_second_stage[i * neq:(i + 1) * neq] = model_second_stage[i]["beq"]
+            lb_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["lb"]
+            ub_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["ub"]
+            c_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["c"]/N
 
-        model["Aeq"] = Aeq
-        model["beq"] = beq
-        model["lb"] = lb
-        model["ub"] = ub
-        model["c"] = c
+        lb_first_stage = zeros((T, 1))
+        ub_first_stage = zeros((T, 1))
+        c_first_stage = zeros((T, 1))
+        Aeq_first_stage = zeros((neq * N, T))
+
+        for i in range(T):
+            lb_first_stage[i] = 0
+            ub_first_stage[i] = ELEC_DA["UG_MAX"]
+            c_first_stage[i] = ELEC_DA["UG_PRICE"][i]
+
+        for i in range(N):
+            Aeq_first_stage[model["ac_eq"][0]:model["ac_eq"][1], 0:T] = eye(T, dtype=int)
+
+        model["Aeq"] = hstack([Aeq_first_stage,Aeq_second_stage])
+        model["beq"] = beq_second_stage
+        model["lb"] = vstack([lb_first_stage,lb_second_stage])
+        model["ub"] = vstack([ub_first_stage,ub_second_stage])
+        model["c"] = vstack([c_first_stage,c_second_stage])
 
         (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"], xmax=model["ub"])
 
