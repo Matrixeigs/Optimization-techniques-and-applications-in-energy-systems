@@ -21,6 +21,23 @@ class TwoStageBidding():
     def __init__(self):
         self.name = "two_stage_bidding_strategy"
 
+    def problem_formualtion(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None, CHIL=None,
+                            BOIL=None, T=None, N=None):
+        """
+
+        :param ELEC:
+        :param BIC:
+        :param ESS:
+        :param CCHP:
+        :param HVAC:
+        :param THERMAL:
+        :param CHIL:
+        :param BOIL:
+        :param T:
+        :param N: The number of scenarios in the second stage operation.
+        :return:
+        """
+
 
 if __name__ == "__main__":
     # A test system
@@ -33,6 +50,7 @@ if __name__ == "__main__":
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
+    forecasting_errors_prices = 0.03
 
     # For the HVAC system
     # 2) Thermal system configuration
@@ -100,6 +118,8 @@ if __name__ == "__main__":
     AC_PD_second_stage = zeros((T_second_stage, N_sample))
     DC_PD_second_stage = zeros((T_second_stage, N_sample))
     PV_second_stage = zeros((T_second_stage, N_sample))
+    ELEC_PRICE_second_stage = zeros((T_second_stage, N_sample))
+
     for i in range(N_sample):
         AC_PD_second_stage[:, i] = ones((1, T_second_stage)) + np.random.normal(0, forecasting_errors_ac,
                                                                                 T_second_stage)
@@ -107,10 +127,15 @@ if __name__ == "__main__":
                                                                                 T_second_stage)
         PV_second_stage[:, i] = ones((1, T_second_stage)) + np.random.normal(0, forecasting_errors_pv, T_second_stage)
 
+        ELEC_PRICE_second_stage[:, i] = ones((1, T_second_stage)) + np.random.normal(0, forecasting_errors_prices,
+                                                                                     T_second_stage)
+
     for i in range(N_sample):
         AC_PD_second_stage[:, i] = np.multiply(AC_PD, AC_PD_second_stage[:, i])
         DC_PD_second_stage[:, i] = np.multiply(DC_PD, DC_PD_second_stage[:, i])
         PV_second_stage[:, i] = np.multiply(PV_PG, PV_second_stage[:, i])
+        ELEC_PRICE_second_stage[:, i] = np.multiply(ELEC_PRICE, ELEC_PRICE_second_stage[:, i])
+
         # Chech the boundary information
         for j in range(T_second_stage):
             if AC_PD_second_stage[j, i] < 0:
@@ -119,6 +144,8 @@ if __name__ == "__main__":
                 DC_PD_second_stage[j, i] = 0
             if PV_second_stage[j, i] < 0:
                 PV_second_stage[j, i] = 0
+            if ELEC_PRICE_second_stage[j, i] < 0:
+                ELEC_PRICE_second_stage[j, i] = 0
 
     # CCHP system
     Gas_price = 0.1892
