@@ -269,8 +269,27 @@ class EnergyHubManagement():
             [beq_bess, beq_tess, beq_cess, beq_chp_e, beq_chp_h, beq_boil, beq_chil, beq_iac, beq_ice, beq_ac, beq_dc,
              beq_hh, beq_ch])
 
+        model = {"Aeq": Aeq,
+                 "beq": beq,
+                 "A": None,
+                 "b": None,
+                 "c": c,
+                 "lb": lb,
+                 "ub": ub}
+
+        return model
+
+    def problem_solving(self, model):
+        """
+        problem solving of the day-ahead energy hub
+        :param model:
+        :return:
+        """
+        from energy_hub.bidding_strategy.data_format import PUG, PCHP, PAC2DC, PDC2AC, PIAC, EESS, PESS_CH, PESS_DC, \
+            PPV, PCS, QCHP, QGAS, EHSS, QHS_DC, QHS_CH, QAC, QTD, QCE, QIAC, ECSS, QCS_DC, QCS_CH, QCD, VCHP, VGAS, NX
+
         # Try to solve the linear programing problem
-        (x, objvalue, status) = lp(c, Aeq=Aeq, beq=beq, xmin=lb, xmax=ub)
+        (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"], xmax=model["ub"])
 
         # decouple the solution
         pug = zeros((T, 1))
@@ -322,40 +341,34 @@ class EnergyHubManagement():
             qcd[i, 0] = x[i * NX + QCD]
             vchp[i, 0] = x[i * NX + VCHP]
             vgas[i, 0] = x[i * NX + VGAS]
-        x = array(x)
-        # Check the relaxations
-        bic_relaxation = np.multiply(pac2dc, pdc2ac)
-        ess_relaxation = np.multiply(pess_dc, pess_ch)
-        tes_relaxation = np.multiply(qes_dc, qes_ch)
-        ces_relaxation = np.multiply(qcs_ch, qcs_dc)
 
         # Formulate the solution
-        sol={"obj":objvalue,
-             "PUG":pug,
-             "PCHP":pchp,
-             "PAC2DC":pac2dc,
-             "PDC2AC":pdc2ac,
-             "PIAC":piac,
-             "EESS":eess,
-             "PESS_CH":pess_ch,
-             "PESS_DC":pess_dc,
-             "PPV":ppv,
-             "QCHP":qchp,
-             "QGAS":qgas,
-             "ETSS":etss,
-             "QES_CH":qes_ch,
-             "QES_DC":qes_dc,
-             "QAC":qac,
-             "QTD":qtd,
-             "QCE":qce,
-             "QIAC":qiac,
-             "ECSS":ecss,
-             "QCS_CH":qcs_ch,
-             "QCS_DC":qcs_dc,
-             "QCD":qcd,
-             "VCHP":vchp,
-             "VGAS":vgas,
-             }
+        sol = {"obj": objvalue,
+               "PUG": pug,
+               "PCHP": pchp,
+               "PAC2DC": pac2dc,
+               "PDC2AC": pdc2ac,
+               "PIAC": piac,
+               "EESS": eess,
+               "PESS_CH": pess_ch,
+               "PESS_DC": pess_dc,
+               "PPV": ppv,
+               "QCHP": qchp,
+               "QGAS": qgas,
+               "ETSS": etss,
+               "QES_CH": qes_ch,
+               "QES_DC": qes_dc,
+               "QAC": qac,
+               "QTD": qtd,
+               "QCE": qce,
+               "QIAC": qiac,
+               "ECSS": ecss,
+               "QCS_CH": qcs_ch,
+               "QCS_DC": qcs_dc,
+               "QCD": qcd,
+               "VCHP": vchp,
+               "VGAS": vgas,
+               }
 
         # pyplot.plot(bic_relaxation)
         # pyplot.plot(ess_relaxation)
@@ -365,8 +378,19 @@ class EnergyHubManagement():
 
         return sol
 
+    def solution_check(self, sol):
+        # Check the relaxations
+        bic_relaxation = np.multiply(sol["PAC2DC"], sol["PDC2AC"])
+        ess_relaxation = np.multiply(sol["PESS_DC"], sol["PESS_CH"])
+        tes_relaxation = np.multiply(sol["QES_CH"], sol["QES_DC"])
+        ces_relaxation = np.multiply(sol["QCS_CH"], sol["QCS_DC"])
 
-# def run(self,Delta_t,Profile,HVAC,):
+        sol_check = {"bic": bic_relaxation,
+                     "ess": ess_relaxation,
+                     "tes": tes_relaxation,
+                     "ces": ces_relaxation}
+
+        return sol_check
 
 
 if __name__ == "__main__":
@@ -529,7 +553,7 @@ if __name__ == "__main__":
             "EFF_DC": EFF_DC,
             "EFF_SD": 0.98,  # The self discharging
             "COST": Eess_cost,
-            "PMAX": PESS_CH_MAX*10,
+            "PMAX": PESS_CH_MAX * 10,
             "ICE": 3.5,
             }
 
@@ -547,5 +571,8 @@ if __name__ == "__main__":
 
     model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
                                                       HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
+    sol = energy_hub_management.problem_solving(model)
 
-    print(model)
+    sol_check = energy_hub_management.solution_check(sol)
+
+    print(sol_check)
