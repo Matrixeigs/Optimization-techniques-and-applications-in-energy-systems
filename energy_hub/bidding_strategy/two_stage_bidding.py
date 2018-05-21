@@ -15,17 +15,19 @@ The electricity prices are assumed to be ex-ante.
 from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
 from numpy import zeros, ones, array
 import numpy as np
+from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+# from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
 
 
 class TwoStageBidding():
     def __init__(self):
         self.name = "two_stage_bidding_strategy"
 
-    def problem_formualtion(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None, CHIL=None,
-                            BOIL=None, T=None, N=None):
+    def problem_formualtion(self, ELEC_DA=None, ELEC_RT=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None,
+                            CHIL=None, BOIL=None, T=None, N=None):
         """
 
-        :param ELEC:
+        :param ELEC: Scenarios in the second stage scheduling
         :param BIC:
         :param ESS:
         :param CCHP:
@@ -37,6 +39,45 @@ class TwoStageBidding():
         :param N: The number of scenarios in the second stage operation.
         :return:
         """
+        energy_hub_management = EnergyHubManagement()  # Initialize the solutions
+        # The second stage decision are shown as follows, no decomposition
+        model = energy_hub_management.problem_formulation(ELEC=ELEC_DA, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
+                                                          HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
+
+        neq = model["Aeq"].shape[0]
+        nx = model["Aeq"].shape[1]
+        Aeq = zeros((neq * N, nx * N))
+        beq = zeros((neq * N, 1))
+        lb = zeros((nx * N, 1))
+        ub = zeros((nx * N, 1))
+        c = zeros((nx * N, 1))
+        elec = [0] * N  # using the list to store the data set
+        model_second_stage = [0] * N
+        for i in range(N):
+            elec[i] = {"UG_MAX": ELEC_DA["UG_MAX"],
+                       "UG_PRICE": ELEC_RT["UG_PRICE"][:, i],
+                       "AC_PD": ELEC_RT["AC_PD"][:, i],
+                       "DC_PD": ELEC_RT["DC_PD"][:, i],
+                       "PV_PG": ELEC_RT["PV_PG"][:, i], }
+            model_second_stage[i] = energy_hub_management.problem_formulation(ELEC=elec[i], CCHP=CCHP, THERMAL=THERMAL,
+                                                                              BIC=BIC, ESS=ESS,
+                                                                              HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
+            # print(model_second_stage[i])
+            Aeq[i * neq:(i + 1) * neq, i * nx:(i + 1) * nx] = model_second_stage[i]["Aeq"]
+            beq[i * neq:(i + 1) * neq] = model_second_stage[i]["beq"]
+            lb[i * nx:(i + 1) * nx] = model_second_stage[i]["lb"]
+            ub[i * nx:(i + 1) * nx] = model_second_stage[i]["ub"]
+            c[i * nx:(i + 1) * nx] = model_second_stage[i]["c"]
+
+        model["Aeq"] = Aeq
+        model["beq"] = beq
+        model["lb"] = lb
+        model["ub"] = ub
+        model["c"] = c
+
+        (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"], xmax=model["ub"])
+
+        return model
 
 
 if __name__ == "__main__":
@@ -46,7 +87,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 50
+    N_sample = 10
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
@@ -186,7 +227,8 @@ if __name__ == "__main__":
     # The second stage scenarios
     ELEC_second_stage = {"AC_PD": AC_PD_second_stage,
                          "DC_PD": DC_PD_second_stage,
-                         "PV_PG": PV_second_stage}
+                         "PV_PG": PV_second_stage,
+                         "UG_PRICE": ELEC_PRICE_second_stage}
 
     BIC = {"CAP": BIC_CAP,
            "EFF": eff_BIC,
@@ -236,12 +278,10 @@ if __name__ == "__main__":
     CHIL = {"CAP": Chiller_max,
             "EFF": eff_chiller}
 
-    energy_hub_management = EnergyHubManagement()
+    two_stage_bidding = TwoStageBidding()
 
-    model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
-                                                      HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
-    sol = energy_hub_management.problem_solving(model)
+    model = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage, CCHP=CCHP, THERMAL=THERMAL,
+                                                  BIC=BIC,
+                                                  ESS=ESS, HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T, N=N_sample)
 
-    sol_check = energy_hub_management.solution_check(sol)
-
-    print(sol_check)
+    print(model)

@@ -49,7 +49,6 @@ import time
 
 def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
                                      opt=None):
-    t0 = time.time()
     if type(c) == list:
         nx = len(c)
     else:
@@ -92,7 +91,6 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
 
         # Constraints set
         # Equal constraints
-        print(time.time() - t0)
         gurobi_model.update()
 
         if neq != 0:
@@ -107,7 +105,6 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                 # print(i)
 
             # gurobi_model.addConstrs()
-        print(time.time() - t0)
         # Inequal constraints
         if nineq != 0:
             for i in range(nineq):
@@ -148,8 +145,7 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         xx = 0
         obj = 0
         success = 0
-    elapse_time = time.time() - t0
-    print(elapse_time)
+
     return xx, obj, success
 
 
