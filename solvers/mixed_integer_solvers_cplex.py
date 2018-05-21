@@ -2,10 +2,8 @@
 Mixed-integer programming using the CPLEX
 """
 import cplex  # import the cplex solver package
-import time
 from numpy import ones
 from cplex.exceptions import CplexError
-import sys
 
 
 def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
@@ -43,11 +41,15 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
     try:
         c = c[:, 0]
         c = c.tolist()
+    except IndexError:
+        c = c.tolist()
     except:
         pass
 
     try:
         b = b[:, 0]
+        b = b.tolist()
+    except IndexError:
         b = b.tolist()
     except:
         pass
@@ -55,11 +57,15 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
     try:
         beq = beq[:, 0]
         beq = beq.tolist()
+    except IndexError:
+        beq = beq.tolist()
     except:
         pass
 
     try:
         xmin = xmin[:, 0]
+        xmin = xmin.tolist()
+    except IndexError:
         xmin = xmin.tolist()
     except:
         pass
@@ -67,8 +73,11 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
     try:
         xmax = xmax[:, 0]
         xmax = xmax.tolist()
+    except IndexError:
+        xmax = xmax.tolist()
     except:
         pass
+
     if neq == 0: beq = []
     if nineq == 0: b = []
     # modelling based on the high level gurobi api
@@ -78,12 +87,14 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         # Declear the variables
         varnames = ["x" + str(j) for j in range(nx)]
         var_types = [prob.variables.type.continuous] * nx
+
         for i in range(nx):
             if vtypes[i] == "b" or vtypes[i] == "B":
                 var_types[i] = prob.variables.type.binary
+
             elif vtypes[i] == "d" or vtypes[i] == "D":
                 var_types[i] = prob.variables.type.integer
-        prob.variables.add()
+
         prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
         # Populate by non-zero to accelerate the formulation
 
@@ -113,17 +124,35 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                                     senses=sense)
         prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
 
+        prob.set_log_stream(None)
+        prob.set_error_stream(None)
+        prob.set_warning_stream(None)
+        prob.set_results_stream(None)
+        prob.set_problem_type(type=prob.problem_type.LP)
+
         prob.solve()
+        solution=prob.solution
+        print(solution.status[solution.get_status()])
+
+        if solution.is_dual_feasible():
+            print(solution.get_dual_values())
+        else:
+            print("Dual problem is infeasible")
+
+        if solution.is_primal_feasible():
+            print(solution.get_values())
+        else:
+            print("Primal problem is infeasible")
+
         obj = prob.solution.get_objective_value()
         x = prob.solution.get_values()
-
         success = 1
 
     except CplexError:
-        print(CplexError)
         x = 0
         obj = 0
         success = 0
+        print(CplexError)
 
     except AttributeError:
         print('Encountered an attribute error')
@@ -145,17 +174,28 @@ if __name__ == "__main__":
     #        x +   y       >= 1
     #  x, y, z binary
 
-    from numpy import array
-    from scipy.sparse import csr_matrix
+    from numpy import array, zeros
 
-    c = array([1, 1, 2])
-    A = csr_matrix(array([[1, 2, 3],
-                          [-1, -1, 0]]))  # A sparse matrix
-    b = array([4, -1])
-    vtypes = []
-    vtypes.append('b')
-    vtypes.append('b')
-    vtypes.append('b')
+    # c = array([4, 5, 6])
+    #
+    # A = array([[-1, -1, 0],
+    #            [1, -1, 0],
+    #            [-7, -12, 0]])
+    #
+    # b = array([-11, 5, -35])
+    #
+    # Aeq = array([[-1, -1, 1], ])
+    # beq = array([0])
+    #
+    # lb = zeros((3, 1))
+    #
+    # vtypes = ["c"] * 3
+    # solution = mixed_integer_linear_programming(c, A=A, b=b, Aeq=Aeq, beq=beq, xmin=lb, vtypes=vtypes)
 
-    solution = mixed_integer_linear_programming(c, A=A, b=b, vtypes=vtypes)
+    c = array([1,1])
+    A = array([[1,1]])
+    b = array([11])
+    lb = array([6,6])
+    solution = mixed_integer_linear_programming(c, A=A, b=b,xmin=lb)
+
     print(solution)

@@ -15,10 +15,10 @@ The electricity prices are assumed to be ex-ante.
 from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
 from numpy import zeros, ones, array, eye, hstack, vstack
 import numpy as np
-from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+# from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
 
 
-# from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
+from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
 
 
 class TwoStageBidding():
@@ -221,7 +221,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 10
+    N_sample = 50
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
@@ -421,4 +421,4 @@ if __name__ == "__main__":
 
     sol_check = two_stage_bidding.solution_check(sol)
 
-    print(sol)
+    # print(sol)
