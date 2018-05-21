@@ -13,7 +13,7 @@ The electricity prices are assumed to be ex-ante.
 """
 
 from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
-from numpy import zeros, ones, array, eye,hstack,vstack
+from numpy import zeros, ones, array, eye, hstack, vstack
 import numpy as np
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
 
@@ -48,6 +48,9 @@ class TwoStageBidding():
 
         neq = model["Aeq"].shape[0]
         nx = model["Aeq"].shape[1]
+        self.nx = nx
+        self.T = T
+        self.N = N
         Aeq_second_stage = zeros((neq * N, nx * N))
         beq_second_stage = zeros((neq * N, 1))
         lb_second_stage = zeros((nx * N, 1))
@@ -69,7 +72,7 @@ class TwoStageBidding():
             beq_second_stage[i * neq:(i + 1) * neq] = model_second_stage[i]["beq"]
             lb_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["lb"]
             ub_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["ub"]
-            c_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["c"]/N
+            c_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["c"] / N
 
         lb_first_stage = zeros((T, 1))
         ub_first_stage = zeros((T, 1))
@@ -84,15 +87,131 @@ class TwoStageBidding():
         for i in range(N):
             Aeq_first_stage[model["ac_eq"][0]:model["ac_eq"][1], 0:T] = eye(T, dtype=int)
 
-        model["Aeq"] = hstack([Aeq_first_stage,Aeq_second_stage])
+        model["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
         model["beq"] = beq_second_stage
-        model["lb"] = vstack([lb_first_stage,lb_second_stage])
-        model["ub"] = vstack([ub_first_stage,ub_second_stage])
-        model["c"] = vstack([c_first_stage,c_second_stage])
+        model["lb"] = vstack([lb_first_stage, lb_second_stage])
+        model["ub"] = vstack([ub_first_stage, ub_second_stage])
+        model["c"] = vstack([c_first_stage, c_second_stage])
+
+        return model
+
+    def problem_solving(self, model):
+        """
+        Problem solving for the two-stage bidding strategy
+        :param model:
+        :return:
+        """
+        from energy_hub.bidding_strategy.data_format import PUG, PCHP, PAC2DC, PDC2AC, PIAC, EESS, PESS_CH, PESS_DC, \
+            PPV, PCS, QCHP, QGAS, EHSS, QHS_DC, QHS_CH, QAC, QTD, QCE, QIAC, ECSS, QCS_DC, QCS_CH, QCD, VCHP, VGAS, NX
 
         (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"], xmax=model["ub"])
 
-        return model
+        # Try to solve the linear programing problem
+        T = self.T
+        N = self.N
+        nx = self.nx
+        nx_da = T
+        # decouple the solution
+        pug = zeros((T, N))
+        pchp = zeros((T, N))
+        pac2dc = zeros((T, N))
+        pdc2ac = zeros((T, N))
+        piac = zeros((T, N))
+        eess = zeros((T, N))
+        pess_ch = zeros((T, N))
+        pess_dc = zeros((T, N))
+        ppv = zeros((T, N))
+        qchp = zeros((T, N))
+        qgas = zeros((T, N))
+        etss = zeros((T, N))
+        qes_dc = zeros((T, N))
+        qes_ch = zeros((T, N))
+        qac = zeros((T, N))
+        qtd = zeros((T, N))
+        qce = zeros((T, N))
+        qiac = zeros((T, N))
+        ecss = zeros((T, N))
+        qcs_dc = zeros((T, N))
+        qcs_ch = zeros((T, N))
+        qcd = zeros((T, N))
+        vchp = zeros((T, N))
+        vgas = zeros((T, N))
+        for j in range(N):
+            for i in range(T):
+                pug[i, j] = x[nx_da + j * nx + i * NX + PUG]
+                pchp[i, j] = x[nx_da + j * nx + i * NX + PCHP]
+                pac2dc[i, j] = x[nx_da + j * nx + i * NX + PAC2DC]
+                pdc2ac[i, j] = x[nx_da + j * nx + i * NX + PDC2AC]
+                piac[i, j] = x[nx_da + j * nx + i * NX + PIAC]
+                eess[i, j] = x[nx_da + j * nx + i * NX + EESS]
+                pess_ch[i, j] = x[nx_da + j * nx + i * NX + PESS_CH]
+                pess_dc[i, j] = x[nx_da + j * nx + i * NX + PESS_DC]
+                ppv[i, j] = x[nx_da + j * nx + i * NX + PPV]
+                qchp[i, j] = x[nx_da + j * nx + i * NX + QCHP]
+                qgas[i, j] = x[nx_da + j * nx + i * NX + QGAS]
+                etss[i, j] = x[nx_da + j * nx + i * NX + EHSS]
+                qes_dc[i, j] = x[nx_da + j * nx + i * NX + QHS_DC]
+                qes_ch[i, j] = x[nx_da + j * nx + i * NX + QHS_CH]
+                qac[i, j] = x[nx_da + j * nx + i * NX + QAC]
+                qtd[i, j] = x[nx_da + j * nx + i * NX + QTD]
+                qce[i, j] = x[nx_da + j * nx + i * NX + QCE]
+                qiac[i, j] = x[nx_da + j * nx + i * NX + QIAC]
+                ecss[i, j] = x[nx_da + j * nx + i * NX + ECSS]
+                qcs_dc[i, j] = x[nx_da + j * nx + i * NX + QCS_DC]
+                qcs_ch[i, j] = x[nx_da + j * nx + i * NX + QCS_CH]
+                qcd[i, j] = x[nx_da + j * nx + i * NX + QCD]
+                vchp[i, j] = x[nx_da + j * nx + i * NX + VCHP]
+                vgas[i, j] = x[nx_da + j * nx + i * NX + VGAS]
+
+        sol = {"obj": objvalue,
+               "PUG_DA": x[0:T],
+               "PUG": pug,
+               "PCHP": pchp,
+               "PAC2DC": pac2dc,
+               "PDC2AC": pdc2ac,
+               "PIAC": piac,
+               "EESS": eess,
+               "PESS_CH": pess_ch,
+               "PESS_DC": pess_dc,
+               "PPV": ppv,
+               "QCHP": qchp,
+               "QGAS": qgas,
+               "ETSS": etss,
+               "QES_CH": qes_ch,
+               "QES_DC": qes_dc,
+               "QAC": qac,
+               "QTD": qtd,
+               "QCE": qce,
+               "QIAC": qiac,
+               "ECSS": ecss,
+               "QCS_CH": qcs_ch,
+               "QCS_DC": qcs_dc,
+               "QCD": qcd,
+               "VCHP": vchp,
+               "VGAS": vgas,
+               }
+        return sol
+
+    def solution_check(self, sol):
+        # Check the relaxations
+        T = self.T
+        N = self.N
+        bic_relaxation = zeros((N, T))
+        ess_relaxation = zeros((N, T))
+        tes_relaxation = zeros((N, T))
+        ces_relaxation = zeros((N, T))
+        for i in range(N):
+            bic_relaxation[:, i] = np.multiply(sol["PAC2DC"][i, :], sol["PDC2AC"][i, :])
+            ess_relaxation[:, i] = np.multiply(sol["PESS_DC"][i, :], sol["PESS_CH"][i, :])
+            tes_relaxation[:, i] = np.multiply(sol["QES_CH"][i, :], sol["QES_DC"][i, :])
+            ces_relaxation[:, i] = np.multiply(sol["QCS_CH"][i, :], sol["QCS_DC"][i, :])
+
+        sol_check = {"bic": bic_relaxation,
+                     "ess": ess_relaxation,
+                     "tes": tes_relaxation,
+                     "ces": ces_relaxation}
+
+        return sol_check
 
 
 if __name__ == "__main__":
@@ -298,5 +417,8 @@ if __name__ == "__main__":
     model = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage, CCHP=CCHP, THERMAL=THERMAL,
                                                   BIC=BIC,
                                                   ESS=ESS, HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T, N=N_sample)
+    sol = two_stage_bidding.problem_solving(model)
 
-    print(model)
+    sol_check = two_stage_bidding.solution_check(sol)
+
+    print(sol)
