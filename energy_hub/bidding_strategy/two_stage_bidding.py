@@ -133,6 +133,7 @@ class TwoStageBidding():
         b = None
         Aeq = None
         beq = None
+        vtypes = ["c"] * nx_first_stage
         # The coupling contraints between the first stage and second stage decision
         # Two parts, the AC power balance equations
         hs = [0] * N
@@ -164,7 +165,22 @@ class TwoStageBidding():
             # qs0[i] = multiply(qs[i] * model_second_stage[i]["lb"])
             qs0[i] = transpose(qs[i]).dot(model_second_stage[i]["lb"])
 
-        return model
+        model_decomposition = {"c": c,
+                               "lb": lb,
+                               "ub": ub,
+                               "A": A,
+                               "b": b,
+                               "Aeq": Aeq,
+                               "beq": beq,
+                               "vtypes": vtypes,
+                               "ps": ps,
+                               "qs": qs,
+                               "Ts": Ts,
+                               "hs": hs,
+                               "Ws": Ws,
+                               "qs0": qs0
+                               }
+        return model, model_decomposition
 
     def problem_solving(self, model):
         """
@@ -486,8 +502,9 @@ if __name__ == "__main__":
 
     two_stage_bidding = TwoStageBidding()
 
-    model = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage, CCHP=CCHP, THERMAL=THERMAL,
-                                                  BIC=BIC, ESS=ESS, HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T, N=N_sample)
+    (model, model_decomposed) = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage,
+                                                                      CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
+                                                                      HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T, N=N_sample)
 
     sol = two_stage_bidding.problem_solving(model)
 
