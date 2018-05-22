@@ -110,23 +110,26 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
         obj = 0
         for i in range(nx):
             if c[i] != 0:
-                obj+=c[i]*x[i]
+                obj += c[i] * x[i]
 
         model.minimize(obj)
+        model.parameters.preprocessing.presolve = 0
 
         solution = model.solve()
-        # if solution.is_dual_feasible():
-        #     print(solution.get_dual_values())
-        # else:
-        #     print("Dual problem is infeasible")
-        #
-        # if solution.is_primal_feasible():
-        #     print(solution.get_values())
-        # else:
-        #     print("Primal problem is infeasible")
-        x = [solution.get_value(x[i]) for i in range(nx)]
-        obj = solution.get_objective_value()
-        success = 1
+        if solution is None:
+            cp = model.get_engine().get_cplex()
+            x = cp.solution.advanced.get_ray()  # The extreme rays
+            obj = 0
+            success = 2
+        else:
+            if solution.solve_details.status == 'optimal':
+                x = [solution.get_value(x[i]) for i in range(nx)]
+                obj = solution.get_objective_value()
+                success = 1
+            else:
+                x = [0] * nx
+                obj = 0
+                success = 0
 
     except CplexError:
         x = 0
@@ -156,26 +159,28 @@ if __name__ == "__main__":
 
     from numpy import array, zeros
 
-    c = array([4, 5, 6])
-
-    A = array([[-1, -1, 0],
-               [1, -1, 0],
-               [-7, -12, 0]])
-
-    b = array([-11, 5, -35])
-
-    Aeq = array([[-1, -1, 1], ])
-    beq = array([0])
-
-    lb = zeros((3, 1))
+    # c = array([4, 5, 6])
     #
-    vtypes = ["c"] * 3
-    solution = linear_programming(c, A=A, b=b, Aeq=Aeq, beq=beq, xmin=lb, vtypes=vtypes)
+    # A = array([[-1, -1, 0],
+    #            [1, -1, 0],
+    #            [-7, -12, 0]])
+    #
+    # b = array([-11, 5, -35])
+    #
+    # Aeq = array([[-1, -1, 1], ])
+    # beq = array([0])
+    #
+    # lb = zeros((3, 1))
+    # #
+    # vtypes = ["c"] * 3
+    # solution = linear_programming(c, A=A, b=b, Aeq=Aeq, beq=beq, xmin=lb, vtypes=vtypes)
 
-    # c = array([1, 1])
-    # A = array([[1, 1]])
-    # b = array([11])
+    c = array([-3, -2])
+    A = array([[1, -2],
+               [-2, 1],
+               [-1, -1]])
+    b = array([1, 1, -2])
     # lb = array([6, 6])
-    # solution = linear_programming(c, A=A, b=b, xmin=lb)
+    solution = linear_programming(c, A=A, b=b)
 
     print(solution)
