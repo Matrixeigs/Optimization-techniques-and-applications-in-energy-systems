@@ -48,6 +48,12 @@ class TwoStageBidding():
 
         neq = model["Aeq"].shape[0]
         nx = model["Aeq"].shape[1]
+
+        if model["A"] is None:
+            nineq = 0
+        else:
+            nineq = model["A"].shape[0]
+
         self.nx = nx
         self.T = T
         self.N = N
@@ -60,6 +66,7 @@ class TwoStageBidding():
         model_second_stage = [0] * N
         for i in range(N):
             elec[i] = {"UG_MAX": ELEC_DA["UG_MAX"],
+                       "UG_MIN": ELEC_DA["UG_MIN"],
                        "UG_PRICE": ELEC_RT["UG_PRICE"][:, i],
                        "AC_PD": ELEC_RT["AC_PD"][:, i],
                        "DC_PD": ELEC_RT["DC_PD"][:, i],
@@ -78,17 +85,36 @@ class TwoStageBidding():
         ub_first_stage = zeros((T, 1))
         c_first_stage = zeros((T, 1))
         Aeq_first_stage = zeros((neq * N, T))
+        A_first_stage = zeros((2 * T * N, T))
+        A_second_stage = zeros((2 * T * N, nx * N))
+        b_second_stage = zeros((2 * T * N, 1))
+        b_second_stage[0:T * N] = ELEC_DA["UG_MAX"]
+        b_second_stage[T * N:2 * T * N] = -ELEC_DA["UG_MIN"]
+
+        for i in range(N):
+            A_first_stage[i * T:(i + 1) * T, :] = eye(T)  # The upper limit
+            A_first_stage[N * T + i * T:N * T + (i + 1) * T, :] = -eye(T)  # The lower limit
+            for j in range(T):
+                A_second_stage[i * T + j, i * nx + j * model["nx"] + model["pug"]] = 1  # The upper limit
+                A_second_stage[N * T + i * T + j, i * nx + j * model["nx"] + model["pug"]] = -1  # The lower limit
 
         for i in range(T):
-            lb_first_stage[i] = 0
+            lb_first_stage[i] = ELEC_DA["UG_MIN"]
             ub_first_stage[i] = ELEC_DA["UG_MAX"]
             c_first_stage[i] = ELEC_DA["UG_PRICE"][i]
 
         for i in range(N):
-            Aeq_first_stage[model["ac_eq"][0]:model["ac_eq"][1], 0:T] = eye(T, dtype=int)
+            Aeq_first_stage[i * neq + model["ac_eq"][0]:i * neq + model["ac_eq"][1], 0:T] = eye(T)
 
         model["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
         model["beq"] = beq_second_stage
+        if model["A"] is None:
+            model["A"] = hstack([A_first_stage, A_second_stage])
+            model["b"] = b_second_stage
+        else:
+            model["A"] = vstack([model["A"], hstack([A_first_stage, A_second_stage])])
+            model["b"] = vstack([model["A"], b_second_stage])
+
         model["lb"] = vstack([lb_first_stage, lb_second_stage])
         model["ub"] = vstack([ub_first_stage, ub_second_stage])
         model["c"] = vstack([c_first_stage, c_second_stage])
@@ -221,7 +247,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 50
+    N_sample = 10
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
@@ -303,7 +329,7 @@ if __name__ == "__main__":
         PV_second_stage[:, i] = ones((1, T_second_stage)) + np.random.normal(0, forecasting_errors_pv, T_second_stage)
 
         ELEC_PRICE_second_stage[:, i] = ones((1, T_second_stage)) + np.random.normal(0, forecasting_errors_prices,
-                                                                                     T_second_stage)
+                                                                                         T_second_stage)
 
     for i in range(N_sample):
         AC_PD_second_stage[:, i] = np.multiply(AC_PD, AC_PD_second_stage[:, i])
@@ -352,6 +378,7 @@ if __name__ == "__main__":
                "CD": CD, }
 
     ELEC = {"UG_MAX": PUG_MAX,
+            "UG_MIN": 0,
             "UG_PRICE": ELEC_PRICE,
             "AC_PD": AC_PD,
             "DC_PD": DC_PD,
@@ -362,7 +389,7 @@ if __name__ == "__main__":
     ELEC_second_stage = {"AC_PD": AC_PD_second_stage,
                          "DC_PD": DC_PD_second_stage,
                          "PV_PG": PV_second_stage,
-                         "UG_PRICE": ELEC_PRICE_second_stage}
+                         "UG_PRICE": ELEC_PRICE_second_stage, }
 
     BIC = {"CAP": BIC_CAP,
            "EFF": eff_BIC,
@@ -415,10 +442,10 @@ if __name__ == "__main__":
     two_stage_bidding = TwoStageBidding()
 
     model = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage, CCHP=CCHP, THERMAL=THERMAL,
-                                                  BIC=BIC,
-                                                  ESS=ESS, HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T, N=N_sample)
+                                                  BIC=BIC, ESS=ESS, HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T, N=N_sample)
+
     sol = two_stage_bidding.problem_solving(model)
 
     sol_check = two_stage_bidding.solution_check(sol)
 
-    # print(sol)
+    print(sol)

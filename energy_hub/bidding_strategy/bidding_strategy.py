@@ -45,7 +45,7 @@ class EnergyHubManagement():
         ub = zeros((nx, 1))  # The upper boundary
         # Update the boundary information
         for i in range(T):
-            lb[i * NX + PUG] = 0
+            lb[i * NX + PUG] = ELEC["UG_MIN"]
             lb[i * NX + PCHP] = 0
             lb[i * NX + PAC2DC] = 0
             lb[i * NX + PDC2AC] = 0
@@ -276,7 +276,9 @@ class EnergyHubManagement():
                  "c": c,
                  "lb": lb,
                  "ub": ub,
-                 "ac_eq": [9 * T, 10 * T]}
+                 "ac_eq": [9 * T, 10 * T],
+                 "nx": NX,
+                 "pug": PUG}
 
         return model
 
@@ -503,6 +505,7 @@ if __name__ == "__main__":
                "CD": CD, }
 
     ELEC = {"UG_MAX": PUG_MAX,
+            "UG_MIN": -PUG_MAX,
             "UG_PRICE": ELEC_PRICE,
             "AC_PD": AC_PD,
             "DC_PD": DC_PD,
