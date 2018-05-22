@@ -13,7 +13,7 @@ The electricity prices are assumed to be ex-ante.
 """
 
 from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
-from numpy import zeros, ones, array, eye, hstack, vstack
+from numpy import zeros, ones, array, eye, hstack, vstack, inf, transpose
 import numpy as np
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
 
@@ -122,8 +122,47 @@ class TwoStageBidding():
         # Formulate the benders decomposition
         # Reformulate the second stage optimization problems to the standard format
         # Using the following transfering y = x-lb
-
-
+        # 1）Reformulate the first stage problem
+        nslack = 2 * T
+        nx_first_stage = T + nslack
+        # The decision of the first stage optimization
+        c = vstack([ELEC_DA, zeros((nslack, 1))])
+        lb = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
+        ub = vstack([ones((T, 1)) * ELEC_DA["UG_MAX"], ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
+        A = None
+        b = None
+        Aeq = None
+        beq = None
+        # The coupling contraints between the first stage and second stage decision
+        # Two parts, the AC power balance equations
+        hs = [0] * N
+        Ts = [0] * N
+        Ws = [0] * N
+        ps = ones((N, 1)) / N
+        qs = [0] * N
+        qs0 = zeros((N, 1))
+        for i in range(N):
+            # 1) The AC power balance equation
+            hs[i] = model_second_stage[i]["beq"]
+            Ts[i] = zeros((neq, nx_first_stage))
+            Ts[i][model["ac_eq"][0]:model["ac_eq"][1], 0:T] = eye(T)
+            Ws[i] = model_second_stage[i]["Aeq"]
+            # 2) The boundary information
+            hs[i] = vstack([hs[i], ELEC_DA["UG_MAX"] * ones((T, 1)), -ELEC_DA["UG_MIN"] * ones((T, 1))])
+            Ts_temp = vstack([eye(T), -eye(T)])
+            Ts_temp = hstack([Ts_temp, eye(nslack)])
+            Ts[i] = vstack([Ts[i], Ts_temp])
+            Ws_temp = zeros((2 * T, nx))
+            for j in range(T):
+                Ws_temp[j, j * model["nx"] + model["pug"]] = 1  # The upper limit
+                Ws_temp[T + j, j * model["nx"] + model["pug"]] = -1  # The lower limit
+            Ws[i] = vstack([Ws[i], Ws_temp])
+            # Update the hs
+            # hs[i] = multiply(Ws[i] * model_second_stage[i]["lb"])
+            hs[i] = Ws[i].dot(model_second_stage[i]["lb"])
+            qs[i] = model_second_stage[i]["c"]
+            # qs0[i] = multiply(qs[i] * model_second_stage[i]["lb"])
+            qs0[i] = transpose(qs[i]).dot(model_second_stage[i]["lb"])
 
         return model
 
@@ -246,8 +285,6 @@ class TwoStageBidding():
         return sol_check
 
 
-
-
 if __name__ == "__main__":
     # A test system
     # 1) System level configuration
@@ -255,7 +292,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 200
+    N_sample = 2
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
@@ -337,7 +374,7 @@ if __name__ == "__main__":
         PV_second_stage[:, i] = ones((1, T_second_stage)) + np.random.normal(0, forecasting_errors_pv, T_second_stage)
 
         ELEC_PRICE_second_stage[:, i] = ones((1, T_second_stage)) + np.random.normal(0, forecasting_errors_prices,
-                                                                                         T_second_stage)
+                                                                                     T_second_stage)
 
     for i in range(N_sample):
         AC_PD_second_stage[:, i] = np.multiply(AC_PD, AC_PD_second_stage[:, i])

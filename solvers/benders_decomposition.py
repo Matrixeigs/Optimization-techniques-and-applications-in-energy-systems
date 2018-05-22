@@ -34,7 +34,7 @@ class BendersDecomposition():
     def __init__(self):
         self.name = "Benders decomposition"
 
-    def main(self, c, A, b, Aeq, beq, vtype, ps, qs, Ws, hs, Ts):
+    def main(self, c, A, b, Aeq, beq, lb, ub, vtype, ps, qs, Ws, hs, Ts):
         """
         The standard input format for Benders decomposition problem
         :param c: Cost parameter for the first stage optimization
@@ -44,7 +44,7 @@ class BendersDecomposition():
         :param beq: Equality constraint parameters for the first stage optimization
         :param vtype: The type for the first stage optimization problems
         :param ps: Probability for the second stage optimization problem under scenario s
-        :param qs: Cost parameters for the second stage optimization problem
+        :param qs: Cost parameters for the second stage optimization problem, a list of arrays
         :param Ws: Equality constraint parameters for the second stage optimization, a list of arrays
         :param hs: Equality constraint parameters for the second stage optimization
         :param Ts: Equality constraint matrix between the first stage and the second stage optimization
@@ -56,6 +56,8 @@ class BendersDecomposition():
                              "beq": beq,
                              "A": A,
                              "b": b,
+                             "lb": lb,
+                             "ub": ub,
                              "vtypes": vtype}
 
         sol_first_stage = BendersDecomposition.master_problem(self, model_first_stage)
