@@ -15,10 +15,10 @@ The electricity prices are assumed to be ex-ante.
 from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
 from numpy import zeros, ones, array, eye, hstack, vstack
 import numpy as np
-# from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
 
 
-from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
+# from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
 
 
 class TwoStageBidding():
@@ -118,6 +118,12 @@ class TwoStageBidding():
         model["lb"] = vstack([lb_first_stage, lb_second_stage])
         model["ub"] = vstack([ub_first_stage, ub_second_stage])
         model["c"] = vstack([c_first_stage, c_second_stage])
+
+        # Formulate the benders decomposition
+        # Reformulate the second stage optimization problems to the standard format
+        # Using the following transfering y = x-lb
+
+
 
         return model
 
@@ -240,6 +246,8 @@ class TwoStageBidding():
         return sol_check
 
 
+
+
 if __name__ == "__main__":
     # A test system
     # 1) System level configuration
@@ -247,7 +255,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 10
+    N_sample = 200
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
