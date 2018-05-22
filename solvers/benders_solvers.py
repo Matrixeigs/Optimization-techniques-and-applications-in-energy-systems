@@ -3,7 +3,7 @@ Mixed-integer programming using the CPLEX
 """
 from docplex.mp.model import Model
 import cplex
-from numpy import ones
+from numpy import ones,array
 from cplex.exceptions import CplexError
 
 
@@ -93,11 +93,6 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
                     if Aeq[i, j] != 0:
                         expr += Aeq[i, j] * x[j]
                 model.add_constraint(expr == beq[i])
-                # gurobi_model.addConstr(beq[i] == quicksum(Aeq[i, j] * x[j] for j in range(nx)))
-                # gurobi_model.addConstr(x.prod(Aeq[i, :]) == beq[i])
-                # print(i)
-
-            # gurobi_model.addConstrs()
         # Inequal constraints
         if nineq != 0:
             for i in range(nineq):
@@ -112,7 +107,7 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
             if c[i] != 0:
                 obj += c[i] * x[i]
 
-        model.minimize(obj)
+        model.maximize(obj)
         model.parameters.preprocessing.presolve = 0
 
         solution = model.solve()
@@ -145,7 +140,7 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
 
     # elapse_time = time.time() - t0
     # print(elapse_time)
-    return x, obj, success
+    return array(x).reshape(nx,1), obj, success
 
 
 if __name__ == "__main__":
@@ -157,7 +152,7 @@ if __name__ == "__main__":
     #        x +   y       >= 1
     #  x, y, z binary
 
-    from numpy import array, zeros
+
 
     # c = array([4, 5, 6])
     #
