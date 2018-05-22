@@ -1,12 +1,14 @@
 """
 Mixed-integer programming using the CPLEX
 """
-import cplex  # import the cplex solver package
+from docplex.mp.model import Model
+import cplex
 from numpy import ones
 from cplex.exceptions import CplexError
 
-def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
-                                     opt=None):
+
+def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
+                       opt=None):
     # t0 = time.time()
     if type(c) == list:
         nx = len(c)
@@ -79,62 +81,40 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
 
     if neq == 0: beq = []
     if nineq == 0: b = []
-    # modelling based on the high level gurobi api
+    # modelling based on the high level cplex api
     try:
-        prob = cplex.Cplex()
-        prob.objective.set_sense(prob.objective.sense.minimize)
-        # Declear the variables
-        varnames = ["x" + str(j) for j in range(nx)]
-        var_types = [prob.variables.type.continuous] * nx
+        model = Model()
+        x = model.continuous_var_dict(nx, lb=xmin, ub=xmax, name=None)
 
-        for i in range(nx):
-            if vtypes[i] == "b" or vtypes[i] == "B":
-                var_types[i] = prob.variables.type.binary
-
-            elif vtypes[i] == "d" or vtypes[i] == "D":
-                var_types[i] = prob.variables.type.integer
-
-        prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
-        # Populate by non-zero to accelerate the formulation
-
-        rhs = beq + b
-        sense = ['E'] * neq + ["L"] * nineq
-
-        rows = []
-        cols = []
-        vals = []
         if neq != 0:
             for i in range(neq):
+                expr = 0
                 for j in range(nx):
                     if Aeq[i, j] != 0:
-                        rows.append(i)
-                        cols.append(j)
-                        vals.append(float(Aeq[i, j]))
+                        expr += Aeq[i, j] * x[j]
+                model.add_constraint(expr == beq[i])
+                # gurobi_model.addConstr(beq[i] == quicksum(Aeq[i, j] * x[j] for j in range(nx)))
+                # gurobi_model.addConstr(x.prod(Aeq[i, :]) == beq[i])
+                # print(i)
 
+            # gurobi_model.addConstrs()
+        # Inequal constraints
         if nineq != 0:
             for i in range(nineq):
+                expr = 0
                 for j in range(nx):
                     if A[i, j] != 0:
-                        rows.append(i + neq)
-                        cols.append(j)
-                        vals.append(float(A[i, j]))
-        if len(rows) != 0:
-            prob.linear_constraints.add(rhs=rhs,
-                                        senses=sense)
-            prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
+                        expr += A[i, j] * x[j]
+                model.add_constraint(expr <= b[i])
+        # Set the objective function
+        obj = 0
+        for i in range(nx):
+            if c[i] != 0:
+                obj+=c[i]*x[i]
 
-        # prob.set_log_stream(None)
-        # prob.set_error_stream(None)
-        # prob.set_warning_stream(None)
-        # prob.set_results_stream(None)
-        prob.set_problem_type(type=prob.problem_type.LP)
-        prob.parameters.preprocessing.presolve =0
+        model.minimize(obj)
 
-        prob.solve()
-
-        solution = prob.solution
-        print(solution.status[solution.get_status()])
-
+        solution = model.solve()
         # if solution.is_dual_feasible():
         #     print(solution.get_dual_values())
         # else:
@@ -144,9 +124,8 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         #     print(solution.get_values())
         # else:
         #     print("Primal problem is infeasible")
-
-        obj = prob.solution.get_objective_value()
-        x = prob.solution.get_values()
+        x = [solution.get_value(x[i]) for i in range(nx)]
+        obj = solution.get_objective_value()
         success = 1
 
     except CplexError:
@@ -177,26 +156,26 @@ if __name__ == "__main__":
 
     from numpy import array, zeros
 
-    # c = array([4, 5, 6])
-    #
-    # A = array([[-1, -1, 0],
-    #            [1, -1, 0],
-    #            [-7, -12, 0]])
-    #
-    # b = array([-11, 5, -35])
-    #
-    # Aeq = array([[-1, -1, 1], ])
-    # beq = array([0])
-    #
-    # lb = zeros((3, 1))
-    #
-    # vtypes = ["c"] * 3
-    # solution = mixed_integer_linear_programming(c, A=A, b=b, Aeq=Aeq, beq=beq, xmin=lb, vtypes=vtypes)
+    c = array([4, 5, 6])
 
-    c = array([1, 1])
-    A = array([[1, 1]])
-    b = array([11])
-    lb = array([6, 6])
-    solution = mixed_integer_linear_programming(c, A=A, b=b, xmin=lb)
+    A = array([[-1, -1, 0],
+               [1, -1, 0],
+               [-7, -12, 0]])
+
+    b = array([-11, 5, -35])
+
+    Aeq = array([[-1, -1, 1], ])
+    beq = array([0])
+
+    lb = zeros((3, 1))
+    #
+    vtypes = ["c"] * 3
+    solution = linear_programming(c, A=A, b=b, Aeq=Aeq, beq=beq, xmin=lb, vtypes=vtypes)
+
+    # c = array([1, 1])
+    # A = array([[1, 1]])
+    # b = array([11])
+    # lb = array([6, 6])
+    # solution = linear_programming(c, A=A, b=b, xmin=lb)
 
     print(solution)

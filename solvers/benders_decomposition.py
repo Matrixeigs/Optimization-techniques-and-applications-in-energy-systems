@@ -71,10 +71,11 @@ class BendersDecomposition():
 
         self.N = len(ps)  # The number of second stage decision variables
         self.nx_second_stage = Ws[0].shape[1]
-        self.nx_first_stage = Aeq.shape[1]
+        self.nx_first_stage = lb.shape[0]
         M = 10 ^ 8
 
         model_second_stage = [0] * self.N
+
         for i in range(self.N):
             model_second_stage[i] = {"c": qs[i],
                                      "Aeq": Ws[i],
@@ -90,11 +91,13 @@ class BendersDecomposition():
         # 2.2) Add additional variables to the first stage optimization problem
         # Using the multiple cuts version
         model_master = deepcopy(model_first_stage)
-        model_master["c"] = hstack([model_first_stage["c"], ps])
-        model_master["Aeq"] = hstack([model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], self.N))])
-        model_master["A"] = hstack([model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.N))])
-        model_master["lb"] = hstack([model_first_stage["lb"], -ones((self.N, 1)) * M])
-        model_master["ub"] = hstack([model_first_stage["ub"], ones((self.N, 1)) * M])
+        model_master["c"] = vstack([model_first_stage["c"], ps])
+        if model_master["Aeq"] != None:
+            model_master["Aeq"] = hstack([model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], self.N))])
+        if model_master["A"] != None:
+            model_master["A"] = hstack([model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.N))])
+        model_master["lb"] = vstack([model_first_stage["lb"], -ones((self.N, 1)) * M])
+        model_master["ub"] = vstack([model_first_stage["ub"], ones((self.N, 1)) * M])
 
         # 3) Reformulate the second stage optimization problem
         # 3.1) Formulate the dual problem for each problem under dual problems
@@ -109,7 +112,7 @@ class BendersDecomposition():
 
         for i in range(self.N):
             # Solve the dual problem
-            sol_second_stage[i] = BendersDecomposition.sub_problem_dual(self, model_second_stage[i])
+            sol_second_stage[i] = BendersDecomposition.sub_problem(self, model_second_stage[i])
 
             A_cuts[i, 0:self.nx_first_stage] = transpose(
                 multiply(sol_second_stage[i]["x"], model_second_stage[i]["Ts"]))
@@ -149,9 +152,8 @@ class BendersDecomposition():
                 # Solve the dual problem
                 sol_second_stage[i] = BendersDecomposition.sub_problem_dual(self, model_second_stage[i])
 
-                A_cuts[i, 0:self.nx_first_stage] = transpose(
-                    multiply(sol_second_stage[i]["x"], model_second_stage[i]["Ts"]))
-                b_cuts[i, 0] = - multiply(sol_second_stage[i]["x"], model_second_stage[i]["hs"])
+                A_cuts[i, 0:self.nx_first_stage] = transpose(model_second_stage[i]["Ts"].dot(sol_second_stage[i]["x"]))
+                b_cuts[i, 0] = - transpose(sol_second_stage[i]["x"].dot(model_second_stage[i]["hs"]))
 
                 if sol_second_stage[i]["status"] == "optimal":  # if the primal problem is feasible, add feasible cuts
                     A_cuts[i, 0:self.nx_first_stage + i] = -1
@@ -203,7 +205,7 @@ class BendersDecomposition():
                "objvalue": objvalue,
                "status": status}
 
-        return model
+        return sol
 
     def sub_problem_dual(self, model):
         """
@@ -217,7 +219,7 @@ class BendersDecomposition():
                "objvalue": objvalue,
                "status": status}
 
-        return model
+        return sol
 
     def sub_problems_update(self, model, x):
         """
