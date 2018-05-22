@@ -34,7 +34,8 @@ class BendersDecomposition():
     def __init__(self):
         self.name = "Benders decomposition"
 
-    def main(self, c, A, b, Aeq, beq, lb, ub, vtype, ps, qs, Ws, hs, Ts):
+    def main(self, c=None, A=None, b=None, Aeq=None, beq=None, lb=None, ub=None, vtype=None, ps=None, qs=None, Ws=None,
+             hs=None, Ts=None):
         """
         The standard input format for Benders decomposition problem
         :param c: Cost parameter for the first stage optimization
@@ -162,6 +163,7 @@ class BendersDecomposition():
                 objvalue_second_stage, ps)
 
             Gap.append(BendersDecomposition.gap_calculaiton(self, Upper, Lower))
+            print(Gap[-1])
 
         x_first_stage = sol_first_stage[0:self.nx_first_stage]
 
@@ -187,7 +189,7 @@ class BendersDecomposition():
                "objvalue": objvalue,
                "status": status}
 
-        return model
+        return sol
 
     def sub_problem(self, model):
         """

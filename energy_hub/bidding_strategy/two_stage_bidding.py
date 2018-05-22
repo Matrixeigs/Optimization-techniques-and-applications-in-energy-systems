@@ -16,6 +16,7 @@ from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # 
 from numpy import zeros, ones, array, eye, hstack, vstack, inf, transpose
 import numpy as np
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+from solvers.benders_decomposition import BendersDecomposition
 
 
 # from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
@@ -126,7 +127,7 @@ class TwoStageBidding():
         nslack = 2 * T
         nx_first_stage = T + nslack
         # The decision of the first stage optimization
-        c = vstack([ELEC_DA, zeros((nslack, 1))])
+        c = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1))])
         lb = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
         ub = vstack([ones((T, 1)) * ELEC_DA["UG_MAX"], ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
         A = None
@@ -366,7 +367,7 @@ if __name__ == "__main__":
          0.14, 0.02, 0.02, 0.00, 0.00, 0.00])
 
     ELEC_PRICE = electricity_price / 300
-
+    ELEC_PRICE = ELEC_PRICE.reshape(T,1)
     Eess_cost = 0.01
 
     PV_PG = PV_PG * PV_CAP
@@ -396,7 +397,7 @@ if __name__ == "__main__":
         AC_PD_second_stage[:, i] = np.multiply(AC_PD, AC_PD_second_stage[:, i])
         DC_PD_second_stage[:, i] = np.multiply(DC_PD, DC_PD_second_stage[:, i])
         PV_second_stage[:, i] = np.multiply(PV_PG, PV_second_stage[:, i])
-        ELEC_PRICE_second_stage[:, i] = np.multiply(ELEC_PRICE, ELEC_PRICE_second_stage[:, i])
+        ELEC_PRICE_second_stage[:, i] = np.multiply(transpose(ELEC_PRICE), ELEC_PRICE_second_stage[:, i])
 
         # Chech the boundary information
         for j in range(T_second_stage):
@@ -439,7 +440,7 @@ if __name__ == "__main__":
                "CD": CD, }
 
     ELEC = {"UG_MAX": PUG_MAX,
-            "UG_MIN": 0,
+            "UG_MIN": -PUG_MAX,
             "UG_PRICE": ELEC_PRICE,
             "AC_PD": AC_PD,
             "DC_PD": DC_PD,
@@ -505,6 +506,16 @@ if __name__ == "__main__":
     (model, model_decomposed) = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage,
                                                                       CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
                                                                       HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T, N=N_sample)
+
+    bender_decomposition = BendersDecomposition()
+
+    sol_decomposed = bender_decomposition.main(c=model_decomposed["c"], A=model_decomposed["A"],
+                                               b=model_decomposed["b"], Aeq=model_decomposed["Aeq"],
+                                               beq=model_decomposed["beq"], lb=model_decomposed["lb"],
+                                               ub=model_decomposed["ub"], vtype=model_decomposed["vtypes"],
+                                               ps=model_decomposed["ps"], qs=model_decomposed["qs"],
+                                               Ws=model_decomposed["Ws"], Ts=model_decomposed["Ts"],
+                                               hs=model_decomposed["hs"])
 
     sol = two_stage_bidding.problem_solving(model)
 

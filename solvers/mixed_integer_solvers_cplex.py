@@ -119,10 +119,10 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                         rows.append(i + neq)
                         cols.append(j)
                         vals.append(float(A[i, j]))
-
-        prob.linear_constraints.add(rhs=rhs,
-                                    senses=sense)
-        prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
+        if len(rows) != 0:
+            prob.linear_constraints.add(rhs=rhs,
+                                        senses=sense)
+            prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
 
         # prob.set_log_stream(None)
         # prob.set_error_stream(None)
@@ -131,7 +131,7 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         prob.set_problem_type(type=prob.problem_type.LP)
 
         prob.solve()
-        solution=prob.solution
+        solution = prob.solution
         print(solution.status[solution.get_status()])
 
         if solution.is_dual_feasible():
@@ -192,10 +192,10 @@ if __name__ == "__main__":
     # vtypes = ["c"] * 3
     # solution = mixed_integer_linear_programming(c, A=A, b=b, Aeq=Aeq, beq=beq, xmin=lb, vtypes=vtypes)
 
-    c = array([1,1])
-    A = array([[1,1]])
+    c = array([1, 1])
+    A = array([[1, 1]])
     b = array([11])
-    lb = array([6,6])
-    solution = mixed_integer_linear_programming(c, A=A, b=b,xmin=lb)
+    lb = array([6, 6])
+    solution = mixed_integer_linear_programming(c, A=A, b=b, xmin=lb)
 
     print(solution)
