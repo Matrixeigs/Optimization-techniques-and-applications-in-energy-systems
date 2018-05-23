@@ -179,7 +179,7 @@ class BendersDecomposition():
 
             Gap.append(BendersDecomposition.gap_calculaiton(self, Upper[0], Lower))
             print(Gap[-1][0])
-            print(Lower)
+            # print(Lower)
             iter += 1
 
             if Gap[-1][0] < eps:
