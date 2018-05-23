@@ -13,6 +13,7 @@ Benders decomposition method for two-stage stochastic optimization problems
 References:
     [1]Benders Decomposition for Solving Two-stage Stochastic Optimization Models
     https://www.ima.umn.edu/materials/2015-2016/ND8.1-12.16/25378/Luedtke-spalgs.pdf
+    [2]http://www.iems.ucf.edu/qzheng/grpmbr/seminar/Yuping_Intro_to_BendersDecomp.pdf
 @author: Tianyang Zhao
 @e-mail: zhaoty@ntu.edu.sg
 @date: 8 Feb 2018
@@ -71,9 +72,10 @@ class BendersDecomposition():
             print("The master problem is feasible, the process continutes!")
 
         self.N = len(ps)  # The number of second stage decision variables
+
         self.nx_second_stage = Ws[0].shape[1]
         self.nx_first_stage = lb.shape[0]
-        M = inf
+        M = 10 ** 8
         model_second_stage = [0] * self.N
 
         for i in range(self.N):
@@ -92,8 +94,17 @@ class BendersDecomposition():
             model_master["Aeq"] = hstack([model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], self.N))])
         if model_master["A"] is not None:
             model_master["A"] = hstack([model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.N))])
-        model_master["lb"] = vstack([model_first_stage["lb"], -ones((self.N, 1)) * M])
-        model_master["ub"] = vstack([model_first_stage["ub"], ones((self.N, 1)) * M])
+
+        if model_master["lb"] is not None:
+            model_master["lb"] = vstack([model_first_stage["lb"], -ones((self.N, 1)) * M])
+        else:
+            model_master["lb"] = -ones((self.N + self.nx_first_stage, 1)) * M
+
+        if model_master["ub"] is not None:
+            model_master["ub"] = vstack([model_first_stage["ub"], ones((self.N, 1)) * M])
+        else:
+            model_master["ub"] = ones((self.N + self.nx_first_stage, 1)) * M
+
         model_master["vtypes"] = ["c"] * model_master["c"].shape[0]
 
         # 3) Reformulate the second stage optimization problem
@@ -255,16 +266,42 @@ class BendersDecomposition():
 
 
 if __name__ == "__main__":
-    c = array([2, 3, 0, 0]).reshape(4, 1)
-    Ts = array([[1, 2, -1, 0], [2, -1, 0, -1]])
-    hs = array([3, 4]).reshape(2, 1)
-    Ws = array([1, 3]).reshape(2, 1)
-    lb = zeros((4, 1))
-    ub = ones((4, 1)) * inf
-    qs = array([2]).reshape(1, 1)
-    benders_decomposition = BendersDecomposition()
-    sol = benders_decomposition.main(c=c, lb=lb, ub=ub, ps=[1], qs=[qs], hs=[hs], Ts=[Ts], Ws=[Ws])
-    print(sol)
+    # c = array([2, 3, 0, 0]).reshape(4, 1)
+    # Ts = array([[1, 2, -1, 0], [2, -1, 0, -1]])
+    # hs = array([3, 4]).reshape(2, 1)
+    # Ws = array([1, 3]).reshape(2, 1)
+    # lb = zeros((4, 1))
+    # ub = ones((4, 1)) * inf
+    # qs = array([2]).reshape(1, 1)
+    # benders_decomposition = BendersDecomposition()
+    # sol = benders_decomposition.main(c=c, lb=lb, ub=ub, ps=[1], qs=[qs], hs=[hs], Ts=[Ts], Ws=[Ws])
+    # print(sol)
 
     # The second test case
+    c = array([1, 1]).reshape(2, 1)
+    lb = zeros((2, 1))
 
+    ps = array([1 / 3, 1 / 3, 1 / 3]).reshape(3, 1)
+    hs = [0] * 3
+    hs[0] = array([7, 4]).reshape(2, 1)
+    hs[1] = array([7, 4]).reshape(2, 1)
+    hs[2] = array([7, 4]).reshape(2, 1)
+
+    Ws = [0] * 3
+    Ws[0] = array([[1, 0, -1, 0], [1, 0, 0, -1]])
+    Ws[1] = array([[1, 0, -1, 0], [1, 0, 0, -1]])
+    Ws[2] = array([[1, 0, -1, 0], [1, 0, 0, -1]])
+
+    Ts = [0] * 3
+    Ts[0] = array([[1, 1], [1 / 3, 1]])
+    Ts[1] = array([[5 / 2, 1], [2 / 3, 1]])
+    Ts[2] = array([[4, 1], [1, 1]])
+
+    qs = [0] * 3
+    qs[0] = array([1, 1, 0, 0])
+    qs[1] = array([1, 1, 0, 0])
+    qs[2] = array([1, 1, 0, 0])
+
+    benders_decomposition = BendersDecomposition()
+    sol = benders_decomposition.main(c=c, lb=lb, ps=ps, qs=qs, hs=hs, Ts=Ts, Ws=Ws)
+    print(sol)
