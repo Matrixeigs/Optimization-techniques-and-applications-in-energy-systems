@@ -119,6 +119,48 @@ class TwoStageBidding():
         model["lb"] = vstack([lb_first_stage, lb_second_stage])
         model["ub"] = vstack([ub_first_stage, ub_second_stage])
         model["c"] = vstack([c_first_stage, c_second_stage])
+        # Test model for the boundary information
+        nslack = 2 * T
+        nx_first_stage = T + nslack
+        neq_extended = neq + nslack
+        nx_second_stage = nx * N
+        # The decision of the first stage optimization
+        c_first_stage = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1))])
+        lb_first_stage = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
+        ub_first_stage = vstack(
+            [ones((T, 1)) * ELEC_DA["UG_MAX"], 1000*ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
+
+        Aeq_first_stage = zeros((neq_extended * N, nx_first_stage))
+        Aeq_second_stage = zeros((neq_extended * N, nx_second_stage))
+        beq_second_stage = zeros((neq_extended * N, 1))
+        for i in range(N):
+            Aeq_first_stage[i * neq_extended + model["ac_eq"][0]:i * neq_extended + model["ac_eq"][1], 0:T] = eye(T)
+
+            Aeq_first_stage[i * neq_extended + neq:i * neq_extended + neq + T, 0:T] = eye(T)
+            Aeq_first_stage[i * neq_extended + neq:i * neq_extended + neq + T, T:2 * T] = eye(T)
+
+            Aeq_first_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T, 0:T] = -eye(T)
+            Aeq_first_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T, 2 * T:3 * T] = eye(T)
+
+            Aeq_second_stage[i * neq_extended:i * neq_extended + neq, i * nx:(i + 1) * nx] = model_second_stage[i][
+                "Aeq"]
+
+            for j in range(T):
+                Aeq_second_stage[
+                    i * neq_extended + neq + j, i * nx + j * model["nx"] + model["pug"]] = 1  # The upper limit
+                Aeq_second_stage[
+                    i * neq_extended + neq + T + j, i * nx + j * model["nx"] + model["pug"]] = -1  # The lower limit
+
+            beq_second_stage[i * neq_extended:i * neq_extended + neq] = model_second_stage[i]["beq"]
+            beq_second_stage[i * neq_extended + neq:i * neq_extended + neq + T] = ELEC_DA["UG_MAX"]
+            beq_second_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T] = -ELEC_DA["UG_MIN"]
+
+        model_test = {}
+        model_test["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
+        model_test["beq"] = beq_second_stage
+        model_test["lb"] = vstack([lb_first_stage, lb_second_stage])
+        model_test["ub"] = vstack([ub_first_stage, ub_second_stage])
+        model_test["c"] = vstack([c_first_stage, c_second_stage])
 
         # Formulate the benders decomposition
         # Reformulate the second stage optimization problems to the standard format
@@ -129,7 +171,8 @@ class TwoStageBidding():
         # The decision of the first stage optimization
         c = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1))])
         lb = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
-        ub = vstack([ones((T, 1)) * ELEC_DA["UG_MAX"], ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
+        ub = vstack(
+            [ones((T, 1)) * ELEC_DA["UG_MAX"], 20 * ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
         A = None
         b = None
         Aeq = None
@@ -219,7 +262,7 @@ class TwoStageBidding():
         model_compact["c"] = vstack([c_first_stage, c_second_stage])
         model_compact["c0"] = model_decomposition["qs0"]
 
-        return model, model_decomposition, model_compact
+        return model, model_decomposition, model_test
 
     def problem_solving(self, model):
         """
@@ -347,7 +390,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 1
+    N_sample = 5
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
@@ -548,8 +591,9 @@ if __name__ == "__main__":
                                                                                      HVAC=HVAC, BOIL=BOIL, CHIL=CHIL,
                                                                                      T=T, N=N_sample)
 
-    sol = two_stage_bidding.problem_solving(model)# This problem is feasible and optimal
-    sol_test = lp(c=model["c"],Aeq=model["Aeq"], beq=model["beq"], A=model["A"],b=model["b"],xmin=model["lb"],xmax=model["ub"]) # The solver test has been passed
+    sol = two_stage_bidding.problem_solving(model)  # This problem is feasible and optimal
+    sol_test = lp(c=model["c"], Aeq=model["Aeq"], beq=model["beq"], A=model["A"], b=model["b"], xmin=model["lb"],
+                  xmax=model["ub"])  # The solver test has been passed
 
     sol_compact = lp(c=model_compact["c"], Aeq=model_compact["Aeq"], beq=model_compact["beq"], xmin=model_compact["lb"],
                      xmax=model_compact["ub"])
@@ -563,7 +607,6 @@ if __name__ == "__main__":
                                                ps=model_decomposed["ps"], qs=model_decomposed["qs"],
                                                Ws=model_decomposed["Ws"], Ts=model_decomposed["Ts"],
                                                hs=model_decomposed["hs"])
-
 
     obj = sol_decomposed["objvalue"][0] + model_decomposed["qs0"]
     sol_check = two_stage_bidding.solution_check(sol)
