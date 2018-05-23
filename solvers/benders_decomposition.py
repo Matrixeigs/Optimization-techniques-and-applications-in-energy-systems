@@ -22,11 +22,11 @@ notes:
 1) The data structure is based on the numpy and scipy
 2) This algorithm should be extended for further version to solve the jointed chance constrained stochastic programming
 3) In this test algorithm, Mosek is adpoted. https://www.mosek.com/
-4) In the second stage optimization, the dual problem is solved, so that only the gurobi problem is needed to solve the problem.
+4) In the second stage optimization, the dual problem is solved, so that only the cplex problem is needed to solve the problem.
 5) The multi-cuts version Benders decomposition is adopted.
 """
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
-from numpy import zeros, hstack, vstack, multiply, transpose, ones, inf, array
+from numpy import zeros, hstack, vstack, transpose, ones, inf, array
 from copy import deepcopy
 from solvers.benders_solvers import linear_programming as lp_dual
 
@@ -111,7 +111,7 @@ class BendersDecomposition():
         for i in range(self.N):
             # Solve the dual problem
             sol_second_stage[i] = BendersDecomposition.sub_problem_dual(self, model_second_stage[i])
-            sol_second_stage_primal[i] = BendersDecomposition.sub_problem(self, model_second_stage[i])
+            # sol_second_stage_primal[i] = BendersDecomposition.sub_problem(self, model_second_stage[i])
             A_cuts[i, 0:self.nx_first_stage] = transpose(
                 transpose(model_second_stage[i]["Ts"]).dot(sol_second_stage[i]["x"]))
             b_cuts[i, 0] = -transpose(sol_second_stage[i]["x"]).dot(model_second_stage[i]["hs"])

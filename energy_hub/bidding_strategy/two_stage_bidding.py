@@ -230,9 +230,15 @@ class TwoStageBidding():
         for i in range(N):
             # 1) The AC power balance equation
             hs[i] = model_test_second_stage["beq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage]
-            Ts[i] = model_test_second_stage["Aeq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage, 0:nx_first_stage]
-            Ws[i] = model_test_second_stage["Aeq"][ i * neq_extended:(i + 1) * neq_extended,nx_first_stage + i * nx_extended_second_stage:nx_first_stage + (i + 1) * nx_extended_second_stage]
-            qs[i] = model_test_second_stage["c"][nx_first_stage + i * nx_extended_second_stage:nx_first_stage + (i + 1) * nx_extended_second_stage]
+
+            Ts[i] = model_test_second_stage["Aeq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage,
+                    0:nx_first_stage]
+
+            Ws[i] = model_test_second_stage["Aeq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage,
+                    nx_first_stage + i * nx_extended_second_stage:nx_first_stage + (i + 1) * nx_extended_second_stage]
+
+            qs[i] = model_test_second_stage["c"][
+                    nx_first_stage + i * nx_extended_second_stage:nx_first_stage + (i + 1) * nx_extended_second_stage]
 
         model_decomposition = {"c": c_first_stage,
                                "lb": lb_first_stage,
@@ -577,23 +583,24 @@ if __name__ == "__main__":
                                                                                      HVAC=HVAC, BOIL=BOIL, CHIL=CHIL,
                                                                                      T=T, N=N_sample)
 
-    sol = two_stage_bidding.problem_solving(model)  # This problem is feasible and optimal
-    sol_test = lp(c=model["c"], Aeq=model["Aeq"], beq=model["beq"], A=model["A"], b=model["b"], xmin=model["lb"],
-                  xmax=model["ub"])  # The solver test has been passed
-
-    sol_compact = lp(c=model_compact["c"], Aeq=model_compact["Aeq"], beq=model_compact["beq"], xmin=model_compact["lb"],
-                     xmax=model_compact["ub"])
+    #
+    # sol_test = lp(c=model["c"], Aeq=model["Aeq"], beq=model["beq"], A=model["A"], b=model["b"], xmin=model["lb"],
+    #               xmax=model["ub"])  # The solver test has been passed
+    #
+    # sol_compact = lp(c=model_compact["c"], Aeq=model_compact["Aeq"], beq=model_compact["beq"], xmin=model_compact["lb"],
+    #                  xmax=model_compact["ub"])
 
     bender_decomposition = BendersDecomposition()
 
     sol_decomposed = bender_decomposition.main(c=model_decomposed["c"], A=model_decomposed["A"],
                                                b=model_decomposed["b"], Aeq=model_decomposed["Aeq"],
                                                beq=model_decomposed["beq"], lb=model_decomposed["lb"],
-                                               ub=model_decomposed["ub"], vtype=model_decomposed["vtypes"],
-                                               ps=model_decomposed["ps"], qs=model_decomposed["qs"],
+                                               ub=model_decomposed["ub"], ps=model_decomposed["ps"],
+                                               qs=model_decomposed["qs"],
                                                Ws=model_decomposed["Ws"], Ts=model_decomposed["Ts"],
                                                hs=model_decomposed["hs"])
 
+    sol = two_stage_bidding.problem_solving(model)  # This problem is feasible and optimal
     obj = sol_decomposed["objvalue"][0] + model_decomposed["qs0"]
     sol_check = two_stage_bidding.solution_check(sol)
 
