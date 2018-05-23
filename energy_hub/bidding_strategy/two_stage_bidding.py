@@ -162,9 +162,14 @@ class TwoStageBidding():
             # Update the hs
             # hs[i] = multiply(Ws[i] * model_second_stage[i]["lb"])
             hs[i] = Ws[i].dot(model_second_stage[i]["lb"])
-            qs[i] = model_second_stage[i]["c"]
-            # qs0[i] = multiply(qs[i] * model_second_stage[i]["lb"])
-            qs0[i] = transpose(qs[i]).dot(model_second_stage[i]["lb"])
+            # 3） Update the boundary information
+            hs[i] = vstack([hs[i], model_second_stage[i]["ub"] - model_second_stage[i]["lb"]])
+            Ws[i] = vstack([hstack([Ws[i], zeros((Ws[i].shape[0], nx))]), hstack([eye(nx), eye(nx)])])
+            Ts[i] = vstack([Ts[i], zeros((nx, nx_first_stage))])
+            #
+            qs[i] = vstack([model_second_stage[i]["c"], zeros((nx, 1))])
+
+            qs0[i] = transpose(qs[i][0:nx]).dot(model_second_stage[i]["lb"])
 
         model_decomposition = {"c": c,
                                "lb": lb,
@@ -181,7 +186,40 @@ class TwoStageBidding():
                                "Ws": Ws,
                                "qs0": qs0
                                }
-        return model, model_decomposition
+
+        # Generate the compact two-stage decision models
+        lb_first_stage = lb
+        ub_first_stage = ub
+        c_first_stage = c
+        neq = Ws[0].shape[0]
+        Aeq_first_stage = zeros((neq * N, nx_first_stage))
+
+        for i in range(N):
+            Aeq_first_stage[i * neq:(i + 1) * neq, 0:nx_first_stage] = Ts[i]
+
+        nx = Ws[0].shape[1]
+        Aeq_second_stage = zeros((neq * N, nx * N))
+        beq_second_stage = zeros((neq * N, 1))
+        lb_second_stage = zeros((nx * N, 1))
+        ub_second_stage = zeros((nx * N, 1))
+        c_second_stage = zeros((nx * N, 1))
+
+        for i in range(N):
+            Aeq_second_stage[i * neq:(i + 1) * neq, i * nx:(i + 1) * nx] = Ws[i]
+            beq_second_stage[i * neq:(i + 1) * neq] = hs[i]
+            lb_second_stage[i * nx:(i + 1) * nx] = zeros((nx, 1))
+            ub_second_stage[i * nx:(i + 1) * nx] = inf * ones((nx, 1))
+            c_second_stage[i * nx:(i + 1) * nx] = qs[i] / N
+
+        model_compact = {}
+        model_compact["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
+        model_compact["beq"] = beq_second_stage
+        model_compact["lb"] = vstack([lb_first_stage, lb_second_stage])
+        model_compact["ub"] = vstack([ub_first_stage, ub_second_stage])
+        model_compact["c"] = vstack([c_first_stage, c_second_stage])
+        model_compact["c0"] = model_decomposition["qs0"]
+
+        return model, model_decomposition, model_compact
 
     def problem_solving(self, model):
         """
@@ -503,9 +541,18 @@ if __name__ == "__main__":
 
     two_stage_bidding = TwoStageBidding()
 
-    (model, model_decomposed) = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage,
-                                                                      CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
-                                                                      HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T, N=N_sample)
+    (model, model_decomposed, model_compact) = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC,
+                                                                                     ELEC_RT=ELEC_second_stage,
+                                                                                     CCHP=CCHP, THERMAL=THERMAL,
+                                                                                     BIC=BIC, ESS=ESS,
+                                                                                     HVAC=HVAC, BOIL=BOIL, CHIL=CHIL,
+                                                                                     T=T, N=N_sample)
+
+    sol = two_stage_bidding.problem_solving(model)# This problem is feasible and optimal
+    sol_test = lp(c=model["c"],Aeq=model["Aeq"], beq=model["beq"], A=model["A"],b=model["b"],xmin=model["lb"],xmax=model["ub"]) # The solver test has been passed
+
+    sol_compact = lp(c=model_compact["c"], Aeq=model_compact["Aeq"], beq=model_compact["beq"], xmin=model_compact["lb"],
+                     xmax=model_compact["ub"])
 
     bender_decomposition = BendersDecomposition()
 
@@ -517,7 +564,7 @@ if __name__ == "__main__":
                                                Ws=model_decomposed["Ws"], Ts=model_decomposed["Ts"],
                                                hs=model_decomposed["hs"])
 
-    sol = two_stage_bidding.problem_solving(model)
+
     obj = sol_decomposed["objvalue"][0] + model_decomposed["qs0"]
     sol_check = two_stage_bidding.solution_check(sol)
 

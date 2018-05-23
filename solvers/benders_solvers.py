@@ -107,7 +107,7 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
             if c[i] != 0:
                 obj += c[i] * x[i]
 
-        model.maximize(obj)
+        model.minimize(obj)
         model.parameters.preprocessing.presolve = 0
 
         solution = model.solve()
@@ -174,7 +174,7 @@ if __name__ == "__main__":
     A = array([[1, -2],
                [-2, 1],
                [-1, -1]])
-    b = array([1, 1, -2])
+    b = array([1, 1, -2]).reshape(3,1)
     # lb = array([6, 6])
     solution = linear_programming(c, A=A, b=b)
 
