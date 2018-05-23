@@ -1,15 +1,5 @@
 """
-A two-stage bidding strategy for the energy hubs
-There is a day-ahead energy market and real-time market
-The energy hub is assumed to be managed by a price follower in the energy market
-Two types of uncertainties are considered
-1) electricity loads, including AC loads and DC loads
-2) PV outputs
-
-The electricity prices are assumed to be ex-ante.
-
-@author:Zhao Tianyang
-@e-mail:zhaoty@ntu.edu.sg
+Primal and dual cuts for two stage bidding strategies of energy hubs
 """
 
 from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
@@ -121,141 +111,164 @@ class TwoStageBidding():
         model["ub"] = vstack([ub_first_stage, ub_second_stage])
         model["c"] = vstack([c_first_stage, c_second_stage])
         # Test model for the boundary information
-        # nslack = 2 * T
-        # nx_first_stage = T + nslack
-        # neq_extended = neq + nslack
-        # nx_second_stage = nx * N
-        # # The decision of the first stage optimization
-        # c_first_stage = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1))])
-        # lb_first_stage = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
-        # ub_first_stage = vstack(
-        #     [ones((T, 1)) * ELEC_DA["UG_MAX"], 1000 * ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
-        #
-        # Aeq_first_stage = zeros((neq_extended * N, nx_first_stage))
-        # Aeq_second_stage = zeros((neq_extended * N, nx_second_stage))
-        # beq_second_stage = zeros((neq_extended * N, 1))
-        # for i in range(N):
-        #     Aeq_first_stage[i * neq_extended + model["ac_eq"][0]:i * neq_extended + model["ac_eq"][1], 0:T] = eye(T)
-        #
-        #     Aeq_first_stage[i * neq_extended + neq:i * neq_extended + neq + T, 0:T] = eye(T)
-        #     Aeq_first_stage[i * neq_extended + neq:i * neq_extended + neq + T, T:2 * T] = eye(T)
-        #
-        #     Aeq_first_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T, 0:T] = -eye(T)
-        #     Aeq_first_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T, 2 * T:3 * T] = eye(T)
-        #
-        #     Aeq_second_stage[i * neq_extended:i * neq_extended + neq, i * nx:(i + 1) * nx] = model_second_stage[i][
-        #         "Aeq"]
-        #
-        #     for j in range(T):
-        #         Aeq_second_stage[
-        #             i * neq_extended + neq + j, i * nx + j * model["nx"] + model["pug"]] = 1  # The upper limit
-        #         Aeq_second_stage[
-        #             i * neq_extended + neq + T + j, i * nx + j * model["nx"] + model["pug"]] = -1  # The lower limit
-        #
-        #     beq_second_stage[i * neq_extended:i * neq_extended + neq] = model_second_stage[i]["beq"]
-        #     beq_second_stage[i * neq_extended + neq:i * neq_extended + neq + T] = ELEC_DA["UG_MAX"]
-        #     beq_second_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T] = -ELEC_DA["UG_MIN"]
-        #
-        # model_test = {}
-        # model_test["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
-        # model_test["beq"] = beq_second_stage
-        # model_test["lb"] = vstack([lb_first_stage, lb_second_stage])
-        # model_test["ub"] = vstack([ub_first_stage, ub_second_stage])
-        # model_test["c"] = vstack([c_first_stage, c_second_stage])
+        n = N - 1
+        nslack = 2 * T
+        nx_first_stage = T + nslack
+        neq_extended = neq + nslack
+
+        # The decision of the first stage optimization
+        c_first_stage = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1)), model_second_stage[0]["c"]])
+        lb_first_stage = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1)), model_second_stage[0]["lb"]])
+        ub_first_stage = vstack(
+            [ones((T, 1)) * ELEC_DA["UG_MAX"], inf * ones((nslack, 1)), model_second_stage[0]["ub"]])
+
+        nx_extended_first_stage = nx_first_stage + nx
+
+        Aeq = zeros((neq_extended, nx_extended_first_stage))
+
+        Aeq[model["ac_eq"][0]:model["ac_eq"][1], 0:T] = eye(T)
+        Aeq[0:neq, nx_first_stage:nx_extended_first_stage] = model_second_stage[0]["Aeq"]
+        Aeq[neq:neq + T, 0:T] = eye(T)
+        Aeq[neq:neq + T, T:2 * T] = eye(T)
+        Aeq[neq + T:neq + 2 * T, 0:T] = -eye(T)
+        Aeq[neq + T:neq + 2 * T, 2 * T:3 * T] = eye(T)
+        beq = vstack(
+            [model_second_stage[0]["beq"], ones((T, 1)) * ELEC_DA["UG_MAX"], -ones((T, 1)) * ELEC_DA["UG_MIN"]])
+
+        Aeq_first_stage = zeros((neq_extended * n, nx_extended_first_stage))
+        Aeq_second_stage = zeros((neq_extended * n, nx * n))
+        beq_second_stage = zeros((neq_extended * n, 1))
+        for i in range(n):
+            Aeq_first_stage[i * neq_extended + model["ac_eq"][0]:i * neq_extended + model["ac_eq"][1], 0:T] = eye(T)
+
+            Aeq_first_stage[i * neq_extended + neq:i * neq_extended + neq + T, 0:T] = eye(T)
+
+            Aeq_first_stage[i * neq_extended + neq:i * neq_extended + neq + T, T:2 * T] = eye(T)
+
+            Aeq_first_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T, 0:T] = -eye(T)
+            Aeq_first_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T, 2 * T:3 * T] = eye(T)
+
+            Aeq_second_stage[i * neq_extended:i * neq_extended + neq, i * nx:(i + 1) * nx] = model_second_stage[i + 1][
+                "Aeq"]
+
+            for j in range(T):
+                Aeq_second_stage[
+                    i * neq_extended + neq + j, i * nx + j * model["nx"] + model["pug"]] = 1  # The upper limit
+                Aeq_second_stage[
+                    i * neq_extended + neq + T + j, i * nx + j * model["nx"] + model["pug"]] = -1  # The lower limit
+
+            beq_second_stage[i * neq_extended:i * neq_extended + neq] = model_second_stage[i + 1]["beq"]
+            beq_second_stage[i * neq_extended + neq:i * neq_extended + neq + T] = ELEC_DA["UG_MAX"]
+            beq_second_stage[i * neq_extended + neq + T:i * neq_extended + neq + 2 * T] = -ELEC_DA["UG_MIN"]
+
+        model_test = {}
+        model_test["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
+        Aeq_temp = zeros((neq_extended, model_test["Aeq"].shape[1]))
+        Aeq_temp[:, 0:nx_extended_first_stage] = Aeq
+        model_test["Aeq"] = vstack([model_test["Aeq"], Aeq_temp])
+        model_test["beq"] = vstack([beq_second_stage, beq])
+        model_test["lb"] = vstack([lb_first_stage, lb_second_stage[nx::]])
+        model_test["ub"] = vstack([ub_first_stage, ub_second_stage[nx::]])
+        model_test["c"] = vstack([c_first_stage, c_second_stage[nx::]])
         #
         # # Reformulating the second stage decision making
-        # model_test_second_stage = {}
-        # c_first_stage = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1))])
-        # lb_first_stage = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
-        # ub_first_stage = vstack(
-        #     [ones((T, 1)) * ELEC_DA["UG_MAX"], 1000 * ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
-        #
-        # neq_extended_second_stage = neq_extended + nx  # The extended second stage decision
-        # nx_extended_second_stage = nx + nx
-        # Aeq_first_stage = zeros((neq_extended_second_stage * N, nx_first_stage))
-        # Aeq_second_stage = zeros((neq_extended_second_stage * N, nx_extended_second_stage * N))
-        # beq_second_stage = zeros((neq_extended_second_stage * N, 1))
-        # c_second_stage = zeros((nx_extended_second_stage * N, 1))
-        #
-        # f0 = zeros((N, 1))
-        # for i in range(N):
-        #     Aeq_first_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
-        #     0:nx_first_stage] = model_test["Aeq"][i * neq_extended:(i + 1) * neq_extended, 0:nx_first_stage]
-        #
-        #     Aeq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
-        #     i * nx_extended_second_stage:i * nx_extended_second_stage + nx] = model_test["Aeq"][
-        #                                                                       i * neq_extended:(i + 1) * neq_extended,
-        #                                                                       nx_first_stage + i * nx:nx_first_stage + (
-        #                                                                               i + 1) * nx]
-        #     beq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended] = \
-        #         model_test["beq"][i * neq_extended:(i + 1) * neq_extended] - \
-        #         Aeq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
-        #         i * nx_extended_second_stage:i * nx_extended_second_stage + nx].dot(
-        #             model_test["lb"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx])
-        #
-        #     Aeq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage,
-        #     i * nx_extended_second_stage:i * nx_extended_second_stage + nx] = eye(nx)
-        #
-        #     Aeq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage,
-        #     i * nx_extended_second_stage + nx:(i + 1) * nx_extended_second_stage] = eye(nx)
-        #
-        #     beq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage] = \
-        #         model_test["ub"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx] - \
-        #         model_test["lb"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx]
-        #
-        #     c_second_stage[i * nx_extended_second_stage: i * nx_extended_second_stage + nx] = model_test["c"][
-        #                                                                                       nx_first_stage + i * nx:nx_first_stage + (
-        #                                                                                               i + 1) * nx]
-        #
-        #     f0[i] = transpose(model_test["c"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx]).dot(
-        #         model_test["lb"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx])
-        #
-        # model_test_second_stage["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
-        # model_test_second_stage["beq"] = beq_second_stage
-        # model_test_second_stage["lb"] = vstack([lb_first_stage, zeros((nx_extended_second_stage * N, 1))])
-        # model_test_second_stage["ub"] = vstack([ub_first_stage, inf * ones((nx_extended_second_stage * N, 1))])
-        # model_test_second_stage["c"] = vstack([c_first_stage, c_second_stage])
-        # model_test_second_stage["c0"] = f0
+        model_test_second_stage = {}
+
+        neq_extended_second_stage = neq_extended + nx  # The extended second stage decision
+        nx_extended_second_stage = nx + nx
+
+        Aeq_first_stage = zeros((neq_extended_second_stage * n, nx_extended_first_stage))
+        Aeq_second_stage = zeros((neq_extended_second_stage * n, nx_extended_second_stage * n))
+        beq_second_stage = zeros((neq_extended_second_stage * n, 1))
+        c_second_stage = zeros((nx_extended_second_stage * n, 1))
+        f0 = zeros((n, 1))
+
+        for i in range(n):
+            Aeq_first_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
+            0:nx_extended_first_stage] = model_test["Aeq"][i * neq_extended:(i + 1) * neq_extended,
+                                         0:nx_extended_first_stage]
+
+            Aeq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
+            i * nx_extended_second_stage:i * nx_extended_second_stage + nx] = model_test["Aeq"][
+                                                                              i * neq_extended:(i + 1) * neq_extended,
+                                                                              nx_extended_first_stage + i * nx:nx_extended_first_stage + (
+                                                                                      i + 1) * nx]
+            beq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended] = \
+                model_test["beq"][i * neq_extended:(i + 1) * neq_extended] - \
+                Aeq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
+                i * nx_extended_second_stage:i * nx_extended_second_stage + nx].dot(
+                    model_test["lb"][nx_extended_first_stage + i * nx:nx_extended_first_stage + (i + 1) * nx])
+
+            Aeq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage,
+            i * nx_extended_second_stage:i * nx_extended_second_stage + nx] = eye(nx)
+
+            Aeq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage,
+            i * nx_extended_second_stage + nx:(i + 1) * nx_extended_second_stage] = eye(nx)
+
+            beq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage] = \
+                model_test["ub"][nx_extended_first_stage + i * nx:nx_extended_first_stage + (i + 1) * nx] - \
+                model_test["lb"][nx_extended_first_stage + i * nx:nx_extended_first_stage + (i + 1) * nx]
+
+            c_second_stage[i * nx_extended_second_stage: i * nx_extended_second_stage + nx] = model_test["c"][
+                                                                                              nx_extended_first_stage + i * nx:nx_extended_first_stage + (
+                                                                                                      i + 1) * nx]
+
+            f0[i] = transpose(
+                model_test["c"][nx_extended_first_stage + i * nx:nx_extended_first_stage + (i + 1) * nx]).dot(
+                model_test["lb"][nx_extended_first_stage + i * nx:nx_extended_first_stage + (i + 1) * nx])
+
+        model_test_second_stage["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
+
+        Aeq_temp = zeros((neq_extended, model_test_second_stage["Aeq"].shape[1]))
+        Aeq_temp[:, 0:nx_extended_first_stage] = Aeq
+        model_test_second_stage["Aeq"] = vstack([model_test_second_stage["Aeq"], Aeq_temp])
+        model_test_second_stage["beq"] = vstack([beq_second_stage, beq])
+
+        model_test_second_stage["lb"] = vstack([lb_first_stage, zeros((nx_extended_second_stage * n, 1))])
+        model_test_second_stage["ub"] = vstack([ub_first_stage, inf * ones((nx_extended_second_stage * n, 1))])
+        model_test_second_stage["c"] = vstack([c_first_stage, c_second_stage])
+        model_test_second_stage["c0"] = f0
         # # Formulate the benders decomposition
         # # Reformulate the second stage optimization problems to the standard format
         # # Using the following transfering y = x-lb
         # # 1）Reformulate the first stage problem
         # # The coupling contraints between the first stage and second stage decision
         # # Two parts, the AC power balance equations
-        # hs = [0] * N
-        # Ts = [0] * N
-        # Ws = [0] * N
-        # ps = ones((N, 1))
-        # qs = [0] * N
-        # for i in range(N):
-        #     # 1) The AC power balance equation
-        #     hs[i] = model_test_second_stage["beq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage]
-        #
-        #     Ts[i] = model_test_second_stage["Aeq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage,
-        #             0:nx_first_stage]
-        #
-        #     Ws[i] = model_test_second_stage["Aeq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage,
-        #             nx_first_stage + i * nx_extended_second_stage:nx_first_stage + (i + 1) * nx_extended_second_stage]
-        #
-        #     qs[i] = model_test_second_stage["c"][
-        #             nx_first_stage + i * nx_extended_second_stage:nx_first_stage + (i + 1) * nx_extended_second_stage]
-        #
-        # model_decomposition = {"c": c_first_stage,
-        #                        "lb": lb_first_stage,
-        #                        "ub": ub_first_stage,
-        #                        "A": None,
-        #                        "b": None,
-        #                        "Aeq": None,
-        #                        "beq": None,
-        #                        "ps": ps,
-        #                        "qs": qs,
-        #                        "Ts": Ts,
-        #                        "hs": hs,
-        #                        "Ws": Ws,
-        #                        }
+        hs = [0] * n
+        Ts = [0] * n
+        Ws = [0] * n
+        ps = ones((n, 1))
+        qs = [0] * n
+        for i in range(n):
+            # 1) The AC power balance equation
+            hs[i] = model_test_second_stage["beq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage]
 
-        return model
+            Ts[i] = model_test_second_stage["Aeq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage,
+                    0:nx_extended_first_stage]
 
+            Ws[i] = model_test_second_stage["Aeq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage,
+                    nx_extended_first_stage + i * nx_extended_second_stage:nx_extended_first_stage + (
+                                i + 1) * nx_extended_second_stage]
+
+            qs[i] = model_test_second_stage["c"][
+                    nx_extended_first_stage + i * nx_extended_second_stage:nx_extended_first_stage + (
+                                i + 1) * nx_extended_second_stage]
+
+        model_decomposition = {"c": c_first_stage,
+                               "lb": lb_first_stage,
+                               "ub": ub_first_stage,
+                               "A": None,
+                               "b": None,
+                               "Aeq": Aeq,
+                               "beq": beq,
+                               "ps": ps,
+                               "qs": qs,
+                               "Ts": Ts,
+                               "hs": hs,
+                               "Ws": Ws,
+                               }
+
+        return model, model_test_second_stage,model_decomposition
     def problem_solving(self, model):
         """
         Problem solving for the two-stage bidding strategy
@@ -383,7 +396,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 50
+    N_sample = 10
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
@@ -577,10 +590,11 @@ if __name__ == "__main__":
 
     two_stage_bidding = TwoStageBidding()
 
-    model = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage, CCHP=CCHP, THERMAL=THERMAL,
-                                                  BIC=BIC, ESS=ESS,
-                                                  HVAC=HVAC, BOIL=BOIL, CHIL=CHIL,
-                                                  T=T, N=N_sample)
+    (model, model_compact,model_decomposed) = two_stage_bidding.problem_formualtion(ELEC_DA=ELEC, ELEC_RT=ELEC_second_stage, CCHP=CCHP,
+                                                                   THERMAL=THERMAL,
+                                                                   BIC=BIC, ESS=ESS,
+                                                                   HVAC=HVAC, BOIL=BOIL, CHIL=CHIL,
+                                                                   T=T, N=N_sample)
 
     #
     # sol_test = lp(c=model["c"], Aeq=model["Aeq"], beq=model["beq"], A=model["A"], b=model["b"], xmin=model["lb"],
@@ -589,15 +603,15 @@ if __name__ == "__main__":
     # sol_compact = lp(c=model_compact["c"], Aeq=model_compact["Aeq"], beq=model_compact["beq"], xmin=model_compact["lb"],
     #                  xmax=model_compact["ub"])
 
-    # bender_decomposition = BendersDecomposition()
-    #
-    # sol_decomposed = bender_decomposition.main(c=model_decomposed["c"], A=model_decomposed["A"],
-    #                                            b=model_decomposed["b"], Aeq=model_decomposed["Aeq"],
-    #                                            beq=model_decomposed["beq"], lb=model_decomposed["lb"],
-    #                                            ub=model_decomposed["ub"], ps=model_decomposed["ps"],
-    #                                            qs=model_decomposed["qs"],
-    #                                            Ws=model_decomposed["Ws"], Ts=model_decomposed["Ts"],
-    #                                            hs=model_decomposed["hs"])
+    bender_decomposition = BendersDecomposition()
+
+    sol_decomposed = bender_decomposition.main(c=model_decomposed["c"], A=model_decomposed["A"],
+                                               b=model_decomposed["b"], Aeq=model_decomposed["Aeq"],
+                                               beq=model_decomposed["beq"], lb=model_decomposed["lb"],
+                                               ub=model_decomposed["ub"], ps=model_decomposed["ps"],
+                                               qs=model_decomposed["qs"],
+                                               Ws=model_decomposed["Ws"], Ts=model_decomposed["Ts"],
+                                               hs=model_decomposed["hs"])
 
     sol = two_stage_bidding.problem_solving(model)  # This problem is feasible and optimal
     # obj = sol_decomposed["objvalue"][0] + model_decomposed["qs0"]

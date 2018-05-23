@@ -6,10 +6,10 @@ Benders decomposition method for two-stage stochastic optimization problems
 			x
 			s.t. A*x<=b,
 			     Aeq*x==beq,   x \in [lb,ub]
-			where Q_s(x)=min q_s'*y
+			where Q_s(x)=min q_s'*ys
 			             y
 			             s.t. W_s*y = h_s-T_s*x
-			             y \in R^+
+			             ys \in R^+
 References:
     [1]Benders Decomposition for Solving Two-stage Stochastic Optimization Models
     https://www.ima.umn.edu/materials/2015-2016/ND8.1-12.16/25378/Luedtke-spalgs.pdf
@@ -73,8 +73,7 @@ class BendersDecomposition():
         self.N = len(ps)  # The number of second stage decision variables
         self.nx_second_stage = Ws[0].shape[1]
         self.nx_first_stage = lb.shape[0]
-        M = 10 ^ 8
-
+        M = inf
         model_second_stage = [0] * self.N
 
         for i in range(self.N):
@@ -89,9 +88,9 @@ class BendersDecomposition():
         # Using the multiple cuts version
         model_master = deepcopy(model_first_stage)
         model_master["c"] = vstack([model_first_stage["c"], ps])
-        if model_master["Aeq"] != None:
+        if model_master["Aeq"] is not None:
             model_master["Aeq"] = hstack([model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], self.N))])
-        if model_master["A"] != None:
+        if model_master["A"] is not None:
             model_master["A"] = hstack([model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.N))])
         model_master["lb"] = vstack([model_first_stage["lb"], -ones((self.N, 1)) * M])
         model_master["ub"] = vstack([model_first_stage["ub"], ones((self.N, 1)) * M])
@@ -112,7 +111,7 @@ class BendersDecomposition():
             # Solve the dual problem
             sol_second_stage[i] = BendersDecomposition.sub_problem_dual(self, model_second_stage[i])
             # sol_second_stage_primal[i] = BendersDecomposition.sub_problem(self, model_second_stage[i])
-            A_cuts[i, 0:self.nx_first_stage] = transpose(
+            A_cuts[i, 0:self.nx_first_stage] = -transpose(
                 transpose(model_second_stage[i]["Ts"]).dot(sol_second_stage[i]["x"]))
             b_cuts[i, 0] = -transpose(sol_second_stage[i]["x"]).dot(model_second_stage[i]["hs"])
             if sol_second_stage[i]["status"] == 1:  # if the primal problem is feasible, add feasible cuts
@@ -155,13 +154,13 @@ class BendersDecomposition():
                 # Solve the dual problem
                 sol_second_stage[i] = BendersDecomposition.sub_problem_dual(self, model_second_stage[i])
 
-                A_cuts[i, 0:self.nx_first_stage] = transpose(
+                A_cuts[i, 0:self.nx_first_stage] = -transpose(
                     transpose(model_second_stage[i]["Ts"]).dot(sol_second_stage[i]["x"]))
                 b_cuts[i, 0] = -transpose(sol_second_stage[i]["x"]).dot(model_second_stage[i]["hs"])
 
                 if sol_second_stage[i]["status"] == 1:  # if the primal problem is feasible, add feasible cuts
                     A_cuts[i, self.nx_first_stage + i] = -1
-                    objvalue_second_stage[i, 0] = sol_second_stage[i]["objvalue"]
+                    objvalue_second_stage[i, 0] = -sol_second_stage[i]["objvalue"]
                 else:
                     objvalue_second_stage[i, 0] = inf
 
@@ -169,14 +168,15 @@ class BendersDecomposition():
 
             Gap.append(BendersDecomposition.gap_calculaiton(self, Upper[0], Lower))
             print(Gap[-1][0])
+            print(Lower)
             iter += 1
 
             if Gap[-1][0] < eps:
                 break
 
-        x_first_stage = sol_first_stage["x"][0:self.nx_first_stage]
-
-        x_second_stage = zeros((self.N, self.nx_second_stage))
+        # x_first_stage = sol_first_stage["x"][0:self.nx_first_stage]
+        #
+        # x_second_stage = zeros((self.N, self.nx_second_stage))
 
         # for i in range(self.N):
         #     x_second_stage[i, :] = sol_second_stage[i]["x"]
@@ -252,3 +252,19 @@ class BendersDecomposition():
             gap = [inf]
 
         return gap
+
+
+if __name__ == "__main__":
+    c = array([2, 3, 0, 0]).reshape(4, 1)
+    Ts = array([[1, 2, -1, 0], [2, -1, 0, -1]])
+    hs = array([3, 4]).reshape(2, 1)
+    Ws = array([1, 3]).reshape(2, 1)
+    lb = zeros((4, 1))
+    ub = ones((4, 1)) * inf
+    qs = array([2]).reshape(1, 1)
+    benders_decomposition = BendersDecomposition()
+    sol = benders_decomposition.main(c=c, lb=lb, ub=ub, ps=[1], qs=[qs], hs=[hs], Ts=[Ts], Ws=[Ws])
+    print(sol)
+
+    # The second test case
+

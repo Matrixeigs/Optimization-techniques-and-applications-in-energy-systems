@@ -133,7 +133,7 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         prob.solve()
 
         solution = prob.solution
-        print(solution.status[solution.get_status()])
+        # print(solution.status[solution.get_status()])
 
         # if solution.is_dual_feasible():
         #     print(solution.get_dual_values())
