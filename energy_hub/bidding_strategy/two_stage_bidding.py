@@ -75,7 +75,8 @@ class TwoStageBidding():
             model_second_stage[i] = energy_hub_management.problem_formulation(ELEC=elec[i], CCHP=CCHP, THERMAL=THERMAL,
                                                                               BIC=BIC, ESS=ESS,
                                                                               HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
-            # print(model_second_stage[i])
+
+            lb_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["lb"]
             Aeq_second_stage[i * neq:(i + 1) * neq, i * nx:(i + 1) * nx] = model_second_stage[i]["Aeq"]
             beq_second_stage[i * neq:(i + 1) * neq] = model_second_stage[i]["beq"]
             lb_second_stage[i * nx:(i + 1) * nx] = model_second_stage[i]["lb"]
@@ -128,7 +129,7 @@ class TwoStageBidding():
         c_first_stage = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1))])
         lb_first_stage = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
         ub_first_stage = vstack(
-            [ones((T, 1)) * ELEC_DA["UG_MAX"], 1000*ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
+            [ones((T, 1)) * ELEC_DA["UG_MAX"], 1000 * ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
 
         Aeq_first_stage = zeros((neq_extended * N, nx_first_stage))
         Aeq_second_stage = zeros((neq_extended * N, nx_second_stage))
@@ -162,6 +163,59 @@ class TwoStageBidding():
         model_test["ub"] = vstack([ub_first_stage, ub_second_stage])
         model_test["c"] = vstack([c_first_stage, c_second_stage])
 
+        # Reformulating the second stage decision making
+        model_test_second_stage = {}
+        c_first_stage = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1))])
+        lb_first_stage = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
+        ub_first_stage = vstack(
+            [ones((T, 1)) * ELEC_DA["UG_MAX"], 1000 * ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
+
+        neq_extended_second_stage = neq_extended + nx  # The extended second stage decision
+        nx_extended_second_stage = nx + nx
+        Aeq_first_stage = zeros((neq_extended_second_stage * N, nx_first_stage))
+        Aeq_second_stage = zeros((neq_extended_second_stage * N, nx_extended_second_stage * N))
+        beq_second_stage = zeros((neq_extended_second_stage * N, 1))
+        c_second_stage = zeros((nx_extended_second_stage * N, 1))
+
+        f0 = zeros((N, 1))
+        for i in range(N):
+            Aeq_first_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
+            0:nx_first_stage] = model_test["Aeq"][i * neq_extended:(i + 1) * neq_extended, 0:nx_first_stage]
+
+            Aeq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
+            i * nx_extended_second_stage:i * nx_extended_second_stage + nx] = model_test["Aeq"][
+                                                                              i * neq_extended:(i + 1) * neq_extended,
+                                                                              nx_first_stage + i * nx:nx_first_stage + (
+                                                                                          i + 1) * nx]
+            beq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended] = \
+                model_test["beq"][i * neq_extended:(i + 1) * neq_extended] - \
+                Aeq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
+                i * nx_extended_second_stage:i * nx_extended_second_stage + nx].dot(
+                    model_test["lb"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx])
+
+            Aeq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage,
+            i * nx_extended_second_stage:i * nx_extended_second_stage + nx] = eye(nx)
+
+            Aeq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage,
+            i * nx_extended_second_stage + nx:(i + 1) * nx_extended_second_stage] = eye(nx)
+
+            beq_second_stage[i * neq_extended_second_stage + neq_extended:(i + 1) * neq_extended_second_stage] = \
+                model_test["ub"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx] - \
+                model_test["lb"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx]
+
+            c_second_stage[i * nx_extended_second_stage: i * nx_extended_second_stage + nx] = model_test["c"][
+                                                                                              nx_first_stage + i * nx:nx_first_stage + (
+                                                                                                      i + 1) * nx]
+
+            f0[i] = transpose(model_test["c"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx]).dot(
+                model_test["lb"][nx_first_stage + i * nx:nx_first_stage + (i + 1) * nx])
+
+        model_test_second_stage["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
+        model_test_second_stage["beq"] = beq_second_stage
+        model_test_second_stage["lb"] = vstack([lb_first_stage, zeros((nx_extended_second_stage * N, 1))])
+        model_test_second_stage["ub"] = vstack([ub_first_stage, inf * ones((nx_extended_second_stage * N, 1))])
+        model_test_second_stage["c"] = vstack([c_first_stage, c_second_stage])
+        model_test_second_stage["c0"] = f0
         # Formulate the benders decomposition
         # Reformulate the second stage optimization problems to the standard format
         # Using the following transfering y = x-lb
@@ -262,7 +316,7 @@ class TwoStageBidding():
         model_compact["c"] = vstack([c_first_stage, c_second_stage])
         model_compact["c0"] = model_decomposition["qs0"]
 
-        return model, model_decomposition, model_test
+        return model, model_decomposition, model_test_second_stage
 
     def problem_solving(self, model):
         """
@@ -390,7 +444,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 5
+    N_sample = 2
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
