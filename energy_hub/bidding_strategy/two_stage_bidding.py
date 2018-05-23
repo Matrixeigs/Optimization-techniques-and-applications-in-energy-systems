@@ -186,7 +186,7 @@ class TwoStageBidding():
             i * nx_extended_second_stage:i * nx_extended_second_stage + nx] = model_test["Aeq"][
                                                                               i * neq_extended:(i + 1) * neq_extended,
                                                                               nx_first_stage + i * nx:nx_first_stage + (
-                                                                                          i + 1) * nx]
+                                                                                      i + 1) * nx]
             beq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended] = \
                 model_test["beq"][i * neq_extended:(i + 1) * neq_extended] - \
                 Aeq_second_stage[i * neq_extended_second_stage:i * neq_extended_second_stage + neq_extended,
@@ -220,101 +220,33 @@ class TwoStageBidding():
         # Reformulate the second stage optimization problems to the standard format
         # Using the following transfering y = x-lb
         # 1）Reformulate the first stage problem
-        nslack = 2 * T
-        nx_first_stage = T + nslack
-        # The decision of the first stage optimization
-        c = vstack([ELEC_DA["UG_PRICE"], zeros((nslack, 1))])
-        lb = vstack([ones((T, 1)) * ELEC_DA["UG_MIN"], zeros((nslack, 1))])
-        ub = vstack(
-            [ones((T, 1)) * ELEC_DA["UG_MAX"], 20 * ones((nslack, 1)) * (ELEC_DA["UG_MAX"] - ELEC_DA["UG_MIN"])])
-        A = None
-        b = None
-        Aeq = None
-        beq = None
-        vtypes = ["c"] * nx_first_stage
         # The coupling contraints between the first stage and second stage decision
         # Two parts, the AC power balance equations
         hs = [0] * N
         Ts = [0] * N
         Ws = [0] * N
-        ps = ones((N, 1)) / N
+        ps = ones((N, 1))
         qs = [0] * N
-        qs0 = zeros((N, 1))
         for i in range(N):
             # 1) The AC power balance equation
-            hs[i] = model_second_stage[i]["beq"]
-            Ts[i] = zeros((neq, nx_first_stage))
-            Ts[i][model["ac_eq"][0]:model["ac_eq"][1], 0:T] = eye(T)
-            Ws[i] = model_second_stage[i]["Aeq"]
-            # 2) The boundary information
-            hs[i] = vstack([hs[i], ELEC_DA["UG_MAX"] * ones((T, 1)), -ELEC_DA["UG_MIN"] * ones((T, 1))])
-            Ts_temp = vstack([eye(T), -eye(T)])
-            Ts_temp = hstack([Ts_temp, eye(nslack)])
-            Ts[i] = vstack([Ts[i], Ts_temp])
-            Ws_temp = zeros((2 * T, nx))
-            for j in range(T):
-                Ws_temp[j, j * model["nx"] + model["pug"]] = 1  # The upper limit
-                Ws_temp[T + j, j * model["nx"] + model["pug"]] = -1  # The lower limit
-            Ws[i] = vstack([Ws[i], Ws_temp])
-            # Update the hs
-            # hs[i] = multiply(Ws[i] * model_second_stage[i]["lb"])
-            hs[i] = Ws[i].dot(model_second_stage[i]["lb"])
-            # 3） Update the boundary information
-            hs[i] = vstack([hs[i], model_second_stage[i]["ub"] - model_second_stage[i]["lb"]])
-            Ws[i] = vstack([hstack([Ws[i], zeros((Ws[i].shape[0], nx))]), hstack([eye(nx), eye(nx)])])
-            Ts[i] = vstack([Ts[i], zeros((nx, nx_first_stage))])
-            #
-            qs[i] = vstack([model_second_stage[i]["c"], zeros((nx, 1))])
+            hs[i] = model_test_second_stage["beq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage]
+            Ts[i] = model_test_second_stage["Aeq"][i * neq_extended_second_stage:(i + 1) * neq_extended_second_stage, 0:nx_first_stage]
+            Ws[i] = model_test_second_stage["Aeq"][ i * neq_extended:(i + 1) * neq_extended,nx_first_stage + i * nx_extended_second_stage:nx_first_stage + (i + 1) * nx_extended_second_stage]
+            qs[i] = model_test_second_stage["c"][nx_first_stage + i * nx_extended_second_stage:nx_first_stage + (i + 1) * nx_extended_second_stage]
 
-            qs0[i] = transpose(qs[i][0:nx]).dot(model_second_stage[i]["lb"])
-
-        model_decomposition = {"c": c,
-                               "lb": lb,
-                               "ub": ub,
-                               "A": A,
-                               "b": b,
-                               "Aeq": Aeq,
-                               "beq": beq,
-                               "vtypes": vtypes,
+        model_decomposition = {"c": c_first_stage,
+                               "lb": lb_first_stage,
+                               "ub": ub_first_stage,
+                               "A": None,
+                               "b": None,
+                               "Aeq": None,
+                               "beq": None,
                                "ps": ps,
                                "qs": qs,
                                "Ts": Ts,
                                "hs": hs,
                                "Ws": Ws,
-                               "qs0": qs0
                                }
-
-        # Generate the compact two-stage decision models
-        lb_first_stage = lb
-        ub_first_stage = ub
-        c_first_stage = c
-        neq = Ws[0].shape[0]
-        Aeq_first_stage = zeros((neq * N, nx_first_stage))
-
-        for i in range(N):
-            Aeq_first_stage[i * neq:(i + 1) * neq, 0:nx_first_stage] = Ts[i]
-
-        nx = Ws[0].shape[1]
-        Aeq_second_stage = zeros((neq * N, nx * N))
-        beq_second_stage = zeros((neq * N, 1))
-        lb_second_stage = zeros((nx * N, 1))
-        ub_second_stage = zeros((nx * N, 1))
-        c_second_stage = zeros((nx * N, 1))
-
-        for i in range(N):
-            Aeq_second_stage[i * neq:(i + 1) * neq, i * nx:(i + 1) * nx] = Ws[i]
-            beq_second_stage[i * neq:(i + 1) * neq] = hs[i]
-            lb_second_stage[i * nx:(i + 1) * nx] = zeros((nx, 1))
-            ub_second_stage[i * nx:(i + 1) * nx] = inf * ones((nx, 1))
-            c_second_stage[i * nx:(i + 1) * nx] = qs[i] / N
-
-        model_compact = {}
-        model_compact["Aeq"] = hstack([Aeq_first_stage, Aeq_second_stage])
-        model_compact["beq"] = beq_second_stage
-        model_compact["lb"] = vstack([lb_first_stage, lb_second_stage])
-        model_compact["ub"] = vstack([ub_first_stage, ub_second_stage])
-        model_compact["c"] = vstack([c_first_stage, c_second_stage])
-        model_compact["c0"] = model_decomposition["qs0"]
 
         return model, model_decomposition, model_test_second_stage
 
