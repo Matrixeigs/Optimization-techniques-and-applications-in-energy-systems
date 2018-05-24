@@ -1,30 +1,13 @@
 """
-Day-ahead deterministic bidding strategy
-@author:Tianyang Zhao
-@e-mail:zhaoty@ntu.edu.sg
-The parameters are obtained from the following papers.
-[1] Energy flow modeling and optimal operation analysis of the micro energy grid based on energy hub
-The ice maker and ice storage are adopted
-
-[2]
-
+Standard bidding model for the energy hub problems
 """
-from numpy import array, arange, zeros, ones, concatenate
-import numpy as np
-from scipy import interpolate
-from matplotlib import pyplot
-import sys
-sys.path.append('/home/matrix/PycharmProjects/Optimization')
 
-from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
-
-
-# from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
+from numpy import array, arange, zeros, ones, concatenate, multiply
 
 
 class EnergyHubManagement():
     def __init__(self):
-        self.name = "day-ahead modelling"
+        self.name = "bidding modelling"
 
     def problem_formulation(self, ELEC=None, BIC=None, ESS=None, CCHP=None, HVAC=None, THERMAL=None, CHIL=None,
                             BOIL=None, T=None):
@@ -40,6 +23,7 @@ class EnergyHubManagement():
         """
         from energy_hub.bidding_strategy.data_format import PUG, PCHP, PAC2DC, PDC2AC, PIAC, EESS, PESS_CH, PESS_DC, \
             PPV, PCS, QCHP, QGAS, EHSS, QHS_DC, QHS_CH, QAC, QTD, QCE, QIAC, ECSS, QCS_DC, QCS_CH, QCD, VCHP, VGAS, NX
+
         self.T = T
         # 1） Formulate the day-ahead operation plan
         # 1.1) The decision variables
@@ -265,27 +249,66 @@ class EnergyHubManagement():
             c[i * NX + VGAS] = CCHP["COST"]
 
         # Combine the constraint set
-        Aeq = concatenate(
-            [Aeq_bess, Aeq_tess, Aeq_cess, Aeq_chp_e, Aeq_chp_h, Aeq_boil, Aeq_chil, Aeq_iac, Aeq_ice, Aeq_ac, Aeq_dc,
-             Aeq_hh, Aeq_ch])
-        beq = concatenate(
-            [beq_bess, beq_tess, beq_cess, beq_chp_e, beq_chp_h, beq_boil, beq_chil, beq_iac, beq_ice, beq_ac, beq_dc,
+        Beq = concatenate(
+            [Aeq_bess, Aeq_tess, Aeq_cess, Aeq_chp_e, Aeq_chp_h, Aeq_boil, Aeq_chil, Aeq_iac, Aeq_ice, Aeq_dc, Aeq_hh,
+             Aeq_ch])
+        f = concatenate(
+            [beq_bess, beq_tess, beq_cess, beq_chp_e, beq_chp_h, beq_boil, beq_chil, beq_iac, beq_ice, beq_dc,
              beq_hh, beq_ch])
 
-        model = {"Aeq": Aeq,
-                 "beq": beq,
-                 "A": None,
-                 "b": None,
-                 "c": c,
+        D = zeros((2 * T, NX * T))
+        h = zeros((2 * T, 1))
+        h[0:T] = ELEC["UG_MAX"]
+        h[T:] = -ELEC["UG_MIN"]
+
+        for i in range(T):
+            D[i, i * NX + PUG] = 1
+            D[i + T, i * NX + PUG] = -1
+
+        model = {"D": D,
+                 "h": h,
+                 "F": Aeq_ac,
+                 "g": beq_ac,
+                 "B": None,
+                 "d": None,
+                 "Beq": Beq,
+                 "f": f,
+                 "q": c,
                  "lb": lb,
                  "ub": ub,
-                 "ac_eq": [9 * T, 10 * T],
-                 "nx": NX,
-                 "pug": PUG}
+                 }
+        # for i in model:
+        #     if model[i] is not None:
+        #         model[i]=matrix(model[i])
+
+        if model["h"] is None:
+            model["nh"] = 0
+        else:
+            model["nh"] = model["h"].shape[0]
+
+        if model["g"] is None:
+            model["ng"] = 0
+        else:
+            model["ng"] = model["g"].shape[0]
+
+        if model["d"] is None:
+            model["nd"] = 0
+        else:
+            model["nd"] = model["d"].shape[0]
+
+        if model["f"] is None:
+            model["nf"] = 0
+        else:
+            model["nf"] = model["f"].shape[0]
+
+        if model["q"] is None:
+            model["nx"] = 0
+        else:
+            model["nx"] = model["q"].shape[0]
 
         return model
 
-    def problem_solving(self, model):
+    def solution_update(self, model):
         """
         problem solving of the day-ahead energy hub
         :param model:
@@ -295,8 +318,11 @@ class EnergyHubManagement():
             PPV, PCS, QCHP, QGAS, EHSS, QHS_DC, QHS_CH, QAC, QTD, QCE, QIAC, ECSS, QCS_DC, QCS_CH, QCD, VCHP, VGAS, NX
 
         # Try to solve the linear programing problem
-        (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"], xmax=model["ub"])
-        T = self.T
+        try:
+            T = self.T
+        except:
+            T = model["T"]
+        x = model["x"]
         # decouple the solution
         pug = zeros((T, 1))
         pchp = zeros((T, 1))
@@ -349,8 +375,7 @@ class EnergyHubManagement():
             vgas[i, 0] = x[i * NX + VGAS]
 
         # Formulate the solution
-        sol = {"obj": objvalue,
-               "PUG": pug,
+        sol = {"PUG": pug,
                "PCHP": pchp,
                "PAC2DC": pac2dc,
                "PDC2AC": pdc2ac,
@@ -375,21 +400,14 @@ class EnergyHubManagement():
                "VCHP": vchp,
                "VGAS": vgas,
                }
-
-        # pyplot.plot(bic_relaxation)
-        # pyplot.plot(ess_relaxation)
-        # pyplot.plot(tes_relaxation)
-        # pyplot.plot(ces_relaxation)
-        # pyplot.show()
-
         return sol
 
     def solution_check(self, sol):
         # Check the relaxations
-        bic_relaxation = np.multiply(sol["PAC2DC"], sol["PDC2AC"])
-        ess_relaxation = np.multiply(sol["PESS_DC"], sol["PESS_CH"])
-        tes_relaxation = np.multiply(sol["QES_CH"], sol["QES_DC"])
-        ces_relaxation = np.multiply(sol["QCS_CH"], sol["QCS_DC"])
+        bic_relaxation = multiply(sol["PAC2DC"], sol["PDC2AC"])
+        ess_relaxation = multiply(sol["PESS_DC"], sol["PESS_CH"])
+        tes_relaxation = multiply(sol["QES_CH"], sol["QES_DC"])
+        ces_relaxation = multiply(sol["QCS_CH"], sol["QCS_DC"])
 
         sol_check = {"bic": bic_relaxation,
                      "ess": ess_relaxation,
@@ -397,178 +415,3 @@ class EnergyHubManagement():
                      "ces": ces_relaxation}
 
         return sol_check
-
-
-if __name__ == "__main__":
-    # A test system
-    # 1) System level configuration
-    T = 24
-    Delta_t = 1
-    delat_t = 1
-    T_second_stage = int(T / delat_t)
-
-    # For the HVAC system
-    # 2) Thermal system configuration
-    QHVAC_max = 100
-    eff_HVAC = 4
-
-    CD = array([16.0996, 17.7652, 21.4254, 20.2980, 19.7012, 21.5134, 860.2167, 522.1926, 199.1072, 128.6201, 104.0959,
-                86.9985, 95.0210, 59.0401, 42.6318, 26.5511, 39.2718, 73.3832, 120.9367, 135.2154, 182.2609, 201.2462,
-                0, 0])
-    HD = array([16.0996, 17.7652, 21.4254, 20.2980, 19.7012, 21.5134, 860.2167, 522.1926, 199.1072, 128.6201, 104.0959,
-                86.9985, 95.0210, 59.0401, 42.6318, 26.5511, 39.2718, 73.3832, 120.9367, 135.2154, 182.2609, 201.2462,
-                0, 0])
-
-    # 3) Electricity system configuration
-    PUG_MAX = 200
-    PV_CAP = 50
-    AC_PD_cap = 50
-    DC_PD_cap = 50
-    HD_cap = 100
-    CD_cap = 100
-
-    PESS_CH_MAX = 100
-    PESS_DC_MAX = 100
-    EFF_DC = 0.9
-    EFF_CH = 0.9
-    E0 = 50
-    Emax = 100
-    Emin = 20
-
-    BIC_CAP = 100
-    eff_BIC = 0.95
-
-    electricity_price = array(
-        [6.01, 73.91, 71.31, 69.24, 68.94, 70.56, 75.16, 73.19, 79.70, 85.76, 86.90, 88.60, 90.62, 91.26, 93.70, 90.94,
-         91.26, 80.39, 76.25, 76.80, 81.22, 83.75, 76.16, 72.69])
-
-    AC_PD = array([323.0284, 308.2374, 318.1886, 307.9809, 331.2170, 368.6539, 702.0040, 577.7045, 1180.4547, 1227.6240,
-                   1282.9344, 1311.9738, 1268.9502, 1321.7436, 1323.9218, 1327.1464, 1386.9117, 1321.6387, 1132.0476,
-                   1109.2701, 882.5698, 832.4520, 349.3568, 299.9920])
-    DC_PD = array([287.7698, 287.7698, 287.7698, 287.7698, 299.9920, 349.3582, 774.4047, 664.0625, 1132.6996, 1107.7366,
-                   1069.6837, 1068.9819, 1027.3295, 1096.3820, 1109.4778, 1110.7039, 1160.1270, 1078.7839, 852.2514,
-                   791.5814, 575.4085, 551.1441, 349.3568, 299.992])
-    PV_PG = array(
-        [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.03, 0.05, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35,
-         0.14, 0.02, 0.02, 0.00, 0.00, 0.00])
-
-    ELEC_PRICE = electricity_price / 300
-
-    Eess_cost = 0.01
-
-    PV_PG = PV_PG * PV_CAP
-    # Modify the first stage profiles
-    AC_PD = (AC_PD / max(AC_PD)) * AC_PD_cap
-    DC_PD = (DC_PD / max(DC_PD)) * DC_PD_cap
-    HD = (HD / max(HD)) * HD_cap
-    CD = (CD / max(CD)) * CD_cap
-
-    # Generate the second stage profiles using spline of scipy
-    Time_first_stage = arange(0, T, Delta_t)
-    Time_second_stage = arange(0, T, delat_t)
-
-    # AC_PD_tck = interpolate.splrep(Time_first_stage, AC_PD, s=0)
-    # DC_PD_tck = interpolate.splrep(Time_first_stage, DC_PD, s=0)
-    # PV_PG_tck = interpolate.splrep(Time_first_stage, PV_PG, s=0)
-    #
-    # AC_PD_second_stage = interpolate.splev(Time_second_stage, AC_PD_tck, der=0)
-    # DC_PD_second_stage = interpolate.splev(Time_second_stage, DC_PD_tck, der=0)
-    # PV_PG_second_stage = interpolate.splev(Time_second_stage, PV_PG_tck, der=0)
-    #
-    # for i in range(T_second_stage):
-    #     if AC_PD_second_stage[i] < 0:
-    #         AC_PD_second_stage[i] = 0
-    #     if DC_PD_second_stage[i] < 0:
-    #         DC_PD_second_stage[i] = 0
-    #     if PV_PG_second_stage[i] < 0:
-    #         PV_PG_second_stage[i] = 0
-
-    # CCHP system
-    Gas_price = 0.1892
-    Gmax = 200
-    eff_CHP_e = 0.3
-    eff_CHP_h = 0.4
-    # Boiler information
-    Boil_max = 100
-    eff_boil = 0.9
-    # Chiller information
-    Chiller_max = 100
-    eff_chiller = 1.2
-
-    CCHP = {"MAX": Gmax,
-            "EFF_E": eff_CHP_e,
-            "EFF_C": eff_CHP_h,
-            "EFF_H": eff_CHP_h,
-            "COST": Gas_price}
-
-    HVAC = {"CAP": QHVAC_max,
-            "EFF": eff_HVAC}
-
-    THERMAL = {"HD": HD,
-               "CD": CD, }
-
-    ELEC = {"UG_MAX": PUG_MAX,
-            "UG_MIN": -PUG_MAX,
-            "UG_PRICE": ELEC_PRICE,
-            "AC_PD": AC_PD,
-            "DC_PD": DC_PD,
-            "PV_PG": PV_PG
-            }
-
-    BIC = {"CAP": BIC_CAP,
-           "EFF": eff_BIC,
-           }
-
-    BESS = {"E0": E0,
-            "E_MAX": Emax,
-            "E_MIN": Emin,
-            "PC_MAX": PESS_CH_MAX,
-            "PD_MAX": PESS_DC_MAX,
-            "EFF_CH": EFF_CH,
-            "EFF_DC": EFF_DC,
-            "COST": Eess_cost,
-            }
-
-    TESS = {"E0": E0,
-            "E_MAX": Emax,
-            "E_MIN": Emin,
-            "TC_MAX": PESS_CH_MAX,
-            "TD_MAX": PESS_DC_MAX,
-            "EFF_CH": EFF_CH,
-            "EFF_DC": EFF_DC,
-            "EFF_SD": 0.98,  # The self discharging
-            "COST": Eess_cost,
-            }
-
-    CESS = {"E0": E0,
-            "E_MAX": Emax,
-            "E_MIN": Emin,
-            "TC_MAX": PESS_CH_MAX,
-            "TD_MAX": PESS_DC_MAX,
-            "EFF_CH": EFF_CH,
-            "EFF_DC": EFF_DC,
-            "EFF_SD": 0.98,  # The self discharging
-            "COST": Eess_cost,
-            "PMAX": PESS_CH_MAX * 10,
-            "ICE": 3.5,
-            }
-
-    ESS = {"BESS": BESS,
-           "TESS": TESS,
-           "CESS": CESS}
-
-    BOIL = {"CAP": Boil_max,
-            "EFF": eff_boil}
-
-    CHIL = {"CAP": Chiller_max,
-            "EFF": eff_chiller}
-
-    energy_hub_management = EnergyHubManagement()
-
-    model = energy_hub_management.problem_formulation(ELEC=ELEC, CCHP=CCHP, THERMAL=THERMAL, BIC=BIC, ESS=ESS,
-                                                      HVAC=HVAC, BOIL=BOIL, CHIL=CHIL, T=T)
-    sol = energy_hub_management.problem_solving(model)
-
-    sol_check = energy_hub_management.solution_check(sol)
-
-    print(sol_check)

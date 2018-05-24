@@ -6,3 +6,5 @@ This function is to provide
 3) start-up and shut-down of resources
 4) decomposition algorithm, Benders decomposition
 """
+import sys
+sys.path.append('/home/matrix/PycharmProjects/Optimization/solvers')
