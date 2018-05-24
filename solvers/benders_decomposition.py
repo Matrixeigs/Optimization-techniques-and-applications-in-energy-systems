@@ -30,6 +30,8 @@ from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming
 from numpy import zeros, hstack, vstack, transpose, ones, inf, array
 from copy import deepcopy
 from solvers.benders_solvers import linear_programming as lp_dual
+from multiprocessing import Pool
+import os
 
 
 class BendersDecomposition():
@@ -112,29 +114,25 @@ class BendersDecomposition():
         # The dual problem is solved
         x_first_stage = array(sol_first_stage["x"][0:self.nx_first_stage]).reshape(self.nx_first_stage, 1)
         model_second_stage = BendersDecomposition.sub_problems_update(self, model_second_stage, x_first_stage)
-
-        sol_second_stage = [0] * self.N
-        sol_second_stage_primal = [0] * self.N
+        n_processors = os.cpu_count()
+        with Pool(n_processors) as p:
+            sol_second_stage = list(p.map(sub_problem_dual, model_second_stage))
         A_cuts = zeros((self.N, self.nx_first_stage + self.N))
         b_cuts = zeros((self.N, 1))
-
         for i in range(self.N):
             # Solve the dual problem
-            sol_second_stage[i] = BendersDecomposition.sub_problem_dual(self, model_second_stage[i])
-            # sol_second_stage_primal[i] = BendersDecomposition.sub_problem(self, model_second_stage[i])
             A_cuts[i, 0:self.nx_first_stage] = -transpose(
                 transpose(model_second_stage[i]["Ts"]).dot(sol_second_stage[i]["x"]))
             b_cuts[i, 0] = -transpose(sol_second_stage[i]["x"]).dot(model_second_stage[i]["hs"])
             if sol_second_stage[i]["status"] == 1:  # if the primal problem is feasible, add feasible cuts
                 A_cuts[i, self.nx_first_stage + i] = -1
-            # else add infeasible cuts
+
         Upper = [inf]
         Lower = sol_first_stage["objvalue"]
         Gap = [BendersDecomposition.gap_calculaiton(self, Upper[0], Lower)]
-        eps = 10 ** -3
-        iter_max = 1000
+        eps = 10 ** 0
+        iter_max = 10000
         iter = 0
-
         # 4) Begin the iteration
         while iter < iter_max:
             # Update the master problem
@@ -156,22 +154,21 @@ class BendersDecomposition():
 
             objvalue_second_stage = zeros((self.N, 1))
 
-            sol_second_stage = [0] * self.N
-
             A_cuts = zeros((self.N, self.nx_first_stage + self.N))
             b_cuts = zeros((self.N, 1))
 
+            with Pool(n_processors) as p:
+                sol_second_stage = list(p.map(sub_problem_dual, model_second_stage))
+
             for i in range(self.N):
                 # Solve the dual problem
-                sol_second_stage[i] = BendersDecomposition.sub_problem_dual(self, model_second_stage[i])
-
                 A_cuts[i, 0:self.nx_first_stage] = -transpose(
                     transpose(model_second_stage[i]["Ts"]).dot(sol_second_stage[i]["x"]))
                 b_cuts[i, 0] = -transpose(sol_second_stage[i]["x"]).dot(model_second_stage[i]["hs"])
 
                 if sol_second_stage[i]["status"] == 1:  # if the primal problem is feasible, add feasible cuts
                     A_cuts[i, self.nx_first_stage + i] = -1
-                    objvalue_second_stage[i, 0] = -sol_second_stage[i]["objvalue"]
+                    objvalue_second_stage[i, 0] = sol_second_stage[i]["objvalue"]
                 else:
                     objvalue_second_stage[i, 0] = inf
 
@@ -179,20 +176,26 @@ class BendersDecomposition():
 
             Gap.append(BendersDecomposition.gap_calculaiton(self, Upper[0], Lower))
             print(Gap[-1][0])
-            # print(Lower)
+            print(Lower)
             iter += 1
 
             if Gap[-1][0] < eps:
                 break
 
+        with Pool(n_processors) as p:
+            sol_second_stage = list(p.map(sub_problem, model_second_stage))
+
         # x_first_stage = sol_first_stage["x"][0:self.nx_first_stage]
         #
         # x_second_stage = zeros((self.N, self.nx_second_stage))
+        x_second_stage = [0] * self.N
 
-        # for i in range(self.N):
-        #     x_second_stage[i, :] = sol_second_stage[i]["x"]
+        for i in range(self.N):
+            x_second_stage[i] = array(sol_second_stage[i]["x"])
+
         sol = {"objvalue": Upper,
-               "x_first_stage": x_first_stage, }
+               "x_first_stage": x_first_stage,
+               "x_second_stage": x_second_stage, }
 
         return sol
 
@@ -207,34 +210,6 @@ class BendersDecomposition():
 
         sol = {"x": x,
                "objvalue": objvalue,
-               "status": status}
-
-        return sol
-
-    def sub_problem(self, model):
-        """
-        Solve each slave problems
-        :param model:
-        :return:
-        """
-        (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"])
-
-        sol = {"x": x,
-               "objvalue": objvalue,
-               "status": status}
-
-        return sol
-
-    def sub_problem_dual(self, model):
-        """
-        Solve each slave problems
-        :param model:
-        :return:
-        """
-        (x, objvalue, status) = lp_dual(model["beq"], A=transpose(model["Aeq"]), b=model["c"])
-
-        sol = {"x": x,
-               "objvalue": -objvalue,
                "status": status}
 
         return sol
@@ -263,6 +238,36 @@ class BendersDecomposition():
             gap = [inf]
 
         return gap
+
+
+def sub_problem(model):
+    """
+    Solve each slave problems
+    :param model:
+    :return:
+    """
+    (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"])
+
+    sol = {"x": x,
+           "objvalue": objvalue,
+           "status": status}
+
+    return sol
+
+
+def sub_problem_dual(model):
+    """
+    Solve each slave problems
+    :param model:
+    :return:
+        """
+    (x, objvalue, status) = lp_dual(model["beq"], A=transpose(model["Aeq"]), b=model["c"])
+
+    sol = {"x": x,
+           "objvalue": objvalue,
+           "status": status}
+
+    return sol
 
 
 if __name__ == "__main__":
