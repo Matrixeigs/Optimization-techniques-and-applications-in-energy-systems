@@ -11,16 +11,8 @@ The ice maker and ice storage are adopted
 """
 from numpy import array, arange, zeros, ones, concatenate
 import numpy as np
-from scipy import interpolate
-from matplotlib import pyplot
-import sys
-sys.path.append('/home/matrix/PycharmProjects/Optimization')
 
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
-
-
-# from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
-
 
 class EnergyHubManagement():
     def __init__(self):

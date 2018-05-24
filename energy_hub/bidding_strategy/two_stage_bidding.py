@@ -18,9 +18,6 @@ import numpy as np
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
 from solvers.benders_decomposition import BendersDecomposition
 
-# from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
-from solvers.benders_solvers import linear_programming as lp_dual
-
 
 class TwoStageBidding():
     def __init__(self):

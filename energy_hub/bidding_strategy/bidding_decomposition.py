@@ -2,18 +2,22 @@
 Decomposition based bidding strategy
 """
 
-import sys
-sys.path.append('/home/matrix/PycharmProjects/Optimization')
+
 # sys.path.append('/home/matrix/PycharmProjects/Optimization/energy_hub')
-from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
+
 from numpy import zeros, ones, array, eye, hstack, vstack, inf, transpose
 import numpy as np
-from solvers.benders_decomposition import BendersDecomposition
-from energy_hub.bidding_strategy.bidding_standard_models import EnergyHubManagement
+try:
+    from solvers.benders_decomposition import BendersDecomposition
+    from energy_hub.bidding_strategy.bidding_standard_models import EnergyHubManagement
+except:
+    import sys
+    sys.path.append('/home/matrix/PycharmProjects/Optimization')
+    from solvers.benders_decomposition import BendersDecomposition
+    from energy_hub.bidding_strategy.bidding_standard_models import EnergyHubManagement
 
 
-# from solvers.mixed_integer_solvers_gurobi import mixed_integer_linear_programming as lp
-
+from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
 
 class TwoStageBidding():
     def __init__(self):
