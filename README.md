@@ -1,6 +1,6 @@
 # Optimization (modelling and algorithm development)
-Two parts of work are presented in the optimization package.
 
+Two parts of work are presented in the optimization package.
 1) Modelling
 a) Optimal power flow.
 b) Economic dispatch.
@@ -17,13 +17,13 @@ a) Interior point method
 b) Branch and bound
 c) Benders decomposition
 d) Generalized Benders decomposition
-f) ADMM
+e) ADMM
 
-Two commercial software packages are required for the deployment of this package, 1) Gurobi and 2) Mosek.
+Three commercial software packages are required for the deployment of this package, 1) Gurobi, 2) Mosek and 3) Cplex.
 
 The mathematical models can be found vai the following websites:
 https://scholar.google.com.sg/citations?user=r-F063gAAAAJ&hl=en
 https://www.researchgate.net/profile/Tianyang_Zhao5
 
-If you are interested in the communication and optimal decision making problems, you can send contact with me via the following e-mail:
+If you are interested in the communication and optimal decision making problems, you can contact with me via the following e-mail:
 matrixeigs@gmail.com
