@@ -21,7 +21,7 @@ e) ADMM
 
 Three commercial software packages are required for the deployment of this package, 1) Gurobi, 2) Mosek and 3) Cplex.
 
-The mathematical models can be found vai the following websites:
+The mathematical models can be found via the following websites:
 https://scholar.google.com.sg/citations?user=r-F063gAAAAJ&hl=en
 https://www.researchgate.net/profile/Tianyang_Zhao5
 
