@@ -25,5 +25,5 @@ The mathematical models can be found via the following websites:
 https://scholar.google.com.sg/citations?user=r-F063gAAAAJ&hl=en
 https://www.researchgate.net/profile/Tianyang_Zhao5
 
-If you are interested in the communication and optimal decision making problems, you can contact with me via the following e-mail:
+If you are interested in the information/communication and optimal decision making problems, you can contact with me via the following e-mail:
 matrixeigs@gmail.com
