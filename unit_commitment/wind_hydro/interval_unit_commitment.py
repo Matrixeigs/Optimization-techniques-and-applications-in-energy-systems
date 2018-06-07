@@ -9,6 +9,7 @@ from solvers.mixed_integer_quadratic_programming import mixed_integer_quadratic_
 import scipy.linalg as linalg
 from scipy.sparse import csr_matrix as sparse
 
+
 class IntervalUnitCommitment():
     ""
 
@@ -23,8 +24,18 @@ class IntervalUnitCommitment():
         RDG = 3
         VH = 4
         QH = 5
+        QU = 6
+        QD = 7
         # Load shedding part
-        PLC = 6
+        PLC = 8
         # Output of wind power unit
-        PWG = 7
+        PWG = 9
+        # The deterministic problem formulation
+
+
+
+if __name__ == "__main__":
+    T = 24
+
+
 
