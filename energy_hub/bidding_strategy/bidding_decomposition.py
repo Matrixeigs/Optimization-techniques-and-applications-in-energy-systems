@@ -7,17 +7,9 @@ Decomposition based bidding strategy
 
 from numpy import zeros, ones, array, eye, hstack, vstack, inf, transpose
 import numpy as np
-try:
-    from solvers.benders_decomposition import BendersDecomposition
-    from energy_hub.bidding_strategy.bidding_standard_models import EnergyHubManagement
-except:
-    import sys
-    sys.path.append('/home/matrix/PycharmProjects/Optimization')
-    from solvers.benders_decomposition import BendersDecomposition
-    from energy_hub.bidding_strategy.bidding_standard_models import EnergyHubManagement
-
-
-from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
+from solvers.benders_decomposition import BendersDecomposition
+from energy_hub.bidding_strategy.bidding_standard_models import EnergyHubManagement
+# from energy_hub.bidding_strategy.bidding_strategy import EnergyHubManagement  # import the energy hub management class
 
 class TwoStageBidding():
     def __init__(self):
@@ -179,7 +171,7 @@ if __name__ == "__main__":
     Delta_t = 1
     delat_t = 1
     T_second_stage = int(T / delat_t)
-    N_sample = 100
+    N_sample = 10
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
