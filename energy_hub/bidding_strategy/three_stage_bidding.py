@@ -5,7 +5,7 @@ Three stage bidding based on the cplex
 from numpy import zeros, ones, array, eye, hstack, vstack, inf, transpose, where
 import numpy as np
 from gurobipy import *
-
+from matplotlib import pyplot
 
 def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     # 1) System level configuration
@@ -452,14 +452,118 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     obj = obj.getValue()
 
     # Obtain the solutions
-    pDA=zeros((T,N_scenario_first_stage))
+    # 1） Day ahead trading plan
+    pDA = zeros((T, N_scenario_first_stage))
     for i in range(T):
         for j in range(N_scenario_first_stage):
-            pDA[i,j] = model.getVarByName("PDA{0}".format(i * N_scenario_first_stage + j)).X
+            pDA[i, j] = model.getVarByName("PDA{0}".format(i * N_scenario_first_stage + j)).X
+
+    PRT = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    PCHP = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    PAC2DC = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    PDC2AC = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    EESS = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    PESS_DC = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    PESS_CH = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    PIAC = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    PPV = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    PCS = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    ## Group 2: Heating ##
+    QCHP = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    QGAS = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    EHSS = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    QHS_DC = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    QHS_CH = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    QAC = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    QTD = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    ## Group 3: Cooling ##
+    QCE = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    QIAC = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    ECSS = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    QCS_DC = zeros((T, N_scenario_second_stage, N_scenario_first_stage))  # The output is cooling
+    QCS_CH = zeros((T, N_scenario_second_stage, N_scenario_first_stage))  # The input is electricity
+    QCD = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    ## Group 4: Gas ##
+    VCHP = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    VGAS = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    for i in range(T):  # Dispatch at each time slot
+        for j in range(N_scenario_second_stage):  # Scheduling plan under second stage plan
+            for k in range(N_scenario_first_stage):  # Dispatch at each time slot
+                PRT[i, j, k] = model.getVarByName("pRT{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                PCHP[i, j, k] = model.getVarByName("pCHP{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                PAC2DC[i, j, k] = model.getVarByName("pAC2DC{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                PDC2AC[i, j, k] = model.getVarByName("pDC2AC{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                EESS[i, j, k] = model.getVarByName("eESS{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                PESS_DC[i, j, k] = model.getVarByName("pESS_DC{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                PESS_CH[i, j, k] = model.getVarByName("pESS_CH{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                PIAC[i, j, k] = model.getVarByName("pIAC{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                PPV[i, j, k] = model.getVarByName("pPV{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                PCS[i, j, k] = model.getVarByName("pCS{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                ## Group 2: Heating ##
+                QCHP[i, j, k] = model.getVarByName("qCHP{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                QGAS[i, j, k] = model.getVarByName("qGAS{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                EHSS[i, j, k] = model.getVarByName("eHSS{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                QHS_DC[i, j, k] = model.getVarByName("qHS_DC{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                QHS_CH[i, j, k] = model.getVarByName("qHS_CH{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                QAC[i, j, k] = model.getVarByName("qAC{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                QTD[i, j, k] = model.getVarByName("qTD{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                ## Group 3: Cooling ##
+                QCE[i, j, k] = model.getVarByName("qCE{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                QIAC[i, j, k] = model.getVarByName("qIAC{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                ECSS[i, j, k] = model.getVarByName("eCSS{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                QCS_DC[i, j, k] = model.getVarByName("qCS_DC{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                # The output is cooling
+                QCS_CH[i, j, k] = model.getVarByName("qCS_CH{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                # The input is electricity
+                QCD[i, j, k] = model.getVarByName("qCD{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                ## Group 4: Gas ##
+                VCHP[i, j, k] = model.getVarByName("vCHP{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                VGAS[i, j, k] = model.getVarByName("vGAS{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+
+    # Solution check
+    for i in range(T):  # Dispatch at each time slot
+        for j in range(N_scenario_second_stage):  # Scheduling plan under second stage plan
+            for k in range(N_scenario_first_stage):  # Dispatch at each time slot
+                if PAC2DC[i, j, k] * PDC2AC[i, j, k] != 0:
+                    print(PAC2DC[i, j, k] * PDC2AC[i, j, k])
+                if PESS_DC[i, j, k] * PESS_CH[i, j, k] != 0:
+                    print(PESS_DC[i, j, k] * PESS_CH[i, j, k])
+                if QHS_DC[i, j, k] * QHS_CH[i, j, k] != 0:
+                    print(QHS_DC[i, j, k] * QHS_CH[i, j, k])
+                if QCS_DC[i, j, k] * QCS_CH[i, j, k] != 0:
+                    print(QCS_DC[i, j, k] * QCS_CH[i, j, k])
+
+    pyplot.plot(pDA)
+    pyplot.show()
 
     return model
 
 
 if __name__ == "__main__":
-    model = main(5, 10)
+    model = main(10, 10)
     print(model)
