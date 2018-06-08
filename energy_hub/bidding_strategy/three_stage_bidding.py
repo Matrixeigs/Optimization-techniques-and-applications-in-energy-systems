@@ -253,6 +253,8 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     ## Group 4: Gas ##
     vCHP = {}
     vGAS = {}
+    # Group 5: Temperature
+    temprature_in = {}
 
     # Define the day-ahead scheduling plan
     for i in range(T):
@@ -318,7 +320,7 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
                 qAC[i, j, k] = model.addVar(lb=0, ub=CHIL["CAP"],
                                             name="qAC{0}".format(
                                                 i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
-                qTD[i, j, k] = model.addVar(lb=0, ub=THERMAL["HD"][i],
+                qTD[i, j, k] = model.addVar(lb=0, ub=QHVAC_max,
                                             name="qTD{0}".format(
                                                 i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
                 ## Group 3: Cooling ##
@@ -337,7 +339,7 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
                 qCS_CH[i, j, k] = model.addVar(lb=0, ub=ESS["CESS"]["TC_MAX"],
                                                name="qCS_CH{0}".format(
                                                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))  # The input is electricity
-                qCD[i, j, k] = model.addVar(lb=0, ub=THERMAL["CD"][i],
+                qCD[i, j, k] = model.addVar(lb=0, ub=QHVAC_max,
                                             name="qCD{0}".format(
                                                 i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
                 ## Group 4: Gas ##
@@ -347,6 +349,11 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
                 vGAS[i, j, k] = model.addVar(lb=0, ub=BOIL["CAP"],
                                              name="vGAS{0}".format(
                                                  i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
+
+                temprature_in[i, j, k] = model.addVar(lb=temprature_in_min, ub=temprature_in_max,
+                                                      name="temprature_in{0}".format(
+                                                          i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
+
                 if i == T - 1:
                     eESS[i, j, k] = model.addVar(lb=ESS["BESS"]["E0"], ub=ESS["BESS"]["E0"],
                                                  name="eESS{0}".format(
@@ -438,6 +445,18 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
             for i in range(T):
                 model.addConstr(pRT_positive[i, j, k] >= pRT[i, j, k])
                 model.addConstr(pRT_negative[i, j, k] >= -pRT[i, j, k])
+    # 7) For the indoor temperature control
+    for k in range(N_scenario_first_stage):
+        for j in range(N_scenario_second_stage):
+            for i in range(T):
+                if i != 0:
+                    model.addConstr(
+                        qTD[i, j, k] - qCD[i, j, k] == (temprature_in[i, j, k] - temprature_in[i - 1, j, k]) * c_air - (
+                                ambinent_temprature[i] - temprature_in[i, j, k]) / r_t)
+                else:
+                    model.addConstr(
+                        qTD[i, j, k] - qCD[i, j, k] == (temprature_in[i, j, k] - ambinent_temprature[0]) * c_air - (
+                                ambinent_temprature[i] - temprature_in[i, j, k]) / r_t)
 
     ## Formulate the objective functions
     # The first stage objective value
@@ -510,6 +529,7 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     ## Group 4: Gas ##
     VCHP = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
     VGAS = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
+    Temprature_in = zeros((T, N_scenario_second_stage, N_scenario_first_stage))
     for i in range(T):  # Dispatch at each time slot
         for j in range(N_scenario_second_stage):  # Scheduling plan under second stage plan
             for k in range(N_scenario_first_stage):  # Dispatch at each time slot
@@ -568,6 +588,8 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
                     i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
                 VGAS[i, j, k] = model.getVarByName("vGAS{0}".format(
                     i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
+                Temprature_in[i, j, k] = model.getVarByName("temprature_in{0}".format(
+                    i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k)).X
 
     # Solution check
     for i in range(T):  # Dispatch at each time slot
@@ -589,5 +611,5 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
 
 
 if __name__ == "__main__":
-    model = main(10, 10)
+    model = main(5, 10)
     print(model)
