@@ -6,6 +6,8 @@ from numpy import zeros, ones, array, eye, hstack, vstack, inf, transpose, where
 import numpy as np
 from gurobipy import *
 from matplotlib import pyplot
+from scipy import stats
+
 
 def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     # 1) System level configuration
@@ -17,7 +19,10 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.05
     forecasting_errors_prices = 0.03
-    Penalty = 0.0
+    alpha = 0.05
+    Lam = 1
+    Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
+
     # For the HVAC system
     # 2) Thermal system configuration
     QHVAC_max = 100
@@ -59,6 +64,10 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
         [6.01, 73.91, 71.31, 69.24, 68.94, 70.56, 75.16, 73.19, 79.70, 85.76, 86.90, 88.60, 90.62, 91.26, 93.70, 90.94,
          91.26, 80.39, 76.25, 76.80, 81.22, 83.75, 76.16, 72.69])
 
+    electricity_price_DA = array(
+        [6.01, 75.91, 73.31, 71.24, 70.94, 69.56, 74.16, 72.19, 80.70, 86.76, 85.90, 87.60, 91.62, 90.26, 95.70, 87.94,
+         91.26, 82.39, 75.25, 76.80, 81.22, 83.75, 76.16, 72.69])
+
     AC_PD = array([323.0284, 308.2374, 318.1886, 307.9809, 331.2170, 368.6539, 702.0040, 577.7045, 1180.4547, 1227.6240,
                    1282.9344, 1311.9738, 1268.9502, 1321.7436, 1323.9218, 1327.1464, 1386.9117, 1321.6387, 1132.0476,
                    1109.2701, 882.5698, 832.4520, 349.3568, 299.9920])
@@ -71,6 +80,9 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
 
     ELEC_PRICE = electricity_price / 300
     ELEC_PRICE = ELEC_PRICE.reshape(T, 1)
+    ELEC_PRICE_DA = electricity_price_DA / 300
+    ELEC_PRICE_DA = ELEC_PRICE_DA.reshape(T, 1)
+
     Eess_cost = 0.01
 
     PV_PG = PV_PG * PV_CAP
@@ -79,11 +91,6 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     DC_PD = (DC_PD / max(DC_PD)) * DC_PD_cap
     HD = (HD / max(HD)) * HD_cap
     CD = (CD / max(CD)) * CD_cap
-
-    ELEC_PRICE_first_stage = zeros((T, N_scenario_first_stage))
-    for i in range(N_scenario_first_stage):
-        ELEC_PRICE_first_stage[:, i] = ones((1, T)) + np.random.normal(0, forecasting_errors_prices,
-                                                                       T)
 
     # Generate the second stage profiles using spline of scipy
     AC_PD_second_stage = zeros((T, N_scenario_second_stage))
@@ -207,7 +214,7 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     Price_DA = zeros((T, N_scenario_first_stage))
     for i in range(N_scenario_first_stage):
         for j in range(T):
-            Price_DA[j, i] = ELEC_PRICE[j] * (1 + np.random.normal(0, forecasting_errors_prices))
+            Price_DA[j, i] = ELEC_PRICE_DA[j] * (1 + np.random.normal(0, forecasting_errors_prices))
 
     # Generate the order bidding curve, the constrain will be added from the highest order to the  lowest
     Order = zeros((T, N_scenario_first_stage))
@@ -217,6 +224,8 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     model = Model("EnergyHub")
     PDA = {}  # Day-ahead bidding strategy
     pRT = {}  # Real-time prices
+    pRT_positive = {}  # Real-time prices
+    pRT_negative = {}  # Real-time prices
     pCHP = {}  # Real-time output of CHP units
     pAC2DC = {}  # Real-time power transfered from AC to DC
     pDC2AC = {}  # Real-time power transfered from DC to AC
@@ -257,6 +266,12 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
                 pRT[i, j, k] = model.addVar(lb=-PUG_MAX, ub=PUG_MAX,
                                             name="pRT{0}".format(
                                                 i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
+                pRT_positive[i, j, k] = model.addVar(lb=0, ub=PUG_MAX,
+                                                     name="pRT_positive{0}".format(
+                                                         i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
+                pRT_negative[i, j, k] = model.addVar(lb=0, ub=PUG_MAX,
+                                                     name="pRT_negative{0}".format(
+                                                         i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
                 pCHP[i, j, k] = model.addVar(lb=0, ub=CCHP["MAX"] * CCHP["EFF_E"],
                                              name="pCHP{0}".format(
                                                  i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
@@ -417,6 +432,12 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
         Index = Order[i, :].tolist()
         for j in range(N_scenario_first_stage - 1):
             model.addConstr(PDA[i, Index.index(j)] >= PDA[i, Index.index(j + 1)])
+    # 6) For the real-time dispatch
+    for k in range(N_scenario_first_stage):
+        for j in range(N_scenario_second_stage):
+            for i in range(T):
+                model.addConstr(pRT_positive[i, j, k] >= pRT[i, j, k])
+                model.addConstr(pRT_negative[i, j, k] >= -pRT[i, j, k])
 
     ## Formulate the objective functions
     # The first stage objective value
@@ -429,8 +450,11 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     for k in range(N_scenario_first_stage):
         for j in range(N_scenario_second_stage):
             for i in range(T):
-                obj_RT += pRT[i, j, k] * (ELEC_PRICE_second_stage[i, j] + Penalty) * weight_first_stage[k] * \
-                          weight_second_stage[j]
+                obj_RT += pRT[i, j, k] * ELEC_PRICE[i] * weight_first_stage[k] * weight_second_stage[j]
+                obj_RT += pRT_positive[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight * \
+                          weight_first_stage[k] * weight_second_stage[j]
+                obj_RT += pRT_negative[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight * \
+                          weight_first_stage[k] * weight_second_stage[j]
                 obj_RT += pESS_DC[i, j, k] * ESS["BESS"]["COST"] * weight_first_stage[k] * weight_second_stage[j]
                 obj_RT += pESS_CH[i, j, k] * ESS["BESS"]["COST"] * weight_first_stage[k] * weight_second_stage[j]
                 obj_RT += qHS_DC[i, j, k] * ESS["TESS"]["COST"] * weight_first_stage[k] * weight_second_stage[j]
