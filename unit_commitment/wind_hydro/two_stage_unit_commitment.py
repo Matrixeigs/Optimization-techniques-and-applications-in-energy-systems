@@ -1,13 +1,9 @@
 """
-Two-stage unit commitment for
+Two-stage unit commitment for jointed wind hydro dispatch
 """
 from pypower import loadcase, ext2int, makeBdc
 from scipy.sparse import csr_matrix as sparse
-from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, concatenate, array, inf, eye, diag, subtract
-from numpy import flatnonzero as find
-from scipy.sparse.linalg import inv
-from scipy.sparse import vstack
-from numpy.linalg import pinv
+from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, concatenate, array, diag
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
 
 
@@ -191,7 +187,7 @@ def problem_formulation(case):
             vtypes[ON * nh * T + i * nh + j] = "D"
             vtypes[OFF * nh * T + i * nh + j] = "D"
             vtypes[IHG * nh * T + i * nh + j] = "D"
-            if i == T:
+            if i == T - 1:
                 lb[V * nh * T + i * nh + j] = V0[j]
                 ub[V * nh * T + i * nh + j] = V0[j]
 
@@ -356,31 +352,31 @@ def problem_formulation(case):
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
     # 2.8) Water reserve limitation
-    Aineq_temp = zeros((T * nh, nx))
-    bineq_temp = zeros((T * nh, 1))
-    for i in range(T):
-        for j in range(nh):
-            Aineq_temp[i * nh + j, V * nh * T + i * nh + j] = 1
-            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -1
-            Aineq_temp[i * nh + j, QDHG * nh * T + i * nh + j] = 1
-            Aineq_temp[i * nh + j, S * nh * T + i * nh + j] = -1
-            bineq_temp[i * nh + j] = VMAX[j] - HYDRO_INJECT_FORECAST[i * nh + j]
-
-    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-    bineq = concatenate((bineq, bineq_temp), axis=0)
-
-    Aineq_temp = zeros((T * nh, nx))
-    bineq_temp = zeros((T * nh, 1))
-    for i in range(T):
-        for j in range(nh):
-            Aineq_temp[i * nh + j, V * nh * T + i * nh + j] = -1
-            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = 1
-            Aineq_temp[i * nh + j, QUHG * nh * T + i * nh + j] = 1
-            Aineq_temp[i * nh + j, S * nh * T + i * nh + j] = 1
-            bineq_temp[i * nh + j] = -VMIN[j] + HYDRO_INJECT_FORECAST[i * nh + j]
-
-    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-    bineq = concatenate((bineq, bineq_temp), axis=0)
+    # Aineq_temp = zeros((T * nh, nx))
+    # bineq_temp = zeros((T * nh, 1))
+    # for i in range(T):
+    #     for j in range(nh):
+    #         Aineq_temp[i * nh + j, V * nh * T + i * nh + j] = 1
+    #         Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -1
+    #         Aineq_temp[i * nh + j, QDHG * nh * T + i * nh + j] = 1
+    #         Aineq_temp[i * nh + j, S * nh * T + i * nh + j] = -1
+    #         bineq_temp[i * nh + j] = VMAX[j] - HYDRO_INJECT_FORECAST[i * nh + j]
+    #
+    # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    # bineq = concatenate((bineq, bineq_temp), axis=0)
+    #
+    # Aineq_temp = zeros((T * nh, nx))
+    # bineq_temp = zeros((T * nh, 1))
+    # for i in range(T):
+    #     for j in range(nh):
+    #         Aineq_temp[i * nh + j, V * nh * T + i * nh + j] = -1
+    #         Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = 1
+    #         Aineq_temp[i * nh + j, QUHG * nh * T + i * nh + j] = 1
+    #         Aineq_temp[i * nh + j, S * nh * T + i * nh + j] = 1
+    #         bineq_temp[i * nh + j] = -VMIN[j] + HYDRO_INJECT_FORECAST[i * nh + j]
+    #
+    # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    # bineq = concatenate((bineq, bineq_temp), axis=0)
 
     # 2.9) Line flow limitation
     Aineq_temp = zeros((T * nl, nx))
@@ -401,7 +397,7 @@ def problem_formulation(case):
                 (bus[:, PD] * LOAD_PROFILE[i]).reshape(nb, 1) - Cw * WIND_PROFILE_FORECAST[i * nw:(i + 1) * nw])
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
-    #
+
     Aineq_temp = zeros((T * nl, nx))
     bineq_temp = zeros((T * nl, 1))
     for i in range(T):
@@ -423,7 +419,7 @@ def problem_formulation(case):
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
-    # For the capacity
+    # 2.10)  Capacity limitation
     Aineq_temp = zeros((T, nx))
     bineq_temp = zeros((T, 1))
     for i in range(T):
@@ -432,10 +428,82 @@ def problem_formulation(case):
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
+    # 2.11)  Up and down reserve for the forecasting errors
+    # Up reserve limitation
+    Aineq_temp = zeros((T * nh, nx))
+    bineq_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            Aineq_temp[i * nh + j, RUHG * nh * T + i * nh + j] = -1
+            bineq_temp[i * nh + j] += Delta_wind[i * nh + j]
+
+    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    bineq = concatenate((bineq, bineq_temp), axis=0)
+    # Down reserve limitation
+    Aineq_temp = zeros((T * nh, nx))
+    bineq_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            Aineq_temp[i * nh + j, RDHG * nh * T + i * nh + j] = -1
+            bineq_temp[i * nh + j] += Delta_wind[i * nh + j]
+    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    bineq = concatenate((bineq, bineq_temp), axis=0)
 
     (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
     xx = array(xx).reshape((len(xx), 1))
 
+    # Decompose the first stage decision varialbes
+    On = zeros((T, nh))
+    Off = zeros((T, nh))
+    Ihg = zeros((T, nh))
+    Phg = zeros((T, nh))
+    Ruhg = zeros((T, nh))
+    Rdhg = zeros((T, nh))
+    Qhg = zeros((T, nh))
+    Quhg = zeros((T, nh))
+    Qdhg = zeros((T, nh))
+    v = zeros((T, nh))
+    s = zeros((T, nh))
+    Pwc = zeros((T, nw))
+    Plc = zeros((T, nb))
+    Pex = zeros((T, nex))
+    Cex = zeros((T, 1))
+    for i in range(T):
+        for j in range(nh):
+            On[i, j] = xx[ON * nh * T + i * nh + j]
+            Off[i, j] = xx[OFF * nh * T + i * nh + j]
+            Ihg[i, j] = xx[IHG * nh * T + i * nh + j]
+            Phg[i, j] = xx[PHG * nh * T + i * nh + j]
+            Ruhg[i, j] = xx[RUHG * nh * T + i * nh + j]
+            Rdhg[i, j] = xx[RDHG * nh * T + i * nh + j]
+            Qhg[i, j] = xx[QHG * nh * T + i * nh + j]
+            Quhg[i, j] = xx[QUHG * nh * T + i * nh + j]
+            Qdhg[i, j] = xx[QDHG * nh * T + i * nh + j]
+            v[i, j] = xx[V * nh * T + i * nh + j]
+            s[i, j] = xx[S * nh * T + i * nh + j]
+    for i in range(T):
+        for j in range(nw):
+            Pwc[i, j] = xx[PWC * nh * T + i * nw + j]
+
+    for i in range(T):
+        for j in range(nb):
+            Plc[i, j] = xx[PWC * nh * T + nw * T + i * nb + j]
+
+    for i in range(T):
+        for j in range(nex):
+            Pex[i, j] = xx[PWC * nh * T + nw * T + nb * T + i * nex + j]
+
+    Cex = xx[-1]
+
+    return obj
+
+
+def fisrt_stage_decision_making_result(x):
+    """
+    Decompose the first stage decision and
+    :param x:
+    :return:
+    """
 
     return model
 
