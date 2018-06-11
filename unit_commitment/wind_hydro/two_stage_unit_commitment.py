@@ -34,27 +34,27 @@ def problem_formulation(case):
     nl = shape(mpc['branch'])[0]  ## number of branches
     ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
 
-    Bbus = makeBdc.makeBdc(baseMVA, bus, branch)
-    Distribution_factor = Bbus[1] * inv(Bbus[0])
+    # Bbus = makeBdc.makeBdc(baseMVA, bus, branch)
+    # Distribution_factor = Bbus[1] * inv(Bbus[0])
 
-    # Distribution_factor = array([
-    #     [0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [-0.005, -0.005, -0.005, -1.005, -0.005, -0.005, -0.005, -0.005, -0.005, -0.005, -0.005, -0.005, -0.005,
-    #      -0.005, ],
-    #     [0.47, 0.47, 0.47, 0.47, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03],
-    #     [0.47, 0.47, 0.47, 0.47, -0.03, - 0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03],
-    #     [0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-    #     [0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.68, -0.68, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32],
-    #     [0.32, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.68, -0.68, 0.32, 0.32, 0.32, 0.32],
-    #     [0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.16, -0.84, 0.16, 0.16, 0.16, 0.16],
-    #     [-0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -1.16, -0.16, -1.16, -0.16],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0],
-    #     [-0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -1.16, -0.16, -0.16],
-    #     [-0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -1.08],
-    # ])
-    # Distribution_factor = sparse(Distribution_factor)
+    Distribution_factor = array([
+        [0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [-0.005, -0.005, -0.005, -1.005, -0.005, -0.005, -0.005, -0.005, -0.005, -0.005, -0.005, -0.005, -0.005,
+         -0.005, ],
+        [0.47, 0.47, 0.47, 0.47, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03],
+        [0.47, 0.47, 0.47, 0.47, -0.03, - 0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03],
+        [0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.68, -0.68, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32],
+        [0.32, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, 0.32, -0.68, -0.68, 0.32, 0.32, 0.32, 0.32],
+        [0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.16, -0.84, 0.16, 0.16, 0.16, 0.16],
+        [-0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -1.16, -0.16, -1.16, -0.16],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0],
+        [-0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -0.16, -1.16, -0.16, -0.16],
+        [-0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -0.08, -1.08],
+    ])
+    Distribution_factor = sparse(Distribution_factor)
     # Formulate connection matrix for wind farms
     i = []
     PWMAX = []
@@ -244,32 +244,33 @@ def problem_formulation(case):
         beq[i] = sum(bus[:, PD]) * LOAD_PROFILE[i] - sum(WIND_PROFILE_FORECAST[i * nw:(i + 1) * nw])
 
     # 2.2) Status transformation of each unit
-    # Aeq_temp = zeros((T * nh, nx))
-    # beq_temp = zeros((T * nh, 1))
-    # for i in range(T):
-    #     for j in range(nh):
-    #         Aeq_temp[i * nh + j, ON * nh * T + i * nh + j] = 1
-    #         Aeq_temp[i * nh + j, OFF * nh * T + i * nh + j] = -1
-    #         Aeq_temp[i * nh + j, IHG * nh * T + i * nh + j] = 1
-    #         if i != 0:
-    #             Aeq_temp[i * nh + j, IHG * nh * T + (i - 1) * nh + j] = -1
-    #         else:
-    #             beq_temp[i * T + j] = 0
-
-    # Aeq = concatenate((Aeq, Aeq_temp), axis=0)
-    # beq = concatenate((beq, beq_temp), axis=0)
-    # 2.3) water status change
     Aeq_temp = zeros((T * nh, nx))
     beq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
+            Aeq_temp[i * nh + j, ON * nh * T + i * nh + j] = 1
+            Aeq_temp[i * nh + j, OFF * nh * T + i * nh + j] = -1
+            Aeq_temp[i * nh + j, IHG * nh * T + i * nh + j] = 1
+            if i != 0:
+                Aeq_temp[i * nh + j, IHG * nh * T + (i - 1) * nh + j] = -1
+            else:
+                beq_temp[i * T + j] = 0
+
+    Aeq = concatenate((Aeq, Aeq_temp), axis=0)
+    beq = concatenate((beq, beq_temp), axis=0)
+    # 2.3) water status change
+    Aeq_temp = zeros((T * nh, nx))
+    beq_temp = zeros((T * nh, 1))
+    beq_temp = HYDRO_INJECT_FORECAST
+    for i in range(T):
+        for j in range(nh):
             Aeq_temp[i * nh + j, V * nh * T + i * nh + j] = 1
-            Aeq_temp[i * nh + j, S * nh * T + i * nh + j] = -1
-            Aeq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -1
+            Aeq_temp[i * nh + j, S * nh * T + i * nh + j] = 1
+            Aeq_temp[i * nh + j, QHG * nh * T + i * nh + j] = 1
             if i != 0:
                 Aeq_temp[i * nh + j, V * nh * T + (i - 1) * nh + j] = -1
             else:
-                beq_temp[i * T + j] = V0[j]
+                beq_temp[i * T + j] += V0[j]
 
     Aeq = concatenate((Aeq, Aeq_temp), axis=0)
     beq = concatenate((beq, beq_temp), axis=0)
@@ -281,7 +282,7 @@ def problem_formulation(case):
         for j in range(nh):
             Aeq_temp[i * nh + j, PHG * nh * T + i * nh + j] = 1
             Aeq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -M[j, j]
-            Aeq_temp[i * nh + j, IHG * nh * T + i * nh + j] = -abs(-C_TEMP[j] + M[j, j] * Q_TEMP[j])
+            Aeq_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M[j, j] * Q_TEMP[j]
     Aeq = concatenate((Aeq, Aeq_temp), axis=0)
     beq = concatenate((beq, beq_temp), axis=0)
 
@@ -304,18 +305,17 @@ def problem_formulation(case):
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
-    # (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
-    # xx = array(xx).reshape((len(xx), 1))
+
     # 2.6) Water reserve constraints
     Aineq_temp = zeros((T * nh, nx))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
-        Aineq_temp[i * nh:(i + 1) * nh, PHG * nh * T + i * nh:PHG * nh * T + (i + 1) * nh] = eye(nh)
-        Aineq_temp[i * nh:(i + 1) * nh, RUHG * nh * T + i * nh:RUHG * nh * T + (i + 1) * nh] = eye(nh)
-        Aineq_temp[i * nh:(i + 1) * nh, IHG * nh * T + i * nh:IHG * nh * T + (i + 1) * nh] = -diag(
-            C_TEMP - M.dot(Q_TEMP))
-        Aineq_temp[i * nh:(i + 1) * nh, QHG * nh * T + i * nh:QHG * nh * T + (i + 1) * nh] = -M
-        Aineq_temp[i * nh:(i + 1) * nh, QUHG * nh * T + i * nh:QUHG * nh * T + (i + 1) * nh] = -M
+        for j in range(nh):
+            Aineq_temp[i * nh + j, PHG * nh * T + i * nh + j] = 1
+            Aineq_temp[i * nh + j, RUHG * nh * T + i * nh + j] = 1
+            Aineq_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M[j, j] * Q_TEMP[j]
+            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -M[j, j]
+            Aineq_temp[i * nh + j, QUHG * nh * T + i * nh + j] = -M[j, j]
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
@@ -323,12 +323,12 @@ def problem_formulation(case):
     Aineq_temp = zeros((T * nh, nx))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
-        Aineq_temp[i * nh:(i + 1) * nh, PHG * nh * T + i * nh:PHG * nh * T + (i + 1) * nh] = -eye(nh)
-        Aineq_temp[i * nh:(i + 1) * nh, RDHG * nh * T + i * nh:RDHG * nh * T + (i + 1) * nh] = eye(nh)
-        Aineq_temp[i * nh:(i + 1) * nh, IHG * nh * T + i * nh:IHG * nh * T + (i + 1) * nh] = diag(
-            C_TEMP - M.dot(Q_TEMP))
-        Aineq_temp[i * nh:(i + 1) * nh, QHG * nh * T + i * nh:QHG * nh * T + (i + 1) * nh] = M
-        Aineq_temp[i * nh:(i + 1) * nh, QDHG * nh * T + i * nh:QDHG * nh * T + (i + 1) * nh] = -M
+        for j in range(nh):
+            Aineq_temp[i * nh + j, PHG * nh * T + i * nh + j] = -1
+            Aineq_temp[i * nh + j, RDHG * nh * T + i * nh + j] = 1
+            Aineq_temp[i * nh + j, IHG * nh * T + i * nh + j] = C_TEMP[j] - M[j, j] * Q_TEMP[j]
+            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = M[j, j]
+            Aineq_temp[i * nh + j, QDHG * nh * T + i * nh + j] = -M[j, j]
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
@@ -369,9 +369,6 @@ def problem_formulation(case):
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
-    # (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
-    # xx = array(xx).reshape((len(xx), 1))
-
     Aineq_temp = zeros((T * nh, nx))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
@@ -386,46 +383,46 @@ def problem_formulation(case):
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
     # 2.9) Line flow limitation
-    # Aineq_temp = zeros((T * nl, nx))
-    # bineq_temp = zeros((T * nl, 1))
-    # for i in range(T):
-    #     Aineq_temp[i * nl:(i + 1) * nl, PHG * nh * T + i * nh:PHG * nh * T + (i + 1) * nh] = -(
-    #             Distribution_factor * Ch).todense()
-    #     Aineq_temp[i * nl:(i + 1) * nl, PWC * nh * T + i * nw:PWC * nh * T + (i + 1) * nw] = (
-    #             Distribution_factor * Cw).todense()
-    #     Aineq_temp[i * nl:(i + 1) * nl,
-    #     PWC * nh * T + nw * T + i * nb:PWC * nh * T + nw * T + (i + 1) * nb] = -Distribution_factor.todense()
+    Aineq_temp = zeros((T * nl, nx))
+    bineq_temp = zeros((T * nl, 1))
+    for i in range(T):
+        Aineq_temp[i * nl:(i + 1) * nl, PHG * nh * T + i * nh:PHG * nh * T + (i + 1) * nh] = -(
+                Distribution_factor * Ch).todense()
+        Aineq_temp[i * nl:(i + 1) * nl, PWC * nh * T + i * nw:PWC * nh * T + (i + 1) * nw] = (
+                Distribution_factor * Cw).todense()
+        Aineq_temp[i * nl:(i + 1) * nl,
+        PWC * nh * T + nw * T + i * nb:PWC * nh * T + nw * T + (i + 1) * nb] = -Distribution_factor.todense()
+
+        Aineq_temp[i * nl:(i + 1) * nl,
+        PWC * nh * T + nw * T + nb * T + i * nex:PWC * nh * T + nw * T + nb * T + (i + 1) * nex] = (
+                Distribution_factor * Cex).todense()
+
+        bineq_temp[i * nl:(i + 1) * nl, :] = PLMAX - Distribution_factor * (
+                (bus[:, PD] * LOAD_PROFILE[i]).reshape(nb, 1) - Cw * WIND_PROFILE_FORECAST[i * nw:(i + 1) * nw])
+    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    bineq = concatenate((bineq, bineq_temp), axis=0)
     #
-    #     Aineq_temp[i * nl:(i + 1) * nl,
-    #     PWC * nh * T + nw * T + nb * T + i * nex:PWC * nh * T + nw * T + nb * T + (i + 1) * nex] = (
-    #             Distribution_factor * Cex).todense()
-    #
-    #     bineq_temp[i * nl:(i + 1) * nl, :] = PLMAX - Distribution_factor * (
-    #             (bus[:, PD] * LOAD_PROFILE[i]).reshape(nb, 1) - Cw * WIND_PROFILE_FORECAST[i * nw:(i + 1) * nw])
-    # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-    # bineq = concatenate((bineq, bineq_temp), axis=0)
-    #
-    # Aineq_temp = zeros((T * nl, nx))
-    # bineq_temp = zeros((T * nl, 1))
-    # for i in range(T):
-    #     Aineq_temp[i * nl:(i + 1) * nl, PHG * nh * T + i * nh:PHG * nh * T + (i + 1) * nh] = (
-    #             Distribution_factor * Ch).todense()
-    #
-    #     Aineq_temp[i * nl:(i + 1) * nl, PWC * nh * T + i * nw:PWC * nh * T + (i + 1) * nw] = -(
-    #             Distribution_factor * Cw).todense()
-    #
-    #     Aineq_temp[i * nl:(i + 1) * nl,
-    #     PWC * nh * T + nw * T + i * nb:PWC * nh * T + nw * T + (i + 1) * nb] = Distribution_factor.todense()
-    #
-    #     Aineq_temp[i * nl:(i + 1) * nl,
-    #     PWC * nh * T + nw * T + nb * T + i * nex:PWC * nh * T + nw * T + nb * T + (i + 1) * nex] = -(
-    #             Distribution_factor * Cex).todense()
-    #
-    #     bineq_temp[i * nl:(i + 1) * nl, :] = PLMAX + Distribution_factor * (
-    #             (bus[:, PD] * LOAD_PROFILE[i]).reshape(nb, 1) - Cw * WIND_PROFILE_FORECAST[i * nw:(i + 1) * nw])
-    #
-    # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-    # bineq = concatenate((bineq, bineq_temp), axis=0)
+    Aineq_temp = zeros((T * nl, nx))
+    bineq_temp = zeros((T * nl, 1))
+    for i in range(T):
+        Aineq_temp[i * nl:(i + 1) * nl, PHG * nh * T + i * nh:PHG * nh * T + (i + 1) * nh] = (
+                Distribution_factor * Ch).todense()
+
+        Aineq_temp[i * nl:(i + 1) * nl, PWC * nh * T + i * nw:PWC * nh * T + (i + 1) * nw] = -(
+                Distribution_factor * Cw).todense()
+
+        Aineq_temp[i * nl:(i + 1) * nl,
+        PWC * nh * T + nw * T + i * nb:PWC * nh * T + nw * T + (i + 1) * nb] = Distribution_factor.todense()
+
+        Aineq_temp[i * nl:(i + 1) * nl,
+        PWC * nh * T + nw * T + nb * T + i * nex:PWC * nh * T + nw * T + nb * T + (i + 1) * nex] = -(
+                Distribution_factor * Cex).todense()
+
+        bineq_temp[i * nl:(i + 1) * nl, :] = PLMAX + Distribution_factor * (
+                (bus[:, PD] * LOAD_PROFILE[i]).reshape(nb, 1) - Cw * WIND_PROFILE_FORECAST[i * nw:(i + 1) * nw])
+
+    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    bineq = concatenate((bineq, bineq_temp), axis=0)
     # For the capacity
     Aineq_temp = zeros((T, nx))
     bineq_temp = zeros((T, 1))
@@ -438,7 +435,7 @@ def problem_formulation(case):
 
     (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
     xx = array(xx).reshape((len(xx), 1))
-    # 2.3)
+
 
     return model
 
