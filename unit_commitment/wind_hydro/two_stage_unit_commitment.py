@@ -15,6 +15,7 @@ def problem_formulation(case):
     CAP_WIND = 1  # The capacity of wind farm
     BETA = 0.1  # The disturbance range of wind farm
     BETA_HYDRO = 0.05  # The disturbance range of wind farm
+    BETA_LOAD = 0.03
     CAPVALUE = 10  # The capacity value
     Price_energy = r_[ones(8), 3 * ones(8), ones(8)]
 
@@ -115,6 +116,13 @@ def problem_formulation(case):
                           0.947428654208872, 0.921588439808779, 0.884707317888543, 0.877717046100358, 0.880387289807107,
                           0.892056129442049, 0.909233443653261, 0.926748403704075, 0.968646575067696, 0.999358974358974,
                           0.979169591816267, 0.913517534182463, 0.806453715775750, 0.699930632166617]).reshape((T, 1))
+    LOAD_FORECAST = zeros((T * nb, 1))
+    Delta_load = zeros((T * nb, 1))
+    load_base = bus[:, PD].reshape(nb, 1)
+    for i in range(T):
+        LOAD_FORECAST[i * nb:(i + 1) * nb, :] = load_base * LOAD_PROFILE[i]
+        Delta_load[i * nb:(i + 1) * nb, :] = load_base * BETA_LOAD
+
     # Hydro information
     HYDRO_INJECT = array([6, 2, 4, 3]).reshape((nh, 1))
     HYDRO_INJECT_FORECAST = zeros((T * nh, 1))
@@ -150,11 +158,11 @@ def problem_formulation(case):
     PLC = 12
     PEX = 13
     CEX = 14
-    nx = PWC * nh * T + nw * T + nb * T + nex * T + 1
-    lb = zeros((nx, 1))
-    ub = zeros((nx, 1))
-    c = zeros((nx, 1))
-    vtypes = ["c"] * nx
+    NX = PWC * nh * T + nw * T + nb * T + nex * T + 1
+    lb = zeros((NX, 1))
+    ub = zeros((NX, 1))
+    c = zeros((NX, 1))
+    vtypes = ["c"] * NX
     for i in range(T):
         for j in range(nh):
             # lower boundary information
@@ -221,7 +229,7 @@ def problem_formulation(case):
 
     # 2) Constraint set
     # 2.1) Power balance equation
-    Aeq = zeros((T, nx))
+    Aeq = zeros((T, NX))
     beq = zeros((T, 1))
     for i in range(T):
         # For the hydro units
@@ -237,10 +245,10 @@ def problem_formulation(case):
         for j in range(nex):
             Aeq[i, PWC * nh * T + nw * T + nb * T + i * nex + j] = -1
 
-        beq[i] = sum(bus[:, PD]) * LOAD_PROFILE[i] - sum(WIND_PROFILE_FORECAST[i * nw:(i + 1) * nw])
+        beq[i] = sum(load_base) * LOAD_PROFILE[i] - sum(WIND_PROFILE_FORECAST[i * nw:(i + 1) * nw])
 
     # 2.2) Status transformation of each unit
-    Aeq_temp = zeros((T * nh, nx))
+    Aeq_temp = zeros((T * nh, NX))
     beq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -255,8 +263,7 @@ def problem_formulation(case):
     Aeq = concatenate((Aeq, Aeq_temp), axis=0)
     beq = concatenate((beq, beq_temp), axis=0)
     # 2.3) water status change
-    Aeq_temp = zeros((T * nh, nx))
-    beq_temp = zeros((T * nh, 1))
+    Aeq_temp = zeros((T * nh, NX))
     beq_temp = HYDRO_INJECT_FORECAST
     for i in range(T):
         for j in range(nh):
@@ -272,7 +279,7 @@ def problem_formulation(case):
     beq = concatenate((beq, beq_temp), axis=0)
 
     # 2.4) Power water transfering
-    Aeq_temp = zeros((T * nh, nx))
+    Aeq_temp = zeros((T * nh, NX))
     beq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -283,7 +290,7 @@ def problem_formulation(case):
     beq = concatenate((beq, beq_temp), axis=0)
 
     # 2.5) Power range limitation
-    Aineq = zeros((T * nh, nx))
+    Aineq = zeros((T * nh, NX))
     bineq = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -291,7 +298,7 @@ def problem_formulation(case):
             Aineq[i * nh + j, PHG * nh * T + i * nh + j] = -1
             Aineq[i * nh + j, RDHG * nh * T + i * nh + j] = 1
 
-    Aineq_temp = zeros((T * nh, nx))
+    Aineq_temp = zeros((T * nh, NX))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -303,7 +310,7 @@ def problem_formulation(case):
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
     # 2.6) Water reserve constraints
-    Aineq_temp = zeros((T * nh, nx))
+    Aineq_temp = zeros((T * nh, NX))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -316,7 +323,7 @@ def problem_formulation(case):
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
-    Aineq_temp = zeros((T * nh, nx))
+    Aineq_temp = zeros((T * nh, NX))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -330,7 +337,7 @@ def problem_formulation(case):
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
     # 2.7) water flow constraints
-    Aineq_temp = zeros((T * nh, nx))
+    Aineq_temp = zeros((T * nh, NX))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -340,7 +347,7 @@ def problem_formulation(case):
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
-    Aineq_temp = zeros((T * nh, nx))
+    Aineq_temp = zeros((T * nh, NX))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -352,34 +359,34 @@ def problem_formulation(case):
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
     # 2.8) Water reserve limitation
-    # Aineq_temp = zeros((T * nh, nx))
-    # bineq_temp = zeros((T * nh, 1))
-    # for i in range(T):
-    #     for j in range(nh):
-    #         Aineq_temp[i * nh + j, V * nh * T + i * nh + j] = 1
-    #         Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -1
-    #         Aineq_temp[i * nh + j, QDHG * nh * T + i * nh + j] = 1
-    #         Aineq_temp[i * nh + j, S * nh * T + i * nh + j] = -1
-    #         bineq_temp[i * nh + j] = VMAX[j] - HYDRO_INJECT_FORECAST[i * nh + j]
-    #
-    # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-    # bineq = concatenate((bineq, bineq_temp), axis=0)
-    #
-    # Aineq_temp = zeros((T * nh, nx))
-    # bineq_temp = zeros((T * nh, 1))
-    # for i in range(T):
-    #     for j in range(nh):
-    #         Aineq_temp[i * nh + j, V * nh * T + i * nh + j] = -1
-    #         Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = 1
-    #         Aineq_temp[i * nh + j, QUHG * nh * T + i * nh + j] = 1
-    #         Aineq_temp[i * nh + j, S * nh * T + i * nh + j] = 1
-    #         bineq_temp[i * nh + j] = -VMIN[j] + HYDRO_INJECT_FORECAST[i * nh + j]
-    #
-    # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-    # bineq = concatenate((bineq, bineq_temp), axis=0)
+    Aineq_temp = zeros((T * nh, NX))
+    bineq_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            Aineq_temp[i * nh + j, V * nh * T + i * nh + j] = 1
+            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -1
+            Aineq_temp[i * nh + j, QDHG * nh * T + i * nh + j] = 1
+            Aineq_temp[i * nh + j, S * nh * T + i * nh + j] = -1
+            bineq_temp[i * nh + j] = VMAX[j] - HYDRO_INJECT_FORECAST[i * nh + j]
+
+    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    bineq = concatenate((bineq, bineq_temp), axis=0)
+
+    Aineq_temp = zeros((T * nh, NX))
+    bineq_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            Aineq_temp[i * nh + j, V * nh * T + i * nh + j] = -1
+            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = 1
+            Aineq_temp[i * nh + j, QUHG * nh * T + i * nh + j] = 1
+            Aineq_temp[i * nh + j, S * nh * T + i * nh + j] = 1
+            bineq_temp[i * nh + j] = -VMIN[j] + HYDRO_INJECT_FORECAST[i * nh + j]
+
+    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    bineq = concatenate((bineq, bineq_temp), axis=0)
 
     # 2.9) Line flow limitation
-    Aineq_temp = zeros((T * nl, nx))
+    Aineq_temp = zeros((T * nl, NX))
     bineq_temp = zeros((T * nl, 1))
     for i in range(T):
         Aineq_temp[i * nl:(i + 1) * nl, PHG * nh * T + i * nh:PHG * nh * T + (i + 1) * nh] = -(
@@ -398,7 +405,7 @@ def problem_formulation(case):
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
-    Aineq_temp = zeros((T * nl, nx))
+    Aineq_temp = zeros((T * nl, NX))
     bineq_temp = zeros((T * nl, 1))
     for i in range(T):
         Aineq_temp[i * nl:(i + 1) * nl, PHG * nh * T + i * nh:PHG * nh * T + (i + 1) * nh] = (
@@ -420,7 +427,7 @@ def problem_formulation(case):
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
     # 2.10)  Capacity limitation
-    Aineq_temp = zeros((T, nx))
+    Aineq_temp = zeros((T, NX))
     bineq_temp = zeros((T, 1))
     for i in range(T):
         Aineq_temp[i, PWC * nh * T + nw * T + nb * T + nex * T] = 1
@@ -430,7 +437,7 @@ def problem_formulation(case):
     bineq = concatenate((bineq, bineq_temp), axis=0)
     # 2.11)  Up and down reserve for the forecasting errors
     # Up reserve limitation
-    Aineq_temp = zeros((T * nh, nx))
+    Aineq_temp = zeros((T * nh, NX))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -440,7 +447,7 @@ def problem_formulation(case):
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
     # Down reserve limitation
-    Aineq_temp = zeros((T * nh, nx))
+    Aineq_temp = zeros((T * nh, NX))
     bineq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
@@ -448,6 +455,367 @@ def problem_formulation(case):
             bineq_temp[i * nh + j] += Delta_wind[i * nh + j]
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
+
+    model_first_stage = {"c": c,
+                         "lb": lb,
+                         "ub": ub,
+                         "A": Aineq,
+                         "b": bineq_temp,
+                         "Aeq": Aeq,
+                         "beq": beq,
+                         "vtypes": vtypes}
+    # (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
+    # xx = array(xx).reshape((len(xx), 1))
+
+    ## Formualte the second stage decision making problem
+    phg = 0
+    qhg = 1
+    v = 2
+    s = 3
+    pwc = 4
+    plc = 5
+    pex = 6
+    cex = 7
+    nx = pwc * nh * T + nw * T + nb * T + nex * T + 1
+    # Generate the lower and boundary for the first stage decision variables
+    lb = zeros((nx, 1))
+    ub = zeros((nx, 1))
+    c = zeros((nx, 1))
+    vtypes = ["c"] * nx
+    nu = nh * T + nw * T + nb * T
+    u_mean = concatenate([HYDRO_INJECT_FORECAST, WIND_PROFILE_FORECAST, LOAD_FORECAST])
+    u_delta = concatenate([Delta_hydro, Delta_wind, Delta_load])
+    for i in range(T):
+        for j in range(nh):
+            # lower boundary information
+            lb[phg * nh * T + i * nh + j] = 0
+            lb[qhg * nh * T + i * nh + j] = 0
+            lb[v * nh * T + i * nh + j] = VMIN[j]
+            lb[s * nh * T + i * nh + j] = 0
+            # upper boundary information
+            ub[phg * nh * T + i * nh + j] = PHMAX[j]
+            ub[qhg * nh * T + i * nh + j] = QMAX[j]
+            ub[v * nh * T + i * nh + j] = VMAX[j]
+            ub[s * nh * T + i * nh + j] = 10 ** 8
+            # objective value
+            c[s * nh * T + i * nh + j] = 1
+            if i == T - 1:
+                lb[v * nh * T + i * nh + j] = V0[j]
+                ub[v * nh * T + i * nh + j] = V0[j]
+        for j in range(nw):
+            # lower boundary information
+            lb[pwc * nh * T + i * nw + j] = 0
+            # upper boundary information
+            ub[pwc * nh * T + i * nw + j] = WIND_PROFILE_FORECAST[i * nw + j] + Delta_wind[i * nw + j]
+            # objective value
+            c[pwc * nh * T + i * nw + j] = 1
+        for j in range(nb):
+            # lower boundary information
+            lb[pwc * nh * T + nw * T + i * nb + j] = 0
+            # upper boundary information
+            ub[pwc * nh * T + nw * T + i * nb + j] = bus[j, PD] * LOAD_PROFILE[i]
+            # objective value
+            c[pwc * nh * T + nw * T + i * nb + j] = 10 ** 8
+        for j in range(nex):
+            # lower boundary information
+            lb[pwc * nh * T + nw * T + nb * T + i * nex + j] = PEXMIN[j]
+            # upper boundary information
+            ub[pwc * nh * T + nw * T + nb * T + i * nex + j] = PEXMAX[j]
+            # objective value
+            c[pwc * nh * T + nw * T + nb * T + i * nex + j] = -Price_energy[i]
+    # lower boundary information
+    lb[pwc * nh * T + nw * T + nb * T + nex * T] = PEXMIN[0]
+    # upper boundary information
+    ub[pwc * nh * T + nw * T + nb * T + nex * T] = PEXMAX[0]
+    # objective value
+    c[pwc * nh * T + nw * T + nb * T + nex * T] = -CAPVALUE
+    # Generate correlate constraints
+    # 3.1) Power balance constraints
+    E = zeros((T, NX))
+    M = zeros((T, nu))
+    G = zeros((T, nx))
+    h = zeros((T, 1))
+    for i in range(T):
+        # For the hydro units
+        for j in range(nh):
+            G[i, phg * nh * T + i * nh + j] = 1
+        # For the wind farms
+        for j in range(nw):
+            G[i, pwc * nh * T + i * nw + j] = -1
+        # For the loads
+        for j in range(nb):
+            G[i, pwc * nh * T + nw * T + i * nb + j] = 1
+        # For the power exchange
+        for j in range(nex):
+            G[i, pwc * nh * T + nw * T + nb * T + i * nex + j] = -1
+
+        for j in range(nw):
+            M[i, nh * T + i * nw + j] = 1
+
+        for j in range(nb):
+            M[i, nh * T + nw * T + i * nb + j] = -1
+
+    E_temp = zeros((T, NX))
+    M_temp = zeros((T, nu))
+    G_temp = zeros((T, nx))
+    h_temp = zeros((T, 1))
+    for i in range(T):
+        # For the hydro units
+        for j in range(nh):
+            G_temp[i, phg * nh * T + i * nh + j] = -1
+        # For the wind farms
+        for j in range(nw):
+            G_temp[i, pwc * nh * T + i * nw + j] = 1
+        # For the loads
+        for j in range(nb):
+            G_temp[i, pwc * nh * T + nw * T + i * nb + j] = -1
+        # For the power exchange
+        for j in range(nex):
+            G_temp[i, pwc * nh * T + nw * T + nb * T + i * nex + j] = 1
+
+        for j in range(nw):
+            M_temp[i, nh * T + i * nw + j] = -1
+
+        for j in range(nb):
+            M_temp[i, nh * T + nw * T + i * nb + j] = 1
+    # Update G,M,E,h
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+    # 3.2) water status change
+    E_temp = zeros((T * nh, NX))
+    M_temp = zeros((T * nh, nu))
+    G_temp = zeros((T * nh, nx))
+    h_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            G_temp[i * nh + j, v * nh * T + i * nh + j] = 1
+            G_temp[i * nh + j, s * nh * T + i * nh + j] = 1
+            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = 1
+            if i != 0:
+                G_temp[i * nh + j, v * nh * T + (i - 1) * nh + j] = -1
+            else:
+                h_temp[i * T + j] = V0[j]
+
+            M_temp[i * nh + j, i * nh + j] = -1
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+
+    E_temp = zeros((T * nh, NX))
+    M_temp = zeros((T * nh, nu))
+    G_temp = zeros((T * nh, nx))
+    h_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            G_temp[i * nh + j, v * nh * T + i * nh + j] = -1
+            G_temp[i * nh + j, s * nh * T + i * nh + j] = -1
+            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = -1
+            if i != 0:
+                G_temp[i * nh + j, v * nh * T + (i - 1) * nh + j] = -1
+            else:
+                h_temp[i * T + j] = -V0[j]
+
+            M_temp[i * nh + j, i * nh + j] = 1
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+    # 3.3) Power water transfering
+    E_temp = zeros((T * nh, NX))
+    M_temp = zeros((T * nh, nu))
+    G_temp = zeros((T * nh, nx))
+    h_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            G_temp[i * nh + j, phg * nh * T + i * nh + j] = 1
+            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = -M[j, j]
+            E_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M[j, j] * Q_TEMP[j]
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+
+    E_temp = zeros((T * nh, NX))
+    M_temp = zeros((T * nh, nu))
+    G_temp = zeros((T * nh, nx))
+    h_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            G_temp[i * nh + j, phg * nh * T + i * nh + j] = -1
+            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = M[j, j]
+            E_temp[i * nh + j, IHG * nh * T + i * nh + j] = C_TEMP[j] - M[j, j] * Q_TEMP[j]
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+    # 3.4) Power range limitation
+    E_temp = zeros((T * nh, NX))
+    M_temp = zeros((T * nh, nu))
+    G_temp = zeros((T * nh, nx))
+    h_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            G_temp[i * nh + j, phg * nh * T + i * nh + j] = 1
+            E_temp[i * nh + j, PHG * nh * T + i * nh + j] = -1
+            E_temp[i * nh + j, RDHG * nh * T + i * nh + j] = 1
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+
+    E_temp = zeros((T * nh, NX))
+    M_temp = zeros((T * nh, nu))
+    G_temp = zeros((T * nh, nx))
+    h_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            G_temp[i * nh + j, phg * nh * T + i * nh + j] = -1
+            E_temp[i * nh + j, PHG * nh * T + i * nh + j] = 1
+            E_temp[i * nh + j, RUHG * nh * T + i * nh + j] = 1
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+
+    # 3.5) Water flow constraints
+    E_temp = zeros((T * nh, NX))
+    M_temp = zeros((T * nh, nu))
+    G_temp = zeros((T * nh, nx))
+    h_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = 1
+            E_temp[i * nh + j, QHG * nh * T + i * nh + j] = -1
+            E_temp[i * nh + j, QDHG * nh * T + i * nh + j] = 1
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+
+    E_temp = zeros((T * nh, NX))
+    M_temp = zeros((T * nh, nu))
+    G_temp = zeros((T * nh, nx))
+    h_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = -1
+            E_temp[i * nh + j, QHG * nh * T + i * nh + j] = 1
+            E_temp[i * nh + j, QUHG * nh * T + i * nh + j] = 1
+
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+    # 3.6) Line flow constraints
+    E_temp = zeros((T * nl, NX))
+    M_temp = zeros((T * nl, nu))
+    G_temp = zeros((T * nl, nx))
+    h_temp = zeros((T * nl, 1))
+
+    for i in range(T):
+        G_temp[i * nl:(i + 1) * nl, phg * nh * T + i * nh:phg * nh * T + (i + 1) * nh] = (
+                Distribution_factor * Ch).todense()
+
+        G_temp[i * nl:(i + 1) * nl, pwc * nh * T + i * nw: pwc * nh * T + (i + 1) * nw] = -(
+                Distribution_factor * Cw).todense()
+
+        G_temp[i * nl:(i + 1) * nl,
+        pwc * nh * T + nw * T + i * nb:pwc * nh * T + nw * T + (i + 1) * nb] = Distribution_factor.todense()
+
+        G_temp[i * nl:(i + 1) * nl,
+        pwc * nh * T + nw * T + nb * T + i * nex:pwc * nh * T + nw * T + nb * T + (i + 1) * nex] = -(
+                Distribution_factor * Cex).todense()
+
+        M_temp[i * nl:(i + 1) * nl, nh * T + i * nw: nh * T + (i + 1) * nw] = (
+                Distribution_factor * Cw).todense()
+
+        M_temp[i * nl:(i + 1) * nl,
+        nh * T + nw * T + i * nb: nh * T + nw * T + (i + 1) * nb] = -Distribution_factor.todense()
+
+        h_temp[i * nl:(i + 1) * nl, :] = -PLMAX
+
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+
+    E_temp = zeros((T * nl, NX))
+    M_temp = zeros((T * nl, nu))
+    G_temp = zeros((T * nl, nx))
+    h_temp = zeros((T * nl, 1))
+
+    for i in range(T):
+        G_temp[i * nl:(i + 1) * nl, phg * nh * T + i * nh:phg * nh * T + (i + 1) * nh] = -(
+                Distribution_factor * Ch).todense()
+
+        G_temp[i * nl:(i + 1) * nl, pwc * nh * T + i * nw: pwc * nh * T + (i + 1) * nw] = (
+                Distribution_factor * Cw).todense()
+
+        G_temp[i * nl:(i + 1) * nl,
+        pwc * nh * T + nw * T + i * nb:pwc * nh * T + nw * T + (i + 1) * nb] = -Distribution_factor.todense()
+
+        G_temp[i * nl:(i + 1) * nl,
+        pwc * nh * T + nw * T + nb * T + i * nex:pwc * nh * T + nw * T + nb * T + (i + 1) * nex] = (
+                Distribution_factor * Cex).todense()
+
+        M_temp[i * nl:(i + 1) * nl, nh * T + i * nw: nh * T + (i + 1) * nw] = -(
+                Distribution_factor * Cw).todense()
+
+        M_temp[i * nl:(i + 1) * nl,
+        nh * T + nw * T + i * nb: nh * T + nw * T + (i + 1) * nb] = Distribution_factor.todense()
+
+        h_temp[i * nl:(i + 1) * nl, :] = -PLMAX
+
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+    # 3.7) Capacity constraints
+    E_temp = zeros((T, NX))
+    M_temp = zeros((T, nu))
+    G_temp = zeros((T, nx))
+    h_temp = zeros((T, 1))
+
+    for i in range(T):
+        G_temp[i, pwc * nh * T + nw * T + nb * T + nex * T] = -1
+        G_temp[i, pwc * nh * T + nw * T + nb * T + i * nex] = 1
+
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+    # 3.8) Dispatch range constraints
+    # Wind curtailment range
+    E_temp = zeros((T * nw, NX))
+    M_temp = zeros((T * nw, nu))
+    G_temp = zeros((T * nw, nx))
+    h_temp = zeros((T * nw, 1))
+    for i in range(T):
+        for j in range(nw):
+            G_temp[i * nw + j, pwc * nh * T + i * nw + j] = -1
+            M_temp[i * nw + j, nh * T + i * nw + j] = 1
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+
+    # Load shedding range
+    E_temp = zeros((T * nb, NX))
+    M_temp = zeros((T * nb, nu))
+    G_temp = zeros((T * nb, nx))
+    h_temp = zeros((T * nb, 1))
+    for i in range(T):
+        for j in range(nb):
+            G_temp[i * nb + j, pwc * nh * T + T * nw + i * nb + j] = -1
+            M_temp[i * nb + j, nh * T + T * nw + i * nb + j] = 1
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+    # For every first stage solution, there exists feabile solution for the second stage optimization.
 
     (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
     xx = array(xx).reshape((len(xx), 1))
@@ -495,7 +863,7 @@ def problem_formulation(case):
 
     Cex = xx[-1]
 
-    return obj
+    return model_first_stage
 
 
 def fisrt_stage_decision_making_result(x):
