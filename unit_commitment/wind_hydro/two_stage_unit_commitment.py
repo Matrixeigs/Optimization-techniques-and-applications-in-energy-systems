@@ -5,7 +5,7 @@ from pypower import loadcase, ext2int, makeBdc
 from scipy.sparse import csr_matrix as sparse
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, concatenate, array, diag, eye
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
-from solvers.two_stage_robust_optimization import TwoStageRobustOptimization
+from solvers.ccg import TwoStageRobustOptimization
 
 
 def problem_formulation(case):
