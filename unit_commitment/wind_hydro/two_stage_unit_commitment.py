@@ -467,12 +467,15 @@ def problem_formulation(case):
                          "lb": lb,
                          "ub": ub,
                          "A": Aineq,
-                         "b": bineq_temp,
+                         "b": bineq,
                          "Aeq": Aeq,
                          "beq": beq,
                          "vtypes": vtypes}
-    (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
-    xx = array(xx).reshape((len(xx), 1))
+    # (xx, obj, success) = lp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
+    #                         A=model_first_stage["A"],
+    #                         b=model_first_stage["b"], xmin=model_first_stage["lb"], xmax=model_first_stage["ub"],
+    #                         vtypes=model_first_stage["vtypes"], objsense="min")
+    # xx = array(xx).reshape((len(xx), 1))
 
     ## Formualte the second stage decision making problem
     phg = 0
@@ -841,9 +844,15 @@ def problem_formulation(case):
     E = concatenate([E, E_temp])
     h = concatenate([h, h_temp])
     d = c
+    # Test the second stage problem
 
     # For every first stage solution, there exists a feabile solution for the second stage optimization.
-
+    two_stage_robust_optimization = TwoStageRobustOptimization()
+    two_stage_robust_optimization.main(model_first_stage["c"], Aeq=model_first_stage["Aeq"],
+                                       beq=model_first_stage["beq"], A=model_first_stage["A"], b=model_first_stage["b"],
+                                       lb=model_first_stage["lb"], ub=model_first_stage["ub"],
+                                       vtypes=model_first_stage["vtypes"], d=d, G=G, E=E, M=M, h=h, u_mean=u_mean,
+                                       u_delta=u_delta, budget=array([[u_delta.shape[0]]]))
     (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
     xx = array(xx).reshape((len(xx), 1))
 
