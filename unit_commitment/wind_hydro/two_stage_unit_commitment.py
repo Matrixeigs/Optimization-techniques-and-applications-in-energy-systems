@@ -140,7 +140,7 @@ def problem_formulation(case):
     VMIN = array([70, 50, 70, 40]).reshape((nh, 1))
     VMAX = array([160, 140, 150, 130]).reshape((nh, 1))
     V0 = array([110, 90, 100, 80]).reshape((nh, 1))
-    M = diag(array([8.8649, 6.4444, 6.778, 7.3333]))
+    M_transfer = diag(array([8.8649, 6.4444, 6.778, 7.3333]))
     C_TEMP = array([30, 2, 9, 4]).reshape((4, 1))
     Q_TEMP = array([1.5, 1, 1, 1]).reshape((4, 1))
     # Define the first stage decision variables
@@ -285,8 +285,8 @@ def problem_formulation(case):
     for i in range(T):
         for j in range(nh):
             Aeq_temp[i * nh + j, PHG * nh * T + i * nh + j] = 1
-            Aeq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -M[j, j]
-            Aeq_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M[j, j] * Q_TEMP[j]
+            Aeq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -M_transfer[j, j]
+            Aeq_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M_transfer[j, j] * Q_TEMP[j]
     Aeq = concatenate((Aeq, Aeq_temp), axis=0)
     beq = concatenate((beq, beq_temp), axis=0)
 
@@ -317,9 +317,9 @@ def problem_formulation(case):
         for j in range(nh):
             Aineq_temp[i * nh + j, PHG * nh * T + i * nh + j] = 1
             Aineq_temp[i * nh + j, RUHG * nh * T + i * nh + j] = 1
-            Aineq_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M[j, j] * Q_TEMP[j]
-            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -M[j, j]
-            Aineq_temp[i * nh + j, QUHG * nh * T + i * nh + j] = -M[j, j]
+            Aineq_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M_transfer[j, j] * Q_TEMP[j]
+            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = -M_transfer[j, j]
+            Aineq_temp[i * nh + j, QUHG * nh * T + i * nh + j] = -M_transfer[j, j]
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
@@ -330,9 +330,9 @@ def problem_formulation(case):
         for j in range(nh):
             Aineq_temp[i * nh + j, PHG * nh * T + i * nh + j] = -1
             Aineq_temp[i * nh + j, RDHG * nh * T + i * nh + j] = 1
-            Aineq_temp[i * nh + j, IHG * nh * T + i * nh + j] = C_TEMP[j] - M[j, j] * Q_TEMP[j]
-            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = M[j, j]
-            Aineq_temp[i * nh + j, QDHG * nh * T + i * nh + j] = -M[j, j]
+            Aineq_temp[i * nh + j, IHG * nh * T + i * nh + j] = C_TEMP[j] - M_transfer[j, j] * Q_TEMP[j]
+            Aineq_temp[i * nh + j, QHG * nh * T + i * nh + j] = M_transfer[j, j]
+            Aineq_temp[i * nh + j, QDHG * nh * T + i * nh + j] = -M_transfer[j, j]
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
@@ -471,11 +471,11 @@ def problem_formulation(case):
                          "Aeq": Aeq,
                          "beq": beq,
                          "vtypes": vtypes}
-    # (xx, obj, success) = lp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
-    #                         A=model_first_stage["A"],
-    #                         b=model_first_stage["b"], xmin=model_first_stage["lb"], xmax=model_first_stage["ub"],
-    #                         vtypes=model_first_stage["vtypes"], objsense="min")
-    # xx = array(xx).reshape((len(xx), 1))
+    (xx, obj, success) = lp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
+                            A=model_first_stage["A"],
+                            b=model_first_stage["b"], xmin=model_first_stage["lb"], xmax=model_first_stage["ub"],
+                            vtypes=model_first_stage["vtypes"], objsense="min")
+    xx = array(xx).reshape((len(xx), 1))
 
     ## Formualte the second stage decision making problem
     phg = 0
@@ -516,16 +516,16 @@ def problem_formulation(case):
             # lower boundary information
             lb[pwc * nh * T + i * nw + j] = 0
             # upper boundary information
-            ub[pwc * nh * T + i * nw + j] = WIND_PROFILE_FORECAST[i * nw + j] + Delta_wind[i * nw + j]
+            ub[pwc * nh * T + i * nw + j] = 10 ** 4
             # objective value
             c[pwc * nh * T + i * nw + j] = 1
         for j in range(nb):
             # lower boundary information
             lb[pwc * nh * T + nw * T + i * nb + j] = 0
             # upper boundary information
-            ub[pwc * nh * T + nw * T + i * nb + j] = bus[j, PD] * LOAD_PROFILE[i]
+            ub[pwc * nh * T + nw * T + i * nb + j] = 10 ** 4
             # objective value
-            c[pwc * nh * T + nw * T + i * nb + j] = 10 ** 8
+            c[pwc * nh * T + nw * T + i * nb + j] = 10 ** 6
         for j in range(nex):
             # lower boundary information
             lb[pwc * nh * T + nw * T + nb * T + i * nex + j] = PEXMIN[j]
@@ -564,35 +564,11 @@ def problem_formulation(case):
 
         for j in range(nb):
             M[i, nh * T + nw * T + i * nb + j] = -1
-
-    E_temp = zeros((T, NX))
-    M_temp = zeros((T, nu))
-    G_temp = zeros((T, nx))
-    h_temp = zeros((T, 1))
-    for i in range(T):
-        # For the hydro units
-        for j in range(nh):
-            G_temp[i, phg * nh * T + i * nh + j] = -1
-        # For the wind farms
-        for j in range(nw):
-            G_temp[i, pwc * nh * T + i * nw + j] = 1
-        # For the loads
-        for j in range(nb):
-            G_temp[i, pwc * nh * T + nw * T + i * nb + j] = -1
-        # For the power exchange
-        for j in range(nex):
-            G_temp[i, pwc * nh * T + nw * T + nb * T + i * nex + j] = 1
-
-        for j in range(nw):
-            M_temp[i, nh * T + i * nw + j] = -1
-
-        for j in range(nb):
-            M_temp[i, nh * T + nw * T + i * nb + j] = 1
     # Update G,M,E,h
-    G = concatenate([G, G_temp])
-    M = concatenate([M, M_temp])
-    E = concatenate([E, E_temp])
-    h = concatenate([h, h_temp])
+    G = concatenate([G, -G])
+    M = concatenate([M, -M])
+    E = concatenate([E, -E])
+    h = concatenate([h, -h])
     # 3.2) water status change
     E_temp = zeros((T * nh, NX))
     M_temp = zeros((T * nh, nu))
@@ -609,30 +585,11 @@ def problem_formulation(case):
                 h_temp[i * T + j] = V0[j]
 
             M_temp[i * nh + j, i * nh + j] = -1
-    G = concatenate([G, G_temp])
-    M = concatenate([M, M_temp])
-    E = concatenate([E, E_temp])
-    h = concatenate([h, h_temp])
+    G = concatenate([G, G_temp, -G_temp])
+    M = concatenate([M, M_temp, -M_temp])
+    E = concatenate([E, E_temp, -E_temp])
+    h = concatenate([h, h_temp, -h_temp])
 
-    E_temp = zeros((T * nh, NX))
-    M_temp = zeros((T * nh, nu))
-    G_temp = zeros((T * nh, nx))
-    h_temp = zeros((T * nh, 1))
-    for i in range(T):
-        for j in range(nh):
-            G_temp[i * nh + j, v * nh * T + i * nh + j] = -1
-            G_temp[i * nh + j, s * nh * T + i * nh + j] = -1
-            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = -1
-            if i != 0:
-                G_temp[i * nh + j, v * nh * T + (i - 1) * nh + j] = -1
-            else:
-                h_temp[i * T + j] = -V0[j]
-
-            M_temp[i * nh + j, i * nh + j] = 1
-    G = concatenate([G, G_temp])
-    M = concatenate([M, M_temp])
-    E = concatenate([E, E_temp])
-    h = concatenate([h, h_temp])
     # 3.3) Power water transfering
     E_temp = zeros((T * nh, NX))
     M_temp = zeros((T * nh, nu))
@@ -641,27 +598,15 @@ def problem_formulation(case):
     for i in range(T):
         for j in range(nh):
             G_temp[i * nh + j, phg * nh * T + i * nh + j] = 1
-            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = -M[j, j]
-            E_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M[j, j] * Q_TEMP[j]
-    G = concatenate([G, G_temp])
-    M = concatenate([M, M_temp])
-    E = concatenate([E, E_temp])
-    h = concatenate([h, h_temp])
+            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = -M_transfer[j, j]
+            E_temp[i * nh + j, IHG * nh * T + i * nh + j] = -C_TEMP[j] + M_transfer[j, j] * Q_TEMP[j]
+    G = concatenate([G, G_temp, -G_temp])
+    M = concatenate([M, M_temp, -M_temp])
+    E = concatenate([E, E_temp, -E_temp])
+    h = concatenate([h, h_temp, -h_temp])
 
-    E_temp = zeros((T * nh, NX))
-    M_temp = zeros((T * nh, nu))
-    G_temp = zeros((T * nh, nx))
-    h_temp = zeros((T * nh, 1))
-    for i in range(T):
-        for j in range(nh):
-            G_temp[i * nh + j, phg * nh * T + i * nh + j] = -1
-            G_temp[i * nh + j, qhg * nh * T + i * nh + j] = M[j, j]
-            E_temp[i * nh + j, IHG * nh * T + i * nh + j] = C_TEMP[j] - M[j, j] * Q_TEMP[j]
-    G = concatenate([G, G_temp])
-    M = concatenate([M, M_temp])
-    E = concatenate([E, E_temp])
-    h = concatenate([h, h_temp])
     # 3.4) Power range limitation
+    # Some problem found
     E_temp = zeros((T * nh, NX))
     M_temp = zeros((T * nh, nu))
     G_temp = zeros((T * nh, nx))
@@ -845,16 +790,30 @@ def problem_formulation(case):
     h = concatenate([h, h_temp])
     d = c
     # Test the second stage problem
+    u = u_mean - u_delta
+    model_second_stage = {"c": d,
+                          "A": -G,
+                          "b": M.dot(u) + E.dot(xx) - h}
+    # (yy, obj_second_stage, success_second_stage) = lp(model_second_stage["c"],
+    #                                                   A=model_second_stage["A"],
+    #                                                   b=model_second_stage["b"], objsense="min")
+    # yy = array(yy).reshape((len(yy), 1))
+    #
+    # (yy_dual, obj_dual, success_dual) = lp(model_second_stage["b"],
+    #                                        Aeq=model_second_stage["A"].transpose(),
+    #                                        beq=model_second_stage["c"],
+    #                                        xmin=zeros((model_second_stage["A"].shape[0], 1)),
+    #                                        objsense="max")
 
     # For every first stage solution, there exists a feabile solution for the second stage optimization.
     two_stage_robust_optimization = TwoStageRobustOptimization()
-    two_stage_robust_optimization.main(model_first_stage["c"], Aeq=model_first_stage["Aeq"],
-                                       beq=model_first_stage["beq"], A=model_first_stage["A"], b=model_first_stage["b"],
-                                       lb=model_first_stage["lb"], ub=model_first_stage["ub"],
-                                       vtypes=model_first_stage["vtypes"], d=d, G=G, E=E, M=M, h=h, u_mean=u_mean,
-                                       u_delta=u_delta, budget=array([[u_delta.shape[0]]]))
-    (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
-    xx = array(xx).reshape((len(xx), 1))
+    xx = two_stage_robust_optimization.main(model_first_stage["c"], Aeq=model_first_stage["Aeq"],
+                                            beq=model_first_stage["beq"], A=model_first_stage["A"],
+                                            b=model_first_stage["b"],
+                                            lb=model_first_stage["lb"], ub=model_first_stage["ub"],
+                                            vtypes=model_first_stage["vtypes"], d=d, G=G, E=E, M=M, h=h, u_mean=u_mean,
+                                            u_delta=u_delta, budget=array([[u_delta.shape[0]]]))
+
 
     # Decompose the first stage decision varialbes
     On = zeros((T, nh))
