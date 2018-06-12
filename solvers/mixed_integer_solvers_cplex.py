@@ -5,8 +5,9 @@ import cplex  # import the cplex solver package
 from numpy import ones
 from cplex.exceptions import CplexError
 
+
 def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
-                                     opt=None):
+                                     opt=None, objsense=None):
     # t0 = time.time()
     if type(c) == list:
         nx = len(c)
@@ -82,7 +83,7 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
     # modelling based on the high level gurobi api
     try:
         prob = cplex.Cplex()
-        prob.objective.set_sense(prob.objective.sense.minimize)
+        # prob.objective.set_sense(prob.objective.sense.minimize)
         # Declear the variables
         varnames = ["x" + str(j) for j in range(nx)]
         var_types = [prob.variables.type.continuous] * nx
@@ -123,27 +124,18 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                                         senses=sense)
             prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
 
+        if objsense is not None:
+            if objsense == "max":
+                prob.objective.set_sense(prob.objective.sense.maximize)
+
         prob.set_log_stream(None)
         prob.set_error_stream(None)
         prob.set_warning_stream(None)
         prob.set_results_stream(None)
-        prob.set_problem_type(type=prob.problem_type.LP)
-        prob.parameters.preprocessing.presolve =0
+        # prob.set_problem_type(type=prob.problem_type.LP)
+        prob.parameters.preprocessing.presolve = 0
 
         prob.solve()
-
-        solution = prob.solution
-        # print(solution.status[solution.get_status()])
-
-        # if solution.is_dual_feasible():
-        #     print(solution.get_dual_values())
-        # else:
-        #     print("Dual problem is infeasible")
-        #
-        # if solution.is_primal_feasible():
-        #     print(solution.get_values())
-        # else:
-        #     print("Primal problem is infeasible")
 
         obj = prob.solution.get_objective_value()
         x = prob.solution.get_values()
