@@ -3,8 +3,9 @@ Two-stage unit commitment for jointed wind hydro dispatch
 """
 from pypower import loadcase, ext2int, makeBdc
 from scipy.sparse import csr_matrix as sparse
-from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, concatenate, array, diag
+from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, concatenate, array, diag, eye
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+from solvers.two_stage_robust_optimization import TwoStageRobustOptimization
 
 
 def problem_formulation(case):
@@ -437,22 +438,28 @@ def problem_formulation(case):
     bineq = concatenate((bineq, bineq_temp), axis=0)
     # 2.11)  Up and down reserve for the forecasting errors
     # Up reserve limitation
-    Aineq_temp = zeros((T * nh, NX))
-    bineq_temp = zeros((T * nh, 1))
+    Aineq_temp = zeros((T, NX))
+    bineq_temp = zeros((T, 1))
     for i in range(T):
         for j in range(nh):
-            Aineq_temp[i * nh + j, RUHG * nh * T + i * nh + j] = -1
-            bineq_temp[i * nh + j] += Delta_wind[i * nh + j]
+            Aineq_temp[i, RUHG * nh * T + i * nh + j] = -1
+        for j in range(nw):
+            bineq_temp[i] -= Delta_wind[i * nw + j]
+        for j in range(nb):
+            bineq_temp[i] -= Delta_load[i * nb + j]
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
     # Down reserve limitation
-    Aineq_temp = zeros((T * nh, NX))
-    bineq_temp = zeros((T * nh, 1))
+    Aineq_temp = zeros((T, NX))
+    bineq_temp = zeros((T, 1))
     for i in range(T):
         for j in range(nh):
-            Aineq_temp[i * nh + j, RDHG * nh * T + i * nh + j] = -1
-            bineq_temp[i * nh + j] += Delta_wind[i * nh + j]
+            Aineq_temp[i, RDHG * nh * T + i * nh + j] = -1
+        for j in range(nw):
+            bineq_temp[i] -= Delta_wind[i * nw + j]
+        for j in range(nb):
+            bineq_temp[i] -= Delta_load[i * nb + j]
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
@@ -464,8 +471,8 @@ def problem_formulation(case):
                          "Aeq": Aeq,
                          "beq": beq,
                          "vtypes": vtypes}
-    # (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
-    # xx = array(xx).reshape((len(xx), 1))
+    (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
+    xx = array(xx).reshape((len(xx), 1))
 
     ## Formualte the second stage decision making problem
     phg = 0
@@ -815,7 +822,27 @@ def problem_formulation(case):
     M = concatenate([M, M_temp])
     E = concatenate([E, E_temp])
     h = concatenate([h, h_temp])
-    # For every first stage solution, there exists feabile solution for the second stage optimization.
+    # 3.9) Upper boundary and lower boundary information
+    E_temp = zeros((nx, NX))
+    M_temp = zeros((nx, nu))
+    G_temp = eye(nx)
+    h_temp = lb
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+
+    E_temp = zeros((nx, NX))
+    M_temp = zeros((nx, nu))
+    G_temp = -eye(nx)
+    h_temp = -ub
+    G = concatenate([G, G_temp])
+    M = concatenate([M, M_temp])
+    E = concatenate([E, E_temp])
+    h = concatenate([h, h_temp])
+    d = c
+
+    # For every first stage solution, there exists a feabile solution for the second stage optimization.
 
     (xx, obj, success) = lp(c, Aeq=Aeq, beq=beq, A=Aineq, b=bineq, xmin=lb, xmax=ub, vtypes=vtypes)
     xx = array(xx).reshape((len(xx), 1))
