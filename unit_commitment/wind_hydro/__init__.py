@@ -1,11 +1,9 @@
 """
-Jointed wind and hydro power dispatch under virtual power plan framework
+Jointed wind and hydro power dispatch under virtual power plants
 @author: Zhao Tianyang
 @e-mail: zhaoty@ntu.edu.sg
-# test the
+Three algorithms are adopted to show the effectiveness of the method:
+1) Interval optimization
+2) Two-stage robust optimization
+3) Two-stage stochastic optimization
 """
-
-from unit_commitment.test_cases.case14 import case14
-from pypower import runopf
-
-sol = runopf.runopf(case14())
