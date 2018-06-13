@@ -16,8 +16,8 @@ def problem_formulation(case):
     :return:
     """
     CAP_WIND = 1  # The capacity of wind farm
-    BETA = 0.1  # The disturbance range of wind farm
-    BETA_HYDRO = 0.05  # The disturbance range of wind farm
+    BETA = 0.2  # The disturbance range of wind farm
+    BETA_HYDRO = 0.1  # The disturbance range of wind farm
     BETA_LOAD = 0.03
     CAPVALUE = 10  # The capacity value
     Price_energy = r_[ones(8), 3 * ones(8), ones(8)]
