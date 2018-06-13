@@ -814,7 +814,6 @@ def problem_formulation(case):
                                             vtypes=model_first_stage["vtypes"], d=d, G=G, E=E, M=M, h=h, u_mean=u_mean,
                                             u_delta=u_delta, budget=array([[u_delta.shape[0]]]))
 
-
     # Decompose the first stage decision varialbes
     On = zeros((T, nh))
     Off = zeros((T, nh))
@@ -858,17 +857,7 @@ def problem_formulation(case):
 
     Cex = xx[-1]
 
-    return model_first_stage
-
-
-def fisrt_stage_decision_making_result(x):
-    """
-    Decompose the first stage decision and
-    :param x:
-    :return:
-    """
-
-    return model
+    return Ihg
 
 
 if __name__ == "__main__":
