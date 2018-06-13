@@ -473,11 +473,6 @@ def problem_formulation(case):
                          "Aeq": Aeq,
                          "beq": beq,
                          "vtypes": vtypes}
-    (xx, obj, success) = lp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
-                            A=model_first_stage["A"],
-                            b=model_first_stage["b"], xmin=model_first_stage["lb"], xmax=model_first_stage["ub"],
-                            vtypes=model_first_stage["vtypes"], objsense="min")
-    xx = array(xx).reshape((len(xx), 1))
 
     ## Formualte the second stage decision making problem
     phg = 0
@@ -561,11 +556,6 @@ def problem_formulation(case):
         for j in range(nex):
             G[i, pwc * nh * T + nw * T + nb * T + i * nex + j] = -1
 
-        # for j in range(nw):
-        #     M[i, nh * T + i * nw + j] = 1
-        #
-        # for j in range(nb):
-        #     M[i, nh * T + nw * T + i * nb + j] = -1
     # Update G,M,E,h
     G = concatenate([G, -G])
     M = concatenate([M, -M])
