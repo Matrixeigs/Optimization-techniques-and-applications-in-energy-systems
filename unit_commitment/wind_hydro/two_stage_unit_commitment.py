@@ -194,6 +194,9 @@ def problem_formulation(case):
             ub[S * nh * T + i * nh + j] = 10 ** 8
             # objective value
             c[S * nh * T + i * nh + j] = 1
+            c[RUHG * nh * T + i * nh + j] = -Price_energy[i]
+            c[RDHG * nh * T + i * nh + j] = Price_energy[i]
+
             # variables types
             vtypes[ON * nh * T + i * nh + j] = "D"
             vtypes[OFF * nh * T + i * nh + j] = "D"
@@ -228,7 +231,7 @@ def problem_formulation(case):
     # upper boundary information
     ub[PWC * nh * T + nw * T + nb * T + nex * T] = PEXMAX[0]
     # objective value
-    c[PWC * nh * T + nw * T + nb * T + nex * T] = -CAPVALUE
+    # c[PWC * nh * T + nw * T + nb * T + nex * T] = -CAPVALUE
 
     # 2) Constraint set
     # 2.1) Power balance equation
@@ -255,8 +258,8 @@ def problem_formulation(case):
     beq_temp = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
-            Aeq_temp[i * nh + j, ON * nh * T + i * nh + j] = 1
-            Aeq_temp[i * nh + j, OFF * nh * T + i * nh + j] = -1
+            Aeq_temp[i * nh + j, ON * nh * T + i * nh + j] = -1
+            Aeq_temp[i * nh + j, OFF * nh * T + i * nh + j] = 1
             Aeq_temp[i * nh + j, IHG * nh * T + i * nh + j] = 1
             if i != 0:
                 Aeq_temp[i * nh + j, IHG * nh * T + (i - 1) * nh + j] = -1
@@ -297,9 +300,19 @@ def problem_formulation(case):
     bineq = zeros((T * nh, 1))
     for i in range(T):
         for j in range(nh):
-            Aineq[i * nh + j, IHG * nh * T + i * nh + j] = PHMIN[j]
-            Aineq[i * nh + j, PHG * nh * T + i * nh + j] = -1
-            Aineq[i * nh + j, RDHG * nh * T + i * nh + j] = 1
+            Aineq[i * nh + j, ON * nh * T + i * nh + j] = 1
+            Aineq[i * nh + j, OFF * nh * T + i * nh + j] = 1
+            bineq[i * nh + j] = 1
+
+    Aineq_temp = zeros((T * nh, NX))
+    bineq_temp = zeros((T * nh, 1))
+    for i in range(T):
+        for j in range(nh):
+            Aineq_temp[i * nh + j, IHG * nh * T + i * nh + j] = PHMIN[j]
+            Aineq_temp[i * nh + j, PHG * nh * T + i * nh + j] = -1
+            Aineq_temp[i * nh + j, RDHG * nh * T + i * nh + j] = 1
+    Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+    bineq = concatenate((bineq, bineq_temp), axis=0)
 
     Aineq_temp = zeros((T * nh, NX))
     bineq_temp = zeros((T * nh, 1))
@@ -308,7 +321,6 @@ def problem_formulation(case):
             Aineq_temp[i * nh + j, IHG * nh * T + i * nh + j] = -PHMAX[j]
             Aineq_temp[i * nh + j, PHG * nh * T + i * nh + j] = 1
             Aineq_temp[i * nh + j, RUHG * nh * T + i * nh + j] = 1
-
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq = concatenate((bineq, bineq_temp), axis=0)
 
@@ -534,7 +546,7 @@ def problem_formulation(case):
             # upper boundary information
             ub[pwc * nh * T + nw * T + nb * T + i * nex + j] = PEXMAX[j]
             # objective value
-            c[pwc * nh * T + nw * T + nb * T + i * nex + j] = -Price_energy[i]
+            # c[pwc * nh * T + nw * T + nb * T + i * nex + j] = -Price_energy[i]
     # lower boundary information
     lb[pwc * nh * T + nw * T + nb * T + nex * T] = PEXMIN[0]
     # upper boundary information
@@ -859,7 +871,21 @@ def problem_formulation(case):
 
     Cex = xx[-1]
 
-    return Ihg
+    sol = {"START_UP": On,
+           "SHUT_DOWN": Off,
+           "I": Ihg,
+           "PG": Phg,
+           "RU": Ruhg,
+           "RD": Rdhg,
+           "Q": Qhg,
+           "QU": Quhg,
+           "QD": Qdhg,
+           "V": v,
+           "S": s,
+           "PEX": Pex,
+           "obj": obj}
+
+    return sol
 
 
 if __name__ == "__main__":
