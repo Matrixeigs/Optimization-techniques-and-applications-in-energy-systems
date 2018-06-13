@@ -22,7 +22,7 @@ def problem_formulation(case):
     BETA_LOAD = 0.03
     CAPVALUE = 10  # The capacity value
     Price_energy = r_[ones(8), 3 * ones(8), ones(8)]
-    n_scenario = 100
+    n_scenario = 5
 
     from pypower.idx_brch import F_BUS, T_BUS, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
     from pypower.idx_cost import MODEL, NCOST, PW_LINEAR, COST, POLYNOMIAL
@@ -807,12 +807,12 @@ def problem_formulation(case):
     for i in range(n_scenario):
         model_second_stage[i] = {"c": d,
                                  "A": -G,
-                                 "b": M.dot(u_scenario[:, i]) + E.dot(xx) - h}
+                                 "b": M.dot((u_scenario[:, i]).reshape(nu, 1)) + E.dot(xx) - h}
         result_second_stage[i] = lp(model_second_stage[i]["c"],
                                     A=model_second_stage[i]["A"],
                                     b=model_second_stage[i]["b"])
 
-        model_second_stage_dual[i] = {"c": h - M.dot(u_scenario[:, i]) - E.dot(xx),
+        model_second_stage_dual[i] = {"c": h - M.dot((u_scenario[:, i]).reshape(nu, 1)) - E.dot(xx),
                                       "Aeq": G.transpose(),
                                       "beq": d,
                                       "lb": zeros((h.shape[0], 1))}
@@ -823,7 +823,90 @@ def problem_formulation(case):
                                          xmin=model_second_stage_dual[i]["lb"],
                                          objsense="max")
 
-        # Modify the first stage optimization problem
+    # Modify the first stage optimization problem
+    model_first_stage["c"] = concatenate([model_first_stage["c"], ones((n_scenario, 1)) / n_scenario])
+    model_first_stage["lb"] = concatenate([model_first_stage["lb"], ones((n_scenario, 1)) * (-10 ** 8)])
+    model_first_stage["ub"] = concatenate([model_first_stage["ub"], ones((n_scenario, 1)) * (10 ** 8)])
+    model_first_stage["A"] = concatenate([model_first_stage["A"], zeros((model_first_stage["A"].shape[0], n_scenario))],
+                                         axis=1)
+    model_first_stage["Aeq"] = concatenate(
+        [model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], n_scenario))],
+        axis=1)
+    model_first_stage["vtypes"] += ["c"] * n_scenario
+
+    # Obtain cuts for the first stage optimization
+    Acuts = zeros((n_scenario, NX + n_scenario))
+    bcuts = zeros((n_scenario, 1))
+    for i in range(n_scenario):
+        pi_temp = array(result_second_stage_dual[i][0]).reshape((1, len(result_second_stage_dual[i][0])))
+        Acuts[i, 0:NX] = -pi_temp.dot(E)
+        Acuts[i, NX + i] = -1
+        bcuts[i] = -pi_temp.dot(h - M.dot((u_scenario[:, i]).reshape(nu, 1)))
+    model_first_stage["A"] = concatenate([model_first_stage["A"], Acuts])
+    model_first_stage["b"] = concatenate([model_first_stage["b"], bcuts])
+
+    (xx, obj, success) = lp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
+                            A=model_first_stage["A"],
+                            b=model_first_stage["b"], xmin=model_first_stage["lb"], xmax=model_first_stage["ub"],
+                            vtypes=model_first_stage["vtypes"], objsense="min")
+
+    xx = array(xx[0:NX]).reshape((NX, 1))
+
+    LB = obj
+    UB = 0
+    for i in range(n_scenario):
+        UB += result_second_stage_dual[i][1] / n_scenario
+    UB += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
+    Gap = abs((UB - LB) / LB)
+    k = 1
+    kmax = 1000
+    while Gap > 10 ** -3:
+        # Update the second stage optimization problem
+        for i in range(n_scenario):
+            model_second_stage_dual[i] = {"c": h - M.dot((u_scenario[:, i]).reshape(nu, 1)) - E.dot(xx),
+                                          "Aeq": G.transpose(),
+                                          "beq": d,
+                                          "lb": zeros((h.shape[0], 1))}
+            result_second_stage_dual[i] = lp(model_second_stage_dual[i]["c"],
+                                             Aeq=model_second_stage_dual[i]["Aeq"],
+                                             beq=model_second_stage_dual[i]["beq"],
+                                             xmin=model_second_stage_dual[i]["lb"],
+                                             objsense="max")
+        # Add cuts
+        Acuts = zeros((n_scenario, NX + n_scenario))
+        bcuts = zeros((n_scenario, 1))
+        for i in range(n_scenario):
+            pi_temp = array(result_second_stage_dual[i][0]).reshape((1, len(result_second_stage_dual[i][0])))
+            Acuts[i, 0:NX] = -pi_temp.dot(E)
+            Acuts[i, NX + i] = -1
+            bcuts[i] = -pi_temp.dot(h - M.dot((u_scenario[:, i]).reshape(nu, 1)))
+        model_first_stage["A"] = concatenate([model_first_stage["A"], Acuts])
+        model_first_stage["b"] = concatenate([model_first_stage["b"], bcuts])
+
+        (xx, obj, success) = lp(model_first_stage["c"],
+                                Aeq=model_first_stage["Aeq"],
+                                beq=model_first_stage["beq"],
+                                A=model_first_stage["A"],
+                                b=model_first_stage["b"],
+                                xmin=model_first_stage["lb"],
+                                xmax=model_first_stage["ub"],
+                                vtypes=model_first_stage["vtypes"], objsense="min")
+
+        xx = array(xx[0:NX]).reshape((NX, 1))
+
+        LB = obj
+        UB = 0
+        for i in range(n_scenario):
+            UB += result_second_stage_dual[i][1] / n_scenario
+        UB += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
+        Gap = abs((UB - LB) / LB)
+        print("The upper boundary is {0}".format(UB))
+        print("The lower boundary is {0}".format(LB))
+        print("The gap is {0}".format(Gap))
+
+        k += 1
+        if k > kmax:
+            break
 
     On = zeros((T, nh))
     Off = zeros((T, nh))
@@ -853,6 +936,7 @@ def problem_formulation(case):
             Qdhg[i, j] = xx[QDHG * nh * T + i * nh + j]
             v[i, j] = xx[V * nh * T + i * nh + j]
             s[i, j] = xx[S * nh * T + i * nh + j]
+
     for i in range(T):
         for j in range(nw):
             Pwc[i, j] = xx[PWC * nh * T + i * nw + j]
