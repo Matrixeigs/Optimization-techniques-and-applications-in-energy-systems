@@ -1,5 +1,7 @@
 """
-Two-stage unit commitment for jointed wind hydro dispatch
+Two-stage robust unit commitment for jointed wind hydro dispatch
+@author: Zhao Tianyang
+@e-mail:zhaoty@ntu.edu.sg
 """
 from pypower import loadcase, ext2int, makeBdc
 from scipy.sparse import csr_matrix as sparse
@@ -14,8 +16,8 @@ def problem_formulation(case):
     :return:
     """
     CAP_WIND = 1  # The capacity of wind farm
-    BETA = 0.1  # The disturbance range of wind farm
-    BETA_HYDRO = 0.05  # The disturbance range of wind farm
+    BETA = 0.2  # The disturbance range of wind farm
+    BETA_HYDRO = 0.1  # The disturbance range of wind farm
     BETA_LOAD = 0.03
     CAPVALUE = 10  # The capacity value
     Price_energy = r_[ones(8), 3 * ones(8), ones(8)]
@@ -866,4 +868,4 @@ if __name__ == "__main__":
     case = loadcase.loadcase(case14())
     model = problem_formulation(case)
 
-    print(case)
+    print(model)
