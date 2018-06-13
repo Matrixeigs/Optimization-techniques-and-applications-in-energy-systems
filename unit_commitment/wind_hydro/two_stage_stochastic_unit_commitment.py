@@ -9,6 +9,8 @@ from pypower import loadcase, ext2int, makeBdc
 from scipy.sparse import csr_matrix as sparse
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, concatenate, array, diag, eye, random
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+from multiprocessing import Pool
+import os
 
 
 def problem_formulation(case):
@@ -22,7 +24,7 @@ def problem_formulation(case):
     BETA_LOAD = 0.03
     CAPVALUE = 10  # The capacity value
     Price_energy = r_[ones(8), 3 * ones(8), ones(8)]
-    n_scenario = 5
+    n_scenario = 50
 
     from pypower.idx_brch import F_BUS, T_BUS, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
     from pypower.idx_cost import MODEL, NCOST, PW_LINEAR, COST, POLYNOMIAL
@@ -803,25 +805,16 @@ def problem_formulation(case):
 
     model_second_stage_dual = [0] * n_scenario
     result_second_stage_dual = [0] * n_scenario
+    n_processors = os.cpu_count()
 
     for i in range(n_scenario):
-        model_second_stage[i] = {"c": d,
-                                 "A": -G,
-                                 "b": M.dot((u_scenario[:, i]).reshape(nu, 1)) + E.dot(xx) - h}
-        result_second_stage[i] = lp(model_second_stage[i]["c"],
-                                    A=model_second_stage[i]["A"],
-                                    b=model_second_stage[i]["b"])
-
         model_second_stage_dual[i] = {"c": h - M.dot((u_scenario[:, i]).reshape(nu, 1)) - E.dot(xx),
                                       "Aeq": G.transpose(),
                                       "beq": d,
                                       "lb": zeros((h.shape[0], 1))}
 
-        result_second_stage_dual[i] = lp(model_second_stage_dual[i]["c"],
-                                         Aeq=model_second_stage_dual[i]["Aeq"],
-                                         beq=model_second_stage_dual[i]["beq"],
-                                         xmin=model_second_stage_dual[i]["lb"],
-                                         objsense="max")
+    with Pool(n_processors) as p:
+        result_second_stage_dual = list(p.map(sub_problem_dual, model_second_stage_dual))
 
     # Modify the first stage optimization problem
     model_first_stage["c"] = concatenate([model_first_stage["c"], ones((n_scenario, 1)) / n_scenario])
@@ -838,7 +831,7 @@ def problem_formulation(case):
     Acuts = zeros((n_scenario, NX + n_scenario))
     bcuts = zeros((n_scenario, 1))
     for i in range(n_scenario):
-        pi_temp = array(result_second_stage_dual[i][0]).reshape((1, len(result_second_stage_dual[i][0])))
+        pi_temp = array(result_second_stage_dual[i]["x"]).reshape((1, len(result_second_stage_dual[i]["x"])))
         Acuts[i, 0:NX] = -pi_temp.dot(E)
         Acuts[i, NX + i] = -1
         bcuts[i] = -pi_temp.dot(h - M.dot((u_scenario[:, i]).reshape(nu, 1)))
@@ -855,7 +848,7 @@ def problem_formulation(case):
     LB = obj
     UB = 0
     for i in range(n_scenario):
-        UB += result_second_stage_dual[i][1] / n_scenario
+        UB += result_second_stage_dual[i]["objvalue"] / n_scenario
     UB += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
     Gap = abs((UB - LB) / LB)
     k = 1
@@ -867,16 +860,14 @@ def problem_formulation(case):
                                           "Aeq": G.transpose(),
                                           "beq": d,
                                           "lb": zeros((h.shape[0], 1))}
-            result_second_stage_dual[i] = lp(model_second_stage_dual[i]["c"],
-                                             Aeq=model_second_stage_dual[i]["Aeq"],
-                                             beq=model_second_stage_dual[i]["beq"],
-                                             xmin=model_second_stage_dual[i]["lb"],
-                                             objsense="max")
+        with Pool(n_processors) as p:
+            result_second_stage_dual = list(p.map(sub_problem_dual, model_second_stage_dual))
+
         # Add cuts
         Acuts = zeros((n_scenario, NX + n_scenario))
         bcuts = zeros((n_scenario, 1))
         for i in range(n_scenario):
-            pi_temp = array(result_second_stage_dual[i][0]).reshape((1, len(result_second_stage_dual[i][0])))
+            pi_temp = array(result_second_stage_dual[i]["x"]).reshape((1, len(result_second_stage_dual[i]["x"])))
             Acuts[i, 0:NX] = -pi_temp.dot(E)
             Acuts[i, NX + i] = -1
             bcuts[i] = -pi_temp.dot(h - M.dot((u_scenario[:, i]).reshape(nu, 1)))
@@ -897,7 +888,7 @@ def problem_formulation(case):
         LB = obj
         UB = 0
         for i in range(n_scenario):
-            UB += result_second_stage_dual[i][1] / n_scenario
+            UB += result_second_stage_dual[i]["objvalue"] / n_scenario
         UB += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
         Gap = abs((UB - LB) / LB)
         print("The upper boundary is {0}".format(UB))
@@ -952,6 +943,21 @@ def problem_formulation(case):
     Cex = xx[-1]
 
     return Ihg
+
+
+def sub_problem_dual(model):
+    """
+    Solve each slave problems
+    :param model:
+    :return:
+        """
+    (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"], objsense="max")
+
+    sol = {"x": x,
+           "objvalue": objvalue,
+           "status": status}
+
+    return sol
 
 
 if __name__ == "__main__":
