@@ -74,7 +74,7 @@ class TwoStageStochasticUnitCommitment():
 
         # 1.2) objective information
         c = zeros((nx, 1))
-        q = zeros((nx, 1))
+        q = [0] * nx
         for i in range(T):
             for j in range(ng):
                 c[ALPHA * ng * T + i * ng + j] = gen[j, COLD_START]
@@ -333,9 +333,9 @@ if __name__ == "__main__":
     unit_commitment = TwoStageStochasticUnitCommitment()
     model = unit_commitment.problem_formulation(test_case)
 
-    (xx, obj, success) = lp(c=model["c"], Aeq=model["Aeq"], A=model["Aineq"], b=model["bineq"],
-                            beq=model["beq"], xmin=model["lb"],
-                            xmax=model["ub"], vtypes=model["vtypes"])
+    (xx, obj, success) = miqp(c=model["c"], Q=model["Q"], Aeq=model["Aeq"], A=model["Aineq"], b=model["bineq"],
+                              beq=model["beq"], xmin=model["lb"],
+                              xmax=model["ub"], vtypes=model["vtypes"])
 
     sol = unit_commitment.solution_decomposition(xx, obj, success)
     ng = model["ng"]
