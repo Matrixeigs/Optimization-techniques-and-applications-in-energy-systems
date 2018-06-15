@@ -9,7 +9,7 @@ from matplotlib import pyplot
 from scipy import stats
 
 
-def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
+def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     # 1) System level configuration
     T = 24
     weight_first_stage = ones((N_scenario_first_stage, 1)) / N_scenario_first_stage
@@ -17,9 +17,9 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
 
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
-    forecasting_errors_pv = 0.05
+    forecasting_errors_pv = 0.10
     forecasting_errors_prices = 0.03
-    alpha = 0.05
+    alpha = 0.01
     Lam = 1
     Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
 
@@ -220,6 +220,39 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
     Order = zeros((T, N_scenario_first_stage))
     for i in range(T):
         Order[i, :] = np.argsort(Price_DA[i, :])
+
+    # save the scenario in the second stage
+    # f = open("ac_pd_second_stage.txt", "w+")
+    # np.savetxt(f, AC_PD_second_stage, '%.18g', delimiter=',')
+    # f.close()
+    # f = open("dc_pd_second_stage.txt", "w+")
+    # np.savetxt(f, DC_PD_second_stage, '%.18g', delimiter=',')
+    # f.close()
+    # f = open("pv_second_stage.txt", "w+")
+    # np.savetxt(f, PV_second_stage, '%.18g', delimiter=',')
+    # f.close()
+    # f = open("price_second_stage.txt", "w+")
+    # np.savetxt(f, ELEC_PRICE_second_stage, '%.18g', delimiter=',')
+    # f.close()
+    # f = open("price_first_stage.txt", "w+")
+    # np.savetxt(f, Price_DA, '%.18g', delimiter=',')
+    # f.close()
+    # load the scenarios
+    f = open("ac_pd_second_stage.txt", "r+")
+    AC_PD_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
+    f = open("dc_pd_second_stage.txt", "r+")
+    DC_PD_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
+    f = open("pv_second_stage.txt", "r+")
+    PV_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
+    f = open("price_second_stage.txt", "r+")
+    ELEC_PRICE_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
+    f = open("price_first_stage.txt", "r+")
+    Price_DA = np.loadtxt(f, delimiter=',')
+    f.close()
 
     model = Model("EnergyHub")
     PDA = {}  # Day-ahead bidding strategy
@@ -611,5 +644,5 @@ def main(N_scenario_first_stage=5, N_scenario_second_stage=10):
 
 
 if __name__ == "__main__":
-    model = main(5, 10)
+    model = main(10, 50)
     print(model)
