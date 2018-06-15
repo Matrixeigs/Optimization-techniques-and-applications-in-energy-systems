@@ -1,7 +1,9 @@
 """
 Data format for jointed energy and reserve management problem
 """
-IG = 1
-PG = 2
-RUG = 3
-RDG = 4
+ALPHA = 0
+BETA = 1
+IG = 3
+PG = 4
+RUG = 5
+RDG = 6
