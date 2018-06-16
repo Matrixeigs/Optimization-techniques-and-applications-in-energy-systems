@@ -19,11 +19,11 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.10
     forecasting_errors_prices = 0.03
-    alpha = 0.05
+    alpha = 0.2
     Lam = 1
     Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
-    bigM = 10 ** 3
-    relaxation_level = 0.1
+    bigM = 10 ** 1
+    relaxation_level = alpha
 
     # For the HVAC system
     # 2) Thermal system configuration
@@ -547,6 +547,9 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     model.Params.LogToConsole = 1
     model.Params.DisplayInterval = 1
     model.Params.LogFile = ""
+    model.Params.MIPGap = 10 ** -3
+    model.Params.timeLimit = 10 ** 2
+
     model.optimize()
 
     obj = obj.getValue()
