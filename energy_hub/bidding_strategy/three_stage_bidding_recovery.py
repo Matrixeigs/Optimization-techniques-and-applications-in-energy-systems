@@ -19,11 +19,11 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.10
     forecasting_errors_prices = 0.03
-    alpha = 0.2
+    alpha = 0.01
     Lam = 1
     Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
-    bigM = 10 ** 1
-    relaxation_level = alpha
+    bigM = 10 ** 2
+    relaxation_level = 0.1
 
     # For the HVAC system
     # 2) Thermal system configuration
@@ -465,13 +465,24 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
                     DC_PD_second_stage[i, j])
 
                 # Heat energy balance
+                # model.addConstr(
+                #     qCHP[i, j, k] + qGAS[i, j, k] + qHS_DC[i, j, k] - qHS_CH[i, j, k] - qAC[i, j, k] - qTD[i, j, k] ==
+                #     HD[i])
                 model.addConstr(
-                    qCHP[i, j, k] + qGAS[i, j, k] + qHS_DC[i, j, k] - qHS_CH[i, j, k] - qAC[i, j, k] - qTD[i, j, k] ==
-                    HD[i])
-
+                    qCHP[i, j, k] + qGAS[i, j, k] + qHS_DC[i, j, k] - qHS_CH[i, j, k] - qAC[i, j, k] - qTD[i, j, k] >=
+                    HD[i] - Recovery_index[k, j] * bigM)
+                model.addConstr(
+                    qCHP[i, j, k] + qGAS[i, j, k] + qHS_DC[i, j, k] - qHS_CH[i, j, k] - qAC[i, j, k] - qTD[i, j, k] <=
+                    HD[i] + Recovery_index[k, j] * bigM)
                 # Cooling energy balance
+                # model.addConstr(
+                #     qIAC[i, j, k] + qCE[i, j, k] + qCS_DC[i, j, k] - qCD[i, j, k] == CD[i])
                 model.addConstr(
-                    qIAC[i, j, k] + qCE[i, j, k] + qCS_DC[i, j, k] - qCD[i, j, k] == CD[i])
+                    qIAC[i, j, k] + qCE[i, j, k] + qCS_DC[i, j, k] - qCD[i, j, k] >= CD[i] - Recovery_index[
+                        k, j] * bigM)
+                model.addConstr(
+                    qIAC[i, j, k] + qCE[i, j, k] + qCS_DC[i, j, k] - qCD[i, j, k] <= CD[i] + Recovery_index[
+                        k, j] * bigM)
     # 4) Constraints for the day-ahead and real-time energy trading
     for k in range(N_scenario_first_stage):
         for j in range(N_scenario_second_stage):
@@ -548,7 +559,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     model.Params.DisplayInterval = 1
     model.Params.LogFile = ""
     model.Params.MIPGap = 10 ** -3
-    model.Params.timeLimit = 10 ** 2
+    model.Params.timeLimit = 2 * 10 ** 2
 
     model.optimize()
 
@@ -671,5 +682,5 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
 
 
 if __name__ == "__main__":
-    model = main(10, 50)
+    model = main(10, 100)
     print(model)
