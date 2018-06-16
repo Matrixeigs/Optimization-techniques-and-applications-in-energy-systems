@@ -107,7 +107,10 @@ class BendersDecomposition():
         else:
             model_master["ub"] = ones((self.N + self.nx_first_stage, 1)) * M
 
-        model_master["vtypes"] = ["c"] * model_master["c"].shape[0]
+        if model_master["vtypes"] is not None:
+            model_master["vtypes"] = model_first_stage["vtypes"] + ["c"] * self.N
+        else:
+            model_master["vtypes"] = ["c"] * (self.nx_first_stage + self.N)
 
         # 3) Reformulate the second stage optimization problem
         # 3.1) Formulate the dual problem for each problem under dual problems
