@@ -19,7 +19,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.10
     forecasting_errors_prices = 0.03
-    alpha = 0.01
+    alpha = 0.05
     Lam = 1
     Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
 
@@ -32,7 +32,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     ambinent_temprature = array(
         [27, 27, 26, 26, 26, 26, 26, 25, 27, 28, 30, 31, 32, 32, 32, 32, 32, 32, 31, 30, 29, 28, 28, 27])
     temprature_in_min = 20
-    temprature_in_max = 24
+    temprature_in_max = 27
 
     CD = array([16.0996, 17.7652, 21.4254, 20.2980, 19.7012, 21.5134, 860.2167, 522.1926, 199.1072, 128.6201, 104.0959,
                 86.9985, 95.0210, 59.0401, 42.6318, 26.5511, 39.2718, 73.3832, 120.9367, 135.2154, 182.2609, 201.2462,
