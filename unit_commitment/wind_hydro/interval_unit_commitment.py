@@ -7,18 +7,18 @@ from pypower import loadcase, ext2int, makeBdc
 from scipy.sparse import csr_matrix as sparse
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, concatenate, array, diag, eye
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
-from solvers.ccg import TwoStageRobustOptimization
+import pandas as pd
 
 
-def problem_formulation(case):
+def problem_formulation(case, BETA=0.15, BETA_HYDRO=0.05, BETA_LOAD=0.03):
     """
     :param case: The test case for unit commitment problem
     :return:
     """
     CAP_WIND = 1  # The capacity of wind farm
-    BETA = 0.2  # The disturbance range of wind farm
-    BETA_HYDRO = 0.1  # The disturbance range of wind farm
-    BETA_LOAD = 0.03
+    # The disturbance range of wind farm
+    # The disturbance range of wind farm
+
     CAPVALUE = 10  # The capacity value
     Price_energy = r_[ones(8), 3 * ones(8), ones(8)]
 
@@ -874,6 +874,12 @@ def problem_formulation(case):
             Pex[i, j] = xx[PWC * nh * T + nw * T + nb * T + i * nex + j]
 
     Cex = xx[-1]
+    Ruhg_agg = zeros((T, 1))
+    Rdhg_agg = zeros((T, 1))
+    for i in range(T):
+        for j in range(nh):
+            Ruhg_agg[i] += Ruhg[i, j]
+            Rdhg_agg[i] += Rdhg[i, j]
 
     sol = {"START_UP": On,
            "SHUT_DOWN": Off,
@@ -887,7 +893,41 @@ def problem_formulation(case):
            "V": v,
            "S": s,
            "PEX": Pex,
+           "PEX_UP": Pex + Ruhg_agg,
+           "PEX_DOWN": Pex - Rdhg_agg,
            "obj": obj}
+
+    # df = pd.DataFrame(sol["I"])
+    # filepath = './Ih.xlsx'
+    # df.to_excel(filepath, index=False)
+    #
+    # df = pd.DataFrame(sol["PG"])
+    # filepath = './Pg.xlsx'
+    # df.to_excel(filepath, index=False)
+    #
+    # df = pd.DataFrame(sol["RU"])
+    # filepath = './Ru.xlsx'
+    # df.to_excel(filepath, index=False)
+    #
+    # df = pd.DataFrame(sol["RD"])
+    # filepath = './Rd.xlsx'
+    # df.to_excel(filepath, index=False)
+    #
+    # df = pd.DataFrame(sol["Q"])
+    # filepath = './q.xlsx'
+    # df.to_excel(filepath, index=False)
+    #
+    # df = pd.DataFrame(sol["PEX"])
+    # filepath = './Pex.xlsx'
+    # df.to_excel(filepath, index=False)
+    #
+    # df = pd.DataFrame(sol["PEX_UP"])
+    # filepath = './Pex_up.xlsx'
+    # df.to_excel(filepath, index=False)
+    #
+    # df = pd.DataFrame(sol["PEX_DOWN"])
+    # filepath = './Pex_down.xlsx'
+    # df.to_excel(filepath, index=False)
 
     return sol
 
@@ -896,6 +936,14 @@ if __name__ == "__main__":
     from unit_commitment.test_cases.case14 import case14
 
     case = loadcase.loadcase(case14())
-    model = problem_formulation(case)
+    result = zeros((10, 15))
+    for i in range(10):
+        for j in range(15):
+            model = problem_formulation(case, BETA=j * 0.01 + 0.05, BETA_LOAD=i * 0.01 + 0.01)
+            result[i, j] = -model["obj"]
 
-    print(model)
+    df = pd.DataFrame(result)
+    filepath = './sensitive.xlsx'
+    df.to_excel(filepath, index=False)
+
+    print(result)
