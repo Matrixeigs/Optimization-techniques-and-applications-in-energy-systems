@@ -147,9 +147,6 @@ class TwoStageRobustOptimization():
         LB = obj_first_stage
         UB = ((c_first_stage[0:ny].transpose()).dot(y) + obj_second_stage)[0][0]
         Gap = abs((UB - LB) / LB)
-        print("The upper boundary is {0}".format(UB))
-        print("The lower boundary is {0}".format(LB))
-        print("The gap is {0}".format(Gap))
         k = 0
         kmax = 1000
 
