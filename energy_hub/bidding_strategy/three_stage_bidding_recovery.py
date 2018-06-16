@@ -22,6 +22,8 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     alpha = 0.05
     Lam = 1
     Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
+    bigM = 10 ** 3
+    relaxation_level = 0.1
 
     # For the HVAC system
     # 2) Thermal system configuration
@@ -288,6 +290,13 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     vGAS = {}
     # Group 5: Temperature
     temprature_in = {}
+    # Group 6: feasible control
+    Recovery_index = {}
+    # Define the recovery index
+    for i in range(N_scenario_first_stage):
+        for j in range(N_scenario_second_stage):
+            Recovery_index[i, j] = model.addVar(vtype=GRB.BINARY,
+                                                name="INDEX{0}".format(i * N_scenario_second_stage + j))
 
     # Define the day-ahead scheduling plan
     for i in range(T):
@@ -383,7 +392,10 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
                                              name="vGAS{0}".format(
                                                  i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
 
-                temprature_in[i, j, k] = model.addVar(lb=temprature_in_min, ub=temprature_in_max,
+                # temprature_in[i, j, k] = model.addVar(lb=temprature_in_min, ub=temprature_in_max,
+                #                                       name="temprature_in{0}".format(
+                #                                           i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
+                temprature_in[i, j, k] = model.addVar(lb=temprature_in_min / 10, ub=temprature_in_max * 10,
                                                       name="temprature_in{0}".format(
                                                           i * N_scenario_first_stage * N_scenario_second_stage + j * N_scenario_first_stage + k))
 
@@ -490,6 +502,18 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
                     model.addConstr(
                         qTD[i, j, k] - qCD[i, j, k] == (temprature_in[i, j, k] - ambinent_temprature[0]) * c_air - (
                                 ambinent_temprature[i] - temprature_in[i, j, k]) / r_t)
+    # 8) Indoor temperature relaxation
+    for k in range(N_scenario_first_stage):
+        for j in range(N_scenario_second_stage):
+            for i in range(T):
+                model.addConstr(temprature_in[i, j, k] >= temprature_in_min - Recovery_index[k, j] * bigM)
+                model.addConstr(temprature_in[i, j, k] <= temprature_in_max + Recovery_index[k, j] * bigM)
+    # 9) The number of relaxation
+    for i in range(N_scenario_first_stage):
+        expr = 0
+        for j in range(N_scenario_second_stage):
+            expr += Recovery_index[i, j]
+        model.addConstr(expr <= relaxation_level * N_scenario_second_stage)
 
     ## Formulate the objective functions
     # The first stage objective value
