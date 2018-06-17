@@ -936,11 +936,13 @@ if __name__ == "__main__":
     from unit_commitment.test_cases.case14 import case14
 
     case = loadcase.loadcase(case14())
-    result = zeros((10, 15))
-    for i in range(10):
+    result = zeros((5, 15))
+    for i in range(5):
+        print(i)
         for j in range(15):
             model = problem_formulation(case, BETA=j * 0.01 + 0.05, BETA_LOAD=i * 0.01 + 0.01)
             result[i, j] = -model["obj"]
+            print(j)
 
     df = pd.DataFrame(result)
     filepath = './sensitive.xlsx'

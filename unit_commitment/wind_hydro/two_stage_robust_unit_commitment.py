@@ -10,14 +10,15 @@ from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming
 from solvers.ccg import TwoStageRobustOptimization
 import pandas as pd
 
-def problem_formulation(case,BETA = 0.1,BETA_HYDRO = 0.05, BETA_LOAD=0.03):
+
+def problem_formulation(case, BETA=0.1, BETA_HYDRO=0.05, BETA_LOAD=0.03):
     """
     :param case: The test case for unit commitment problem
     :return:
     """
     CAP_WIND = 1  # The capacity of wind farm
-      # The disturbance range of wind farm
-      # The disturbance range of wind farm
+    # The disturbance range of wind farm
+    # The disturbance range of wind farm
 
     CAPVALUE = 10  # The capacity value
     Price_energy = r_[ones(8), 3 * ones(8), ones(8)]
@@ -933,6 +934,16 @@ if __name__ == "__main__":
     from unit_commitment.test_cases.case14 import case14
 
     case = loadcase.loadcase(case14())
-    model = problem_formulation(case)
+    result = zeros((5, 15))
+    for i in range(5):
+        print(i)
+        for j in range(15):
+            model = problem_formulation(case, BETA=j * 0.01 + 0.05, BETA_LOAD=i * 0.01 + 0.01)
+            result[i, j] = -model["obj"]
+            print(j)
 
-    print(model)
+    df = pd.DataFrame(result)
+    filepath = './sensitive.xlsx'
+    df.to_excel(filepath, index=False)
+
+    print(result)
