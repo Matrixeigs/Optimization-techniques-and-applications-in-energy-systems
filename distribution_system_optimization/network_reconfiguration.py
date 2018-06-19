@@ -219,21 +219,36 @@ class NetworkReconfiguration():
         Vi = xx[3 * nl:3 * nl + nb]
         Pg = xx[3 * nl + nb:3 * nl + nb + ng]
         Qg = xx[3 * nl + nb + ng:3 * nl + nb + 2 * ng]
+        Alpha = xx[3 * nl + nb + 2 * ng:3 * nl + nb + 2 * ng + nl]
+        Beta_f = xx[3 * nl + nb + 2 * ng + nl:3 * nl + nb + 2 * ng + 2 * nl]
+        Beta_t = xx[3 * nl + nb + 2 * ng + 2 * nl:3 * nl + nb + 2 * ng + 3 * nl]
 
         primal_residual = zeros((nl, 1))
 
         for i in range(nl):
             primal_residual[i] = Pij[i] * Pij[i] + Qij[i] * Qij[i] - Iij[i] * Vi[int(f[i])]
 
-        return xx, obj, primal_residual
+        sol = {"Pij": Pij,
+               "Qij": Qij,
+               "Iij": Iij,
+               "Vi": Vi,
+               "Pg": Pg,
+               "Qg": Qg,
+               "Alpha": Alpha,
+               "Beta_f": Beta_f,
+               "Beta_t": Beta_t,
+               "residual": primal_residual,
+               "obj": obj}
+
+        return sol
 
 
 if __name__ == "__main__":
     from pypower import runopf
 
     mpc = case33.case33()  # Default test case
-    branch_optimal_power = NetworkReconfiguration()
+    network_reconfiguration = NetworkReconfiguration()
 
-    (xx, obj, residual) = branch_optimal_power.main(case=mpc)
+    sol = network_reconfiguration.main(case=mpc)
 
-    print(max(residual))
+    print(max(sol["residual"]))
