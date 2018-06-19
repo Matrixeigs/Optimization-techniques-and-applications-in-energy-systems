@@ -131,9 +131,7 @@ class NetworkReconfiguration():
         Aeq = vstack([Aeq_f, Aeq_alpha, Aeq_span, Aeq_p, Aeq_q])
         Aeq = Aeq.toarray()
         beq = concatenate([beq_f, beq_alpha, beq_span, beq_p, beq_q])
-        # Aeq = vstack([Aeq_f, Aeq_span])
-        # Aeq = Aeq.toarray()
-        # beq = concatenate([beq_f, beq_span])
+
         # Inequality constraints
         A = zeros((nl, nx))
         b = zeros(nl)
