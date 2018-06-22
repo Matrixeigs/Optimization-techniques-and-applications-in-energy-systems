@@ -88,14 +88,18 @@ class OptimalDepositProblem():
         beq = concatenate([beq, beq_temp])
 
         (xx, obj, status) = lp(c, Aeq=Aeq, beq=beq, xmin=lb, xmax=ub, vtypes=vtypes)
-
-        return xx, obj, status
+        # Return the routine
+        routine = []
+        for i in range(nx):
+            if xx[i] > 0:
+                routine.append(connection_matrix[i, :])
+        return routine
 
 
 if __name__ == "__main__":
     optimal_deposit_problem = OptimalDepositProblem()
     transportation_network_model = TransportationNetworkModel()
     test_case = case5.transportation_network()
-    (xx, obj, status) = optimal_deposit_problem.run(test_case, 10)
+    routine = optimal_deposit_problem.run(test_case, 10)
 
-    print(xx)
+    print(routine)
