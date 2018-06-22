@@ -6,8 +6,8 @@ from numpy import array
 
 from transportation_systems.test_cases import TIME
 
-def transportation_network(delta=1):
 
+def transportation_network(delta=1):
     branch = array([
         [0, 1, 1],
         [0, 2, 1],
@@ -24,7 +24,8 @@ def transportation_network(delta=1):
         [0, 100],
         [1, 100],
         [2, 100],
-        [3, 100]
+        [3, 100],
+        [4, 100]
     ])
 
     network = {"bus": bus,

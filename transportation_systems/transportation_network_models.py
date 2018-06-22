@@ -37,7 +37,7 @@ class TransportationNetworkModel():
                 connection_matrix[i * (nl + nb) + nl + j, F_BUS] = j + i * nb  # This time slot
                 connection_matrix[i * (nl + nb) + nl + j, T_BUS] = j + (i + 1) * nb  # The next time slot
         # Delete the out of range lines
-        connection_matrix = connection_matrix[find(connection_matrix[:, T_BUS] <= T * nb), :]
+        connection_matrix = connection_matrix[find(connection_matrix[:, T_BUS] < T * nb), :]
         # Status transition matrix
         nl = connection_matrix.shape[0]
         status_matrix = zeros((T, nl))
@@ -49,12 +49,19 @@ class TransportationNetworkModel():
                 if i >= 1:
                     if connection_matrix[j, F_BUS] <= i * nb and connection_matrix[j, T_BUS] > (i + 1) * nb:
                         status_matrix[i, j] = 1
+        # Update connection matrix
+        connection_matrix_f = zeros((nl, T * nb))
+        connection_matrix_t = zeros((nl, T * nb))
 
-        return connection_matrix
+        for i in range(nl):
+            connection_matrix_f[i, int(connection_matrix[i, F_BUS])] = 1
+            connection_matrix_t[i, int(connection_matrix[i, T_BUS])] = 1
+
+        return connection_matrix_f, connection_matrix_t, status_matrix
 
 
 if __name__ == "__main__":
     transportation_network_model = TransportationNetworkModel()
     test_case = case5.transportation_network()
-    network = transportation_network_model.run(test_case, 8)
-    print(network)
+    (connection_matrix_f, connection_matrix_t, status_matrix) = transportation_network_model.run(test_case, 8)
+    print(connection_matrix)
