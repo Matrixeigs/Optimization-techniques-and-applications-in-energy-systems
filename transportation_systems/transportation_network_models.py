@@ -2,10 +2,8 @@
 The transportation networks models for discrete time step dispatch
 """
 
-from numpy import array, zeros
-from scipy.sparse import csc_matrix as sparse
+from numpy import zeros
 from transportation_systems.test_cases import case5, F_BUS, T_BUS, TIME, BUS_ID, D
-from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
 from numpy import flatnonzero as find
 
 
@@ -40,22 +38,21 @@ class TransportationNetworkModel():
         connection_matrix = connection_matrix[find(connection_matrix[:, T_BUS] < T * nb), :]
         # Status transition matrix
         nl = connection_matrix.shape[0]
-        status_matrix = zeros((T, nl))
-        for i in range(T):
+        status_matrix = zeros((T - 1, nl))
+        for i in range(T - 1):
             for j in range(nl):
                 if connection_matrix[j, F_BUS] >= i * nb and connection_matrix[j, F_BUS] < (i + 1) * nb:
                     status_matrix[i, j] = 1
 
-                if i >= 1:
-                    if connection_matrix[j, F_BUS] <= i * nb and connection_matrix[j, T_BUS] > (i + 1) * nb:
-                        status_matrix[i, j] = 1
+                if connection_matrix[j, F_BUS] <= i * nb and connection_matrix[j, T_BUS] > (i + 1) * nb:
+                    status_matrix[i, j] = 1
         # Update connection matrix
-        connection_matrix_f = zeros((nl, T * nb))
-        connection_matrix_t = zeros((nl, T * nb))
+        connection_matrix_f = zeros(((T - 2) * nb, nl))
+        connection_matrix_t = zeros(((T - 2) * nb, nl))
 
-        for i in range(nl):
-            connection_matrix_f[i, int(connection_matrix[i, F_BUS])] = 1
-            connection_matrix_t[i, int(connection_matrix[i, T_BUS])] = 1
+        for i in range(nb, (T - 1) * nb):
+            connection_matrix_f[i - nb, find(connection_matrix[:, F_BUS] == i)] = 1
+            connection_matrix_t[i - nb, find(connection_matrix[:, T_BUS] == i)] = 1
 
         return connection_matrix_f, connection_matrix_t, status_matrix
 
@@ -63,5 +60,5 @@ class TransportationNetworkModel():
 if __name__ == "__main__":
     transportation_network_model = TransportationNetworkModel()
     test_case = case5.transportation_network()
-    (connection_matrix_f, connection_matrix_t, status_matrix) = transportation_network_model.run(test_case, 8)
-    print(connection_matrix)
+    (connection_matrix_f, connection_matrix_t, status_matrix) = transportation_network_model.run(test_case, 3)
+    print(connection_matrix_f)
