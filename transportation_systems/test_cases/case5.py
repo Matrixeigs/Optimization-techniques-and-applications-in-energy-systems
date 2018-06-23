@@ -40,16 +40,33 @@ def transportation_network(delta=1):
 
     initial_status = array([
         [0],
+        [0],
+        [0],
+        [0],
+        [1]
+    ])
+    # initial_status = array([
+    #     [0],
+    #     [1],
+    #     [0]
+    # ])
+
+    end_status = array([
         [1],
+        [0],
         [0],
         [0],
         [0]
     ])
-
+    # end_status = array([
+    #     [1],
+    #     [0],
+    #     [0]
+    # ])
     network = {"bus": bus,
                "branch": branch,
                "initial": initial_status,
-               "end": initial_status
+               "end": end_status
                }
 
     return network
