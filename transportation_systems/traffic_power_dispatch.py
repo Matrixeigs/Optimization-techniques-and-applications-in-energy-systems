@@ -258,7 +258,6 @@ class TrafficPowerNetworks():
                 bus_index = connection_matrix[row_index, 3] - i * nb
                 charging_index = NX_status + T * nb_traffic + arange(i * nb_traffic, (i + 1) * nb_traffic)
                 discharging_index = NX_status + arange(i * nb_traffic, (i + 1) * nb_traffic)
-                print(i)
                 power_traffic_charging = sparse((-ones(len(bus_index)), (bus_index, charging_index)), (nb, NX_traffic))
 
                 power_traffic_discharging = sparse((ones(len(bus_index)), (bus_index, discharging_index)),
@@ -290,6 +289,31 @@ class TrafficPowerNetworks():
         bev = zeros(2 * n_stops * nev)
         A = concatenate([zeros((2 * n_stops * nev, nx)), Aev], axis=1)
 
+        # Add constraints on the energy status
+        Aenergy = zeros((2 * T * nev, NX_traffic * nev))
+        benergy = zeros(2 * T * nev)
+        for i in range(nev):
+            for j in range(T):
+                # minimal energy
+                Aenergy[i * T * 2 + j, NX_status:NX_status + (j + 1) * nb_traffic] = 1
+                Aenergy[i * T * 2 + j, NX_status + n_stops:NX_status + n_stops + (j + 1) * nb_traffic] = -1
+                if j != (T - 1):
+                    benergy[i * T * 2 + j] = ev[i]["E0"] - ev[i]["EMIN"]
+                else:
+                    benergy[i * T * 2 + j] = 0
+                # maximal energy
+                Aenergy[i * T * 2 + T + j, NX_status:NX_status + (j + 1) * nb_traffic] = -1
+                Aenergy[i * T * 2 + T + j,
+                NX_status + n_stops:NX_status + n_stops + (j + 1) * nb_traffic] = 1
+                if j != (T - 1):
+                    benergy[i * T * 2 + T + j] = ev[i]["EMAX"] - ev[i]["E0"]
+                else:
+                    benergy[i * T * 2 + T + j] = 0
+
+        Aenergy = concatenate([zeros((2 * T * nev, nx)), Aenergy], axis=1)
+        A = concatenate([A, Aenergy])
+        b = concatenate([bev, benergy])
+
         nx += NX_traffic * nev
         for i in range(nx):
             if vtypes[i] == "c":
@@ -307,7 +331,7 @@ class TrafficPowerNetworks():
             expr = 0
             for j in range(nx):
                 expr += x[j] * A[i, j]
-            model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=bev[i])
+            model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b[i])
 
         for i in range(T):
             for j in range(nl):
@@ -376,6 +400,8 @@ if __name__ == "__main__":
                "PCMAX": 0.5,
                "PDMAX": 0.5,
                "E0": 2,
+               "EMAX": 4,
+               "EMIN": 1,
                })
 
     ev.append({"initial": array([1, 0, 0]),
@@ -383,6 +409,8 @@ if __name__ == "__main__":
                "PCMAX": 0.5,
                "PDMAX": 0.5,
                "E0": 2,
+               "EMAX": 4,
+               "EMIN": 1,
                })
     traffic_power_networks = TrafficPowerNetworks()
 
