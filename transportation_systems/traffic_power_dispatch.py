@@ -22,6 +22,7 @@ from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, BR_STATUS, RA
 from pypower.idx_cost import MODEL, NCOST, PW_LINEAR, COST, POLYNOMIAL
 from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
 from pypower.idx_gen import GEN_BUS, VG, PG, QG, PMAX, PMIN, QMAX, QMIN
+from numpy import flatnonzero as find
 
 from gurobipy import *
 
@@ -99,7 +100,7 @@ class TrafficPowerNetworks():
         for i in range(T):
             lx_full[i * NX:(i + 1) * NX] = lx
             ux_full[i * NX:(i + 1) * NX] = ux
-
+        vtypes_full = ["c"] * nx
         # Add system level constraints
         Aeq_p = hstack([Ct - Cf, zeros((nb, nl)), -diag(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg, zeros((nb, ng))])
         beq_p = bus[:, PD] / baseMVA
@@ -124,17 +125,129 @@ class TrafficPowerNetworks():
         # For each vehicle
         nb_traffic = traffic_networks["bus"].shape[0]
         nl_traffic = traffic_networks["branch"].shape[0]
+        # Develop the connection matrix
+        connection_matrix = zeros(((2 * nl_traffic + nb_traffic) * T, 3))
+        weight = zeros(((2 * nl_traffic + nb_traffic) * T, 1))
+        for i in range(T):
+            for j in range(nl_traffic):
+                # Add from matrix
+                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j, F_BUS] = traffic_networks["branch"][
+                                                                                      j, F_BUS] + i * nb_traffic
+                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j, T_BUS] = traffic_networks["branch"][j, T_BUS] + \
+                                                                                  traffic_networks["branch"][
+                                                                                      j, TIME] * nb_traffic + i * nb_traffic
+                weight[i * (2 * nl_traffic + nb_traffic) + j, 0] = 1
+                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j, TIME] = traffic_networks["branch"][j, TIME]
 
+            for j in range(nl_traffic):
+                # Add to matrix
+                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic, F_BUS] = \
+                    traffic_networks["branch"][j, T_BUS] + i * nb_traffic
+                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic, T_BUS] = \
+                    traffic_networks["branch"][j, F_BUS] + traffic_networks["branch"][
+                        j, TIME] * nb_traffic + i * nb_traffic
 
+                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic, TIME] = \
+                    traffic_networks["branch"][j, TIME]
 
+            for j in range(nb_traffic):
+                connection_matrix[i * (
+                        2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, F_BUS] = j + i * nb_traffic  # This time slot
+                connection_matrix[i * (2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, T_BUS] = j + (
+                        i + 1) * nb_traffic  # The next time slot
 
+        # Delete the out of range lines
+        index = find(connection_matrix[:, T_BUS] < T * nb_traffic)
+        connection_matrix = connection_matrix[index, :]
+        weight = weight[index]
+
+        # add two virtual nodes to represent the initial and end status of vehicles
+        connection_matrix[:, F_BUS] += 1
+        connection_matrix[:, T_BUS] += 1
+        for i in range(nb_traffic):
+            temp = zeros((1, 3))
+            temp[0, 1] = i + 1
+            connection_matrix = concatenate([connection_matrix, temp])
+
+        # Delete the out of range lines
+        connection_matrix = connection_matrix[find(connection_matrix[:, T_BUS] < T * nb_traffic + 2), :]
+        for i in range(nb_traffic):
+            temp = zeros((1, 3))
+            temp[0, 0] = nb_traffic * (T - 1) + i + 1
+            temp[0, 1] = nb_traffic * T + 1
+            connection_matrix = concatenate([connection_matrix, temp])
+
+        # Status transition matrix
+        nl_traffic = connection_matrix.shape[0]
+        status_matrix = zeros((T, nl_traffic))
+        for i in range(T):
+            for j in range(nl_traffic):
+                if connection_matrix[j, F_BUS] >= i * nb_traffic + 1 and connection_matrix[j, F_BUS] < (
+                        i + 1) * nb_traffic + 1:
+                    status_matrix[i, j] = 1
+
+                if connection_matrix[j, F_BUS] <= i * nb_traffic + 1 and connection_matrix[j, T_BUS] > (
+                        i + 1) * nb_traffic + 1:
+                    status_matrix[i, j] = 1
+        # Update connection matrix
+        connection_matrix_f = zeros((T * nb_traffic + 2, nl_traffic))
+        connection_matrix_t = zeros((T * nb_traffic + 2, nl_traffic))
+
+        for i in range(T * nb_traffic + 2):
+            connection_matrix_f[i, find(connection_matrix[:, F_BUS] == i)] = 1
+            connection_matrix_t[i, find(connection_matrix[:, T_BUS] == i)] = 1
+
+        NX_traffic = status_matrix.shape[1] + 2 * T * nb_traffic  # The status transition, charging and discharging rate
+        lb_traffic = zeros(NX_traffic)
+        ub_traffic = ones(NX_traffic)
+
+        ub_traffic[status_matrix.shape[1]:status_matrix.shape[1] + T * nb_traffic] = ev[0]["PDMAX"] / baseMVA
+        ub_traffic[status_matrix.shape[1] + T * nb_traffic:] = ev[0]["PCMAX"] / baseMVA
+        vtypes_traffic = ["b"] * status_matrix.shape[1] + ["c"] * 2 * T * nb_traffic
+
+        Aeq_traffic = connection_matrix_f - connection_matrix_t
+        beq_traffic = zeros(Aeq_traffic.shape[0])
+        beq_traffic[0] = 1
+        beq_traffic[-1] = -1
+        lb_traffic[find(connection_matrix[:, F_BUS] == 0)] = ev[0]["initial"]
+        ub_traffic[find(connection_matrix[:, F_BUS] == 0)] = ev[0]["initial"]
+
+        lb_traffic[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = ev[0]["end"]
+        ub_traffic[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = ev[0]["end"]
+
+        # statue constraints
+        Aeq_temp_traffic = status_matrix
+        beq_temp_traffic = ones(status_matrix.shape[0])
+
+        Aeq_traffic = concatenate([Aeq_traffic, Aeq_temp_traffic])
+        neq_traffic = Aeq_traffic.shape[0]
+        Aeq_traffic = concatenate([Aeq_traffic, zeros((neq_traffic, 2 * T * nb_traffic))], axis=1)
+
+        beq_traffic = concatenate([beq_traffic, beq_temp_traffic])
+
+        # Merge the variables and constraints
+        vtypes = vtypes_full + vtypes_traffic
+        lb = concatenate([lx_full, lb_traffic])
+        ub = concatenate([ux_full, ub_traffic])
+        Aeq = zeros((neq * T + neq_traffic, nx + NX_traffic))
+        beq = zeros(neq * T + neq_traffic)
+        Aeq[0:neq * T, 0:nx] = Aeq_full
+        beq[0:neq * T] = beq_full
+        Aeq[neq * T:, nx:] = Aeq_traffic
+        beq[neq * T:] = beq_traffic
+
+        nx += NX_traffic
         for i in range(nx):
-            x[i] = model.addVar(lb=lx_full[i], ub=ux_full[i], vtype=GRB.CONTINUOUS)
-        for i in range(neq * T):
+            if vtypes[i] == "c":
+                x[i] = model.addVar(lb=lb[i], ub=ub[i], vtype=GRB.CONTINUOUS)
+            elif vtypes[i] == "b":
+                x[i] = model.addVar(lb=lb[i], ub=ub[i], vtype=GRB.BINARY)
+
+        for i in range(Aeq.shape[0]):
             expr = 0
             for j in range(nx):
-                expr += x[j] * Aeq_full[i, j]
-            model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq_full[i])
+                expr += x[j] * Aeq[i, j]
+            model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
 
         for i in range(T):
             for j in range(nl):
@@ -148,8 +261,8 @@ class TrafficPowerNetworks():
                        gencost[j, 5] * x[i * NX + j + 3 * nl + nb] * baseMVA + gencost[j, 6]
 
         model.setObjective(obj)
-        model.Params.OutputFlag = 0
-        model.Params.LogToConsole = 0
+        model.Params.OutputFlag = 1
+        model.Params.LogToConsole = 1
         model.Params.DisplayInterval = 1
         model.Params.LogFile = ""
 
@@ -198,10 +311,10 @@ if __name__ == "__main__":
 
     ev = []
 
-    ev.append({"initial": array([[1], [0], [0]]),
-               "end": array([[0], [0], [1]]),
+    ev.append({"initial": array([1, 0, 0]),
+               "end": array([0, 0, 1]),
                "PCMAX": 1000,
-               "PDCMAX": 1000,
+               "PDMAX": 1000,
                "E0": 2000,
                })
 
