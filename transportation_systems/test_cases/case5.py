@@ -10,11 +10,11 @@ from transportation_systems.test_cases import TIME
 def transportation_network(delta=1):
     branch = array([
         [0, 1, 1],
-        [0, 2, 1],
+        [0, 2, 4],
         [0, 3, 2],
-        [1, 3, 1],
+        [1, 3, 3],
         [1, 4, 2],
-        [2, 3, 1],
+        [2, 3, 5],
         [3, 4, 3]
     ])
     # branch = array([

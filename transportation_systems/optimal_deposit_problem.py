@@ -126,6 +126,6 @@ if __name__ == "__main__":
     optimal_deposit_problem = OptimalDepositProblem()
     transportation_network_model = TransportationNetworkModel()
     test_case = case5.transportation_network()
-    routine = optimal_deposit_problem.run(test_case, 10)
+    routine = optimal_deposit_problem.run(test_case, 24)
 
     print(routine)
