@@ -17,9 +17,9 @@ def transportation_network(delta=1):
     branch[:, TIME] = branch[:, TIME] / delta
 
     bus = array([
-        [0, 100],
-        [1, 100],
-        [2, 100],
+        [0, 100, 5],
+        [1, 100, 10],
+        [2, 100, 15],
     ])
 
     initial_status = array([

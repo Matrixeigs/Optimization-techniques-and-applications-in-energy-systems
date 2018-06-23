@@ -8,13 +8,13 @@ Some notes on the jointed dispatch:
 @e-mail:zhaoty@ntu.edu.sg
 """
 
-from numpy import array, zeros, ones, concatenate, shape, repeat, diag
+from numpy import array, zeros, ones, concatenate, shape, repeat, diag, arange, eye
 from transportation_systems.transportation_network_models import TransportationNetworkModel
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, diags, vstack
 
 from distribution_system_optimization.test_cases.case33 import case33
-from transportation_systems.test_cases import case3, TIME
+from transportation_systems.test_cases import case3, TIME, LOCATION
 
 # Import data format for electricity networks
 from pypower import ext2int
@@ -126,7 +126,7 @@ class TrafficPowerNetworks():
         nb_traffic = traffic_networks["bus"].shape[0]
         nl_traffic = traffic_networks["branch"].shape[0]
         # Develop the connection matrix
-        connection_matrix = zeros(((2 * nl_traffic + nb_traffic) * T, 3))
+        connection_matrix = zeros(((2 * nl_traffic + nb_traffic) * T, 4))
         weight = zeros(((2 * nl_traffic + nb_traffic) * T, 1))
         for i in range(T):
             for j in range(nl_traffic):
@@ -155,6 +155,9 @@ class TrafficPowerNetworks():
                         2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, F_BUS] = j + i * nb_traffic  # This time slot
                 connection_matrix[i * (2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, T_BUS] = j + (
                         i + 1) * nb_traffic  # The next time slot
+                connection_matrix[i * (
+                        2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, 3] = traffic_networks["bus"][
+                                                                                    j, LOCATION] + i * nb  # Location information
 
         # Delete the out of range lines
         index = find(connection_matrix[:, T_BUS] < T * nb_traffic)
@@ -165,16 +168,16 @@ class TrafficPowerNetworks():
         connection_matrix[:, F_BUS] += 1
         connection_matrix[:, T_BUS] += 1
         for i in range(nb_traffic):
-            temp = zeros((1, 3))
+            temp = zeros((1, 4))
             temp[0, 1] = i + 1
             connection_matrix = concatenate([connection_matrix, temp])
 
         # Delete the out of range lines
-        connection_matrix = connection_matrix[find(connection_matrix[:, T_BUS] < T * nb_traffic + 2), :]
         for i in range(nb_traffic):
-            temp = zeros((1, 3))
+            temp = zeros((1, 4))
             temp[0, 0] = nb_traffic * (T - 1) + i + 1
             temp[0, 1] = nb_traffic * T + 1
+            temp[0, 3] = traffic_networks["bus"][i, LOCATION] + (T - 1) * nb
             connection_matrix = concatenate([connection_matrix, temp])
 
         # Status transition matrix
@@ -197,15 +200,17 @@ class TrafficPowerNetworks():
             connection_matrix_f[i, find(connection_matrix[:, F_BUS] == i)] = 1
             connection_matrix_t[i, find(connection_matrix[:, T_BUS] == i)] = 1
 
-        NX_traffic = status_matrix.shape[1] + 2 * T * nb_traffic  # The status transition, charging and discharging rate
-        NX_status = status_matrix.shape[1]
+        n_stops = find(connection_matrix[:, 3]).__len__()
+
+        NX_traffic = nl_traffic + 2 * n_stops  # The status transition, charging and discharging rate
+        NX_status = nl_traffic
         lb_traffic = zeros(NX_traffic * nev)
         ub_traffic = ones(NX_traffic * nev)
         for i in range(nev):
-            ub_traffic[i * NX_traffic + NX_status:i * NX_traffic + NX_status + T * nb_traffic] = \
+            ub_traffic[i * NX_traffic + NX_status:i * NX_traffic + NX_status + n_stops] = \
                 ev[i]["PDMAX"] / baseMVA
-            ub_traffic[i * NX_traffic + NX_status + T * nb_traffic:i * NX_traffic + NX_status + 2 * T * nb_traffic] = \
-            ev[i]["PCMAX"] / baseMVA
+            ub_traffic[i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + 2 * n_stops] = \
+                ev[i]["PCMAX"] / baseMVA
 
             lb_traffic[i * NX_traffic + find(connection_matrix[:, F_BUS] == 0)] = ev[i]["initial"]
             ub_traffic[i * NX_traffic + find(connection_matrix[:, F_BUS] == 0)] = ev[i]["initial"]
@@ -224,7 +229,7 @@ class TrafficPowerNetworks():
         Aeq_traffic = concatenate([Aeq_traffic, Aeq_temp_traffic])
         beq_traffic = concatenate([beq_traffic, beq_temp_traffic])
         neq_traffic = Aeq_traffic.shape[0]
-        Aeq_traffic = concatenate([Aeq_traffic, zeros((neq_traffic, 2 * T * nb_traffic))], axis=1)
+        Aeq_traffic = concatenate([Aeq_traffic, zeros((neq_traffic, 2 * n_stops))], axis=1)
 
         Aeq_traffic_full = zeros((neq_traffic * nev, NX_traffic * nev))
         beq_traffic_full = zeros(neq_traffic * nev)
@@ -243,6 +248,48 @@ class TrafficPowerNetworks():
         Aeq[neq * T:, nx:] = Aeq_traffic_full
         beq[neq * T:] = beq_traffic_full
 
+        # Add coupling constraints between the vehicles and distribution networks
+        for i in range(int(max(connection_matrix[:, 3]) / nb)):
+            row_index = find(connection_matrix[:, 3] >= i * nb + 1)
+            row_index_temp = find(connection_matrix[row_index, 3] <= (i + 1) * nb)
+            row_index = row_index[row_index_temp]
+
+            if len(row_index) != 0:
+                bus_index = connection_matrix[row_index, 3] - i * nb
+                charging_index = NX_status + T * nb_traffic + arange(i * nb_traffic, (i + 1) * nb_traffic)
+                discharging_index = NX_status + arange(i * nb_traffic, (i + 1) * nb_traffic)
+                print(i)
+                power_traffic_charging = sparse((-ones(len(bus_index)), (bus_index, charging_index)), (nb, NX_traffic))
+
+                power_traffic_discharging = sparse((ones(len(bus_index)), (bus_index, discharging_index)),
+                                                   (nb, NX_traffic))
+                for j in range(nev):
+                    Aeq[i * neq:i * neq + nb, nx + j * NX_traffic: nx + (j + 1) * NX_traffic] = (
+                            power_traffic_discharging + power_traffic_charging).toarray()
+
+        # Add constraints between the charging/discharging status and status
+        index_stops = find(connection_matrix[:, 3])
+        index_operation = arange(n_stops)
+        power_limit = sparse((ones(n_stops), (index_operation, index_stops)), (n_stops, NX_status))
+
+        Aev = zeros((2 * n_stops * nev, NX_traffic * nev))
+
+        for i in range(nev):
+            Aev[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic:i * NX_traffic + NX_status] = -power_limit.toarray() * ev[i]["PDMAX"]
+
+            Aev[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic + NX_status:i * NX_traffic + NX_status + n_stops] = eye(n_stops)
+
+            Aev[i * n_stops * 2 + n_stops:(i + 1) * n_stops * 2,
+            i * NX_traffic:i * NX_traffic + NX_status] = -power_limit.toarray() * ev[i]["PCMAX"]
+
+            Aev[i * n_stops * 2 + n_stops:(i + 1) * n_stops * 2,
+            i * NX_traffic + NX_status + n_stops:(i + 1) * NX_traffic] = eye(n_stops)
+
+        bev = zeros(2 * n_stops * nev)
+        A = concatenate([zeros((2 * n_stops * nev, nx)), Aev], axis=1)
+
         nx += NX_traffic * nev
         for i in range(nx):
             if vtypes[i] == "c":
@@ -255,6 +302,12 @@ class TrafficPowerNetworks():
             for j in range(nx):
                 expr += x[j] * Aeq[i, j]
             model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
+
+        for i in range(A.shape[0]):
+            expr = 0
+            for j in range(nx):
+                expr += x[j] * A[i, j]
+            model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=bev[i])
 
         for i in range(T):
             for j in range(nl):
