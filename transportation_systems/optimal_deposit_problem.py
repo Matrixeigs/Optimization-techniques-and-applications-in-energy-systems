@@ -1,5 +1,7 @@
 """
 Optimal deposit problem with discrete time steps
+@author:Zhao Tianyang
+@e-mail:zhaoty@ntu.edu.sg
 """
 from numpy import zeros, ones, concatenate, array
 from transportation_systems.test_cases import case5, F_BUS, T_BUS, TIME, BUS_ID, D
