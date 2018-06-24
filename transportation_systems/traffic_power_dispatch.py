@@ -295,16 +295,18 @@ class TrafficPowerNetworks():
         for i in range(nev):
             for j in range(T):
                 # minimal energy
-                Aenergy[i * T * 2 + j, NX_status:NX_status + (j + 1) * nb_traffic] = 1
-                Aenergy[i * T * 2 + j, NX_status + n_stops:NX_status + n_stops + (j + 1) * nb_traffic] = -1
+                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status:i * NX_traffic + NX_status + (j + 1) * nb_traffic] = 1
+                Aenergy[i * T * 2 + j,
+                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = -1
                 if j != (T - 1):
                     benergy[i * T * 2 + j] = ev[i]["E0"] - ev[i]["EMIN"]
                 else:
                     benergy[i * T * 2 + j] = 0
                 # maximal energy
-                Aenergy[i * T * 2 + T + j, NX_status:NX_status + (j + 1) * nb_traffic] = -1
                 Aenergy[i * T * 2 + T + j,
-                NX_status + n_stops:NX_status + n_stops + (j + 1) * nb_traffic] = 1
+                i * NX_traffic + NX_status:i * NX_traffic + NX_status + (j + 1) * nb_traffic] = -1
+                Aenergy[i * T * 2 + T + j,
+                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = 1
                 if j != (T - 1):
                     benergy[i * T * 2 + T + j] = ev[i]["EMAX"] - ev[i]["E0"]
                 else:
@@ -366,6 +368,10 @@ class TrafficPowerNetworks():
         Pg = zeros((ng, T))
         Qg = zeros((ng, T))
         Gap = zeros((nl, T))
+        Routine = zeros((NX_status, nev))
+        Scheduling_charging = zeros((n_stops, nev))
+        Scheduling_discharging = zeros((n_stops, nev))
+
         for i in range(T):
             for j in range(nl):
                 Pij[j, i] = xx[i * NX + j]
@@ -380,6 +386,16 @@ class TrafficPowerNetworks():
         for i in range(T):
             for j in range(nl):
                 Gap[j, i] = Pij[j, i] ** 2 + Qij[j, i] ** 2 - Vm[int(f[j]), i] * Iij[j, i]
+
+        xx = array(xx).reshape((len(xx), 1))
+
+        for i in range(nev):
+            Routine[:, i] = xx[T * NX + i * NX_traffic:T * NX + i * NX_traffic + NX_status, 0]
+            Scheduling_discharging[:, i] = xx[
+                                           T * NX + i * NX_traffic + NX_status:T * NX + i * NX_traffic + NX_status + n_stops,
+                                           0]
+            Scheduling_charging[:, i] = xx[T * NX + i * NX_traffic + NX_status + n_stops:T * NX + (i + 1) * NX_traffic,
+                                        0]
 
         return obj
 
