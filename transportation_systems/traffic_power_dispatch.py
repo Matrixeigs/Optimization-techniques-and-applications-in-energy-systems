@@ -396,6 +396,18 @@ class TrafficPowerNetworks():
                                            0]
             Scheduling_charging[:, i] = xx[T * NX + i * NX_traffic + NX_status + n_stops:T * NX + (i + 1) * NX_traffic,
                                         0]
+        # return the routine
+        routine = zeros((NX_status, nev))
+        for i in range(nev):
+            for j in range(NX_status):
+                if Routine[j, i] > 0:
+                    # routine[j, i] = traffic_networks["bus"][int((connection_matrix[j, T_BUS] - 1) % nb_traffic),LOCATION]
+                    routine[j, i] = int((connection_matrix[j, T_BUS] - 1) % nb_traffic)
+                else:
+                    try:
+                        routine[j, i] = routine[j - 1, i]
+                    except:
+                        pass
 
         return obj
 
