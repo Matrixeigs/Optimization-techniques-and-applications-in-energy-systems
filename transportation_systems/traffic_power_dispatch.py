@@ -346,6 +346,11 @@ class TrafficPowerNetworks():
                 obj += gencost[j, 4] * x[i * NX + j + 3 * nl + nb] * x[i * NX + j + 3 * nl + nb] * baseMVA * baseMVA + \
                        gencost[j, 5] * x[i * NX + j + 3 * nl + nb] * baseMVA + gencost[j, 6]
 
+        # Add charging/discharging cost
+        for i in range(nev):
+            for j in range(2 * n_stops):
+                obj += ev[i]["COST_OP"] * x[NX * T + i * NX_traffic + NX_status + j]
+
         model.setObjective(obj)
         model.Params.OutputFlag = 1
         model.Params.LogToConsole = 1
@@ -430,6 +435,7 @@ if __name__ == "__main__":
                "E0": 2,
                "EMAX": 4,
                "EMIN": 1,
+               "COST_OP": 0.01,
                })
 
     ev.append({"initial": array([1, 0, 0]),
@@ -439,6 +445,7 @@ if __name__ == "__main__":
                "E0": 2,
                "EMAX": 4,
                "EMIN": 1,
+               "COST_OP": 0.01,
                })
     traffic_power_networks = TrafficPowerNetworks()
 
