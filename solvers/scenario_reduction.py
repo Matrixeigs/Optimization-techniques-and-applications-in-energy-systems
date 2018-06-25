@@ -32,7 +32,7 @@ class ScenarioReduction():
         for i in range(n_scenario):
             for j in range(n_scenario):
                 c[i, j] = linalg.norm((scenario[i, :] - scenario[j, :]), 2)
-                c[i, j] = max([1, linalg.norm(scenario[i, :], power - 1), linalg.norm(scenario[i, :], power - 1)]) * \
+                c[i, j] = max([1, linalg.norm(scenario[i, :], power - 1), linalg.norm(scenario[j, :], power - 1)]) * \
                           c[i, j]
 
         J = arange(n_scenario)  # The original index range
