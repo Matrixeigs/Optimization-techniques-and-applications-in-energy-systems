@@ -1,6 +1,6 @@
 Optimization techniques and their applications in power systems (modelling and algorithm development)
 
-Two parts of work are presented in the optimization package.
+Two parts of works are presented in the optimization package.
 1) Modelling
 a) Optimal power flow.
 b) Economic dispatch.
