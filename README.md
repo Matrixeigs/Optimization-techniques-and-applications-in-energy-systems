@@ -1,16 +1,17 @@
-# Optimization (modelling and algorithm development)
+Optimization techniques and their applications in power systems (modelling and algorithm development)
 
 Two parts of work are presented in the optimization package.
 1) Modelling
 a) Optimal power flow.
 b) Economic dispatch.
 c) Unit commitment.
-d) Chance constrained programming.
+d) (Jointed) Chance constrained programming.
 e) Two-stage stochastic programming.
 f) Two-stage chance constrained programming.
 g) Conic programming.
 h) Online optimization.
-More models will added in the further.
+j) Distributionally robust optimization
+More models will be added in the further.
 
 2) Algorithms
 a) Interior point method
@@ -18,6 +19,9 @@ b) Branch and bound
 c) Benders decomposition
 d) Generalized Benders decomposition
 e) ADMM
+f) Column and constraint generation
+g) Scenario generation and reduction
+
 
 Three commercial software packages are required for the deployment of this package, 1) Gurobi, 2) Mosek and 3) Cplex.
 
