@@ -10,7 +10,7 @@ Two versions of optimal power flow models are proposed.
 from numpy import power, array, zeros, ones, vstack, shape, concatenate, matlib
 
 # import test cases
-from Two_stage_stochastic_optimization.power_flow_modelling import case33
+from distribution_system_optimization.test_cases import case33
 from pypower import case9, case30, case118, case6ww
 
 from gurobipy import *
@@ -206,7 +206,7 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         return sol
 
     def optimal_power_flow_microgrid(self, caseMGs, T):
-        from Two_stage_stochastic_optimization.power_flow_modelling.idx_MGs_RO import PG, QG, BETA_PG, PUG, QUG, \
+        from distribution_system_optimization.power_flow_modelling.idx_MGs_RO import PG, QG, BETA_PG, PUG, QUG, \
             BETA_UG, PBIC_AC2DC, PBIC_DC2AC, QBIC, PESS_C, PESS_DC, BETA_ESS, EESS, PMG, NX
         NMG = len(caseMGs)  # Number of hybrid AC/DC micro-grirds
         nx = NMG * T * NX

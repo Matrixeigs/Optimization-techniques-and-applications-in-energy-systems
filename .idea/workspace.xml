@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="" />
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,6 +17,7 @@
     <SUITE FILE_PATH="coverage/Optimization$two_stage_robust_unit_commitment.coverage" NAME="two_stage_robust_unit_commitment Coverage Results" MODIFIED="1529424067465" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment__1_.coverage" NAME="two_stage_unit_commitment (1) Coverage Results" MODIFIED="1529074110487" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_jointed_chance_constained_programming.coverage" NAME="two_stage_jointed_chance_constained_programming Coverage Results" MODIFIED="1529422831373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub" />
+    <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_MGs.coverage" NAME="optimal_power_flow_hybrid_AC_DC_MGs Coverage Results" MODIFIED="1529981065995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding.coverage" NAME="two_stage_bidding Coverage Results" MODIFIED="1529145749009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$test.coverage" NAME="test Coverage Results" MODIFIED="1529463651018" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Ethereum" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_basic.coverage" NAME="unit_commitment_basic Coverage Results" MODIFIED="1528982534765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
@@ -61,11 +64,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+            <state relative-caret-position="420">
+              <caret line="28" column="20" lean-forward="true" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="20" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="optimal_power_flow_hybrid_AC_DC_MGs.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="123">
+              <caret line="208" column="46" selection-start-line="208" selection-start-column="13" selection-end-line="208" selection-end-column="46" />
+              <folding>
+                <element signature="e#199#278#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -133,6 +148,7 @@
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow_area.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power.py" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" />
       </list>
     </option>
   </component>
@@ -161,6 +177,11 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="distribution_system_optimization" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -198,7 +219,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.scenario_reduction">
+  <component name="RunManager" selected="Python.optimal_power_flow_hybrid_AC_DC_MGs">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -242,25 +263,6 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
     </configuration>
-    <configuration name="case5" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/transportation_systems/test_cases" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/test_cases/case5.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
     <configuration name="optimal_deposit_problem" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -275,6 +277,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="optimal_power_flow_hybrid_AC_DC_MGs" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -437,19 +458,19 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <list>
-      <item itemvalue="Python.case5" />
       <item itemvalue="Python.optimal_deposit_problem" />
       <item itemvalue="Python.traffic_power_dispatch" />
       <item itemvalue="Python.three_stage_bidding_recovery" />
       <item itemvalue="Python.scenario_reduction" />
+      <item itemvalue="Python.optimal_power_flow_hybrid_AC_DC_MGs" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.optimal_power_flow_hybrid_AC_DC_MGs" />
         <item itemvalue="Python.scenario_reduction" />
         <item itemvalue="Python.three_stage_bidding_recovery" />
         <item itemvalue="Python.traffic_power_dispatch" />
         <item itemvalue="Python.optimal_deposit_problem" />
-        <item itemvalue="Python.case5" />
       </list>
     </recent_temporary>
   </component>
@@ -765,7 +786,14 @@
       <option name="project" value="LOCAL" />
       <updated>1529979676373</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="add gas networks">
+      <created>1529979904513</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1529979904513</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TodoView">
@@ -779,14 +807,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5035765" side_tool="true" weight="0.3987879" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32969698" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" weight="0.3090909" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" visible="true" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32969698" />
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.32761088" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
@@ -840,7 +867,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="First traffic models" />
     <MESSAGE value="remove bugs in cases, from and to matrix" />
     <MESSAGE value="update version TSN" />
     <MESSAGE value="update output parameters" />
@@ -865,7 +891,8 @@
     <MESSAGE value="add Ethereum trading package" />
     <MESSAGE value="reorganise the codes framework" />
     <MESSAGE value="update readme" />
-    <option name="LAST_COMMIT_MESSAGE" value="update readme" />
+    <MESSAGE value="add gas networks" />
+    <option name="LAST_COMMIT_MESSAGE" value="add gas networks" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1090,13 +1117,6 @@ for i in range(nev):
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2205">
-          <caret line="856" column="55" lean-forward="true" selection-start-line="856" selection-start-column="55" selection-end-line="856" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../ethereumbook/web3-contract-basic-interaction.asciidoc">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-69">
@@ -1453,8 +1473,18 @@ for i in range(nev):
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        <state relative-caret-position="420">
+          <caret line="28" column="20" lean-forward="true" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="123">
+          <caret line="208" column="46" selection-start-line="208" selection-start-column="13" selection-end-line="208" selection-end-column="46" />
+          <folding>
+            <element signature="e#199#278#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
