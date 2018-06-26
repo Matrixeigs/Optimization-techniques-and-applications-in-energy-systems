@@ -13,7 +13,7 @@ References:
 # 31 Jan 2018: The concept of observatory
 """
 
-from Two_stage_stochastic_optimization.power_flow_modelling import case33
+from distribution_system_optimization.test_cases import case33
 from pypower import runopf
 from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate, where, inf
@@ -91,7 +91,6 @@ def run(mpc):
     Vij_y = {}  # For the given branch
 
     obj = 0
-    j = 0
     for i in range(nb):  # The iteration from each bus
         Pi_x[i] = model.addVar(lb=-area[i]["SMAX"], ub=area[i]["SMAX"], vtype=GRB.CONTINUOUS,
                                name="Pi_x{0}".format(i))
@@ -117,12 +116,11 @@ def run(mpc):
         # For each branch, the following observation variables should be introduced
         # According to the sequence of lines
 
-        if area[i]["TYPE"] != "ROOT":  # If this bus is the root bus
-            Pij_y[j] = model.addVar(lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="Pij_y{0}".format(j))
-            Qij_y[j] = model.addVar(lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="Qij_y{0}".format(j))
-            Iij_y[j] = model.addVar(lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="Iij_y{0}".format(j))
-            Vij_y[j] = model.addVar(lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="Vij_y{0}".format(j))
-            j += 1
+    for i in range(nl):
+        Pij_y[i] = model.addVar(lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="Pij_y{0}".format(i))
+        Qij_y[i] = model.addVar(lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="Qij_y{0}".format(i))
+        Iij_y[i] = model.addVar(lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="Iij_y{0}".format(i))
+        Vij_y[i] = model.addVar(lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="Vij_y{0}".format(i))
 
     for i in range(nb):
         # Add constrain for each bus
@@ -177,20 +175,20 @@ def run(mpc):
         model.addConstr(pii_y[i] == pi_x[i])
         model.addConstr(qii_y[i] == qi_x[i])
         # For each branch
-    # for i in range(nl): # which stands for the observatory for each line; The observatory constraints
-    #     model.addConstr(Vij_y[i] == Vi_x[f[i]])
-    #     model.addConstr(Pij_y[i] == Pi_x[t[i]])
-    #     model.addConstr(Qij_y[i] == Qi_x[t[i]])
-    #     model.addConstr(Iij_y[i] == Ii_x[t[i]])
+    for i in range(nl):  # which stands for the observatory for each line; The observatory constraints
+        model.addConstr(Vij_y[i] == Vi_x[f[i]])
+        model.addConstr(Pij_y[i] == Pi_x[t[i]])
+        model.addConstr(Qij_y[i] == Qi_x[t[i]])
+        model.addConstr(Iij_y[i] == Ii_x[t[i]])
     # from the perspective of nodes
-    for i in range(nb):
-        if area[i]["nChildren"] != 0:
-            for j in range(area[i]["nChildren"]):
-                model.addConstr(Vi_x[i] == Vij_y[area[i]["Cbranch"][j]])
-        if area[i]["TYPE"] != "ROOT":
-            model.addConstr(Pi_x[i] == Pij_y[area[i]["Abranch"]])
-            model.addConstr(Qi_x[i] == Qij_y[area[i]["Abranch"]])
-            model.addConstr(Ii_x[i] == Iij_y[area[i]["Abranch"]])
+    # for i in range(nb):
+    #     if area[i]["nChildren"] != 0:
+    #         for j in range(area[i]["nChildren"]):
+    #             model.addConstr(Vi_x[i] == Vij_y[area[i]["Cbranch"][j]])
+    #     if area[i]["TYPE"] != "ROOT":
+    #         model.addConstr(Pi_x[i] == Pij_y[area[i]["Abranch"]])
+    #         model.addConstr(Qi_x[i] == Qij_y[area[i]["Abranch"]])
+    #         model.addConstr(Ii_x[i] == Iij_y[area[i]["Abranch"]])
     model.setObjective(obj)
     model.Params.OutputFlag = 1
     model.Params.LogToConsole = 1

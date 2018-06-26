@@ -1,21 +1,25 @@
 """
 
-Optimal power flow based on branch power flow modelling
+Optimal power flow based on branch power flow modelling for direct current power flows
 
 Additional case33 is added to the test cases
 
 Note: The proposed method has been verified
-
+# Reference:
+[1] Gan, Lingwen, and Steven H. Low. "Optimal power flow in direct current networks." IEEE Transactions on Power Systems 29.6 (2014): 2892-2904.
 @author: Tianyang Zhao
 @email: zhaoty@ntu.edu.sg
+1) Note that, the hypothesis in Theorem 1 and 2 have been verified.
+2) The upper boundary limitation of generators plays an important role in the exactness of relaxation.
 """
 
-from Two_stage_stochastic_optimization.power_flow_modelling import case33
+from distribution_system_optimization.test_cases import case33
 from pypower import runopf
 from gurobipy import *
-from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate
+from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate, power
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack, diags
+from pypower import case6ww, case9, case30, case118, case300
 
 
 def run(mpc):
@@ -46,50 +50,47 @@ def run(mpc):
     Ct = sparse((ones(nl), (i, t)), (nl, nb))
     Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
     Branch_R = branch[:, BR_R]
-    Branch_X = branch[:, BR_X]
+    # The branch resistance modification
+    for i in range(nl):
+        if Branch_R[i] <= 0:
+            Branch_R[i] = max(Branch_R)
+
     Cf = Cf.T
     Ct = Ct.T
     # Obtain the boundary information
 
     Slmax = branch[:, RATE_A] / baseMVA
     Pij_l = -Slmax
-    Qij_l = -Slmax
     Iij_l = zeros(nl)
-    Vm_l = turn_to_power(bus[:, VMIN], 2)
+    Vm_l = power(bus[:, VMIN], 2)
     Pg_l = gen[:, PMIN] / baseMVA
-    Qg_l = gen[:, QMIN] / baseMVA
 
     Pij_u = Slmax
-    Qij_u = Slmax
     Iij_u = Slmax
-    Vm_u = turn_to_power(bus[:, VMAX], 2)
-    Pg_u = 2 * gen[:, PMAX] / baseMVA
-    Qg_u = 2 * gen[:, QMAX] / baseMVA
-    lx = concatenate([Pij_l,Qij_l,Iij_l,Vm_l,Pg_l,Qg_l])
-    ux = concatenate([Pij_u, Qij_u, Iij_u, Vm_u, Pg_u, Qg_u])
+    # Vm_u = [max(turn_to_power(bus[:, VMAX], 2))] * nb
+    Vm_u = power(bus[:, VMAX], 2)
+    Pg_u = 100 * gen[:, PMAX] / baseMVA
+    # Pg_l = -Pg_u
+    lx = concatenate([Pij_l, Iij_l, Vm_l, Pg_l])
+    ux = concatenate([Pij_u, Iij_u, Vm_u, Pg_u])
     model = Model("OPF")
     # Define the decision variables
     x = {}
-    nx = 3 * nl + nb + 2 * ng
+    nx = 2 * nl + nb + ng
     for i in range(nx):
         x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
 
     # Add system level constraints
-    Aeq_p = hstack([Ct - Cf, zeros((nb, nl)), -diag(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg, zeros((nb, ng))])
+    Aeq_p = hstack([Ct - Cf, -diag(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg])
     beq_p = bus[:, PD] / baseMVA
     # Add constraints for each sub system
-    Aeq_q = hstack([zeros((nb, nl)), Ct - Cf, -diag(Ct * Branch_X) * Ct, zeros((nb, nb)), zeros((nb, ng)), Cg])
-    beq_q = bus[:, QD] / baseMVA
-    Aeq_KVL = hstack([-2 * diags(Branch_R), -2 * diags(Branch_X),
-                      diags(turn_to_power(Branch_R, 2)) + diags(turn_to_power(Branch_X, 2)), Cf.T - Ct.T,
-                      zeros((nl, 2 * ng))])
+    Aeq_KVL = hstack([-2 * diags(Branch_R), diags(power(Branch_R, 2)), Cf.T - Ct.T, zeros((nl, ng))])
     beq_KVL = zeros(nl)
 
-    Aeq = vstack([Aeq_p, Aeq_q, Aeq_KVL])
+    Aeq = vstack([Aeq_p, Aeq_KVL])
     Aeq = Aeq.todense()
-    beq = concatenate([beq_p, beq_q, beq_KVL])
+    beq = concatenate([beq_p, beq_KVL])
     neq = len(beq)
-
 
     for i in range(neq):
         expr = 0
@@ -98,12 +99,14 @@ def run(mpc):
         model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
 
     for i in range(nl):
-      model.addConstr(x[i]*x[i] + x[i+nl]*x[i+nl] <= x[i+2*nl]*x[f[i]+3*nl], name='"rc{0}"'.format(i))
+        model.addConstr(x[i] * x[i] <= x[i + nl] * x[f[i] + 2 * nl], name='"rc{0}"'.format(i))
 
     obj = 0
     for i in range(ng):
-        obj += gencost[i, 4] * x[i + 3 * nl + nb] * x[i + 3 * nl + nb] * baseMVA * baseMVA + gencost[i, 5] * x[
-            i + 3 * nl + nb] * baseMVA + gencost[i, 6]
+        obj += gencost[i, 4] * x[i + 2 * nl + nb] * x[i + 2 * nl + nb] * baseMVA * baseMVA + gencost[i, 5] * x[
+            i + 2 * nl + nb] * baseMVA + gencost[i, 6]
+    # for i in range(nl):
+    #     obj += 0.1 * (x[i + nl] * Branch_R[i])
 
     model.setObjective(obj)
     model.Params.OutputFlag = 0
@@ -118,32 +121,29 @@ def run(mpc):
     obj = obj.getValue()
 
     Pij = xx[0:nl]
-    Qij = xx[nl + 0:2 * nl]
-    Iij = xx[2 * nl:3 * nl]
-    Vi = xx[3 * nl:3 * nl + nb]
-    Pg = xx[3 * nl + nb:3 * nl + nb + ng]
-    Qg = xx[3 * nl + nb + ng:3 * nl + nb + 2 * ng]
+    Iij = xx[nl:2 * nl]
+    Vi = xx[2 * nl:2 * nl + nb]
+    Pg = xx[2 * nl + nb:2 * nl + nb + ng]
 
     primal_residual = []
 
     for i in range(nl):
-        primal_residual.append(Pij[i]*Pij[i] + Qij[i]*Qij[i] - Iij[i]*Vi[int(f[i])])
-
+        primal_residual.append(Pij[i] * Pij[i] - Iij[i] * Vi[int(f[i])])
 
     return xx, obj, primal_residual
 
-def turn_to_power(list, power=1):
-    return [number ** power for number in list]
 
 if __name__ == "__main__":
-
     from pypower import runopf
-    mpc = case33.case33()  # Default test case
-    (xx, obj,residual) = run(mpc)
+
+    # mpc = case33.case33()  # Default test case
+    mpc = case30.case30()
+
+    (xx, obj, residual) = run(mpc)
 
     result = runopf.runopf(case33.case33())
 
-    gap = 100*(result["f"]-obj)/obj
+    gap = 100 * (result["f"] - obj) / obj
 
     print(gap)
     print(max(residual))

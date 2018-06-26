@@ -1,45 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="add traffic power modelling and optimization package">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Ethereum/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Ethereum/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/TSN_test_system.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/AX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/AYDual" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/AYPrimal" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/Ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/Ws" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/hs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/lbX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/lbYDual" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/lbYPrimal" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/objX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/objYDual" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/objYPrimal" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/qs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/rhsX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/rhsYDual" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/rhsYPrimal" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/senseX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/senseYDual" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/senseYPrimal" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/ubX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/ubYDual" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/ubYPrimal" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/vtypeX" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/vtypeYDual" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/solvers/modelCSV/vtypeYPrimal" afterDir="false" />
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="update readme">
+      <change afterPath="$PROJECT_DIR$/direct_current_networks/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_basic.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/optimal_power_flow_conic_DC_network.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_bi_level.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/transmission_networks/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/Optimization.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Optimization.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py" beforeDir="false" afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_systems/traffic_power_systems/traffic_power_modelling.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/traffic_power_systems/traffic_power_modelling.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/distributed_opf_branch_power.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/opf_ADMM_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/opf_ADMM_bi_level.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_bi_level.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/opf_branch_power_flow_ADMM.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/gas_flow_modelling/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/DC_optimal_power_flow_basic.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_basic.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/dual_decomposition_opf.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/dual_decomposition_opf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/opf_branch_power.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_ADMM_centralized.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_ADMM_centralized.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_branch_power_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_branch_power_flow_area.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow_area.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_conic_DC_network.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/optimal_power_flow_conic_DC_network.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/case30.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/case33.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/case_converters.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_MGs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_MGs_RO.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_area.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_brch.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_bus.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_cost.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_gen.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/solvers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/solvers/mix_integer_solvers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/transportation_modelling/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/distributionally_robust_optimization/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/distributionally_robust_optimization/__init__.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -92,92 +109,14 @@
     <option name="HIDDEN_KINDS">
       <set />
     </option>
-    <expand>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="PowerSystemData@localhost" type="feb32156:DbDataSourceImpl" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="PowerSystemData@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="PowerSystemData@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="PowerSystemData: schema" type="c314c289:MysqlImplModel$Schema" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="PowerSystemData@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="PowerSystemData: schema" type="c314c289:MysqlImplModel$Schema" />
-        <item name="bpa2015: table" type="98d5ac3d:MysqlImplModel$Table" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="local_ems: schema" type="c314c289:MysqlImplModel$Schema" />
-      </path>
-    </expand>
+    <expand />
     <select />
   </component>
   <component name="FavoritesManager">
     <favorites_list name="Optimization" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="three_stage_bidding_recovery.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="368">
-              <caret line="683" selection-start-line="683" selection-end-line="685" selection-end-column="16" />
-              <folding>
-                <element signature="e#49#129#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="traffic_power_dispatch.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="12" column="45" lean-forward="true" selection-start-line="12" selection-start-column="45" selection-end-line="12" selection-end-column="45" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="scenario_reduction.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/scenario_reduction.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="52" column="32" selection-start-line="52" selection-start-column="32" selection-end-line="52" selection-end-column="32" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="15" column="13" lean-forward="true" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -220,11 +159,26 @@
         <option value="$PROJECT_DIR$/transportation_systems/test_cases/__init__.py" />
         <option value="$PROJECT_DIR$/transportation_systems/test_cases/case3.py" />
         <option value="$PROJECT_DIR$/transportation_systems/traffic_power_systems/__init__.py" />
-        <option value="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" />
         <option value="$PROJECT_DIR$/transportation_systems/traffic_power_systems/traffic_power_modelling.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py" />
         <option value="$PROJECT_DIR$/solvers/scenario_reduction.py" />
+        <option value="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/transmission_networks/__init__.py" />
+        <option value="$PROJECT_DIR$/../Energy-systems-modelling-and-optimization/README.md" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_bi_level.py" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/DC_optimal_power_flow_basic.py" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" />
+        <option value="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_basic.py" />
+        <option value="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" />
+        <option value="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/optimal_power_flow_conic_DC_network.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_ADMM_centralized.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow_area.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power.py" />
       </list>
     </option>
   </component>
@@ -266,10 +220,16 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
+      <recent name="$PROJECT_DIR$/solvers" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/direct_current_networks" />
+      <recent name="$PROJECT_DIR$/hybrid_AC_DC_networks" />
+      <recent name="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
       <recent name="$PROJECT_DIR$/distribution_system_optimization/test_cases" />
       <recent name="$PROJECT_DIR$/solvers/modelCSV" />
-      <recent name="$PROJECT_DIR$/solvers" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -795,7 +755,49 @@
       <option name="project" value="LOCAL" />
       <updated>1529973700980</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="update three stage bidding of energy hubs">
+      <created>1529973812665</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1529973812665</updated>
+    </task>
+    <task id="LOCAL-00037" summary="add traffic system verification systems">
+      <created>1529973848702</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1529973848702</updated>
+    </task>
+    <task id="LOCAL-00038" summary="update traffic power system modelling">
+      <created>1529973884101</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1529973884101</updated>
+    </task>
+    <task id="LOCAL-00039" summary="add Ethereum trading package">
+      <created>1529973922456</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1529973922456</updated>
+    </task>
+    <task id="LOCAL-00040" summary="update readme">
+      <created>1529975566191</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1529975566191</updated>
+    </task>
+    <task id="LOCAL-00041" summary="update readme">
+      <created>1529978666738</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1529978666738</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TodoView">
@@ -809,7 +811,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5035765" side_tool="true" weight="0.3987879" />
@@ -818,7 +819,7 @@
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32969698" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32969698" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.32761088" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.32761088" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
@@ -870,10 +871,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add conic optimal power flow" />
-    <MESSAGE value="Add convex network reconfiguration models" />
-    <MESSAGE value="update output control" />
-    <MESSAGE value="Add test systems for distribution systems" />
     <MESSAGE value="Add test systems for micro-grids" />
     <MESSAGE value="First traffic models" />
     <MESSAGE value="remove bugs in cases, from and to matrix" />
@@ -894,6 +891,10 @@
     <MESSAGE value="add traffic power modelling and optimization package" />
     <MESSAGE value="add scenario reduction algorithm" />
     <MESSAGE value="update scenario reduction index" />
+    <MESSAGE value="update three stage bidding of energy hubs" />
+    <MESSAGE value="add traffic system verification systems" />
+    <MESSAGE value="update traffic power system modelling" />
+    <MESSAGE value="add Ethereum trading package" />
     <MESSAGE value="update readme" />
     <option name="LAST_COMMIT_MESSAGE" value="update readme" />
   </component>
@@ -1120,118 +1121,6 @@ for i in range(nev):
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/GUI/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="22" column="43" lean-forward="true" selection-start-line="22" selection-start-column="43" selection-end-line="22" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_mosek.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="444">
-          <caret line="222" column="24" lean-forward="true" selection-start-line="222" selection-start-column="24" selection-end-line="222" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_programming.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-155">
-          <caret line="27" column="68" lean-forward="true" selection-start-line="27" selection-start-column="68" selection-end-line="27" selection-end-column="68" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/benders_solvers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1323">
-          <caret line="21" column="21" lean-forward="true" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/ccg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-643">
-          <caret line="142" column="19" lean-forward="true" selection-start-line="142" selection-start-column="19" selection-end-line="142" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="134" column="21" lean-forward="true" selection-start-line="134" selection-start-column="21" selection-end-line="134" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/benders_decomposition.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1509">
-          <caret line="17" column="26" selection-start-line="17" selection-start-column="26" selection-end-line="17" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/two_stage_jointed_chance_constained_programming.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="469" selection-start-line="469" selection-end-line="469" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/ethereum-2.3.1-py3.6.egg/ethereum/tools/tester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" column="4" lean-forward="true" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/interval_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/pypower/ext2int.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="111" selection-start-line="111" selection-end-line="111" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/scipy/sparse/sputils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="281" lean-forward="true" selection-start-line="281" selection-end-line="281" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/active_distribution_network.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" selection-start-line="6" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="915" column="24" lean-forward="true" selection-start-line="915" selection-start-column="24" selection-end-line="915" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/two_stage_bidding_primal_dual_cuts.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="22" column="20" lean-forward="true" selection-start-line="22" selection-start-column="20" selection-end-line="22" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2205">
@@ -1410,16 +1299,6 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="683" selection-start-line="683" selection-end-line="685" selection-end-column="16" />
-          <folding>
-            <element signature="e#49#129#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -1440,23 +1319,6 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/opf_branch_power.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="15" column="63" selection-start-line="15" selection-start-column="63" selection-end-line="15" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_ADMM_centralized.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
-          <folding>
-            <element signature="e#694#767#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="185">
@@ -1471,6 +1333,13 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/scenario_reduction.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
@@ -1478,17 +1347,145 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
+    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="13" lean-forward="true" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+        <state relative-caret-position="5259">
+          <caret line="427" column="26" selection-start-line="427" selection-start-column="26" selection-end-line="427" selection-end-column="26" />
+          <folding>
+            <element signature="e#372#455#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py">
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="12" column="45" lean-forward="true" selection-start-line="12" selection-start-column="45" selection-end-line="12" selection-end-column="45" />
+        <state relative-caret-position="640">
+          <caret line="683" selection-start-line="683" selection-end-line="685" selection-end-column="16" />
+          <folding>
+            <element signature="e#49#129#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="65" selection-start-line="12" selection-start-column="65" selection-end-line="12" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="223">
+          <caret line="15" column="48" selection-start-line="15" selection-start-column="48" selection-end-line="15" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Energy-systems-modelling-and-optimization/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/DC_optimal_power_flow_basic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="57" selection-start-line="18" selection-start-column="57" selection-end-line="18" selection-end-column="57" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="21" selection-start-line="5" selection-start-column="21" selection-end-line="5" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_basic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="33" selection-start-line="9" selection-start-column="33" selection-end-line="9" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/direct_current_networks/optimal_power_flows/optimal_power_flow_conic_DC_network.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="48" selection-start-line="15" selection-start-column="48" selection-end-line="15" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#1#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transmission_networks/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/dual_decomposition_opf.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_ADMM_centralized.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="48" selection-start-line="15" selection-start-column="48" selection-end-line="15" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="48" selection-start-line="8" selection-start-column="48" selection-end-line="8" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow_area.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="118">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+          <folding>
+            <element signature="e#327#400#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="21" lean-forward="true" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="48" selection-start-line="12" selection-start-column="48" selection-end-line="12" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_bi_level.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="48" selection-start-line="15" selection-start-column="48" selection-end-line="15" selection-end-column="48" />
         </state>
       </provider>
     </entry>
