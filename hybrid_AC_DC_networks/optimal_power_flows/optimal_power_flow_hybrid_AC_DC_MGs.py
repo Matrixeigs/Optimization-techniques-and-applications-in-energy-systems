@@ -7,11 +7,11 @@ Two versions of optimal power flow models are proposed.
 @email: zhaoty@ntu.edu.sg
 """
 
-from numpy import power, array, zeros, ones, vstack, shape, concatenate, matlib
+from numpy import power, array, zeros, ones, vstack, shape, concatenate
 
 # import test cases
 from distribution_system_optimization.test_cases import case33
-from pypower import case9, case30, case118, case6ww
+from pypower import case30
 
 from gurobipy import *
 
@@ -206,7 +206,7 @@ class MultipleMicrogridsDirect_CurrentNetworks():
         return sol
 
     def optimal_power_flow_microgrid(self, caseMGs, T):
-        from distribution_system_optimization.power_flow_modelling.idx_MGs_RO import PG, QG, BETA_PG, PUG, QUG, \
+        from distribution_system_optimization.data_format.idx_MGs_RO import PG, QG, BETA_PG, PUG, QUG, \
             BETA_UG, PBIC_AC2DC, PBIC_DC2AC, QBIC, PESS_C, PESS_DC, BETA_ESS, EESS, PMG, NX
         NMG = len(caseMGs)  # Number of hybrid AC/DC micro-grirds
         nx = NMG * T * NX
@@ -381,9 +381,9 @@ class MultipleMicrogridsDirect_CurrentNetworks():
             :param case: The microgrids information
             :return: formulated DC networks models
             """
-        from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
-        from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
-        from pypower.idx_gen import GEN_BUS, VG, PG, QG, PMAX, PMIN, QMAX, QMIN
+        from pypower.idx_brch import F_BUS, T_BUS, BR_X, RATE_A
+        from pypower.idx_bus import PD, VMAX, VMIN
+        from pypower.idx_gen import GEN_BUS, PMAX, PMIN
         from pypower.ext2int import ext2int
         from scipy.sparse import csr_matrix as sparse
         from scipy.sparse import hstack, vstack, diags
