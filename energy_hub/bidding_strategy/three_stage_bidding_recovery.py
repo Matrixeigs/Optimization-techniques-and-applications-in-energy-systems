@@ -224,21 +224,21 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
         Order[i, :] = np.argsort(Price_DA[i, :])
 
     # save the scenario in the second stage
-    # f = open("ac_pd_second_stage.txt", "w+")
-    # np.savetxt(f, AC_PD_second_stage, '%.18g', delimiter=',')
-    # f.close()
-    # f = open("dc_pd_second_stage.txt", "w+")
-    # np.savetxt(f, DC_PD_second_stage, '%.18g', delimiter=',')
-    # f.close()
-    # f = open("pv_second_stage.txt", "w+")
-    # np.savetxt(f, PV_second_stage, '%.18g', delimiter=',')
-    # f.close()
-    # f = open("price_second_stage.txt", "w+")
-    # np.savetxt(f, ELEC_PRICE_second_stage, '%.18g', delimiter=',')
-    # f.close()
-    # f = open("price_first_stage.txt", "w+")
-    # np.savetxt(f, Price_DA, '%.18g', delimiter=',')
-    # f.close()
+    f = open("ac_pd_second_stage.txt", "w+")
+    np.savetxt(f, AC_PD_second_stage, '%.18g', delimiter=',')
+    f.close()
+    f = open("dc_pd_second_stage.txt", "w+")
+    np.savetxt(f, DC_PD_second_stage, '%.18g', delimiter=',')
+    f.close()
+    f = open("pv_second_stage.txt", "w+")
+    np.savetxt(f, PV_second_stage, '%.18g', delimiter=',')
+    f.close()
+    f = open("price_second_stage.txt", "w+")
+    np.savetxt(f, ELEC_PRICE_second_stage, '%.18g', delimiter=',')
+    f.close()
+    f = open("price_first_stage.txt", "w+")
+    np.savetxt(f, Price_DA, '%.18g', delimiter=',')
+    f.close()
     # load the scenarios
     f = open("ac_pd_second_stage.txt", "r+")
     AC_PD_second_stage = np.loadtxt(f, delimiter=',')
@@ -559,7 +559,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
     model.Params.DisplayInterval = 1
     model.Params.LogFile = ""
     model.Params.MIPGap = 10 ** -3
-    model.Params.timeLimit = 2 * 10 ** 2
+    model.Params.timeLimit = 2 * 10 ** 3
 
     model.optimize()
 
@@ -682,5 +682,5 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
 
 
 if __name__ == "__main__":
-    model = main(10, 100)
+    model = main(5, 20)
     print(model)
