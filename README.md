@@ -2,16 +2,12 @@ Optimization techniques and their applications in power systems (modelling and a
 
 Two parts of works are presented in the optimization package.
 1) Modelling
-a) Optimal power flow.
-b) Economic dispatch.
-c) Unit commitment.
-d) (Jointed) Chance constrained programming.
-e) Two-stage stochastic programming.
-f) Two-stage chance constrained programming.
-g) Conic programming.
-h) Online optimization.
-j) Distributionally robust optimization
-More models will be added in the further.
+a) AC networks
+b) DC networks
+c) Hybrid AC/DC networks
+d) Thermal systems
+e) Transportation systems
+f) Gas systems
 
 2) Algorithms
 a) Interior point method
