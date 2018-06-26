@@ -355,6 +355,7 @@ class TrafficPowerNetworks():
         model.Params.OutputFlag = 1
         model.Params.LogToConsole = 1
         model.Params.DisplayInterval = 1
+        model.Params.MIPGap = 0.01
         model.Params.LogFile = ""
 
         model.optimize()
@@ -423,7 +424,9 @@ if __name__ == "__main__":
     electricity_networks = case33()  # Default test case
     traffic_networks = case3.transportation_network()  # Default test case
 
-    load_profile = array([0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14])
+    load_profile = array(
+        [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00])
     # load_profile = array([0.14])
 
     ev = []
@@ -447,6 +450,61 @@ if __name__ == "__main__":
                "EMIN": 1,
                "COST_OP": 0.01,
                })
+    ev.append({"initial": array([1, 0, 0]),
+               "end": array([0, 0, 1]),
+               "PCMAX": 0.5,
+               "PDMAX": 0.5,
+               "E0": 2,
+               "EMAX": 4,
+               "EMIN": 1,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0]),
+               "end": array([0, 0, 1]),
+               "PCMAX": 0.5,
+               "PDMAX": 0.5,
+               "E0": 2,
+               "EMAX": 4,
+               "EMIN": 1,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0]),
+               "end": array([0, 0, 1]),
+               "PCMAX": 0.5,
+               "PDMAX": 0.5,
+               "E0": 2,
+               "EMAX": 4,
+               "EMIN": 1,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0]),
+               "end": array([0, 0, 1]),
+               "PCMAX": 0.5,
+               "PDMAX": 0.5,
+               "E0": 2,
+               "EMAX": 4,
+               "EMIN": 1,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0]),
+               "end": array([0, 0, 1]),
+               "PCMAX": 0.5,
+               "PDMAX": 0.5,
+               "E0": 2,
+               "EMAX": 4,
+               "EMIN": 1,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0]),
+               "end": array([0, 0, 1]),
+               "PCMAX": 0.5,
+               "PDMAX": 0.5,
+               "E0": 2,
+               "EMAX": 4,
+               "EMIN": 1,
+               "COST_OP": 0.01,
+               })
+
     traffic_power_networks = TrafficPowerNetworks()
 
     (xx, obj, residual) = traffic_power_networks.run(electricity_networks=electricity_networks,
