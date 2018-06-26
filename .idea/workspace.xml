@@ -1,63 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="update readme">
-      <change afterPath="$PROJECT_DIR$/direct_current_networks/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_basic.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/optimal_power_flow_conic_DC_network.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_bi_level.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/transmission_networks/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Optimization.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Optimization.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/distributed_opf_branch_power.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/opf_ADMM_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/opf_ADMM_bi_level.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_bi_level.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/distributed_optimization/opf_branch_power_flow_ADMM.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/gas_flow_modelling/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/DC_optimal_power_flow_basic.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_basic.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/dual_decomposition_opf.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/dual_decomposition_opf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/opf_branch_power.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_ADMM_centralized.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_ADMM_centralized.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_branch_power_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_branch_power_flow_area.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow_area.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_conic_DC_network.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/optimal_power_flows/optimal_power_flow_conic_DC_network.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/case30.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/case33.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/case_converters.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_MGs.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_MGs_RO.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_area.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_brch.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_bus.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_cost.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/power_flow_modelling/idx_gen.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/solvers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/solvers/mix_integer_solvers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Two_stage_stochastic_optimization/transportation_modelling/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/distributionally_robust_optimization/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/distributionally_robust_optimization/__init__.py" afterDir="false" />
-    </list>
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -116,7 +60,17 @@
     <favorites_list name="Optimization" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -163,7 +117,6 @@
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py" />
         <option value="$PROJECT_DIR$/solvers/scenario_reduction.py" />
         <option value="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/transmission_networks/__init__.py" />
         <option value="$PROJECT_DIR$/../Energy-systems-modelling-and-optimization/README.md" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" />
@@ -179,6 +132,7 @@
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow_area.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power.py" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -797,7 +751,21 @@
       <option name="project" value="LOCAL" />
       <updated>1529978666738</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="reorganise the codes framework">
+      <created>1529979343705</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1529979343705</updated>
+    </task>
+    <task id="LOCAL-00043" summary="update readme">
+      <created>1529979676373</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1529979676373</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TodoView">
@@ -811,6 +779,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5035765" side_tool="true" weight="0.3987879" />
@@ -871,7 +840,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add test systems for micro-grids" />
     <MESSAGE value="First traffic models" />
     <MESSAGE value="remove bugs in cases, from and to matrix" />
     <MESSAGE value="update version TSN" />
@@ -895,6 +863,7 @@
     <MESSAGE value="add traffic system verification systems" />
     <MESSAGE value="update traffic power system modelling" />
     <MESSAGE value="add Ethereum trading package" />
+    <MESSAGE value="reorganise the codes framework" />
     <MESSAGE value="update readme" />
     <option name="LAST_COMMIT_MESSAGE" value="update readme" />
   </component>
@@ -1333,13 +1302,6 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/scenario_reduction.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
@@ -1486,6 +1448,13 @@ for i in range(nev):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="15" column="48" selection-start-line="15" selection-start-column="48" selection-end-line="15" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
