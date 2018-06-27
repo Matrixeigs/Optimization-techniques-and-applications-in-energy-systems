@@ -224,15 +224,17 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     for i in range(T):
         Order[i, :] = np.argsort(Price_DA[i, :])
 
-    Scenario = concatenate([AC_PD_second_stage, DC_PD_second_stage, PV_second_stage])  # These scenario are i.i.d
+    Scenario = concatenate([AC_PD_second_stage, DC_PD_second_stage, PV_second_stage],
+                           axis=0)  # These scenario are i.i.d
     Scenario = Scenario.transpose()
     scenario_reduction = ScenarioReduction()
     (scenario_reduced, weight_second_stage) = scenario_reduction.run(scenario=Scenario, weight=weight_second_stage,
-                                                                     n_reduced=N_scenario_second_stage, power=2)
+                                                                     n_reduced=N_scenario_second_reduced, power=2)
     scenario_reduced = scenario_reduced.transpose()
-    AC_PD_second_stage = scenario_reduced[0:N_scenario_second_reduced, :]
-    DC_PD_second_stage = scenario_reduced[N_scenario_second_reduced:2 * N_scenario_second_reduced, :]
-    PV_second_stage = scenario_reduced[2 * N_scenario_second_reduced:3 * N_scenario_second_reduced, :]
+    N_scenario_second_stage -= N_scenario_second_reduced
+    AC_PD_second_stage = scenario_reduced[0:T, :]
+    DC_PD_second_stage = scenario_reduced[T:2 * T, :]
+    PV_second_stage = scenario_reduced[2 * T:3 * T, :]
 
     # save the scenario in the second stage
     f = open("ac_pd_second_stage.txt", "w+")
@@ -541,8 +543,8 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     for i in range(N_scenario_first_stage):
         expr = 0
         for j in range(N_scenario_second_stage):
-            expr += Recovery_index[i, j]
-        model.addConstr(expr <= relaxation_level * N_scenario_second_stage)
+            expr += Recovery_index[i, j] * weight_second_stage[j]
+        model.addConstr(expr <= relaxation_level)
 
     ## Formulate the objective functions
     # The first stage objective value
@@ -700,5 +702,5 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
 
 
 if __name__ == "__main__":
-    model = main(10, 1000, 20)
+    model = main(10, 100, 80)
     print(model)
