@@ -24,7 +24,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     Lam = 1
     Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
     bigM = 10 ** 2
-    relaxation_level = 0.1
+    relaxation_level = 0.20
 
     # For the HVAC system
     # 2) Thermal system configuration
@@ -224,37 +224,37 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     for i in range(T):
         Order[i, :] = np.argsort(Price_DA[i, :])
 
-    Scenario = concatenate([AC_PD_second_stage, DC_PD_second_stage, PV_second_stage],
-                           axis=0)  # These scenario are i.i.d
-    Scenario = Scenario.transpose()
-    scenario_reduction = ScenarioReduction()
-    (scenario_reduced, weight_second_stage) = scenario_reduction.run(scenario=Scenario, weight=weight_second_stage,
-                                                                     n_reduced=N_scenario_second_reduced, power=2)
-    scenario_reduced = scenario_reduced.transpose()
+    # Scenario = concatenate([AC_PD_second_stage, DC_PD_second_stage, PV_second_stage],
+    #                        axis=0)  # These scenario are i.i.d
+    # Scenario = Scenario.transpose()
+    # scenario_reduction = ScenarioReduction()
+    # (scenario_reduced, weight_second_stage) = scenario_reduction.run(scenario=Scenario, weight=weight_second_stage,
+    #                                                                  n_reduced=N_scenario_second_reduced, power=2)
+    # scenario_reduced = scenario_reduced.transpose()
     N_scenario_second_stage -= N_scenario_second_reduced
-    AC_PD_second_stage = scenario_reduced[0:T, :]
-    DC_PD_second_stage = scenario_reduced[T:2 * T, :]
-    PV_second_stage = scenario_reduced[2 * T:3 * T, :]
+    # AC_PD_second_stage = scenario_reduced[0:T, :]
+    # DC_PD_second_stage = scenario_reduced[T:2 * T, :]
+    # PV_second_stage = scenario_reduced[2 * T:3 * T, :]
 
     # save the scenario in the second stage
-    f = open("ac_pd_second_stage.txt", "w+")
-    np.savetxt(f, AC_PD_second_stage, '%.18g', delimiter=',')
-    f.close()
-    f = open("dc_pd_second_stage.txt", "w+")
-    np.savetxt(f, DC_PD_second_stage, '%.18g', delimiter=',')
-    f.close()
-    f = open("pv_second_stage.txt", "w+")
-    np.savetxt(f, PV_second_stage, '%.18g', delimiter=',')
-    f.close()
-    # f = open("price_second_stage.txt", "w+")
-    # np.savetxt(f, ELEC_PRICE_second_stage, '%.18g', delimiter=',')
+    # f = open("ac_pd_second_stage.txt", "w+")
+    # np.savetxt(f, AC_PD_second_stage, '%.18g', delimiter=',')
     # f.close()
-    f = open("price_first_stage.txt", "w+")
-    np.savetxt(f, Price_DA, '%.18g', delimiter=',')
-    f.close()
-    f = open("weight_second_stage.txt", "w+")
-    np.savetxt(f, weight_second_stage, '%.18g', delimiter=',')
-    f.close()
+    # f = open("dc_pd_second_stage.txt", "w+")
+    # np.savetxt(f, DC_PD_second_stage, '%.18g', delimiter=',')
+    # f.close()
+    # f = open("pv_second_stage.txt", "w+")
+    # np.savetxt(f, PV_second_stage, '%.18g', delimiter=',')
+    # f.close()
+    # # f = open("price_second_stage.txt", "w+")
+    # # np.savetxt(f, ELEC_PRICE_second_stage, '%.18g', delimiter=',')
+    # # f.close()
+    # f = open("price_first_stage.txt", "w+")
+    # np.savetxt(f, Price_DA, '%.18g', delimiter=',')
+    # f.close()
+    # f = open("weight_second_stage.txt", "w+")
+    # np.savetxt(f, weight_second_stage, '%.18g', delimiter=',')
+    # f.close()
 
     # load the scenarios
     f = open("ac_pd_second_stage.txt", "r+")
@@ -578,7 +578,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     model.Params.LogToConsole = 1
     model.Params.DisplayInterval = 1
     model.Params.LogFile = ""
-    model.Params.MIPGap = 10 ** -3
+    model.Params.MIPGap = 2 * 10 ** -2
     model.Params.timeLimit = 2 * 10 ** 3
 
     model.optimize()
