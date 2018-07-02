@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py" beforeDir="false" afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py" afterDir="false" />
-    </list>
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -81,8 +77,8 @@
       <file leaf-file-name="robust_saa.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="3" lean-forward="true" selection-start-line="10" selection-start-column="3" selection-end-line="10" selection-end-column="3" />
+            <state relative-caret-position="315">
+              <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
             </state>
           </provider>
         </entry>
@@ -182,17 +178,6 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="solvers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="solvers" type="462c0819:PsiDirectoryNode" />
-              <item name="distributionally_robust_optimization" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -833,7 +818,14 @@
       <option name="project" value="LOCAL" />
       <updated>1530063608387</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="add robust saa solvers">
+      <created>1530258769971</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1530258769971</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TodoView">
@@ -847,7 +839,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="820" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5035765" side_tool="true" weight="0.3987879" />
@@ -908,7 +899,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="remove bugs in connection matrix formulation" />
     <MESSAGE value="test complex models" />
     <MESSAGE value="add case3 test system" />
     <MESSAGE value="add dynamic optimal power flow" />
@@ -933,7 +923,8 @@
     <MESSAGE value="upload data format" />
     <MESSAGE value="add scenario reduction algorithm" />
     <MESSAGE value="remove bugs in scenario reduction" />
-    <option name="LAST_COMMIT_MESSAGE" value="remove bugs in scenario reduction" />
+    <MESSAGE value="add robust saa solvers" />
+    <option name="LAST_COMMIT_MESSAGE" value="add robust saa solvers" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1464,8 +1455,8 @@ for i in range(nev):
     </entry>
     <entry file="file://$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="3" lean-forward="true" selection-start-line="10" selection-start-column="3" selection-end-line="10" selection-end-column="3" />
+        <state relative-caret-position="315">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
         </state>
       </provider>
     </entry>
