@@ -13,11 +13,12 @@ The operation cost of heat and cooling storage are taken from
 [3] Stochastic optimization of energy hub operation with consideration of thermal energy market and demand response
 """
 
-from numpy import zeros, ones, array, eye, hstack, vstack, inf, transpose, where
+from numpy import zeros, ones, array, eye, hstack, vstack, inf, transpose, concatenate
 import numpy as np
 from gurobipy import *
 from matplotlib import pyplot
 from scipy import stats
+from solvers.scenario_reduction import ScenarioReduction
 
 
 def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_second_reduced=20, alpha=0.9,
@@ -234,38 +235,53 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
         for j in range(T):
             Price_DA[j, i] = ELEC_PRICE_DA[j] * (1 + np.random.normal(0, forecasting_errors_prices))
 
+    Scenario = concatenate([AC_PD_second_stage, DC_PD_second_stage, PV_second_stage, Temperature_second_stage],
+                           axis=0)  # These scenario are i.i.d
+    Scenario = Scenario.transpose()
+    scenario_reduction = ScenarioReduction()
+    (scenario_reduced, weight_second_stage) = scenario_reduction.run(scenario=Scenario, weight=weight_second_stage,
+                                                                     n_reduced=N_scenario_second_reduced, power=2)
+    scenario_reduced = scenario_reduced.transpose()
+    N_scenario_second_stage -= N_scenario_second_reduced
+    AC_PD_second_stage = scenario_reduced[0:T, :]
+    DC_PD_second_stage = scenario_reduced[T:2 * T, :]
+    PV_second_stage = scenario_reduced[2 * T:3 * T, :]
+    Temperature_second_stage = scenario_reduced[3 * T:4 * T, :]
+
     # save the scenario in the second stage
-    # f = open("ac_pd_second_stage.txt", "w+")
-    # np.savetxt(f, AC_PD_second_stage, '%.18g', delimiter=',')
-    # f.close()
-    # f = open("dc_pd_second_stage.txt", "w+")
-    # np.savetxt(f, DC_PD_second_stage, '%.18g', delimiter=',')
-    # f.close()
-    # f = open("pv_second_stage.txt", "w+")
-    # np.savetxt(f, PV_second_stage, '%.18g', delimiter=',')
-    # f.close()
-    # f = open("price_second_stage.txt", "w+")
-    # np.savetxt(f, ELEC_PRICE_second_stage, '%.18g', delimiter=',')
-    # f.close()
-    # f = open("price_first_stage.txt", "w+")
-    # np.savetxt(f, Price_DA, '%.18g', delimiter=',')
-    # f.close()
+    f = open("ac_pd_second_stage.txt", "w+")
+    np.savetxt(f, AC_PD_second_stage, '%.18g', delimiter=',')
+    f.close()
+    f = open("dc_pd_second_stage.txt", "w+")
+    np.savetxt(f, DC_PD_second_stage, '%.18g', delimiter=',')
+    f.close()
+    f = open("pv_second_stage.txt", "w+")
+    np.savetxt(f, PV_second_stage, '%.18g', delimiter=',')
+    f.close()
+    f = open("price_first_stage.txt", "w+")
+    np.savetxt(f, Price_DA, '%.18g', delimiter=',')
+    f.close()
+    f = open("temperature_second_stage.txt", "w+")
+    np.savetxt(f, Temperature_second_stage, '%.18g', delimiter=',')
+    f.close()
+
+
     # load the scenarios
-    # f = open("ac_pd_second_stage.txt", "r+")
-    # AC_PD_second_stage = np.loadtxt(f, delimiter=',')
-    # f.close()
-    # f = open("dc_pd_second_stage.txt", "r+")
-    # DC_PD_second_stage = np.loadtxt(f, delimiter=',')
-    # f.close()
-    # f = open("pv_second_stage.txt", "r+")
-    # PV_second_stage = np.loadtxt(f, delimiter=',')
-    # f.close()
-    # f = open("price_second_stage.txt", "r+")
-    # ELEC_PRICE_second_stage = np.loadtxt(f, delimiter=',')
-    # f.close()
-    # f = open("price_first_stage.txt", "r+")
-    # Price_DA = np.loadtxt(f, delimiter=',')
-    # f.close()
+    f = open("ac_pd_second_stage.txt", "r+")
+    AC_PD_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
+    f = open("dc_pd_second_stage.txt", "r+")
+    DC_PD_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
+    f = open("pv_second_stage.txt", "r+")
+    PV_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
+    f = open("price_first_stage.txt", "r+")
+    Price_DA = np.loadtxt(f, delimiter=',')
+    f.close()
+    f = open("temperature_second_stage.txt", "r+")
+    Temperature_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
 
     # Generate the order bidding curve, the constrain will be added from the highest order to the  lowest
     Order = zeros((T, N_scenario_first_stage))
