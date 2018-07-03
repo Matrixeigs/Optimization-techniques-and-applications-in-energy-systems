@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" beforeDir="false" afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" beforeDir="false" afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -69,13 +69,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="three_stage_bidding_pes.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="three_stage_bidding_pes.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+            <state relative-caret-position="401">
+              <caret line="762" column="14" lean-forward="true" selection-start-line="15" selection-end-line="762" selection-end-column="14" />
               <folding>
-                <element signature="e#49#129#0" expanded="true" />
+                <element signature="e#548#634#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_cases.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="401">
+              <caret line="598" column="4" selection-start-line="598" selection-start-column="4" selection-end-line="598" selection-end-column="4" />
+              <folding>
+                <element signature="e#137#197#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -84,8 +96,8 @@
       <file leaf-file-name="three_stage_bidding_aggregration.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="597" column="26" lean-forward="true" selection-start-line="597" selection-start-column="26" selection-end-line="597" selection-end-column="26" />
+            <state relative-caret-position="142">
+              <caret line="222" selection-start-line="222" selection-end-line="232" selection-end-column="56" />
             </state>
           </provider>
         </entry>
@@ -160,8 +172,8 @@
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py" />
         <option value="$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py" />
-        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
+        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" />
       </list>
     </option>
   </component>
@@ -505,20 +517,6 @@
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
     </task>
-    <task id="LOCAL-00004" summary="remove bugs in master problem">
-      <created>1529141475011</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1529141475011</updated>
-    </task>
-    <task id="LOCAL-00005" summary="primal dual cuts version">
-      <created>1529141514263</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1529141514263</updated>
-    </task>
     <task id="LOCAL-00006" summary="recovery version">
       <created>1529141535827</created>
       <option name="number" value="00006" />
@@ -848,7 +846,21 @@
       <option name="project" value="LOCAL" />
       <updated>1530580900752</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="double check the parameters">
+      <created>1530587844166</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1530587844166</updated>
+    </task>
+    <task id="LOCAL-00054" summary="update scenario reduction module">
+      <created>1530592520950</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1530592520951</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="TodoView">
@@ -871,13 +883,13 @@
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32918397" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32969698" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.3762518" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.3762518" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.5020161" side_tool="true" weight="0.32331902" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49570817" visible="true" weight="0.3987879" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49570817" visible="true" weight="0.3987879" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -923,8 +935,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update import case path" />
-    <MESSAGE value="merge the first vehicle" />
     <MESSAGE value="add multiple vehicles" />
     <MESSAGE value="mapping between traffic and power networks" />
     <MESSAGE value="Add energy status control of ESSs" />
@@ -948,7 +958,9 @@
     <MESSAGE value="add test cases" />
     <MESSAGE value="add paper version" />
     <MESSAGE value="add relaxation" />
-    <option name="LAST_COMMIT_MESSAGE" value="add relaxation" />
+    <MESSAGE value="double check the parameters" />
+    <MESSAGE value="update scenario reduction module" />
+    <option name="LAST_COMMIT_MESSAGE" value="update scenario reduction module" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -975,12 +987,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py</url>
-          <line>729</line>
+          <line>748</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py</url>
-          <line>721</line>
+          <line>740</line>
           <option name="timeStamp" value="136" />
         </line-breakpoint>
       </breakpoints>
@@ -1151,13 +1163,6 @@ for i in range(nev):
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="44" column="34" selection-start-line="44" selection-start-column="34" selection-end-line="44" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Ethereum/test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -1432,13 +1437,6 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="3" lean-forward="true" selection-start-line="4" selection-start-column="3" selection-end-line="4" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
@@ -1472,17 +1470,34 @@ for i in range(nev):
     </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="597" column="26" lean-forward="true" selection-start-line="597" selection-start-column="26" selection-end-line="597" selection-end-column="26" />
+        <state relative-caret-position="142">
+          <caret line="222" selection-start-line="222" selection-end-line="232" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/price_first_stage.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="23" lean-forward="true" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        <state relative-caret-position="401">
+          <caret line="762" column="14" lean-forward="true" selection-start-line="15" selection-end-line="762" selection-end-column="14" />
           <folding>
-            <element signature="e#49#129#0" expanded="true" />
+            <element signature="e#548#634#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="401">
+          <caret line="598" column="4" selection-start-line="598" selection-start-column="4" selection-end-line="598" selection-end-column="4" />
+          <folding>
+            <element signature="e#137#197#0" expanded="true" />
           </folding>
         </state>
       </provider>
