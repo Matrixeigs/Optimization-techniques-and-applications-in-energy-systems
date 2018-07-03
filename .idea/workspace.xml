@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" beforeDir="false" afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -41,6 +41,7 @@
     <SUITE FILE_PATH="coverage/Optimization$ccg_benders_decomposition.coverage" NAME="ccg_benders_decomposition Coverage Results" MODIFIED="1529422687913" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_programming.coverage" NAME="mixed_integer_quadratic_programming Coverage Results" MODIFIED="1529422374406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_distributed.coverage" NAME="unit_commitment_distributed Coverage Results" MODIFIED="1529030430079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_pes.coverage" NAME="three_stage_bidding_pes Coverage Results" MODIFIED="1530585760848" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$network_reconfiguration.coverage" NAME="network_reconfiguration Coverage Results" MODIFIED="1529423689995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_stochastic_unit_commitment.coverage" NAME="two_stage_stochastic_unit_commitment Coverage Results" MODIFIED="1529287857749" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$benders_solvers.coverage" NAME="benders_solvers Coverage Results" MODIFIED="1529422671060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
@@ -68,41 +69,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ccg_benders_decomposition.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" column="43" selection-start-line="25" selection-start-column="43" selection-end-line="25" selection-end-column="43" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="robust_saa.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="three_stage_bidding.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="643">
-              <caret line="110" selection-end-line="648" />
-              <folding>
-                <element signature="e#49#129#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="three_stage_bidding_pes.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="239">
-              <caret line="301" column="42" selection-start-line="301" selection-start-column="42" selection-end-line="301" selection-end-column="42" />
+            <state relative-caret-position="102">
+              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
               <folding>
                 <element signature="e#49#129#0" expanded="true" />
               </folding>
@@ -110,11 +81,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="three_stage_bidding_recovery.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
+      <file leaf-file-name="three_stage_bidding_aggregration.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="261">
-              <caret line="292" selection-start-line="292" selection-end-line="298" selection-end-column="104" />
+            <state relative-caret-position="257">
+              <caret line="597" column="26" lean-forward="true" selection-start-line="597" selection-start-column="26" selection-end-line="597" selection-end-column="26" />
             </state>
           </provider>
         </entry>
@@ -127,6 +98,11 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>pRT_positive</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="PUSH_AUTO_UPDATE" value="true" />
@@ -195,9 +171,9 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" fullScreen="true">
     <option name="width" value="1440" />
-    <option name="height" value="820" />
+    <option name="height" value="900" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -263,7 +239,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.three_stage_bidding_aggregration">
+  <component name="RunManager" selected="Python.three_stage_bidding_pes">
     <configuration name="distributed_opf_branch_power" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -302,25 +278,6 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="scenario_reduction" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/scenario_reduction.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
     <configuration name="three_stage_bidding_CVaR" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -354,6 +311,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="three_stage_bidding_pes" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/energy_hub/bidding_strategy" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -502,19 +478,19 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <list>
-      <item itemvalue="Python.scenario_reduction" />
       <item itemvalue="Python.optimal_power_flow_hybrid_AC_DC_MGs" />
       <item itemvalue="Python.distributed_opf_branch_power" />
       <item itemvalue="Python.three_stage_bidding_CVaR" />
       <item itemvalue="Python.three_stage_bidding_aggregration" />
+      <item itemvalue="Python.three_stage_bidding_pes" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.three_stage_bidding_pes" />
         <item itemvalue="Python.three_stage_bidding_aggregration" />
         <item itemvalue="Python.three_stage_bidding_CVaR" />
         <item itemvalue="Python.distributed_opf_branch_power" />
         <item itemvalue="Python.optimal_power_flow_hybrid_AC_DC_MGs" />
-        <item itemvalue="Python.scenario_reduction" />
       </list>
     </recent_temporary>
   </component>
@@ -528,20 +504,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00002" summary="add binary control">
-      <created>1529118176665</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1529118176665</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Modify relaxation control">
-      <created>1529122870953</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1529122870953</updated>
     </task>
     <task id="LOCAL-00004" summary="remove bugs in master problem">
       <created>1529141475011</created>
@@ -872,7 +834,21 @@
       <option name="project" value="LOCAL" />
       <updated>1530548016902</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="add paper version">
+      <created>1530580821761</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1530580821761</updated>
+    </task>
+    <task id="LOCAL-00052" summary="add relaxation">
+      <created>1530580900751</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1530580900752</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TodoView">
@@ -885,23 +861,23 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1440" height="820" extended-state="0" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5035765" side_tool="true" weight="0.3987879" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50429183" side_tool="true" weight="0.3987879" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49928468" weight="0.32918397" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32918397" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32969698" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.3762518" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.3762518" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.5020161" side_tool="true" weight="0.32331902" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49642345" weight="0.3987879" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49570817" visible="true" weight="0.3987879" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -947,8 +923,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add case3 test system" />
-    <MESSAGE value="add dynamic optimal power flow" />
     <MESSAGE value="update import case path" />
     <MESSAGE value="merge the first vehicle" />
     <MESSAGE value="add multiple vehicles" />
@@ -972,7 +946,9 @@
     <MESSAGE value="remove bugs in scenario reduction" />
     <MESSAGE value="add robust saa solvers" />
     <MESSAGE value="add test cases" />
-    <option name="LAST_COMMIT_MESSAGE" value="add test cases" />
+    <MESSAGE value="add paper version" />
+    <MESSAGE value="add relaxation" />
+    <option name="LAST_COMMIT_MESSAGE" value="add relaxation" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -994,8 +970,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py</url>
-          <line>697</line>
+          <line>731</line>
           <option name="timeStamp" value="131" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py</url>
+          <line>729</line>
+          <option name="timeStamp" value="135" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py</url>
+          <line>721</line>
+          <option name="timeStamp" value="136" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1005,11 +991,85 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="135" />
+      <option name="time" value="140" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>obj_DA = 0
+for i in range(T):
+    for j in range(N_scenario_first_stage):
+        obj_DA += pDA[i, j] * Price_DA[i, j] * weight_first_stage[j]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for j in range(N_scenario_second_stage):
+    expr = 0
+    for k in range(N_scenario_first_stage):
+        for i in range(T):
+            expr += PRT[i, j, k] * ELEC_PRICE[i]
+            expr += PRT_positive[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight
+            expr += PRT_negative[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight
+            expr += PESS_DC[i, j, k] * ESS[&quot;BESS&quot;][&quot;COST&quot;]
+            expr += PESS_CH[i, j, k] * ESS[&quot;BESS&quot;][&quot;COST&quot;]
+            expr += QHS_DC[i, j, k] * ESS[&quot;TESS&quot;][&quot;COST&quot;]
+            expr += QHS_CH[i, j, k] * ESS[&quot;TESS&quot;][&quot;COST&quot;]
+            expr += QCS_DC[i, j, k] * ESS[&quot;CESS&quot;][&quot;COST&quot;]
+            expr += QCS_CH[i, j, k] * ESS[&quot;CESS&quot;][&quot;COST&quot;]
+            expr += VGAS[i, j, k] * CCHP[&quot;COST&quot;]
+            expr += VCHP[i, j, k] * CCHP[&quot;COST&quot;]
+            expr += pDA[i, k] * Price_DA[i, k]* weight_first_stage[k]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for j in range(N_scenario_second_stage):
+    expr = 0
+    for k in range(N_scenario_first_stage):
+        for i in range(T):
+            expr += pRT[i, j, k] * ELEC_PRICE[i]
+            expr += pRT_positive[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight
+            expr += pRT_negative[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight
+            expr += pESS_DC[i, j, k] * ESS[&quot;BESS&quot;][&quot;COST&quot;]
+            expr += pESS_CH[i, j, k] * ESS[&quot;BESS&quot;][&quot;COST&quot;]
+            expr += qHS_DC[i, j, k] * ESS[&quot;TESS&quot;][&quot;COST&quot;]
+            expr += qHS_CH[i, j, k] * ESS[&quot;TESS&quot;][&quot;COST&quot;]
+            expr += qCS_DC[i, j, k] * ESS[&quot;CESS&quot;][&quot;COST&quot;]
+            expr += qCS_CH[i, j, k] * ESS[&quot;CESS&quot;][&quot;COST&quot;]
+            expr += vGAS[i, j, k] * CCHP[&quot;COST&quot;]
+            expr += vCHP[i, j, k] * CCHP[&quot;COST&quot;]
+            expr += PDA[i, k] * Price_DA[i, k]* weight_first_stage[k]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for i in range(N_scenario_second_stage):
+    Nu_index[i] = model.getVarByName(&quot;NU_INDEX{0}&quot;.format(i)).X</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>EPISON = model.getVarByName(&quot;EPISON&quot;).X
+Nu_index = zeros(N_scenario_second_stage)
+for i in range(N_scenario_second_stage):
+    Nu_index[i] = model.getVarByName(&quot;NU_INDEX{0}&quot;.format(i)).X
+obj_CVaR = EPISON
+for i in range(N_scenario_second_stage):
+    obj_CVaR += Nu_index[i] * weight_first_stage[i] / (1 - alpha)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for i in range(N_scenario_second_stage):
+    Nu_index[i] = model.getVarByName(&quot;NU_INDEX{0}&quot;.format(i)).X
+obj_CVaR = EPISON
+for i in range(N_scenario_second_stage):
+    obj_CVaR += Nu_index[i] * weight_first_stage[i] / (1 - alpha)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>for k in range(N_scenario_first_stage):
     for i in range(T):
@@ -1041,95 +1101,38 @@ for i in range(nev):
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>routine = zeros((NX_status, nev))
-for i in range(nev):
-    for j in range(NX_status):
-        if Routine[j, i] &gt; 0:
-            routine[j, i] = traffic_networks[&quot;bus&quot;][int((connection_matrix[j, T_BUS] - 1) % nb_traffic),LOCATION]
-        else:
-            try:
-                routine[j, i] = routine[j - 1, i]
-            except:
-                pass</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>routine = zeros((NX_status, nev))
-for i in range(nev):
-    for j in range(NX_status):
-        if Routine[j, i] &gt; 0:
-            routine[j, i] = traffic_networks[&quot;bus&quot;][(connection_matrix[j, T_BUS] - 1) % nb_traffic,LOCATION]
-        else:
-            try:
-                routine[j, i] = routine[j - 1, i]
-            except:
-                pass</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>routine = zeros((NX_status, nev))
-for i in range(nev):
-    for j in range(NX_status):
-        if Routine[j, i] &gt; 0:
-            routine[j, i] = (connection_matrix[j, T_BUS] - 1) % nb_traffic
-        else:
-            try:
-                routine[j, i] = routine[j - 1, i]
-            except:
-                pass</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>for i in range(1):
-    for j in range(NX_status - 2 * nb_traffic):
-        if Routine[j, i] &gt; 0:
-            if (connection_matrix[j, T_BUS] - connection_matrix[j, F_BUS]) % nb_traffic:
-                space = zeros((1, 2))
-                space[0, 0] = (connection_matrix[j, F_BUS] - 1) % nb_traffic
-                space[0, 1] = (connection_matrix[j, T_BUS] - connection_matrix[
-                    i, TIME] * nb_traffic - 1) % nb_traffic
-                print(j)
-                print(space)
-                routine[i].append(space)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>routine = [[]] * nev
-for i in range(nev):
-    for j in range(NX_status - 2 * nb_traffic):
-        if Routine[j, i] &gt; 0:
-            if (connection_matrix[j, T_BUS] - connection_matrix[j, F_BUS]) % nb_traffic:
-                space = zeros((1, 2))
-                space[0, 0] = (connection_matrix[j, F_BUS] - 1) % nb_traffic
-                space[0, 1] = (connection_matrix[j, T_BUS] - connection_matrix[
-                    i, TIME] * nb_traffic - 1) % nb_traffic
-                print(j)
-                print(space)
-                routine[i].append(space)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>routine = [[]] * nev
-for i in range(nev):
-    for j in range(NX_status - 2 * nb_traffic):
-        if Routine[j, i] &gt; 0:
-            if (connection_matrix[j, T_BUS] - connection_matrix[j, F_BUS]) % nb_traffic:
-                space = zeros((1, 2))
-                space[0, 0] = (connection_matrix[j, F_BUS] - 1) % nb_traffic
-                space[0, 1] = (connection_matrix[j, T_BUS] - connection_matrix[
-                    i, TIME] * nb_traffic - 1) % nb_traffic
-                routine[i].append(space)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
     </expressions>
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>obj-obj_DA</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>obj-obj_RT</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>obj-obj</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>Expr = zeros(N_scenario_second_stage)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>weight_second_stage[i][0]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>weight_second_stage[i]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>epison</expression-string>
         <language-id>Python</language-id>
@@ -1142,36 +1145,6 @@ for i in range(nev):
       </expression>
       <expression>
         <expression-string>obj_DA</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>weight_first_stage[i][0] * beta_relax[i] / (1 - confidential_level)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>weight_first_stage[i] * beta_relax[i] / (1 - confidential_level)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>sum(p_s)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>p_s[J_reduced.astype(int)] = 0</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>weight[int(i)]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>p_s[index]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -1438,13 +1411,6 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2426">
-          <caret line="634" column="53" selection-start-line="634" selection-start-column="53" selection-end-line="634" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/scenario_reduction.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="643">
@@ -1456,13 +1422,6 @@ for i in range(nev):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
           <caret line="5" column="14" selection-start-line="5" selection-start-column="14" selection-end-line="5" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="43" selection-start-line="25" selection-start-column="43" selection-end-line="25" selection-end-column="43" />
         </state>
       </provider>
     </entry>
@@ -1487,27 +1446,41 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="43" selection-start-line="25" selection-start-column="43" selection-end-line="25" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="515" selection-start-line="515" selection-end-line="526" selection-end-column="75" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="643">
-          <caret line="110" selection-end-line="648" />
+        <state relative-caret-position="600">
+          <caret line="88" column="37" lean-forward="true" selection-start-line="88" selection-start-column="37" selection-end-line="88" selection-end-column="37" />
           <folding>
             <element signature="e#49#129#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="261">
-          <caret line="292" selection-start-line="292" selection-end-line="298" selection-end-column="104" />
+        <state relative-caret-position="257">
+          <caret line="597" column="26" lean-forward="true" selection-start-line="597" selection-start-column="26" selection-end-line="597" selection-end-column="26" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="301" column="42" selection-start-line="301" selection-start-column="42" selection-end-line="301" selection-end-column="42" />
+        <state relative-caret-position="102">
+          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
           <folding>
             <element signature="e#49#129#0" expanded="true" />
           </folding>
