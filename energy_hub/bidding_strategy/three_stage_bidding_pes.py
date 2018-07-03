@@ -500,6 +500,18 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000):
                     model.addConstr(
                         qTD[i, j, k] - qCD[i, j, k] == (temprature_in[i, j, k] - ambinent_temprature[0]) * c_air - (
                                 ambinent_temprature[i] - temprature_in[i, j, k]) / r_t)
+    # 8) Indoor temperature relaxation
+    for k in range(N_scenario_first_stage):
+        for j in range(N_scenario_second_stage):
+            for i in range(T):
+                model.addConstr(temprature_in[i, j, k] >= temprature_in_min - Recovery_index[k, j] * bigM)
+                model.addConstr(temprature_in[i, j, k] <= temprature_in_max + Recovery_index[k, j] * bigM)
+    # 9) The number of relaxation
+    for i in range(N_scenario_first_stage):
+        expr = 0
+        for j in range(N_scenario_second_stage):
+            expr += Recovery_index[i, j]
+        model.addConstr(expr <= relaxation_level * N_scenario_second_stage)
 
     ## Formulate the objective functions
     # The first stage objective value
