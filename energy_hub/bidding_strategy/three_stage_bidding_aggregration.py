@@ -9,8 +9,7 @@ from matplotlib import pyplot
 from scipy import stats
 from solvers.scenario_reduction import ScenarioReduction
 
-
-def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_second_reduced=20):
+def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_second_reduced=20,alpha=0.9,relaxation_level = 0.1):
     # 1) System level configuration
     T = 24
     weight_first_stage = ones((N_scenario_first_stage, 1)) / N_scenario_first_stage
@@ -20,11 +19,11 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.10
     forecasting_errors_prices = 0.03
-    alpha = 0.01
-    Lam = 1
-    Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
+
+    Lam = 0.1
+    Weight = stats.norm.pdf(stats.norm.isf(1-alpha)) / (1-alpha)
     bigM = 10 ** 2
-    relaxation_level = 0.20
+
 
     # For the HVAC system
     # 2) Thermal system configuration
@@ -34,8 +33,8 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     r_t = 1.3
     ambinent_temprature = array(
         [27, 27, 26, 26, 26, 26, 26, 25, 27, 28, 30, 31, 32, 32, 32, 32, 32, 32, 31, 30, 29, 28, 28, 27])
-    temprature_in_min = 20
-    temprature_in_max = 27
+    temprature_in_min = 24
+    temprature_in_max = 26
 
     CD = array([16.0996, 17.7652, 21.4254, 20.2980, 19.7012, 21.5134, 860.2167, 522.1926, 199.1072, 128.6201, 104.0959,
                 86.9985, 95.0210, 59.0401, 42.6318, 26.5511, 39.2718, 73.3832, 120.9367, 135.2154, 182.2609, 201.2462,
@@ -219,10 +218,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
         for j in range(T):
             Price_DA[j, i] = ELEC_PRICE_DA[j] * (1 + np.random.normal(0, forecasting_errors_prices))
 
-    # Generate the order bidding curve, the constrain will be added from the highest order to the  lowest
-    Order = zeros((T, N_scenario_first_stage))
-    for i in range(T):
-        Order[i, :] = np.argsort(Price_DA[i, :])
+
 
     # Scenario = concatenate([AC_PD_second_stage, DC_PD_second_stage, PV_second_stage],
     #                        axis=0)  # These scenario are i.i.d
@@ -231,7 +227,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     # (scenario_reduced, weight_second_stage) = scenario_reduction.run(scenario=Scenario, weight=weight_second_stage,
     #                                                                  n_reduced=N_scenario_second_reduced, power=2)
     # scenario_reduced = scenario_reduced.transpose()
-    N_scenario_second_stage -= N_scenario_second_reduced
+    # N_scenario_second_stage -= N_scenario_second_reduced
     # AC_PD_second_stage = scenario_reduced[0:T, :]
     # DC_PD_second_stage = scenario_reduced[T:2 * T, :]
     # PV_second_stage = scenario_reduced[2 * T:3 * T, :]
@@ -276,6 +272,13 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     weight_second_stage = np.loadtxt(f, delimiter=',')
     f.close()
 
+    # Generate the order bidding curve, the constrain will be added from the highest order to the  lowest
+    Order = zeros((T, N_scenario_first_stage))
+    for i in range(T):
+        Order[i, :] = np.argsort(Price_DA[i, :])
+
+
+    N_scenario_second_stage-=N_scenario_second_reduced
     model = Model("EnergyHub")
     PDA = {}  # Day-ahead bidding strategy
     pRT = {}  # Real-time prices
@@ -312,11 +315,16 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     temprature_in = {}
     # Group 6: feasible control
     Recovery_index = {}
+    # Group 7: conditional variables
+    nu_index = {}
+    epison = model.addVar(name="EPISON")
     # Define the recovery index
     for i in range(N_scenario_first_stage):
         for j in range(N_scenario_second_stage):
             Recovery_index[i, j] = model.addVar(vtype=GRB.BINARY,
                                                 name="INDEX{0}".format(i * N_scenario_second_stage + j))
+    for i in range(N_scenario_first_stage):
+        nu_index[i]=model.addVar(lb=0,name="NU_INDEX{0}".format(i))
 
     # Define the day-ahead scheduling plan
     for i in range(T):
@@ -514,7 +522,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     for i in range(T):
         Index = Order[i, :].tolist()
         for j in range(N_scenario_first_stage - 1):
-            model.addConstr(PDA[i, Index.index(j)] >= PDA[i, Index.index(j + 1)])
+            model.addConstr(PDA[i, Index[j]] >= PDA[i, Index[j+1]])
     # 6) For the real-time dispatch
     for k in range(N_scenario_first_stage):
         for j in range(N_scenario_second_stage):
@@ -571,15 +579,41 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
                 obj_RT += vGAS[i, j, k] * CCHP["COST"] * weight_first_stage[k] * weight_second_stage[j]
                 obj_RT += vCHP[i, j, k] * CCHP["COST"] * weight_first_stage[k] * weight_second_stage[j]
 
-    obj = obj_DA + obj_RT
+    for k in range(N_scenario_first_stage):
+        expr=0
+        for j in range(N_scenario_second_stage):
+            for i in range(T):
+                expr += pRT[i, j, k] * ELEC_PRICE[i] * weight_second_stage[j]
+                expr += pRT_positive[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight * weight_second_stage[j]
+                expr += pRT_negative[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight * weight_second_stage[j]
+                expr += pESS_DC[i, j, k] * ESS["BESS"]["COST"] * weight_second_stage[j]
+                expr += pESS_CH[i, j, k] * ESS["BESS"]["COST"] * weight_second_stage[j]
+                expr += qHS_DC[i, j, k] * ESS["TESS"]["COST"] * weight_second_stage[j]
+                expr += qHS_CH[i, j, k] * ESS["TESS"]["COST"] * weight_second_stage[j]
+                expr += qCS_DC[i, j, k] * ESS["CESS"]["COST"] * weight_second_stage[j]
+                expr += qCS_CH[i, j, k] * ESS["CESS"]["COST"] * weight_second_stage[j]
+                expr += vGAS[i, j, k] * CCHP["COST"] * weight_second_stage[j]
+                expr += vCHP[i, j, k] * CCHP["COST"] * weight_second_stage[j]
+
+        for i in range(T):
+            expr += PDA[i, k] * Price_DA[i, k]
+
+        model.addConstr(lhs=expr-epison-nu_index[k],sense=GRB.LESS_EQUAL,rhs=0)
+
+    obj_CVaR = epison
+    for i in range(N_scenario_first_stage):
+        obj_CVaR += nu_index[i]*weight_first_stage[i]/(1-alpha)
+
+
+    obj = obj_DA + obj_RT + Lam*obj_CVaR
     model.setObjective(obj)
 
     model.Params.OutputFlag = 1
     model.Params.LogToConsole = 1
     model.Params.DisplayInterval = 1
     model.Params.LogFile = ""
-    model.Params.MIPGap = 2 * 10 ** -2
-    model.Params.timeLimit = 2 * 10 ** 3
+    model.Params.MIPGap = 10 ** -3
+    model.Params.timeLimit = 3 * 10 ** 2
 
     model.optimize()
 
@@ -695,12 +729,43 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
                 if QCS_DC[i, j, k] * QCS_CH[i, j, k] != 0:
                     print(QCS_DC[i, j, k] * QCS_CH[i, j, k])
 
-    pyplot.plot(pDA)
-    pyplot.show()
+    EPISON=model.getVarByName("EPISON").X
+    Nu_index=zeros(N_scenario_first_stage)
 
-    return model
+    for i in range(N_scenario_first_stage):
+        Nu_index[i] = model.getVarByName("NU_INDEX{0}".format(i)).X
+
+    obj_CVaR = EPISON
+    for i in range(N_scenario_first_stage):
+        obj_CVaR += Nu_index[i]*weight_first_stage[i]/(1-alpha)
+
+    obj-=Lam*obj_CVaR
+
+
+    f = open("pDA.txt", "w+")
+    np.savetxt(f, pDA, '%.18g', delimiter=',')
+    f.close()
+
+    return obj,obj_CVaR
 
 
 if __name__ == "__main__":
-    model = main(10, 100, 80)
-    print(model)
+    N_relaxation=5
+    N_alpha=10
+    main(10, 1000, 980, alpha=0.95, relaxation_level=0.05)
+    obj = zeros((N_alpha,N_relaxation))
+    obj_cVaR = zeros((N_alpha, N_relaxation))
+    for i in range(N_alpha):
+        for j in range(N_relaxation):
+            (obj[i,j],obj_cVaR[i,j]) = main(10, 1000, 980, alpha = 0.5 + i*0.05, relaxation_level= j*0.05)
+
+    f = open("obj.txt", "w+")
+    np.savetxt(f, obj, '%.18g', delimiter=',')
+    f.close()
+
+    f = open("obj_cvar.txt", "w+")
+    np.savetxt(f, obj_cVaR, '%.18g', delimiter=',')
+    f.close()
+
+
+    print(obj)
