@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="" />
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -64,7 +67,7 @@
     <favorites_list name="Optimization" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="ccg_benders_decomposition.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -74,11 +77,44 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="robust_saa.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="robust_saa.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="315">
               <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="three_stage_bidding.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="643">
+              <caret line="110" selection-end-line="648" />
+              <folding>
+                <element signature="e#49#129#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="three_stage_bidding_pes.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="239">
+              <caret line="301" column="42" selection-start-line="301" selection-start-column="42" selection-end-line="301" selection-end-column="42" />
+              <folding>
+                <element signature="e#49#129#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="three_stage_bidding_recovery.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="261">
+              <caret line="292" selection-start-line="292" selection-end-line="298" selection-end-column="104" />
             </state>
           </provider>
         </entry>
@@ -99,8 +135,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/solvers/benders_decomposition.py" />
-        <option value="$PROJECT_DIR$/solvers/TSN_test_system.py" />
         <option value="$PROJECT_DIR$/solvers/ccg_benders_decomposition.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py" />
@@ -150,6 +184,8 @@
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py" />
         <option value="$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py" />
+        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" />
+        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
       </list>
     </option>
   </component>
@@ -178,6 +214,17 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="energy_hub" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="energy_hub" type="462c0819:PsiDirectoryNode" />
+              <item name="bidding_strategy" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -481,13 +528,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00001" summary="update test cases">
-      <created>1529115866994</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1529115866994</updated>
     </task>
     <task id="LOCAL-00002" summary="add binary control">
       <created>1529118176665</created>
@@ -825,7 +865,14 @@
       <option name="project" value="LOCAL" />
       <updated>1530258769971</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="add test cases">
+      <created>1530548016902</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1530548016902</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TodoView">
@@ -839,6 +886,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="820" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5035765" side_tool="true" weight="0.3987879" />
@@ -847,7 +895,7 @@
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32918397" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32969698" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.37124464" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49798387" visible="true" weight="0.3762518" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
@@ -869,27 +917,27 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.28898427" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32969698" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32969698" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49928468" visible="true" weight="0.31878787" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32969698" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49928468" weight="0.3987879" />
       <window_info anchor="right" x="0" y="0" width="310" height="700" id="Documentation" order="5" side_tool="true" weight="0.3297568" />
       <window_info anchor="right" id="Database" order="4" weight="0.3297568" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.5007153" side_tool="true" weight="0.32848486" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32969698" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="right" id="SciView" order="3" weight="0.3297568" />
       <window_info anchor="bottom" id="Database Console" order="14" weight="0.32918397" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="13" weight="0.32969698" />
-      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32969698" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -899,7 +947,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="test complex models" />
     <MESSAGE value="add case3 test system" />
     <MESSAGE value="add dynamic optimal power flow" />
     <MESSAGE value="update import case path" />
@@ -924,7 +971,8 @@
     <MESSAGE value="add scenario reduction algorithm" />
     <MESSAGE value="remove bugs in scenario reduction" />
     <MESSAGE value="add robust saa solvers" />
-    <option name="LAST_COMMIT_MESSAGE" value="add robust saa solvers" />
+    <MESSAGE value="add test cases" />
+    <option name="LAST_COMMIT_MESSAGE" value="add test cases" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -957,7 +1005,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="134" />
+      <option name="time" value="135" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1130,34 +1178,6 @@ for i in range(nev):
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Ethereum/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://a57ddaee-5736-499d-8307-02143cbe0b8a/schema/local_ems/table/long_term_operation">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://a57ddaee-5736-499d-8307-02143cbe0b8a/schema/local_ems/table/long_term_forecasting">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://a57ddaee-5736-499d-8307-02143cbe0b8a/schema/local_ems/table/short_term_operation">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="660">
@@ -1418,13 +1438,6 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="429" column="59" selection-end-line="686" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2426">
@@ -1453,10 +1466,51 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="10" lean-forward="true" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="3" lean-forward="true" selection-start-line="4" selection-start-column="3" selection-end-line="4" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
           <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="643">
+          <caret line="110" selection-end-line="648" />
+          <folding>
+            <element signature="e#49#129#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="261">
+          <caret line="292" selection-start-line="292" selection-end-line="298" selection-end-column="104" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="239">
+          <caret line="301" column="42" selection-start-line="301" selection-start-column="42" selection-end-line="301" selection-end-column="42" />
+          <folding>
+            <element signature="e#49#129#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
