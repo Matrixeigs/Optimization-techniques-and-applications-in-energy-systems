@@ -653,6 +653,11 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
 
     obj -= Lam * obj_CVaR
 
+    obj_DA = 0
+    for i in range(T):
+        for j in range(N_scenario_first_stage):
+            obj_DA += pDA[i, j] * Price_DA[i, j] * weight_first_stage[j]
+
     # save the bidding strategy
     f = open("pDA.txt", "w+")
     np.savetxt(f, pDA, '%.18g', delimiter=',')

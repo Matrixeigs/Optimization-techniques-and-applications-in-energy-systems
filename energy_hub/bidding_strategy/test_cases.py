@@ -9,6 +9,9 @@ from numpy import zeros, ones, array, transpose, concatenate
 import numpy as np
 from gurobipy import *
 from scipy import stats
+from matplotlib import pyplot
+from multiprocessing import Pool
+import os
 
 
 def main(PDA, N_scenario_first_stage=10, N_scenario_second_stage=1, alpha=0.05):
@@ -462,7 +465,7 @@ def main(PDA, N_scenario_first_stage=10, N_scenario_second_stage=1, alpha=0.05):
 
     model.Params.OutputFlag = 0
     model.Params.LogToConsole = 0
-    model.Params.DisplayInterval = 0
+    model.Params.DisplayInterval = 1
     model.Params.LogFile = ""
     model.Params.MIPGap = 10 ** -3
     model.Params.timeLimit = 1 * 10 ** 2
@@ -582,16 +585,20 @@ def main(PDA, N_scenario_first_stage=10, N_scenario_second_stage=1, alpha=0.05):
 
 
 if __name__ == "__main__":
-
     # load the scenarios
     f = open("pDA.txt", "r+")
+
     PDA = np.loadtxt(f, delimiter=',')
     f.close()
-    N_sample = 2000
+    N_sample = 1000
+    pDA = [PDA]*N_sample
+    n_processors = os.cpu_count()
+    with Pool(n_processors) as p:
+        sol_second_stage = list(p.map(main, pDA))
 
-    obj = zeros(N_sample)
-    for i in range(N_sample):
-        obj[i] = main(PDA)
+    obj = array(sol_second_stage)
+    pyplot.plot(obj)
+    pyplot.show()
 
     f = open("obj_second_stage.txt", "w+")
     np.savetxt(f, obj, '%.18g', delimiter=',')
