@@ -31,14 +31,14 @@ def main(PDA, N_scenario_first_stage=10, N_scenario_second_stage=1, alpha=0.05):
     bigM = 10 ** 2
     # For the HVAC system
     # 2) Thermal system configuration
-    QHVAC_max = 100
+    QHVAC_max = 200
     eff_HVAC = 4
-    c_air = 1.85
-    r_t = 1.3
+    c_air = 0.185
+    r_t = 0.13
     ambinent_temprature = array(
         [27, 27, 26, 26, 26, 26, 26, 25, 27, 28, 30, 31, 32, 32, 32, 32, 32, 32, 31, 30, 29, 28, 28, 27])
-    temprature_in_min = 23
-    temprature_in_max = 25
+    temprature_in_min = 22
+    temprature_in_max = 23
 
     CD = array([16.0996, 17.7652, 21.4254, 20.2980, 19.7012, 21.5134, 860.2167, 522.1926, 199.1072, 128.6201, 104.0959,
                 86.9985, 95.0210, 59.0401, 42.6318, 26.5511, 39.2718, 73.3832, 120.9367, 135.2154, 182.2609, 201.2462,
@@ -590,7 +590,7 @@ if __name__ == "__main__":
 
     PDA = np.loadtxt(f, delimiter=',')
     f.close()
-    N_sample = 1000
+    N_sample = 5000
     pDA = [PDA]*N_sample
     n_processors = os.cpu_count()
     with Pool(n_processors) as p:
