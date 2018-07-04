@@ -653,6 +653,11 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
 
     obj -= Lam * obj_CVaR
 
+    # save the bidding strategy
+    f = open("pDA.txt", "w+")
+    np.savetxt(f, pDA, '%.18g', delimiter=',')
+    f.close()
+
     return obj, obj_CVaR
 
 
@@ -661,6 +666,7 @@ if __name__ == "__main__":
     N_relaxation = 5
     N_alpha = 10
     (obj, obj_cVaR) = main(10, 20, alpha=0.95, relaxation_level=0.05)
+
     obj = zeros((N_alpha, N_relaxation))
     obj_cVaR = zeros((N_alpha, N_relaxation))
     for i in range(N_alpha):
