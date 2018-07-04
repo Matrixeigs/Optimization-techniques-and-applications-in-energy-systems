@@ -21,21 +21,18 @@ from scipy import stats
 from solvers.scenario_reduction import ScenarioReduction
 
 
-def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_second_reduced=20, alpha=0.9,
-         relaxation_level=0.1):
+def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
+         relaxation_level=0.1,Lam = 0.1):
     # 1) System level configuration
     T = 24
     weight_first_stage = ones((N_scenario_first_stage, 1)) / N_scenario_first_stage
-    weight_second_stage = ones((N_scenario_second_stage, 1)) / N_scenario_second_stage
 
     forecasting_errors_ac = 0.03
     forecasting_errors_dc = 0.03
     forecasting_errors_pv = 0.10
     forecasting_errors_prices = 0.03
     forecasting_errors_temperature = 0.10
-    alpha = 0.05
-    Lam = 0.1
-    Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
+    Weight = stats.norm.pdf(stats.norm.isf(1-alpha)) / (1-alpha)
     bigM = 10 ** 2
     # For the HVAC system
     # 2) Thermal system configuration
@@ -95,7 +92,6 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     ELEC_PRICE = electricity_price / 300
     ELEC_PRICE = ELEC_PRICE.reshape(T, 1)
     ELEC_PRICE_DA = electricity_price_DA / 300
-    ELEC_PRICE_DA = ELEC_PRICE_DA.reshape(T, 1)
 
     Eess_cost = 0.01
     PV_cost = 0.012
@@ -106,38 +102,6 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     DC_PD = (DC_PD / max(DC_PD)) * DC_PD_cap
     HD = (HD / max(HD)) * HD_cap
     CD = (CD / max(CD)) * CD_cap
-
-    # Generate the second stage profiles using spline of scipy
-    AC_PD_second_stage = zeros((T, N_scenario_second_stage))
-    DC_PD_second_stage = zeros((T, N_scenario_second_stage))
-    PV_second_stage = zeros((T, N_scenario_second_stage))
-    ELEC_PRICE_second_stage = zeros((T, N_scenario_second_stage))
-    Temperature_second_stage = zeros((T, N_scenario_second_stage))
-
-    for i in range(N_scenario_second_stage):
-        AC_PD_second_stage[:, i] = ones((1, T)) + np.random.normal(0, forecasting_errors_ac, T)
-        DC_PD_second_stage[:, i] = ones((1, T)) + np.random.normal(0, forecasting_errors_dc, T)
-        PV_second_stage[:, i] = ones((1, T)) + np.random.normal(0, forecasting_errors_pv, T)
-        ELEC_PRICE_second_stage[:, i] = ones((1, T)) + np.random.normal(0, forecasting_errors_prices, T)
-        Temperature_second_stage[:, i] = ones((1, T)) + np.random.normal(0, forecasting_errors_temperature, T)
-
-    for i in range(N_scenario_second_stage):
-        AC_PD_second_stage[:, i] = np.multiply(AC_PD, AC_PD_second_stage[:, i])
-        DC_PD_second_stage[:, i] = np.multiply(DC_PD, DC_PD_second_stage[:, i])
-        PV_second_stage[:, i] = np.multiply(PV_PG, PV_second_stage[:, i])
-        ELEC_PRICE_second_stage[:, i] = np.multiply(transpose(ELEC_PRICE), ELEC_PRICE_second_stage[:, i])
-        Temperature_second_stage[:, i] = np.multiply(ambinent_temprature, Temperature_second_stage[:, i])
-
-        # Check the boundary information
-        for j in range(T):
-            if AC_PD_second_stage[j, i] < 0:
-                AC_PD_second_stage[j, i] = 0
-                if DC_PD_second_stage[j, i] < 0:
-                    DC_PD_second_stage[j, i] = 0
-            if PV_second_stage[j, i] < 0:
-                PV_second_stage[j, i] = 0
-            if ELEC_PRICE_second_stage[j, i] < 0:
-                ELEC_PRICE_second_stage[j, i] = 0
 
     # CCHP system
     Gas_price = 0.1892
@@ -164,23 +128,6 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
             "TEMPERATURE": ambinent_temprature,
             "TEMP_MIN": temprature_in_min,
             "TEMP_MAX": temprature_in_max}
-
-    THERMAL = {"HD": HD,
-               "CD": CD, }
-
-    ELEC = {"UG_MAX": PUG_MAX,
-            "UG_MIN": -PUG_MAX,
-            "UG_PRICE": ELEC_PRICE,
-            "AC_PD": AC_PD,
-            "DC_PD": DC_PD,
-            "PV_PG": PV_PG
-            }
-
-    # The second stage scenarios
-    ELEC_second_stage = {"AC_PD": AC_PD_second_stage,
-                         "DC_PD": DC_PD_second_stage,
-                         "PV_PG": PV_second_stage,
-                         "UG_PRICE": ELEC_PRICE_second_stage, }
 
     BIC = {"CAP": BIC_CAP,
            "EFF": eff_BIC,
@@ -230,42 +177,6 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     CHIL = {"CAP": Chiller_max,
             "EFF": eff_chiller}
 
-    Price_DA = zeros((T, N_scenario_first_stage))
-    for i in range(N_scenario_first_stage):
-        for j in range(T):
-            Price_DA[j, i] = ELEC_PRICE_DA[j] * (1 + np.random.normal(0, forecasting_errors_prices))
-
-    Scenario = concatenate([AC_PD_second_stage, DC_PD_second_stage, PV_second_stage, Temperature_second_stage],
-                           axis=0)  # These scenario are i.i.d
-    Scenario = Scenario.transpose()
-    scenario_reduction = ScenarioReduction()
-    (scenario_reduced, weight_second_stage) = scenario_reduction.run(scenario=Scenario, weight=weight_second_stage,
-                                                                     n_reduced=N_scenario_second_reduced, power=2)
-    scenario_reduced = scenario_reduced.transpose()
-    N_scenario_second_stage -= N_scenario_second_reduced
-    AC_PD_second_stage = scenario_reduced[0:T, :]
-    DC_PD_second_stage = scenario_reduced[T:2 * T, :]
-    PV_second_stage = scenario_reduced[2 * T:3 * T, :]
-    Temperature_second_stage = scenario_reduced[3 * T:4 * T, :]
-
-    # save the scenario in the second stage
-    f = open("ac_pd_second_stage.txt", "w+")
-    np.savetxt(f, AC_PD_second_stage, '%.18g', delimiter=',')
-    f.close()
-    f = open("dc_pd_second_stage.txt", "w+")
-    np.savetxt(f, DC_PD_second_stage, '%.18g', delimiter=',')
-    f.close()
-    f = open("pv_second_stage.txt", "w+")
-    np.savetxt(f, PV_second_stage, '%.18g', delimiter=',')
-    f.close()
-    f = open("price_first_stage.txt", "w+")
-    np.savetxt(f, Price_DA, '%.18g', delimiter=',')
-    f.close()
-    f = open("temperature_second_stage.txt", "w+")
-    np.savetxt(f, Temperature_second_stage, '%.18g', delimiter=',')
-    f.close()
-
-
     # load the scenarios
     f = open("ac_pd_second_stage.txt", "r+")
     AC_PD_second_stage = np.loadtxt(f, delimiter=',')
@@ -282,13 +193,17 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     f = open("temperature_second_stage.txt", "r+")
     Temperature_second_stage = np.loadtxt(f, delimiter=',')
     f.close()
+    f = open("weight_second_stage.txt", "r+")
+    weight_second_stage = np.loadtxt(f, delimiter=',')
+    f.close()
 
     # Generate the order bidding curve, the constrain will be added from the highest order to the  lowest
     Order = zeros((T, N_scenario_first_stage))
     for i in range(T):
         Order[i, :] = np.argsort(Price_DA[i, :])
 
-    # N_scenario_second_stage-=N_scenario_second_reduced
+    N_scenario_second_stage=len(weight_second_stage)
+
     model = Model("EnergyHub")
     PDA = {}  # Day-ahead bidding strategy
     pRT = {}  # Real-time prices
@@ -545,7 +460,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, N_scenario_se
     # 9) The number of relaxation
     expr = 0
     for i in range(N_scenario_second_stage):
-        expr += weight_second_stage[i][0] * Recovery_index[i]
+        expr += weight_second_stage[i] * Recovery_index[i]
     model.addConstr(expr <= relaxation_level)
 
     ## Formulate the objective functions
@@ -745,7 +660,7 @@ if __name__ == "__main__":
 
     N_relaxation = 5
     N_alpha = 10
-    main(10, 20, 30, alpha=0.95, relaxation_level=0.05)
+    main(10, 20, alpha=0.95, relaxation_level=0.05)
     obj = zeros((N_alpha, N_relaxation))
     obj_cVaR = zeros((N_alpha, N_relaxation))
     for i in range(N_alpha):
