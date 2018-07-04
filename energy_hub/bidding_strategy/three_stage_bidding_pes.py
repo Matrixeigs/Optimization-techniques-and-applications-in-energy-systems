@@ -19,7 +19,7 @@ from gurobipy import *
 from matplotlib import pyplot
 from scipy import stats
 from solvers.scenario_reduction import ScenarioReduction
-
+from math import sqrt
 
 def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
          relaxation_level=0.1, Lam=0.1):
@@ -658,9 +658,30 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
         for j in range(N_scenario_first_stage):
             obj_DA += pDA[i, j] * Price_DA[i, j] * weight_first_stage[j]
 
+    obj_RT = obj - obj_DA
+
+    # for the statics information
+    pRT_mean = zeros((T, 1))
+    for i in range(T):  # Dispatch at each time slot
+        for j in range(N_scenario_second_stage):  # Scheduling plan under second stage plan
+            for k in range(N_scenario_first_stage):  # Dispatch at each time slot
+                pRT_mean[i] += PRT[i, j, k] * weight_second_stage[j] * weight_first_stage[k]
+
+    pRT_derivation = zeros((T, 1))
+    for i in range(T):  # Dispatch at each time slot
+        for j in range(N_scenario_second_stage):  # Scheduling plan under second stage plan
+            for k in range(N_scenario_first_stage):  # Dispatch at each time slot
+                pRT_derivation[i] += (PRT[i, j, k] - pRT_mean[i]) ** 2 * weight_second_stage[j] * weight_first_stage[k]
+
+        pRT_derivation[i] = sqrt(pRT_derivation[i])
+
     # save the bidding strategy
     f = open("pDA.txt", "w+")
     np.savetxt(f, pDA, '%.18g', delimiter=',')
+    f.close()
+
+    f = open("pRT_mean.txt", "w+")
+    np.savetxt(f, pRT_mean, '%.18g', delimiter=',')
     f.close()
 
     return obj, obj_CVaR
