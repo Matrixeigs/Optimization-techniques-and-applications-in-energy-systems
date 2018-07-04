@@ -22,7 +22,7 @@ from solvers.scenario_reduction import ScenarioReduction
 
 
 def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
-         relaxation_level=0.1,Lam = 0.1):
+         relaxation_level=0.1, Lam=0.1):
     # 1) System level configuration
     T = 24
     weight_first_stage = ones((N_scenario_first_stage, 1)) / N_scenario_first_stage
@@ -32,7 +32,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
     forecasting_errors_pv = 0.10
     forecasting_errors_prices = 0.03
     forecasting_errors_temperature = 0.10
-    Weight = stats.norm.pdf(stats.norm.isf(1-alpha)) / (1-alpha)
+    Weight = stats.norm.pdf(stats.norm.isf(1 - alpha)) / (1 - alpha)
     bigM = 10 ** 2
     # For the HVAC system
     # 2) Thermal system configuration
@@ -202,7 +202,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
     for i in range(T):
         Order[i, :] = np.argsort(Price_DA[i, :])
 
-    N_scenario_second_stage=len(weight_second_stage)
+    N_scenario_second_stage = len(weight_second_stage)
 
     model = Model("EnergyHub")
     PDA = {}  # Day-ahead bidding strategy
@@ -660,12 +660,12 @@ if __name__ == "__main__":
 
     N_relaxation = 5
     N_alpha = 10
-    main(10, 20, alpha=0.95, relaxation_level=0.05)
+    (obj, obj_cVaR) = main(10, 20, alpha=0.95, relaxation_level=0.05)
     obj = zeros((N_alpha, N_relaxation))
     obj_cVaR = zeros((N_alpha, N_relaxation))
     for i in range(N_alpha):
         for j in range(N_relaxation):
-            (obj[i, j], obj_cVaR[i, j]) = main(10, 1000, 980, alpha=0.5 + i * 0.05, relaxation_level=j * 0.05)
+            (obj[i, j], obj_cVaR[i, j]) = main(10, 20, alpha=0.5 + i * 0.05, relaxation_level=j * 0.05)
 
     f = open("obj.txt", "w+")
     np.savetxt(f, obj, '%.18g', delimiter=',')
