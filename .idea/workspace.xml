@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" beforeDir="false" afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" beforeDir="false" afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -30,13 +29,13 @@
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment.coverage" NAME="two_stage_unit_commitment Coverage Results" MODIFIED="1528904746232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_mosek.coverage" NAME="mixed_integer_solvers_mosek Coverage Results" MODIFIED="1529422434480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding_primal_dual_cuts.coverage" NAME="two_stage_bidding_primal_dual_cuts Coverage Results" MODIFIED="1529423920631" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
-    <SUITE FILE_PATH="coverage/Optimization$optimal_deposit_problem.coverage" NAME="optimal_deposit_problem Coverage Results" MODIFIED="1529723030275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
+    <SUITE FILE_PATH="coverage/Optimization$optimal_deposit_problem.coverage" NAME="optimal_deposit_problem Coverage Results" MODIFIED="1530671684723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1528788633324" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding.coverage" NAME="three_stage_bidding Coverage Results" MODIFIED="1529115812370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$benders_decomposition.coverage" NAME="benders_decomposition Coverage Results" MODIFIED="1529141099249" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$TSN_test_system.coverage" NAME="TSN_test_system Coverage Results" MODIFIED="1529141246377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
-    <SUITE FILE_PATH="coverage/Optimization$traffic_power_dispatch.coverage" NAME="traffic_power_dispatch Coverage Results" MODIFIED="1529917754560" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_CVaR.coverage" NAME="three_stage_bidding_CVaR Coverage Results" MODIFIED="1530029876438" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
+    <SUITE FILE_PATH="coverage/Optimization$traffic_power_dispatch.coverage" NAME="traffic_power_dispatch Coverage Results" MODIFIED="1530671801607" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_network_models.coverage" NAME="transportation_network_models Coverage Results" MODIFIED="1529679951854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$opf.coverage" NAME="opf Coverage Results" MODIFIED="1528180458741" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/pypower" />
     <SUITE FILE_PATH="coverage/Optimization$security_constrained_unit_commitment.coverage" NAME="security_constrained_unit_commitment Coverage Results" MODIFIED="1529066133924" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
@@ -71,38 +70,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="test_cases.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py">
+      <file leaf-file-name="hybrid_AC_DC_distribution_networks.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="296">
-              <caret line="597" column="8" selection-start-line="597" selection-start-column="8" selection-end-line="597" selection-end-column="8" />
-              <folding>
-                <element signature="e#137#197#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ccg_benders_decomposition.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="121" selection-start-line="121" selection-end-line="123" selection-end-column="80" />
-              <folding>
-                <element signature="e#1229#1315#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="three_stage_bidding_pes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="121">
-              <caret line="648" lean-forward="true" selection-start-line="648" selection-end-line="648" />
-              <folding>
-                <element signature="e#548#634#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="45">
+              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
@@ -128,7 +100,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/solvers/ccg_benders_decomposition.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py" />
         <option value="$PROJECT_DIR$/solvers/two_stage_robust_optimization.py" />
@@ -177,8 +148,9 @@
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py" />
         <option value="$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py" />
-        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" />
+        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py" />
       </list>
     </option>
   </component>
@@ -210,7 +182,7 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="solvers" type="462c0819:PsiDirectoryNode" />
+              <item name="distribution_system_optimization" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -360,7 +332,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test_cases">
+  <component name="RunManager" selected="Python.traffic_power_dispatch">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -404,7 +376,7 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
     </configuration>
-    <configuration name="distributed_opf_branch_power" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="optimal_deposit_problem" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -412,12 +384,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/transportation_systems" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -437,25 +409,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="three_stage_bidding_CVaR" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/energy_hub/bidding_strategy" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -494,6 +447,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="traffic_power_dispatch" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/transportation_systems" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -599,19 +571,19 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <list>
-      <item itemvalue="Python.distributed_opf_branch_power" />
-      <item itemvalue="Python.three_stage_bidding_CVaR" />
       <item itemvalue="Python.three_stage_bidding_aggregration" />
       <item itemvalue="Python.three_stage_bidding_pes" />
       <item itemvalue="Python.test_cases" />
+      <item itemvalue="Python.optimal_deposit_problem" />
+      <item itemvalue="Python.traffic_power_dispatch" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.traffic_power_dispatch" />
+        <item itemvalue="Python.optimal_deposit_problem" />
         <item itemvalue="Python.test_cases" />
         <item itemvalue="Python.three_stage_bidding_pes" />
         <item itemvalue="Python.three_stage_bidding_aggregration" />
-        <item itemvalue="Python.three_stage_bidding_CVaR" />
-        <item itemvalue="Python.distributed_opf_branch_power" />
       </list>
     </recent_temporary>
   </component>
@@ -625,20 +597,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00009" summary="update output control">
-      <created>1529160757329</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1529160757329</updated>
-    </task>
-    <task id="LOCAL-00010" summary="for sensitive analysis">
-      <created>1529242582792</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1529242582792</updated>
     </task>
     <task id="LOCAL-00011" summary="Add conic optimal power flow">
       <created>1529308763383</created>
@@ -969,7 +927,21 @@
       <option name="project" value="LOCAL" />
       <updated>1530669216114</updated>
     </task>
-    <option name="localTasksCounter" value="58" />
+    <task id="LOCAL-00058" summary="using multiple processes to accerlate the calculation">
+      <created>1530670300042</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1530670300042</updated>
+    </task>
+    <task id="LOCAL-00059" summary="update room temperature settings">
+      <created>1530671513227</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1530671513227</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1044,8 +1016,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="remove bugs in charging status control of ESSs" />
-    <MESSAGE value="update routine record" />
     <MESSAGE value="add operational cost" />
     <MESSAGE value="add traffic power modelling and optimization package" />
     <MESSAGE value="update scenario reduction index" />
@@ -1069,7 +1039,9 @@
     <MESSAGE value="first version of test cases" />
     <MESSAGE value="remove redundancy" />
     <MESSAGE value="save result" />
-    <option name="LAST_COMMIT_MESSAGE" value="save result" />
+    <MESSAGE value="using multiple processes to accerlate the calculation" />
+    <MESSAGE value="update room temperature settings" />
+    <option name="LAST_COMMIT_MESSAGE" value="update room temperature settings" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1095,19 +1067,19 @@
           <option name="timeStamp" value="131" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py</url>
-          <line>674</line>
-          <option name="timeStamp" value="147" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py</url>
-          <line>605</line>
+          <line>602</line>
           <option name="timeStamp" value="148" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py</url>
           <line>661</line>
           <option name="timeStamp" value="149" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py</url>
+          <line>132</line>
+          <option name="timeStamp" value="151" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1117,7 +1089,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="150" />
+      <option name="time" value="152" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1277,13 +1249,6 @@ for i in range(nev):
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Ethereum/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="10" selection-start-line="12" selection-start-column="10" selection-end-line="12" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/DC_optimal_power_flow_basic.py" />
     <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -1296,13 +1261,6 @@ for i in range(nev):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-178">
           <caret line="172" column="5" selection-start-line="172" selection-start-column="5" selection-end-line="172" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case5.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="18" lean-forward="true" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="18" />
         </state>
       </provider>
     </entry>
@@ -1362,27 +1320,6 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="325">
-          <caret line="109" selection-start-line="109" selection-end-line="109" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_network_models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="9" column="22" selection-start-line="9" selection-start-column="22" selection-end-line="9" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="19" selection-start-line="21" selection-start-column="19" selection-end-line="21" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_systems/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -1405,23 +1342,6 @@ for i in range(nev):
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Two_stage_stochastic_optimization/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" />
-    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_systems/traffic_power_modelling.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="75" selection-start-line="5" selection-start-column="75" selection-end-line="5" selection-end-column="75" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5259">
-          <caret line="427" column="26" selection-start-line="427" selection-start-column="26" selection-end-line="427" selection-end-column="26" />
-          <folding>
-            <element signature="e#372#455#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="223">
@@ -1589,16 +1509,6 @@ for i in range(nev):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="121">
-          <caret line="648" lean-forward="true" selection-start-line="648" selection-end-line="648" />
-          <folding>
-            <element signature="e#548#634#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="159">
@@ -1611,11 +1521,79 @@ for i in range(nev):
     </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="296">
-          <caret line="597" column="8" selection-start-line="597" selection-start-column="8" selection-end-line="597" selection-end-column="8" />
+        <state relative-caret-position="125">
+          <caret line="40" column="26" selection-start-line="40" selection-start-column="26" selection-end-line="40" selection-end-column="26" />
           <folding>
             <element signature="e#137#197#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_systems/traffic_power_modelling.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="75" selection-start-line="5" selection-start-column="75" selection-end-line="5" selection-end-column="75" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="318">
+          <caret line="21" column="18" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5236">
+          <caret line="402" column="77" selection-start-line="402" selection-start-column="77" selection-end-line="402" selection-end-column="77" />
+          <folding>
+            <element signature="e#372#455#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="458">
+          <caret line="127" column="39" selection-start-line="127" selection-start-column="39" selection-end-line="127" selection-end-column="39" />
+          <folding>
+            <element signature="e#105#154#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_network_models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="40" column="18" selection-start-line="40" selection-start-column="18" selection-end-line="40" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case5.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+          <folding>
+            <element signature="e#92#115#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-8224">
+          <caret line="117" column="24" lean-forward="true" selection-start-line="117" selection-start-column="24" selection-end-line="117" selection-end-column="24" />
+          <folding>
+            <element signature="e#548#634#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
         </state>
       </provider>
     </entry>
