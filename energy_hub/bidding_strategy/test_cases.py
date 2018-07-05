@@ -14,7 +14,7 @@ from multiprocessing import Pool
 import os
 
 
-def main(PDA, N_scenario_first_stage=10, N_scenario_second_stage=1, alpha=0.05):
+def main(PDA, N_scenario_first_stage=10, N_scenario_second_stage=1, alpha=0.95):
     # 1) System level configuration
     T = 24
     weight_first_stage = ones((N_scenario_first_stage, 1)) / N_scenario_first_stage
@@ -26,9 +26,7 @@ def main(PDA, N_scenario_first_stage=10, N_scenario_second_stage=1, alpha=0.05):
     forecasting_errors_prices = 0.03
     forecasting_errors_temperature = 0.10
 
-    Lam = 0.1
-    Weight = stats.norm.pdf(stats.norm.isf(alpha)) / alpha
-    bigM = 10 ** 2
+    Weight = stats.norm.pdf(stats.norm.isf(1 - alpha)) / (1 - alpha)
     # For the HVAC system
     # 2) Thermal system configuration
     QHVAC_max = 200
@@ -591,7 +589,7 @@ if __name__ == "__main__":
     PDA = np.loadtxt(f, delimiter=',')
     f.close()
     N_sample = 5000
-    pDA = [PDA]*N_sample
+    pDA = [PDA] * N_sample
     n_processors = os.cpu_count()
     with Pool(n_processors) as p:
         sol_second_stage = list(p.map(main, pDA))
