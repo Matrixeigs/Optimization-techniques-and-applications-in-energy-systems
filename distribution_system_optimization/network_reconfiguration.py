@@ -3,7 +3,7 @@ Network reconfiguration for distribution networks
 @author:Zhao Tianyang
 @e-mail:zhaoty@ntu.edu.sg
 """
-from Two_stage_stochastic_optimization.power_flow_modelling import case33
+from distribution_system_optimization.test_cases import case33
 from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
@@ -15,7 +15,6 @@ from pypower.idx_cost import MODEL, NCOST, PW_LINEAR, COST, POLYNOMIAL
 from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
 from pypower.idx_gen import GEN_BUS, VG, PG, QG, PMAX, PMIN, QMAX, QMIN
 from pypower.ext2int import ext2int
-
 
 class NetworkReconfiguration():
     def __init__(self):
