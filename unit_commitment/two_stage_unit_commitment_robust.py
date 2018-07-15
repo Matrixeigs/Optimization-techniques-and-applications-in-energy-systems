@@ -22,3 +22,12 @@ class TwoStageUnitCommitmentRobust():
         :param cases:
         :return:
         """
+
+    def problem_formulation(self, gen, branch, load):
+        """
+        Problem formulation for unit commitment
+        :param gen:
+        :param branch:
+        :param load:
+        :return:
+        """
