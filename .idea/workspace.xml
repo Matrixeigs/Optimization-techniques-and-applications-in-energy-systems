@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,7 +17,7 @@
     <SUITE FILE_PATH="coverage/Optimization$branch_optimal_power_flow.coverage" NAME="branch_optimal_power_flow Coverage Results" MODIFIED="1529333737140" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$case5.coverage" NAME="case5 Coverage Results" MODIFIED="1529722490753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems/test_cases" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_robust_unit_commitment.coverage" NAME="two_stage_robust_unit_commitment Coverage Results" MODIFIED="1529424067465" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
-    <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_robust.coverage" NAME="two_stage_unit_commitment_robust Coverage Results" MODIFIED="1531704343852" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_robust.coverage" NAME="two_stage_unit_commitment_robust Coverage Results" MODIFIED="1531709677297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment__1_.coverage" NAME="two_stage_unit_commitment (1) Coverage Results" MODIFIED="1529074110487" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$test_cases.coverage" NAME="test_cases Coverage Results" MODIFIED="1530670210731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_jointed_chance_constained_programming.coverage" NAME="two_stage_jointed_chance_constained_programming Coverage Results" MODIFIED="1529422831373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub" />
@@ -32,6 +33,7 @@
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_mosek.coverage" NAME="mixed_integer_solvers_mosek Coverage Results" MODIFIED="1529422434480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding_primal_dual_cuts.coverage" NAME="two_stage_bidding_primal_dual_cuts Coverage Results" MODIFIED="1529423920631" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_deposit_problem.coverage" NAME="optimal_deposit_problem Coverage Results" MODIFIED="1530671684723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
+    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contigency.coverage" NAME="unit_commitment_contigency Coverage Results" MODIFIED="1531710406305" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1528788633324" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding.coverage" NAME="three_stage_bidding Coverage Results" MODIFIED="1529115812370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$benders_decomposition.coverage" NAME="benders_decomposition Coverage Results" MODIFIED="1529141099249" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
@@ -72,36 +74,32 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="two_stage_unit_commitment_robust.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py">
+      <file leaf-file-name="unit_commitment_contigency.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="152">
-              <caret line="212" column="54" lean-forward="true" selection-start-line="212" selection-start-column="54" selection-end-line="212" selection-end-column="54" />
+            <state relative-caret-position="16">
+              <caret line="254" column="61" lean-forward="true" selection-start-line="254" selection-start-column="61" selection-end-line="254" selection-end-column="61" />
               <folding>
-                <element signature="e#176#250#0" expanded="true" />
-                <marker date="1531704343846" expanded="true" signature="8972:11912" ph="..." />
+                <element signature="e#151#229#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mixed_integer_quadratic_solver_cplex.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py">
+      <file leaf-file-name="case6.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="58">
-              <caret line="134" column="23" lean-forward="true" selection-start-line="134" selection-start-column="23" selection-end-line="134" selection-end-column="23" />
+            <state relative-caret-position="-169">
+              <caret line="26" column="56" lean-forward="true" selection-start-line="26" selection-start-column="56" selection-end-line="26" selection-end-column="56" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="security_constrained_unit_commitment.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py">
+      <file leaf-file-name="data_format_contigency.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="156">
-              <caret line="170" column="52" lean-forward="true" selection-start-line="170" selection-start-column="52" selection-end-line="170" selection-end-column="52" />
-              <folding>
-                <element signature="e#862#937#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="150">
+              <caret line="10" column="6" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -128,8 +126,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/unit_commitment/wind_hydro/interval_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/cases/__init__.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/active_distribution_network.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/test_cases/__init__.py" />
@@ -176,9 +172,11 @@
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" />
       </list>
     </option>
   </component>
@@ -210,12 +208,13 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="solvers" type="462c0819:PsiDirectoryNode" />
+              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
               <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
+              <item name="data_format" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -264,7 +263,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.two_stage_unit_commitment_robust">
+  <component name="RunManager" selected="Python.unit_commitment_contigency">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -365,25 +364,6 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="traffic_power_dispatch" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/transportation_systems" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
     <configuration name="two_stage_unit_commitment_robust" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -398,6 +378,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="unit_commitment_contigency" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_commitment" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -504,18 +503,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.three_stage_bidding_pes" />
-      <item itemvalue="Python.traffic_power_dispatch" />
       <item itemvalue="Python.three_stage_bidding_deterministic" />
       <item itemvalue="Python.network_reconfiguration" />
       <item itemvalue="Python.two_stage_unit_commitment_robust" />
+      <item itemvalue="Python.unit_commitment_contigency" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.unit_commitment_contigency" />
         <item itemvalue="Python.two_stage_unit_commitment_robust" />
         <item itemvalue="Python.network_reconfiguration" />
         <item itemvalue="Python.three_stage_bidding_pes" />
         <item itemvalue="Python.three_stage_bidding_deterministic" />
-        <item itemvalue="Python.traffic_power_dispatch" />
       </list>
     </recent_temporary>
   </component>
@@ -529,20 +528,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00023" summary="add dynamic optimal power flow">
-      <created>1529754012524</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1529754012524</updated>
-    </task>
-    <task id="LOCAL-00024" summary="update import case path">
-      <created>1529754217469</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1529754217469</updated>
     </task>
     <task id="LOCAL-00025" summary="merge the first vehicle">
       <created>1529757737324</created>
@@ -873,7 +858,21 @@
       <option name="project" value="LOCAL" />
       <updated>1531703207139</updated>
     </task>
-    <option name="localTasksCounter" value="72" />
+    <task id="LOCAL-00072" summary="update the index">
+      <created>1531704380853</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1531704380853</updated>
+    </task>
+    <task id="LOCAL-00073" summary="add security check procedure">
+      <created>1531705890855</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1531705890855</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="TodoView">
@@ -948,8 +947,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add scenario reduction algorithm" />
-    <MESSAGE value="remove bugs in scenario reduction" />
     <MESSAGE value="add robust saa solvers" />
     <MESSAGE value="add test cases" />
     <MESSAGE value="add paper version" />
@@ -973,7 +970,9 @@
     <MESSAGE value="unit commitment problem update" />
     <MESSAGE value="add mixed integer quadratic solvers" />
     <MESSAGE value="add quadratic programming" />
-    <option name="LAST_COMMIT_MESSAGE" value="add quadratic programming" />
+    <MESSAGE value="update the index" />
+    <MESSAGE value="add security check procedure" />
+    <option name="LAST_COMMIT_MESSAGE" value="add security check procedure" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1025,8 +1024,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py</url>
-          <line>293</line>
-          <option name="timeStamp" value="173" />
+          <line>356</line>
+          <option name="timeStamp" value="176" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py</url>
+          <line>340</line>
+          <option name="timeStamp" value="178" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py</url>
+          <line>298</line>
+          <option name="timeStamp" value="179" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py</url>
+          <line>167</line>
+          <option name="timeStamp" value="180" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1036,7 +1050,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="176" />
+      <option name="time" value="181" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1147,6 +1161,26 @@ for i in range(N_scenario_second_stage):
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
+        <expression-string>X.dot(Cft.todense())</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>(Cft.transpose()).todense()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>-(Cft.transpose()).todense()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>pf[:, i] = Distribution_factor * (Cg * pg[:, i] - Pd * profile[i])</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>prob.objective.set_quadratic(qmat)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
@@ -1171,38 +1205,9 @@ for i in range(N_scenario_second_stage):
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>gen[:,PMIN]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>gen[j, PMIN]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>gen[j, PMAX]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>two_stage_unit_commitment_robust.problem_solving</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../Energy-systems-modelling-and-optimization/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/DC_optimal_power_flow_basic.py" />
-    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/DC_optimal_power_flow_energy_reserve.py" />
     <entry file="file://$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_basic.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -1500,16 +1505,6 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="156">
-          <caret line="170" column="52" lean-forward="true" selection-start-line="170" selection-start-column="52" selection-end-line="170" selection-end-column="52" />
-          <folding>
-            <element signature="e#862#937#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_programming.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
@@ -1521,13 +1516,6 @@ for i in range(N_scenario_second_stage):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-175">
           <caret line="149" column="26" lean-forward="true" selection-end-line="194" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="55" column="60" lean-forward="true" selection-start-line="55" selection-start-column="60" selection-end-line="55" selection-end-column="60" />
         </state>
       </provider>
     </entry>
@@ -1545,13 +1533,54 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="156">
+          <caret line="170" column="52" lean-forward="true" selection-start-line="170" selection-start-column="52" selection-end-line="170" selection-end-column="52" />
+          <folding>
+            <element signature="e#862#937#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_jointed_energy_reserve.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" lean-forward="true" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="6" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="212" column="54" lean-forward="true" selection-start-line="212" selection-start-column="54" selection-end-line="212" selection-end-column="54" />
+        <state relative-caret-position="148">
+          <caret line="229" selection-start-line="229" selection-end-line="229" />
           <folding>
             <element signature="e#176#250#0" expanded="true" />
-            <marker date="1531704343846" expanded="true" signature="8972:11912" ph="..." />
+            <marker date="1531705744592" expanded="true" signature="9024:12100" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-169">
+          <caret line="26" column="56" lean-forward="true" selection-start-line="26" selection-start-column="56" selection-end-line="26" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="16">
+          <caret line="254" column="61" lean-forward="true" selection-start-line="254" selection-start-column="61" selection-end-line="254" selection-end-column="61" />
+          <folding>
+            <element signature="e#151#229#0" expanded="true" />
           </folding>
         </state>
       </provider>
