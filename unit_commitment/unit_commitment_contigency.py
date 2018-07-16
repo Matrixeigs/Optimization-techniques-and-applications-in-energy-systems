@@ -283,6 +283,8 @@ class TwoStageUnitCommitmentRobust():
 
     def problem_solving(self, model):
         """
+
+        :param model: Formulated mathematical models
         :return:
         """
         (xx, obj, success) = miqp(model["c"], model["q"], Aeq=model["Aeq"], beq=model["beq"],
@@ -290,7 +292,7 @@ class TwoStageUnitCommitmentRobust():
                                   b=model["b"], xmin=model["lb"], xmax=model["ub"],
                                   vtypes=model["vtypes"], objsense="min")
         xx = array(xx).reshape((len(xx), 1))
-        return xx
+        return xx, obj
 
     def result_check(self, sol):
         """
@@ -350,5 +352,5 @@ if __name__ == "__main__":
     case_base["Load_profile"] = profile
 
     model = two_stage_unit_commitment_robust.problem_formulation(case_base)
-    sol = two_stage_unit_commitment_robust.problem_solving(model)
+    (sol, obj) = two_stage_unit_commitment_robust.problem_solving(model)
     sol = two_stage_unit_commitment_robust.result_check(sol)
