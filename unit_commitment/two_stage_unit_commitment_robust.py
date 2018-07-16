@@ -19,7 +19,7 @@ from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
 from pypower.idx_gen import GEN_BUS, VG, PG, QG, PMAX, PMIN, QMAX, QMIN, RAMP_AGC
 from pypower.idx_cost import STARTUP
 
-from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as lp
+from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
 
 
 class TwoStageUnitCommitmentRobust():
@@ -272,6 +272,7 @@ class TwoStageUnitCommitmentRobust():
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
         model = {"c": c,
+                 "q": q,
                  "lb": lb,
                  "ub": ub,
                  "A": Aineq,
@@ -285,10 +286,10 @@ class TwoStageUnitCommitmentRobust():
         """
         :return:
         """
-        (xx, obj, success) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"],
-                                A=model["A"],
-                                b=model["b"], xmin=model["lb"], xmax=model["ub"],
-                                vtypes=model["vtypes"], objsense="min")
+        (xx, obj, success) = miqp(model["c"], model["q"], Aeq=model["Aeq"], beq=model["beq"],
+                                  A=model["A"],
+                                  b=model["b"], xmin=model["lb"], xmax=model["ub"],
+                                  vtypes=model["vtypes"], objsense="min")
         xx = array(xx).reshape((len(xx), 1))
         return xx
 
