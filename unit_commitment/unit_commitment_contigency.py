@@ -100,6 +100,9 @@ class TwoStageUnitCommitmentRobust():
             for j in range(nb):
                 lb[THETA * ng * T + i * nb + j] = -360
                 ub[THETA * ng * T + i * nb + j] = 360
+                if bus[j, BUS_TYPE] == REF:
+                    lb[THETA * ng * T + i * nb + j] = 0
+                    ub[THETA * ng * T + i * nb + j] = 0
 
         for i in range(T):
             for j in range(nl):
@@ -305,6 +308,8 @@ class TwoStageUnitCommitmentRobust():
         pg = zeros((ng, T))
         rug = zeros((ng, T))
         rdg = zeros((ng, T))
+        theta = zeros((nb, T))
+        pf = zeros((nl, T))
 
         for i in range(T):
             for j in range(ng):
@@ -314,13 +319,14 @@ class TwoStageUnitCommitmentRobust():
                 pg[j, i] = sol[PG * ng * T + i * ng + j]
                 rug[j, i] = sol[RUG * ng * T + i * ng + j]
                 rdg[j, i] = sol[RDG * ng * T + i * ng + j]
-        pf = zeros((nl, T))
-        Distribution_factor = self.Distribution_factor
-        Pd = self.Pd
-        profile = self.profile
-        Cg = self.Cg
+
         for i in range(T):
-            pf[:, i] = Distribution_factor * (Cg * pg[:, i] - Pd * profile[i])
+            for j in range(nb):
+                theta[j, i] = sol[THETA * ng * T + i * nb + j]
+
+        for i in range(T):
+            for j in range(nl):
+                pf[j, i] = sol[THETA * ng * T + T * nb + i * nl + j]
 
         solution = {"ALPHA": alpha,
                     "BETA": beta,
