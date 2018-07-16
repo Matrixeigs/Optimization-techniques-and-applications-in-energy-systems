@@ -37,8 +37,8 @@ class TwoStageUnitCommitmentRobust():
         baseMVA, bus, gen, branch, gencost, profile = case["baseMVA"], case["bus"], case["gen"], case["branch"], case[
             "gencost"], case["Load_profile"]
 
-        ON = 0
-        OFF = 1
+        START_UP = 0
+        SHUT_DOWN = 1
         IG = 2
         PG = 3
         RUG = 4
@@ -72,15 +72,15 @@ class TwoStageUnitCommitmentRobust():
         for i in range(T):
             for j in range(ng):
                 # lower boundary
-                lb[ON * ng * T + i * ng + j] = 0
-                lb[OFF * ng * T + i * ng + j] = 0
+                lb[START_UP * ng * T + i * ng + j] = 0
+                lb[SHUT_DOWN * ng * T + i * ng + j] = 0
                 lb[IG * ng * T + i * ng + j] = 0
                 lb[PG * ng * T + i * ng + j] = 0
                 lb[RUG * ng * T + i * ng + j] = 0
                 lb[RDG * ng * T + i * ng + j] = 0
                 # upper boundary
-                ub[ON * ng * T + i * ng + j] = 1
-                ub[OFF * ng * T + i * ng + j] = 1
+                ub[START_UP * ng * T + i * ng + j] = 1
+                ub[SHUT_DOWN * ng * T + i * ng + j] = 1
                 ub[IG * ng * T + i * ng + j] = 1
                 ub[PG * ng * T + i * ng + j] = gen[j, PMAX]
                 ub[RUG * ng * T + i * ng + j] = gen[j, PMAX]
@@ -93,8 +93,8 @@ class TwoStageUnitCommitmentRobust():
         for i in range(T):
             for j in range(ng):
                 # cost
-                c[ON * ng * T + i * ng + j] = gencost[j, STARTUP]
-                c[OFF * ng * T + i * ng + j] = 0
+                c[START_UP * ng * T + i * ng + j] = gencost[j, STARTUP]
+                c[SHUT_DOWN * ng * T + i * ng + j] = 0
                 c[IG * ng * T + i * ng + j] = gencost[j, 6]
                 c[PG * ng * T + i * ng + j] = gencost[j, 5]
                 c[RUG * ng * T + i * ng + j] = 0
@@ -118,8 +118,8 @@ class TwoStageUnitCommitmentRobust():
         beq_temp = zeros((T * ng, 1))
         for i in range(T):
             for j in range(ng):
-                Aeq_temp[i * ng + j, ON * ng * T + i * ng + j] = -1
-                Aeq_temp[i * ng + j, OFF * ng * T + i * ng + j] = 1
+                Aeq_temp[i * ng + j, START_UP * ng * T + i * ng + j] = -1
+                Aeq_temp[i * ng + j, SHUT_DOWN * ng * T + i * ng + j] = 1
                 Aeq_temp[i * ng + j, IG * ng * T + i * ng + j] = 1
                 if i != 0:
                     Aeq_temp[i * ng + j, IG * ng * T + (i - 1) * ng + j] = -1
@@ -134,8 +134,8 @@ class TwoStageUnitCommitmentRobust():
         bineq = zeros((T * ng, 1))
         for i in range(T):
             for j in range(ng):
-                Aineq[i * ng + j, ON * ng * T + i * ng + j] = 1
-                Aineq[i * ng + j, OFF * ng * T + i * ng + j] = 1
+                Aineq[i * ng + j, START_UP * ng * T + i * ng + j] = 1
+                Aineq[i * ng + j, SHUT_DOWN * ng * T + i * ng + j] = 1
                 bineq[i * ng + j] = 1
 
         Aineq_temp = zeros((T * ng, nx))
@@ -169,7 +169,7 @@ class TwoStageUnitCommitmentRobust():
         for i in range(ng):
             for j in range(int(gencost[i, MIN_UP]), T):
                 for k in range(j - int(gencost[i, MIN_UP]), j):
-                    Aineq_temp[sum(UP_LIMIT[0:i]) + j - int(gencost[i, MIN_UP]), ON * ng * T + k * ng + i] = 1
+                    Aineq_temp[sum(UP_LIMIT[0:i]) + j - int(gencost[i, MIN_UP]), START_UP * ng * T + k * ng + i] = 1
                 Aineq_temp[sum(UP_LIMIT[0:i]) + j - int(gencost[i, MIN_UP]), IG * ng * T + j * ng + i] = -1
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
@@ -179,7 +179,7 @@ class TwoStageUnitCommitmentRobust():
         for i in range(ng):
             for j in range(int(gencost[i, MIN_DOWN]), T):
                 for k in range(j - int(gencost[i, MIN_DOWN]), j):
-                    Aineq_temp[sum(DOWN_LIMIT[0:i]) + j - int(gencost[i, MIN_DOWN]), OFF * ng * T + k * ng + i] = 1
+                    Aineq_temp[sum(DOWN_LIMIT[0:i]) + j - int(gencost[i, MIN_DOWN]), SHUT_DOWN * ng * T + k * ng + i] = 1
                 Aineq_temp[sum(DOWN_LIMIT[0:i]) + j - int(gencost[i, MIN_DOWN]), IG * ng * T + j * ng + i] = 1
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
@@ -192,7 +192,7 @@ class TwoStageUnitCommitmentRobust():
             for j in range(T - 1):
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + (j + 1) * ng + i] = 1
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + j * ng + i] = -1
-                Aineq_temp[i * (T - 1) + j, ON * ng * T + (j + 1) * ng + i] = gen[i, RAMP_AGC] - gen[i, PMIN]
+                Aineq_temp[i * (T - 1) + j, START_UP * ng * T + (j + 1) * ng + i] = gen[i, RAMP_AGC] - gen[i, PMIN]
                 bineq_temp[i * (T - 1) + j] = gen[i, RAMP_AGC]
 
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
@@ -204,7 +204,7 @@ class TwoStageUnitCommitmentRobust():
             for j in range(T - 1):
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + (j + 1) * ng + i] = -1
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + j * ng + i] = 1
-                Aineq_temp[i * (T - 1) + j, OFF * ng * T + (j + 1) * ng + i] = gen[i, RAMP_AGC] - gen[i, PMIN]
+                Aineq_temp[i * (T - 1) + j, SHUT_DOWN * ng * T + (j + 1) * ng + i] = gen[i, RAMP_AGC] - gen[i, PMIN]
                 bineq_temp[i * (T - 1) + j] = gen[i, RAMP_AGC]
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
