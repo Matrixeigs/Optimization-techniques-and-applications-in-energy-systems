@@ -162,7 +162,7 @@ class TwoStageUnitCommitmentRobust():
         for i in range(T):
             # For the unit
             Aeq_temp[i * nl:(i + 1) * nl,
-            THETA * ng * T + T * nb + i * nl:THETA * ng * T + T * nb + (i + 1) * nl] = eye(nl)
+            THETA * ng * T + T * nb + i * nl:THETA * ng * T + T * nb + (i + 1) * nl] = -eye(nl)
             Aeq_temp[i * nl:(i + 1) * nl, THETA * ng * T + i * nb:THETA * ng * T + (i + 1) * nb] = X.dot(Cft.todense())
 
         Aeq = concatenate((Aeq, Aeq_temp), axis=0)
