@@ -32,7 +32,7 @@ class UnitCommitmentBattery():
     def __init__(self):
         self.name = "Unit commitment with battery"
 
-    def problem_formulation(self, case, delta=0.03, battery=None):
+    def problem_formulation(self, case, delta=0.03, battery=None, alpha_s=0.5, alpha_r=0.5):
         """
         Input check for the unit commitment problem
         :param cases:
@@ -46,12 +46,12 @@ class UnitCommitmentBattery():
         # To manage the bess models
         if battery is not None:
             ness = len(battery)
-            index = zeros((ness, 1))
+            index = zeros(ness)
             for i in range(ness):
                 index[i] = battery[i]["BUS"]
         else:
             ness = 0
-            index = []
+            index = zeros(ness)
 
         # Modify the bus, gen and branch matrix
         bus[:, BUS_I] = bus[:, BUS_I] - 1
@@ -62,6 +62,7 @@ class UnitCommitmentBattery():
         ng = shape(case['gen'])[0]  # number of schedule injections
         nl = shape(case['branch'])[0]  ## number of branches
         nb = shape(case['bus'])[0]  ## number of branches
+
         self.ng = ng
         self.nb = nb
         self.nl = nl
@@ -83,10 +84,10 @@ class UnitCommitmentBattery():
             u0[i] = int(gencost[i, -1] > 0)
         # Formulate a mixed integer quadratic programming problem
         # 1) Announce the variables
-        # [vt,wt,ut,Pt]:start-up,shut-down,status,generation level, up-reserve, down-reserve
+        # [vt,wt,ut,Pt,Rs,ru,rd]:start-up,shut-down,status,generation level, spinning reserve, up regulation reserve, down regulation reserve
         # 1.1) boundary information
         T = case["Load_profile"].shape[0]
-        nx = NG * T * ng + nb * T + nl * T + ness * NESS * T
+        nx = NG * T * ng + NESS * ness * T + nb * T + nl * T
         lb = zeros((nx, 1))
         ub = zeros((nx, 1))
         vtypes = ["c"] * nx
@@ -102,7 +103,6 @@ class UnitCommitmentBattery():
                 lb[RS * ng * T + i * ng + j] = 0
                 lb[RU * ng * T + i * ng + j] = 0
                 lb[RD * ng * T + i * ng + j] = 0
-
                 # upper boundary
                 ub[ALPHA * ng * T + i * ng + j] = 1
                 ub[BETA * ng * T + i * ng + j] = 1
@@ -111,22 +111,41 @@ class UnitCommitmentBattery():
                 ub[RS * ng * T + i * ng + j] = gen[j, RAMP_10]
                 ub[RU * ng * T + i * ng + j] = gen[j, RAMP_AGC]
                 ub[RD * ng * T + i * ng + j] = gen[j, RAMP_AGC]
-
                 # variable types
                 vtypes[IG * ng * T + i * ng + j] = "B"
-
+        for i in range(T):
+            for j in range(ness):
+                # lower boundary
+                lb[NG * ng * T + ICS * ness * T + i * ness + j] = 0
+                lb[NG * ng * T + PCS * ness * T + i * ness + j] = 0
+                lb[NG * ng * T + PDC * ness * T + i * ness + j] = 0
+                lb[NG * ng * T + EESS * ness * T + i * ness + j] = battery[j]["EMIN"]
+                lb[NG * ng * T + RBS * ness * T + i * ness + j] = 0
+                lb[NG * ng * T + RBU * ness * T + i * ness + j] = 0
+                lb[NG * ng * T + RBD * ness * T + i * ness + j] = 0
+                # upper boundary
+                ub[NG * ng * T + ICS * ness * T + i * ness + j] = 1
+                ub[NG * ng * T + PCS * ness * T + i * ness + j] = battery[j]["PCH_MAX"]
+                ub[NG * ng * T + PDC * ness * T + i * ness + j] = battery[j]["PDC_MAX"]
+                ub[NG * ng * T + EESS * ness * T + i * ness + j] = battery[j]["EMAX"]
+                ub[NG * ng * T + RBS * ness * T + i * ness + j] = battery[j]["PCH_MAX"] + battery[j]["PDC_MAX"]
+                ub[NG * ng * T + RBU * ness * T + i * ness + j] = battery[j]["PCH_MAX"] + battery[j]["PDC_MAX"]
+                ub[NG * ng * T + RBD * ness * T + i * ness + j] = battery[j]["PCH_MAX"] + battery[j]["PDC_MAX"]
+                # variable types
+                vtypes[NG * ng * T + ICS * ness * T + i * ness + j] = "B"
+        # The bus angle
         for i in range(T):
             for j in range(nb):
-                lb[THETA * ng * T + i * nb + j] = -360
-                ub[THETA * ng * T + i * nb + j] = 360
+                lb[NG * ng * T + NESS * ness * T + i * nb + j] = -360
+                ub[NG * ng * T + NESS * ness * T + i * nb + j] = 360
                 if bus[j, BUS_TYPE] == REF:
-                    lb[THETA * ng * T + i * nb + j] = 0
-                    ub[THETA * ng * T + i * nb + j] = 0
-
+                    lb[NG * ng * T + NESS * ness * T + i * nb + j] = 0
+                    ub[NG * ng * T + NESS * ness * T + i * nb + j] = 0
+        # The power flow
         for i in range(T):
             for j in range(nl):
-                lb[THETA * ng * T + T * nb + i * nl + j] = -branch[j, RATE_A]
-                ub[THETA * ng * T + T * nb + i * nl + j] = branch[j, RATE_A]
+                lb[NG * ng * T + NESS * ness * T + T * nb + i * nl + j] = -branch[j, RATE_A]
+                ub[NG * ng * T + NESS * ness * T + T * nb + i * nl + j] = branch[j, RATE_A]
 
         c = zeros((nx, 1))
         q = zeros((nx, 1))
@@ -134,11 +153,8 @@ class UnitCommitmentBattery():
             for j in range(ng):
                 # cost
                 c[ALPHA * ng * T + i * ng + j] = gencost[j, STARTUP]
-                c[BETA * ng * T + i * ng + j] = 0
                 c[IG * ng * T + i * ng + j] = gencost[j, 6]
                 c[PG * ng * T + i * ng + j] = gencost[j, 5]
-                c[RUG * ng * T + i * ng + j] = 0
-                c[RDG * ng * T + i * ng + j] = 0
 
                 q[PG * ng * T + i * ng + j] = gencost[j, 4]
 
@@ -149,9 +165,15 @@ class UnitCommitmentBattery():
         for i in range(T):
             # For the unit
             Aeq[i * nb:(i + 1) * nb, PG * ng * T + i * ng:PG * ng * T + (i + 1) * ng] = Cg.todense()
-
+            # For the battery energy storage systems
             Aeq[i * nb:(i + 1) * nb,
-            THETA * ng * T + T * nb + i * nl:THETA * ng * T + T * nb + (i + 1) * nl] = -(Cft.transpose()).todense()
+            NG * ng * T + PCS * ness * T + i * ng:NG * ng * T + PCS * ness * T + (i + 1) * ng] = -Ce.todense()
+            Aeq[i * nb:(i + 1) * nb,
+            NG * ng * T + PDC * ness * T + i * ng:NG * ng * T + PDC * ness * T + (i + 1) * ng] = Ce.todense()
+            # For the transmission lines
+            Aeq[i * nb:(i + 1) * nb,
+            NG * ng * T + NESS * ness * T + T * nb + i * nl:NG * ng * T + NESS * ness * T + T * nb + (i + 1) * nl] = -(
+                Cft.transpose()).todense()
 
             beq[i * nb:(i + 1) * nb, 0] = profile[i] * bus[:, PD]
 
@@ -181,12 +203,27 @@ class UnitCommitmentBattery():
         for i in range(T):
             # For the unit
             Aeq_temp[i * nl:(i + 1) * nl,
-            THETA * ng * T + T * nb + i * nl:THETA * ng * T + T * nb + (i + 1) * nl] = -eye(nl)
-            Aeq_temp[i * nl:(i + 1) * nl, THETA * ng * T + i * nb:THETA * ng * T + (i + 1) * nb] = X.dot(Cft.todense())
+            NG * ng * T + NESS * ness * T + T * nb + i * nl:NG * ng * T + NESS * ness * T + T * nb + (
+                    i + 1) * nl] = -eye(nl)
+            Aeq_temp[i * nl:(i + 1) * nl,
+            NG * ng * T + NESS * ness * T + i * nb:NG * ng * T + NESS * ness * T + (i + 1) * nb] = X.dot(Cft.todense())
 
         Aeq = concatenate((Aeq, Aeq_temp), axis=0)
         beq = concatenate((beq, beq_temp), axis=0)
-        # 2.4) Power range limitation
+        # 2.4) Energy status transfer
+        Aeq_temp = zeros((T * ness, nx))
+        beq_temp = zeros((T * ness, 1))
+        for i in range(T):
+            for j in range(ness):
+                Aeq_temp[i * ness + j, NG * ng * T + PCS * ness * T + i * ness + j] = battery[j]["EFF_CH"]
+                Aeq_temp[i * ness + j, NG * ng * T + PDC * ness * T + i * ness + j] = -1 / battery[j]["EFF_CH"]
+                Aeq_temp[i * ness + j, NG * ng * T + EESS * ness * T + i * ness + j] = -1
+                if i == 0:
+                    beq_temp[i * ness + j] = -battery[j]["E0"]
+                else:
+                    Aeq_temp[i * ness + j, NG * ng * T + EESS * ness * T + (i - 1) * ness + j] = 1
+
+        # 2.5) Power range limitation
         Aineq = zeros((T * ng, nx))
         bineq = zeros((T * ng, 1))
         for i in range(T):
@@ -201,7 +238,7 @@ class UnitCommitmentBattery():
             for j in range(ng):
                 Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = gen[j, PMIN]
                 Aineq_temp[i * ng + j, PG * ng * T + i * ng + j] = -1
-                Aineq_temp[i * ng + j, RDG * ng * T + i * ng + j] = 1
+                Aineq_temp[i * ng + j, RD * ng * T + i * ng + j] = 1
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
@@ -211,11 +248,13 @@ class UnitCommitmentBattery():
             for j in range(ng):
                 Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = -gen[j, PMAX]
                 Aineq_temp[i * ng + j, PG * ng * T + i * ng + j] = 1
-                Aineq_temp[i * ng + j, RUG * ng * T + i * ng + j] = 1
+                Aineq_temp[i * ng + j, RU * ng * T + i * ng + j] = 1
+                Aineq_temp[i * ng + j, RS * ng * T + i * ng + j] = 1
+
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
-        # 2.5) Start up and shut down time limitation
+        # 2.6) Start up and shut down time limitation
         UP_LIMIT = [0] * ng
         DOWN_LIMIT = [0] * ng
         for i in range(ng):
@@ -243,8 +282,8 @@ class UnitCommitmentBattery():
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
-        # 2.6) Ramp constraints:
-        # 2.6.1) Ramp up limitation
+        # 2.7) Ramp constraints:
+        # 2.7.1) Ramp up limitation
         Aineq_temp = zeros((ng * (T - 1), nx))
         bineq_temp = zeros((ng * (T - 1), 1))
         for i in range(ng):
@@ -256,7 +295,7 @@ class UnitCommitmentBattery():
 
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
-        # 2.6.2) Ramp up limitation
+        # 2.7.2) Ramp up limitation
         Aineq_temp = zeros((ng * (T - 1), nx))
         bineq_temp = zeros((ng * (T - 1), 1))
         for i in range(ng):
@@ -267,8 +306,98 @@ class UnitCommitmentBattery():
                 bineq_temp[i * (T - 1) + j] = gen[i, RAMP_AGC]
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8)  Reserve constraints
+        # 2.8.1) Rs<=Ig*RAMP_10
+        Aineq_temp = zeros((T * ng, nx))
+        bineq_temp = zeros((T * ng, 1))
+        for i in range(T):
+            for j in range(ng):
+                Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = -gen[j, RAMP_10]
+                Aineq_temp[i * ng + j, RS * ng * T + i * ng + j] = 1
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8.2) ru<=Ig*RAMP_AGC
+        Aineq_temp = zeros((T * ng, nx))
+        bineq_temp = zeros((T * ng, 1))
+        for i in range(T):
+            for j in range(ng):
+                Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = -gen[j, RAMP_AGC]
+                Aineq_temp[i * ng + j, RU * ng * T + i * ng + j] = 1
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8.3) rd<=Ig*RAMP_AGC
+        Aineq_temp = zeros((T * ng, nx))
+        bineq_temp = zeros((T * ng, 1))
+        for i in range(T):
+            for j in range(ng):
+                Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = -gen[j, RAMP_AGC]
+                Aineq_temp[i * ng + j, RD * ng * T + i * ng + j] = 1
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8.4) Pcs<=Ics*Pcs_max
+        Aineq_temp = zeros((T * ness, nx))
+        bineq_temp = zeros((T * ness, 1))
+        for i in range(T):
+            for j in range(ness):
+                Aineq_temp[i * ness + j, NG * ng * T + ICS * ness * T + i * ness + j] = -battery[j]["PCH_MAX"]
+                Aineq_temp[i * ness + j, NG * ng * T + PCS * ness * T + i * ness + j] = 1
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8.5) Pcs<=Ics*Pcs_max
+        Aineq_temp = zeros((T * ness, nx))
+        bineq_temp = zeros((T * ness, 1))
+        for i in range(T):
+            for j in range(ness):
+                Aineq_temp[i * ness + j, NG * ng * T + ICS * ness * T + i * ness + j] = -battery[j]["PDC_MAX"]
+                Aineq_temp[i * ness + j, NG * ng * T + PDC * ness * T + i * ness + j] = 1
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8.5) Pess_dc-Pess_ch+Rbs+rbu<=Pess_dc_max
+        Aineq_temp = zeros((T * ness, nx))
+        bineq_temp = zeros((T * ness, 1))
+        for i in range(T):
+            for j in range(ness):
+                Aineq_temp[i * ness + j, NG * ng * T + PCS * ness * T + i * ness + j] = -1
+                Aineq_temp[i * ness + j, NG * ng * T + PDC * ness * T + i * ness + j] = 1
+                Aineq_temp[i * ness + j, NG * ng * T + RBS * ness * T + i * ness + j] = 1
+                Aineq_temp[i * ness + j, NG * ng * T + RBU * ness * T + i * ness + j] = 1
+                bineq_temp[i * ness + j] = battery[j]["PDC_MAX"]
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8.6) Pess_ch-Pess_dc+rbd<=Pess_ch_max
+        Aineq_temp = zeros((T * ness, nx))
+        bineq_temp = zeros((T * ness, 1))
+        for i in range(T):
+            for j in range(ness):
+                Aineq_temp[i * ness + j, NG * ng * T + PCS * ness * T + i * ness + j] = 1
+                Aineq_temp[i * ness + j, NG * ng * T + PDC * ness * T + i * ness + j] = -1
+                Aineq_temp[i * ness + j, NG * ng * T + RBD * ness * T + i * ness + j] = 1
+                bineq_temp[i * ness + j] = battery[j]["PCH_MAX"]
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8.7) alpha_s*Rbs+alpha_r*rbu<=eff_dc*(E-Emin)
+        Aineq_temp = zeros((T * ness, nx))
+        bineq_temp = zeros((T * ness, 1))
+        for i in range(T):
+            for j in range(ness):
+                Aineq_temp[i * ness + j, NG * ng * T + EESS * ness * T + i * ness + j] = -battery[j]["EFF_DC"]
+                Aineq_temp[i * ness + j, NG * ng * T + RBS * ness * T + i * ness + j] = alpha_s
+                Aineq_temp[i * ness + j, NG * ng * T + RBU * ness * T + i * ness + j] = alpha_r
+                bineq_temp[i * ness + j] = -battery[j]["EFF_DC"] * battery[j]["EMIN"]
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.8.7) alpha_r*rbd<=(E_max-E)/eff_ch
+        Aineq_temp = zeros((T * ness, nx))
+        bineq_temp = zeros((T * ness, 1))
+        for i in range(T):
+            for j in range(ness):
+                Aineq_temp[i * ness + j, NG * ng * T + EESS * ness * T + i * ness + j] = 1
+                Aineq_temp[i * ness + j, NG * ng * T + RBD * ness * T + i * ness + j] = alpha_r * battery[j]["EFF_CH"]
+                bineq_temp[i * ness + j] = battery[j]["EMAX"] / battery[j]["EFF_CH"]
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
 
-        # 2.7)  Up and down reserve for the forecasting errors
+        # 2.8)  Up and down reserve for the forecasting errors
         # Up reserve limitation
         Aineq_temp = zeros((T, nx))
         bineq_temp = zeros((T, 1))
@@ -371,6 +500,8 @@ if __name__ == "__main__":
         "EMAX": 2,
         "PCH_MAX": 2,
         "PDC_MAX": 2,
+        "EFF_DC": 2,
+        "EFF_CH": 2,
         "COST": 2,
     }
     BESS.append(bess)
@@ -383,7 +514,7 @@ if __name__ == "__main__":
 
     case_base["Load_profile"] = profile
 
-    model = unit_commitment_battery.problem_formulation(case_base, battery=bess)
+    model = unit_commitment_battery.problem_formulation(case_base, battery=BESS)
 
     (sol, obj) = unit_commitment_battery.problem_solving(model)
     sol = unit_commitment_battery.result_check(sol)
