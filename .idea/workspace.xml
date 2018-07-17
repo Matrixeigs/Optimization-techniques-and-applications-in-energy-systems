@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="bug found on the power flow and angle">
-      <change afterPath="$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" afterDir="false" />
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -79,10 +77,10 @@
       <file leaf-file-name="unit_commitment_battery_energy_storage_system.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="21">
-              <caret line="7" column="22" lean-forward="true" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
+            <state relative-caret-position="265">
+              <caret line="91" column="27" selection-start-line="91" selection-start-column="27" selection-end-line="91" selection-end-column="27" />
               <folding>
-                <element signature="e#151#230#0" expanded="true" />
+                <element signature="e#252#331#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -97,11 +95,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="data_format_contigency.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
+      <file leaf-file-name="case118.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+            <state relative-caret-position="45">
+              <caret line="3" column="25" lean-forward="true" selection-start-line="3" selection-end-line="4" />
             </state>
           </provider>
         </entry>
@@ -109,8 +107,8 @@
       <file leaf-file-name="data_formate_bess.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+            <state relative-caret-position="315">
+              <caret line="21" column="8" lean-forward="true" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -185,9 +183,9 @@
         <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" />
         <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py" />
         <option value="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" />
       </list>
     </option>
   </component>
@@ -540,13 +538,6 @@
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
     </task>
-    <task id="LOCAL-00029" summary="remove bugs in charging status control of ESSs">
-      <created>1529819046267</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1529819046267</updated>
-    </task>
     <task id="LOCAL-00030" summary="update routine record">
       <created>1529841002170</created>
       <option name="number" value="00030" />
@@ -883,7 +874,14 @@
       <option name="project" value="LOCAL" />
       <updated>1531756452704</updated>
     </task>
-    <option name="localTasksCounter" value="78" />
+    <task id="LOCAL-00078" summary="add battery energy storage system integrated unit commitment">
+      <created>1531810045142</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1531810045142</updated>
+    </task>
+    <option name="localTasksCounter" value="79" />
     <servers />
   </component>
   <component name="TodoView">
@@ -906,13 +904,13 @@
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.21101573" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.21101573" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -958,7 +956,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="double check the parameters" />
     <MESSAGE value="update scenario reduction module" />
     <MESSAGE value="first version of test cases" />
     <MESSAGE value="remove redundancy" />
@@ -983,7 +980,8 @@
     <MESSAGE value="add swing bus limitation" />
     <MESSAGE value="update output control of the plan" />
     <MESSAGE value="bug found on the power flow and angle" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug found on the power flow and angle" />
+    <MESSAGE value="add battery energy storage system integrated unit commitment" />
+    <option name="LAST_COMMIT_MESSAGE" value="add battery energy storage system integrated unit commitment" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1470,11 +1468,6 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3651" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="143">
@@ -1549,13 +1542,6 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="716">
@@ -1566,10 +1552,17 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py">
+    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+        <state relative-caret-position="150">
+          <caret line="10" column="6" lean-forward="true" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="25" lean-forward="true" selection-start-line="3" selection-end-line="4" />
         </state>
       </provider>
     </entry>
@@ -1580,12 +1573,19 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="8" lean-forward="true" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="7" column="22" lean-forward="true" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
+        <state relative-caret-position="265">
+          <caret line="91" column="27" selection-start-line="91" selection-start-column="27" selection-end-line="91" selection-end-column="27" />
           <folding>
-            <element signature="e#151#230#0" expanded="true" />
+            <element signature="e#252#331#0" expanded="true" />
           </folding>
         </state>
       </provider>

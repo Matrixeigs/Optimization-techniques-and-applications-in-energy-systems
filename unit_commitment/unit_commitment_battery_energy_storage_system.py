@@ -15,22 +15,22 @@ from solvers.mixed_integer_quadratic_programming import mixed_integer_quadratic_
 import scipy.linalg as linalg
 from scipy.sparse import csr_matrix as sparse
 
-from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
-from pypower.idx_cost import MODEL, NCOST, PW_LINEAR, COST, POLYNOMIAL
-from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
-from pypower.idx_gen import GEN_BUS, VG, PG, QG, PMAX, PMIN, QMAX, QMIN, RAMP_AGC
+from pypower.idx_brch import F_BUS, T_BUS, BR_X, RATE_A
+from pypower.idx_bus import BUS_TYPE, REF, PD, BUS_I
+from pypower.idx_gen import GEN_BUS, PG, PMAX, PMIN, RAMP_AGC, RAMP_10, RAMP_30
 from pypower.idx_cost import STARTUP
 
 from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
 
-from unit_commitment.data_format.data_format_contigency import ALPHA, BETA, IG, PG, RDG, RUG, THETA, PL
+from unit_commitment.data_format.data_formate_bess import ALPHA, BETA, IG, PG, RS, RU, RD, THETA, PL, ICS, PCS, PDC, \
+    EESS, RBD, RBS, RBU, NG, NESS
 
 
 class UnitCommitmentBattery():
     """"""
 
     def __init__(self):
-        self.name = "Two stage robust optimization"
+        self.name = "Unit commitment with battery"
 
     def problem_formulation(self, case, delta=0.03, battery=None):
         """
@@ -40,9 +40,18 @@ class UnitCommitmentBattery():
         """
         baseMVA, bus, gen, branch, gencost, profile = case["baseMVA"], case["bus"], case["gen"], case["branch"], case[
             "gencost"], case["Load_profile"]
-
         MIN_UP = -2
         MIN_DOWN = -3
+
+        # To manage the bess models
+        if battery is not None:
+            ness = len(battery)
+            index = zeros((ness, 1))
+            for i in range(ness):
+                index[i] = battery[i]["BUS"]
+        else:
+            ness = 0
+            index = []
 
         # Modify the bus, gen and branch matrix
         bus[:, BUS_I] = bus[:, BUS_I] - 1
@@ -56,14 +65,18 @@ class UnitCommitmentBattery():
         self.ng = ng
         self.nb = nb
         self.nl = nl
+        self.ness = ness
 
         f = branch[:, F_BUS]  ## list of "from" buses
         t = branch[:, T_BUS]  ## list of "to" buses
         i = r_[range(nl), range(nl)]  ## double set of row indices
+
         ## connection matrix
         Cft = sparse((r_[ones(nl), -ones(nl)], (i, r_[f, t])), (nl, nb))
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], arange(ng))),
                     (nb, ng))
+        Ce = sparse((ones(ness), (index, arange(ness))),
+                    (nb, ness))
 
         u0 = [0] * ng  # The initial generation status
         for i in range(ng):
@@ -73,7 +86,7 @@ class UnitCommitmentBattery():
         # [vt,wt,ut,Pt]:start-up,shut-down,status,generation level, up-reserve, down-reserve
         # 1.1) boundary information
         T = case["Load_profile"].shape[0]
-        nx = (RDG + 1) * T * ng + nb * T + nl * T
+        nx = NG * T * ng + nb * T + nl * T + ness * NESS * T
         lb = zeros((nx, 1))
         ub = zeros((nx, 1))
         vtypes = ["c"] * nx
@@ -86,18 +99,21 @@ class UnitCommitmentBattery():
                 lb[BETA * ng * T + i * ng + j] = 0
                 lb[IG * ng * T + i * ng + j] = 0
                 lb[PG * ng * T + i * ng + j] = 0
-                lb[RUG * ng * T + i * ng + j] = 0
-                lb[RDG * ng * T + i * ng + j] = 0
+                lb[RS * ng * T + i * ng + j] = 0
+                lb[RU * ng * T + i * ng + j] = 0
+                lb[RD * ng * T + i * ng + j] = 0
 
                 # upper boundary
                 ub[ALPHA * ng * T + i * ng + j] = 1
                 ub[BETA * ng * T + i * ng + j] = 1
                 ub[IG * ng * T + i * ng + j] = 1
                 ub[PG * ng * T + i * ng + j] = gen[j, PMAX]
-                ub[RUG * ng * T + i * ng + j] = gen[j, PMAX]
-                ub[RDG * ng * T + i * ng + j] = gen[j, PMAX]
+                ub[RS * ng * T + i * ng + j] = gen[j, RAMP_10]
+                ub[RU * ng * T + i * ng + j] = gen[j, RAMP_AGC]
+                ub[RD * ng * T + i * ng + j] = gen[j, RAMP_AGC]
+
                 # variable types
-                vtypes[IG * ng * T + i * ng + j] = "D"
+                vtypes[IG * ng * T + i * ng + j] = "B"
 
         for i in range(T):
             for j in range(nb):
@@ -348,19 +364,26 @@ if __name__ == "__main__":
     from unit_commitment.test_cases.case6 import case6
 
     BESS = []
-    bess = {"E0": 1,
-            "EMIN": 0.1,
-            "EMAX": 2,
-            "BUS": 1,
-            }
-    BESS.append()
+    bess = {
+        "BUS": 1,
+        "E0": 1,
+        "EMIN": 0.1,
+        "EMAX": 2,
+        "PCH_MAX": 2,
+        "PDC_MAX": 2,
+        "COST": 2,
+    }
+    BESS.append(bess)
+
     unit_commitment_battery = UnitCommitmentBattery()
     profile = array(
         [1.75, 1.65, 1.58, 1.54, 1.55, 1.60, 1.73, 1.77, 1.86, 2.07, 2.29, 2.36, 2.42, 2.44, 2.49, 2.56, 2.56, 2.47,
          2.46, 2.37, 2.37, 2.33, 1.96, 1.96])
     case_base = case6()
+
     case_base["Load_profile"] = profile
 
-    model = unit_commitment_battery.problem_formulation(case_base)
+    model = unit_commitment_battery.problem_formulation(case_base, battery=bess)
+
     (sol, obj) = unit_commitment_battery.problem_solving(model)
     sol = unit_commitment_battery.result_check(sol)
