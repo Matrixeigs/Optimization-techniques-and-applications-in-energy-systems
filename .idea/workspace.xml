@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="bug found on the power flow and angle">
+      <change afterPath="$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -31,7 +35,7 @@
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_mosek.coverage" NAME="mixed_integer_solvers_mosek Coverage Results" MODIFIED="1529422434480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding_primal_dual_cuts.coverage" NAME="two_stage_bidding_primal_dual_cuts Coverage Results" MODIFIED="1529423920631" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_deposit_problem.coverage" NAME="optimal_deposit_problem Coverage Results" MODIFIED="1530671684723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
-    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contigency.coverage" NAME="unit_commitment_contigency Coverage Results" MODIFIED="1531710953275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contigency.coverage" NAME="unit_commitment_contigency Coverage Results" MODIFIED="1531809590275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1528788633324" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding.coverage" NAME="three_stage_bidding Coverage Results" MODIFIED="1529115812370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$benders_decomposition.coverage" NAME="benders_decomposition Coverage Results" MODIFIED="1529141099249" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
@@ -71,14 +75,14 @@
     <favorites_list name="Optimization" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="unit_commitment_contigency.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="unit_commitment_battery_energy_storage_system.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="206">
-              <caret line="344" column="69" lean-forward="true" selection-start-line="344" selection-start-column="69" selection-end-line="344" selection-end-column="69" />
+            <state relative-caret-position="21">
+              <caret line="7" column="22" lean-forward="true" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
               <folding>
-                <element signature="e#151#229#0" expanded="true" />
+                <element signature="e#151#230#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -87,8 +91,8 @@
       <file leaf-file-name="case6.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-169">
-              <caret line="26" column="56" lean-forward="true" selection-start-line="26" selection-start-column="56" selection-end-line="26" selection-end-column="56" />
+            <state relative-caret-position="45">
+              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
@@ -96,8 +100,17 @@
       <file leaf-file-name="data_format_contigency.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="6" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
+            <state relative-caret-position="165">
+              <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data_formate_bess.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="225">
+              <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -124,8 +137,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/distribution_system_optimization/cases/__init__.py" />
-        <option value="$PROJECT_DIR$/distribution_system_optimization/active_distribution_network.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/test_cases/__init__.py" />
         <option value="$PROJECT_DIR$/micro_grids/test_cases/__init__.py" />
         <option value="$PROJECT_DIR$/Ethereum/__init__.py" />
@@ -172,9 +183,11 @@
         <option value="$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" />
       </list>
     </option>
   </component>
@@ -212,7 +225,7 @@
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
               <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
-              <item name="data_format" type="462c0819:PsiDirectoryNode" />
+              <item name="test_cases" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -526,20 +539,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00027" summary="mapping between traffic and power networks">
-      <created>1529771900330</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1529771900330</updated>
-    </task>
-    <task id="LOCAL-00028" summary="Add energy status control of ESSs">
-      <created>1529774223315</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1529774223315</updated>
     </task>
     <task id="LOCAL-00029" summary="remove bugs in charging status control of ESSs">
       <created>1529819046267</created>
@@ -870,7 +869,21 @@
       <option name="project" value="LOCAL" />
       <updated>1531711008597</updated>
     </task>
-    <option name="localTasksCounter" value="76" />
+    <task id="LOCAL-00076" summary="update output control of the plan">
+      <created>1531715247475</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1531715247475</updated>
+    </task>
+    <task id="LOCAL-00077" summary="bug found on the power flow and angle">
+      <created>1531756452704</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1531756452704</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="TodoView">
@@ -893,10 +906,9 @@
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.2081545" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.21101573" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
@@ -909,33 +921,34 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Database Console" order="8" weight="0.32848486" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="8" weight="0.32969698" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.28898427" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32969698" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32969698" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49928468" visible="true" weight="0.31878787" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32969698" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49928468" weight="0.3987879" />
       <window_info anchor="right" x="0" y="0" width="310" height="700" id="Documentation" order="5" side_tool="true" weight="0.3297568" />
       <window_info anchor="right" id="Database" order="4" weight="0.3297568" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.5007153" side_tool="true" weight="0.32848486" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32969698" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="right" id="SciView" order="3" weight="0.3297568" />
       <window_info anchor="bottom" id="Database Console" order="14" weight="0.32918397" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="13" weight="0.32969698" />
-      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32969698" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -945,8 +958,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add paper version" />
-    <MESSAGE value="add relaxation" />
     <MESSAGE value="double check the parameters" />
     <MESSAGE value="update scenario reduction module" />
     <MESSAGE value="first version of test cases" />
@@ -970,7 +981,9 @@
     <MESSAGE value="add security check procedure" />
     <MESSAGE value="Reformulate the transmission line constraints" />
     <MESSAGE value="add swing bus limitation" />
-    <option name="LAST_COMMIT_MESSAGE" value="add swing bus limitation" />
+    <MESSAGE value="update output control of the plan" />
+    <MESSAGE value="bug found on the power flow and angle" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug found on the power flow and angle" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1035,6 +1048,11 @@
           <line>298</line>
           <option name="timeStamp" value="179" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py</url>
+          <line>355</line>
+          <option name="timeStamp" value="185" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -1043,7 +1061,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="183" />
+      <option name="time" value="186" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1201,20 +1219,6 @@ for i in range(N_scenario_second_stage):
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/direct_current_networks/optimal_power_flows/DC_optimal_power_flow_basic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="33" selection-start-line="9" selection-start-column="33" selection-end-line="9" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/direct_current_networks/optimal_power_flows/optimal_power_flow_conic_DC_network.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="48" selection-start-line="15" selection-start-column="48" selection-end-line="15" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/transmission_networks/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -1449,9 +1453,6 @@ for i in range(N_scenario_second_stage):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="6" column="36" selection-start-line="6" selection-end-line="7" />
-          <folding>
-            <element signature="e#694#756#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1492,9 +1493,6 @@ for i in range(N_scenario_second_stage):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="203">
           <caret line="312" column="66" lean-forward="true" selection-start-line="312" selection-start-column="66" selection-end-line="312" selection-end-column="66" />
-          <folding>
-            <element signature="e#122#168#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1530,9 +1528,6 @@ for i in range(N_scenario_second_stage):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="156">
           <caret line="170" column="52" lean-forward="true" selection-start-line="170" selection-start-column="52" selection-end-line="170" selection-end-column="52" />
-          <folding>
-            <element signature="e#862#937#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1540,13 +1535,6 @@ for i in range(N_scenario_second_stage):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
           <caret line="9" lean-forward="true" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="6" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -1561,19 +1549,43 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
+    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-169">
-          <caret line="26" column="56" lean-forward="true" selection-start-line="26" selection-start-column="56" selection-end-line="26" selection-end-column="56" />
+        <state relative-caret-position="165">
+          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="344" column="69" lean-forward="true" selection-start-line="344" selection-start-column="69" selection-end-line="344" selection-end-column="69" />
+        <state relative-caret-position="716">
+          <caret line="255" column="26" lean-forward="true" selection-start-line="255" selection-start-column="26" selection-end-line="255" selection-end-column="26" />
           <folding>
-            <element signature="e#151#229#0" expanded="true" />
+            <element signature="e#151#230#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21">
+          <caret line="7" column="22" lean-forward="true" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
+          <folding>
+            <element signature="e#151#230#0" expanded="true" />
           </folding>
         </state>
       </provider>
