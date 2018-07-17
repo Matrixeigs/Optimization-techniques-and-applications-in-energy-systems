@@ -11,13 +11,13 @@ RU = 5
 RD = 6
 NG = 7
 # energy storage system group
-ICS = 7
-PCS = 8
-PDC = 9
-EESS = 10
-RBS = 11
-RBU = 12
-RBD = 13
+ICS = 0
+PCS = 1
+PDC = 2
+EESS = 3
+RBS = 4
+RBU = 5
+RBD = 6
 NESS = 7
 # System level group
 THETA = 14

@@ -203,6 +203,6 @@ if __name__ == "__main__":
     A = array([[1, 1]])
     b = array([11])
     lb = array([6, 6])
-    solution = mixed_integer_linear_programming(c, A=A, b=b, xmin=lb)
+    solution = mixed_integer_quadratic_programming(c, A=A, b=b, xmin=lb)
 
     print(solution)
