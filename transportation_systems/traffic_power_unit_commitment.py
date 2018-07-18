@@ -29,7 +29,8 @@ class TrafficPowerUnitCommitment():
     def __init__(self):
         self.name = "Traffic power unit commitment"
 
-    def run(self, electricity_networks, traffic_networks, electric_vehicles, profile):
+    def run(self, electricity_networks, traffic_networks, electric_vehicles, profile, delta=0.03, delta_r=0.01,
+            alpha_s=0.5, alpha_r=0.5):
         """
 
         :param electricity_networks:
@@ -442,6 +443,48 @@ class TrafficPowerUnitCommitment():
 
         bev = zeros(5 * n_stops * nev)
         A = Aev
+        # Add constraints on the charging and discharging
+        Arange = zeros((2 * n_stops * nev, NX_traffic * nev))
+        brange = zeros(2 * n_stops * nev)
+        for i in range(nev):
+            # 1) Pdc<(1-Ic)*Pdc_max
+            Arange[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic + NX_status:i * NX_traffic + NX_status + n_stops] = eye(n_stops) * ev[i]["PDMAX"]
+            Arange[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops * 2] = eye(n_stops)
+            brange[i * n_stops * 2:i * n_stops * 2 + n_stops] = ones(n_stops) * ev[i]["PDMAX"]
+            # 2) Pc<Ic*Pch_max
+            Arange[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2,
+            i * NX_traffic + NX_status:i * NX_traffic + NX_status + n_stops] = -eye(n_stops) * ev[i]["PCMAX"]
+            Arange[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2,
+            i * NX_traffic + NX_status + n_stops * 2:i * NX_traffic + NX_status + n_stops * 3] = eye(n_stops)
+        A = concatenate([A, Arange])
+        b = concatenate([bev, brange])
+
+        # Add constraints on the charging and discharging
+        Areserve = zeros((2 * n_stops * nev, NX_traffic * nev))
+        breserve = zeros(2 * n_stops * nev)
+        for i in range(nev):
+            # 1) Pdc-Pc+Rbs+rbu<=Pdc_max
+            Areserve[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops * 2] = eye(n_stops)
+            Areserve[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic + NX_status + n_stops * 2:i * NX_traffic + NX_status + n_stops * 3] = -eye(n_stops)
+            Areserve[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic + NX_status + n_stops * 3:i * NX_traffic + NX_status + n_stops * 4] = eye(n_stops)
+            Areserve[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic + NX_status + n_stops * 4:i * NX_traffic + NX_status + n_stops * 5] = eye(n_stops)
+            breserve[i * n_stops * 2:i * n_stops * 2 + n_stops] = ones(n_stops) * ev[i]["PDMAX"]
+            # 2) Pc-Pdc+rbd<=Pc_max
+            Areserve[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2,
+            i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops * 2] = -eye(n_stops)
+            Areserve[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2,
+            i * NX_traffic + NX_status + n_stops * 2:i * NX_traffic + NX_status + n_stops * 3] = eye(n_stops)
+            Areserve[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2,
+            i * NX_traffic + NX_status + n_stops * 5:i * NX_traffic + NX_status + n_stops * 6] = eye(n_stops)
+            breserve[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2] = ones(n_stops) * ev[i]["PCMAX"]
+        A = concatenate([A, Areserve])
+        b = concatenate([b, breserve])
 
         # Add constraints on the energy status
         Aenergy = zeros((2 * T * nev, NX_traffic * nev))
@@ -450,27 +493,30 @@ class TrafficPowerUnitCommitment():
             for j in range(T):
                 # minimal energy
                 Aenergy[i * T * 2 + j,
-                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = 1
+                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = 1/ev[i]["EFF_DC"]
                 Aenergy[i * T * 2 + j,
                 i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 2 * n_stops + (
-                        j + 1) * nb_traffic] = -1
+                        j + 1) * nb_traffic] = -ev[i]["EFF_CH"]
+                Aenergy[i * T * 2 + j,i * NX_traffic + NX_status + 3 * n_stops + (j + 1) * nb_traffic-1] = alpha_s
+                Aenergy[i * T * 2 + j,i * NX_traffic + NX_status + 4 * n_stops + (j + 1) * nb_traffic-1] = alpha_r
                 if j != (T - 1):
                     benergy[i * T * 2 + j] = ev[i]["E0"] - ev[i]["EMIN"]
                 else:
                     benergy[i * T * 2 + j] = 0
                 # maximal energy
                 Aenergy[i * T * 2 + T + j,
-                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = -1
+                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = -1/ev[i]["EFF_DC"]
                 Aenergy[i * T * 2 + T + j,
                 i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 2 * n_stops + (
-                        j + 1) * nb_traffic] = 1
+                        j + 1) * nb_traffic] = ev[i]["EFF_CH"]
+                Aenergy[i * T * 2 + T + j,i * NX_traffic + NX_status + 5 * n_stops + (j + 1) * nb_traffic-1] = alpha_r
                 if j != (T - 1):
                     benergy[i * T * 2 + T + j] = ev[i]["EMAX"] - ev[i]["E0"]
                 else:
                     benergy[i * T * 2 + T + j] = 0
 
         A = concatenate([A, Aenergy])
-        b = concatenate([bev, benergy])
+        b = concatenate([b, benergy])
 
         # Merge the variables and constraints
         neq = Aeq.shape[0]
@@ -489,15 +535,15 @@ class TrafficPowerUnitCommitment():
         q_full = concatenate([q, zeros((NX_traffic * nev, 1))])
 
         # Add coupling constraints between the vehicles and power networks
-        for i in range(int(max(connection_matrix[:, 3]) / nb)):
+        for i in range(min(int(max(connection_matrix[:, 3]) / nb), T)):
             row_index = find(connection_matrix[:, 3] >= i * nb + 1)
             row_index_temp = find(connection_matrix[row_index, 3] <= (i + 1) * nb)
             row_index = row_index[row_index_temp]
 
             if len(row_index) != 0:
                 bus_index = connection_matrix[row_index, 3] - i * nb
-                charging_index = NX_status + T * nb_traffic + arange(i * nb_traffic, (i + 1) * nb_traffic)
-                discharging_index = NX_status + arange(i * nb_traffic, (i + 1) * nb_traffic)
+                charging_index = NX_status + n_stops * 2 + arange(i * nb_traffic, (i + 1) * nb_traffic)
+                discharging_index = NX_status + n_stops + arange(i * nb_traffic, (i + 1) * nb_traffic)
                 power_traffic_charging = sparse((-ones(len(bus_index)), (bus_index, charging_index)), (nb, NX_traffic))
 
                 power_traffic_discharging = sparse((ones(len(bus_index)), (bus_index, discharging_index)),
@@ -507,14 +553,49 @@ class TrafficPowerUnitCommitment():
                             power_traffic_discharging + power_traffic_charging).toarray()
 
         nineq_traffic = A.shape[0]
-
         Aineq_full = zeros((nineq + nineq_traffic, nx + NX_traffic * nev))
-        bineq_full = zeros((nineq + nineq_traffic, 1))
+        bineq_full = zeros((nineq + nineq_traffic))
         Aineq_full[0:nineq, 0:nx] = Aineq
-        bineq_full[0:nineq] = bineq
+        bineq_full[0:nineq] = bineq[:, 0]
         Aineq_full[nineq:, nx:] = A
-        bineq_full[nineq:, 0] = b
-        # Add constraints on the reserve requirement
+        bineq_full[nineq:] = b
+        # Add constraints on the reserve requirements
+        # 1) Spinning reserve
+        Aineq_full_temp = zeros((T, nx + NX_traffic * nev))
+        bineq_full_temp = zeros(T)
+        for i in range(T):
+            for j in range(ng):
+                Aineq_full_temp[i, RS * ng * T + i * ng + j] = -1
+                bineq_full_temp[i] -= delta * sum(bus[:, PD])
+            for j in range(nev):
+                Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 3 + arange(i * nb_traffic,
+                                                                                          (i + 1) * nb_traffic)] = -1
+        Aineq_full = concatenate([Aineq_full, Aineq_full_temp])
+        bineq_full = concatenate([bineq_full, bineq_full_temp])
+        # 2) Regulation up reserve
+        Aineq_full_temp = zeros((T, nx + NX_traffic * nev))
+        bineq_full_temp = zeros(T)
+        for i in range(T):
+            for j in range(ng):
+                Aineq_full_temp[i, RU * ng * T + i * ng + j] = -1
+                bineq_full_temp[i] -= delta_r * sum(bus[:, PD])
+            for j in range(nev):
+                Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 4 + arange(i * nb_traffic,
+                                                                                          (i + 1) * nb_traffic)] = -1
+        Aineq_full = concatenate([Aineq_full, Aineq_full_temp])
+        bineq_full = concatenate([bineq_full, bineq_full_temp])
+        # 3) Regulation down reserve
+        Aineq_full_temp = zeros((T, nx + NX_traffic * nev))
+        bineq_full_temp = zeros(T)
+        for i in range(T):
+            for j in range(ng):
+                Aineq_full_temp[i, RD * ng * T + i * ng + j] = -1
+                bineq_full_temp[i] -= delta_r * sum(bus[:, PD])
+            for j in range(nev):
+                Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 5 + arange(i * nb_traffic,
+                                                                                          (i + 1) * nb_traffic)] = -1
+        Aineq_full = concatenate([Aineq_full, Aineq_full_temp])
+        bineq_full = concatenate([bineq_full, bineq_full_temp])
 
         model = {"c": c_full,
                  "q": q_full,
@@ -558,6 +639,8 @@ if __name__ == "__main__":
                "end": array([0, 0, 1]),
                "PCMAX": 2,
                "PDMAX": 2,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
                "E0": 2,
                "EMAX": 4,
                "EMIN": 1,
@@ -568,6 +651,8 @@ if __name__ == "__main__":
                "end": array([0, 0, 1]),
                "PCMAX": 2,
                "PDMAX": 2,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
                "E0": 2,
                "EMAX": 4,
                "EMIN": 1,
