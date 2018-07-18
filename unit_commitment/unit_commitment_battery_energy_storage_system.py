@@ -413,7 +413,7 @@ class UnitCommitmentBattery():
             for j in range(ness):
                 Aineq_temp[i, NG * ng * T + RBS * ness * T + i * ness + j] = -1
 
-            bineq_temp[i] -= delta * sum(bus[:, PD])
+            bineq_temp[i] -= delta * profile[i] * sum(bus[:, PD])
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
         # Up reserve limitation
@@ -424,7 +424,7 @@ class UnitCommitmentBattery():
                 Aineq_temp[i, RU * ng * T + i * ng + j] = -1
             for j in range(ness):
                 Aineq_temp[i, NG * ng * T + RBU * ness * T + i * ness + j] = -1
-            bineq_temp[i] -= delta_r * sum(bus[:, PD])
+            bineq_temp[i] -= delta_r * profile[i] * sum(bus[:, PD])
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
@@ -436,7 +436,7 @@ class UnitCommitmentBattery():
                 Aineq_temp[i, RD * ng * T + i * ng + j] = -1
             for j in range(ness):
                 Aineq_temp[i, NG * ng * T + RBD * ness * T + i * ness + j] = -1
-            bineq_temp[i] -= delta_r * sum(bus[:, PD])
+            bineq_temp[i] -= delta_r * profile[i] * sum(bus[:, PD])
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 

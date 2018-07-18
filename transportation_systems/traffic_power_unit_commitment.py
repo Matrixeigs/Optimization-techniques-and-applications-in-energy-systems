@@ -29,7 +29,7 @@ class TrafficPowerUnitCommitment():
     def __init__(self):
         self.name = "Traffic power unit commitment"
 
-    def run(self, electricity_networks, traffic_networks, electric_vehicles, profile, delta=0.03, delta_r=0.01,
+    def run(self, electricity_networks, traffic_networks, electric_vehicles, profile, delta=0.03, delta_r=0.0,
             alpha_s=0.5, alpha_r=0.5):
         """
 
@@ -493,23 +493,30 @@ class TrafficPowerUnitCommitment():
             for j in range(T):
                 # minimal energy
                 Aenergy[i * T * 2 + j,
-                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = 1/ev[i]["EFF_DC"]
+                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = 1 / \
+                                                                                                                    ev[
+                                                                                                                        i][
+                                                                                                                        "EFF_DC"]
                 Aenergy[i * T * 2 + j,
                 i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 2 * n_stops + (
                         j + 1) * nb_traffic] = -ev[i]["EFF_CH"]
-                Aenergy[i * T * 2 + j,i * NX_traffic + NX_status + 3 * n_stops + (j + 1) * nb_traffic-1] = alpha_s
-                Aenergy[i * T * 2 + j,i * NX_traffic + NX_status + 4 * n_stops + (j + 1) * nb_traffic-1] = alpha_r
+                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + 3 * n_stops + (j + 1) * nb_traffic - 1] = alpha_s
+                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + 4 * n_stops + (j + 1) * nb_traffic - 1] = alpha_r
                 if j != (T - 1):
                     benergy[i * T * 2 + j] = ev[i]["E0"] - ev[i]["EMIN"]
                 else:
                     benergy[i * T * 2 + j] = 0
                 # maximal energy
                 Aenergy[i * T * 2 + T + j,
-                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = -1/ev[i]["EFF_DC"]
+                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = -1 / \
+                                                                                                                    ev[
+                                                                                                                        i][
+                                                                                                                        "EFF_DC"]
                 Aenergy[i * T * 2 + T + j,
                 i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 2 * n_stops + (
                         j + 1) * nb_traffic] = ev[i]["EFF_CH"]
-                Aenergy[i * T * 2 + T + j,i * NX_traffic + NX_status + 5 * n_stops + (j + 1) * nb_traffic-1] = alpha_r
+                Aenergy[
+                    i * T * 2 + T + j, i * NX_traffic + NX_status + 5 * n_stops + (j + 1) * nb_traffic - 1] = alpha_r
                 if j != (T - 1):
                     benergy[i * T * 2 + T + j] = ev[i]["EMAX"] - ev[i]["E0"]
                 else:
@@ -566,7 +573,7 @@ class TrafficPowerUnitCommitment():
         for i in range(T):
             for j in range(ng):
                 Aineq_full_temp[i, RS * ng * T + i * ng + j] = -1
-                bineq_full_temp[i] -= delta * sum(bus[:, PD])
+                bineq_full_temp[i] -= delta * profile[i] * sum(bus[:, PD])
             for j in range(nev):
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 3 + arange(i * nb_traffic,
                                                                                           (i + 1) * nb_traffic)] = -1
@@ -578,7 +585,7 @@ class TrafficPowerUnitCommitment():
         for i in range(T):
             for j in range(ng):
                 Aineq_full_temp[i, RU * ng * T + i * ng + j] = -1
-                bineq_full_temp[i] -= delta_r * sum(bus[:, PD])
+                bineq_full_temp[i] -= delta_r * profile[i] * sum(bus[:, PD])
             for j in range(nev):
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 4 + arange(i * nb_traffic,
                                                                                           (i + 1) * nb_traffic)] = -1
@@ -590,7 +597,7 @@ class TrafficPowerUnitCommitment():
         for i in range(T):
             for j in range(ng):
                 Aineq_full_temp[i, RD * ng * T + i * ng + j] = -1
-                bineq_full_temp[i] -= delta_r * sum(bus[:, PD])
+                bineq_full_temp[i] -= delta_r * profile[i] * sum(bus[:, PD])
             for j in range(nev):
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 5 + arange(i * nb_traffic,
                                                                                           (i + 1) * nb_traffic)] = -1
@@ -637,8 +644,8 @@ if __name__ == "__main__":
 
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
-               "PCMAX": 2,
-               "PDMAX": 2,
+               "PCMAX": 0,
+               "PDMAX": 0,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
                "E0": 2,
@@ -649,8 +656,8 @@ if __name__ == "__main__":
 
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
-               "PCMAX": 2,
-               "PDMAX": 2,
+               "PCMAX": 0,
+               "PDMAX": 0,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
                "E0": 2,
