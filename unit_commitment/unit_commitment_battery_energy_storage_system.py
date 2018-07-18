@@ -544,6 +544,18 @@ if __name__ == "__main__":
         "E0": 1,
         "EMIN": 0.1,
         "EMAX": 2,
+        "PCH_MAX": 2,
+        "PDC_MAX": 2,
+        "EFF_DC": 0.9,
+        "EFF_CH": 0.9,
+        "COST": 2,
+    }
+    BESS.append(bess)
+    bess = {
+        "BUS": 2,
+        "E0": 1,
+        "EMIN": 0.1,
+        "EMAX": 2,
         "PCH_MAX": 0,
         "PDC_MAX": 0,
         "EFF_DC": 0.9,
