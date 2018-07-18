@@ -208,9 +208,9 @@ class TrafficPowerNetworks():
         ub_traffic = ones(NX_traffic * nev)
         for i in range(nev):
             ub_traffic[i * NX_traffic + NX_status:i * NX_traffic + NX_status + n_stops] = \
-                ev[i]["PDMAX"] / baseMVA
+                ev[i]["PDMAX"]
             ub_traffic[i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + 2 * n_stops] = \
-                ev[i]["PCMAX"] / baseMVA
+                ev[i]["PCMAX"]
 
             lb_traffic[i * NX_traffic + find(connection_matrix[:, F_BUS] == 0)] = ev[i]["initial"]
             ub_traffic[i * NX_traffic + find(connection_matrix[:, F_BUS] == 0)] = ev[i]["initial"]
@@ -258,9 +258,9 @@ class TrafficPowerNetworks():
                 bus_index = connection_matrix[row_index, 3] - i * nb
                 charging_index = NX_status + T * nb_traffic + arange(i * nb_traffic, (i + 1) * nb_traffic)
                 discharging_index = NX_status + arange(i * nb_traffic, (i + 1) * nb_traffic)
-                power_traffic_charging = sparse((-ones(len(bus_index)), (bus_index, charging_index)), (nb, NX_traffic))
+                power_traffic_charging = sparse((-ones(len(bus_index))/baseMVA, (bus_index, charging_index)), (nb, NX_traffic))
 
-                power_traffic_discharging = sparse((ones(len(bus_index)), (bus_index, discharging_index)),
+                power_traffic_discharging = sparse((ones(len(bus_index))/baseMVA, (bus_index, discharging_index)),
                                                    (nb, NX_traffic))
                 for j in range(nev):
                     Aeq[i * neq:i * neq + nb, nx + j * NX_traffic: nx + (j + 1) * NX_traffic] = (
