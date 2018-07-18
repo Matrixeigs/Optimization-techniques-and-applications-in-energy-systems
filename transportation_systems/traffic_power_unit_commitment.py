@@ -365,18 +365,18 @@ class TrafficPowerUnitCommitment():
 
         NX_traffic = nl_traffic + 2 * n_stops  # The status transition, charging and discharging rate
         NX_status = nl_traffic
-        lb_traffic = zeros(NX_traffic * nev)
-        ub_traffic = ones(NX_traffic * nev)
+        lb_traffic = zeros((NX_traffic * nev, 1))
+        ub_traffic = ones((NX_traffic * nev, 1))
         for i in range(nev):
             ub_traffic[i * NX_traffic + NX_status:i * NX_traffic + NX_status + n_stops] = \
                 ev[i]["PDMAX"] / baseMVA
             ub_traffic[i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + 2 * n_stops] = \
                 ev[i]["PCMAX"] / baseMVA
 
-            lb_traffic[i * NX_traffic + find(connection_matrix[:, F_BUS] == 0)] = ev[i]["initial"]
-            ub_traffic[i * NX_traffic + find(connection_matrix[:, F_BUS] == 0)] = ev[i]["initial"]
-            lb_traffic[i * NX_traffic + find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = ev[i]["end"]
-            ub_traffic[i * NX_traffic + find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = ev[i]["end"]
+            lb_traffic[i * NX_traffic + find(connection_matrix[:, F_BUS] == 0), 0] = ev[i]["initial"]
+            ub_traffic[i * NX_traffic + find(connection_matrix[:, F_BUS] == 0), 0] = ev[i]["initial"]
+            lb_traffic[i * NX_traffic + find(connection_matrix[:, T_BUS] == T * nb_traffic + 1), 0] = ev[i]["end"]
+            ub_traffic[i * NX_traffic + find(connection_matrix[:, T_BUS] == T * nb_traffic + 1), 0] = ev[i]["end"]
 
         vtypes_traffic = (["b"] * status_matrix.shape[1] + ["c"] * 2 * T * nb_traffic) * nev
 
@@ -397,21 +397,99 @@ class TrafficPowerUnitCommitment():
         for i in range(nev):
             Aeq_traffic_full[i * neq_traffic:(i + 1) * neq_traffic, i * NX_traffic:(i + 1) * NX_traffic] = Aeq_traffic
             beq_traffic_full[i * neq_traffic:(i + 1) * neq_traffic] = beq_traffic
+
+        # Add constraints between the charging/discharging status and status
+        index_stops = find(connection_matrix[:, 3])
+        index_operation = arange(n_stops)
+        power_limit = sparse((ones(n_stops), (index_operation, index_stops)), (n_stops, NX_status))
+
+        Aev = zeros((2 * n_stops * nev, NX_traffic * nev))
+
+        for i in range(nev):
+            Aev[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic:i * NX_traffic + NX_status] = -power_limit.toarray() * ev[i]["PDMAX"]
+
+            Aev[i * n_stops * 2:i * n_stops * 2 + n_stops,
+            i * NX_traffic + NX_status:i * NX_traffic + NX_status + n_stops] = eye(n_stops)
+
+            Aev[i * n_stops * 2 + n_stops:(i + 1) * n_stops * 2,
+            i * NX_traffic:i * NX_traffic + NX_status] = -power_limit.toarray() * ev[i]["PCMAX"]
+
+            Aev[i * n_stops * 2 + n_stops:(i + 1) * n_stops * 2,
+            i * NX_traffic + NX_status + n_stops:(i + 1) * NX_traffic] = eye(n_stops)
+
+        bev = zeros(2 * n_stops * nev)
+        A = concatenate([zeros((2 * n_stops * nev, nx)), Aev], axis=1)
+
+        # Add constraints on the energy status
+        Aenergy = zeros((2 * T * nev, NX_traffic * nev))
+        benergy = zeros(2 * T * nev)
+        for i in range(nev):
+            for j in range(T):
+                # minimal energy
+                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status:i * NX_traffic + NX_status + (j + 1) * nb_traffic] = 1
+                Aenergy[i * T * 2 + j,
+                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = -1
+                if j != (T - 1):
+                    benergy[i * T * 2 + j] = ev[i]["E0"] - ev[i]["EMIN"]
+                else:
+                    benergy[i * T * 2 + j] = 0
+                # maximal energy
+                Aenergy[i * T * 2 + T + j,
+                i * NX_traffic + NX_status:i * NX_traffic + NX_status + (j + 1) * nb_traffic] = -1
+                Aenergy[i * T * 2 + T + j,
+                i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic] = 1
+                if j != (T - 1):
+                    benergy[i * T * 2 + T + j] = ev[i]["EMAX"] - ev[i]["E0"]
+                else:
+                    benergy[i * T * 2 + T + j] = 0
+
+        Aenergy = concatenate([zeros((2 * T * nev, nx)), Aenergy], axis=1)
+        A = concatenate([A, Aenergy])
+        b = concatenate([bev, benergy])
+
         # Merge the variables and constraints
-        neq = Aineq.shape[0]
+        neq = Aeq.shape[0]
+        nineq = Aineq.shape[0]
         vtypes = vtypes + vtypes_traffic
         lb_full = concatenate([lb, lb_traffic])
         ub_full = concatenate([ub, ub_traffic])
         Aeq_full = zeros((neq + neq_traffic * nev, nx + NX_traffic * nev))
-        beq_full = zeros(neq + neq_traffic * nev)
-
+        beq_full = zeros((neq + neq_traffic * nev, 1))
         Aeq_full[0:neq, 0:nx] = Aeq
-        beq_full[0:neq * T] = beq
-        Aeq_full[neq * T:, nx:] = Aeq_traffic_full
-        beq_full[neq * T:] = beq_traffic_full
+        beq_full[0:neq] = beq
+        Aeq_full[neq:, nx:] = Aeq_traffic_full
+        beq_full[neq:, 0] = beq_traffic_full
+
         c_full = concatenate([c, zeros((NX_traffic * nev, 1))])
         q_full = concatenate([q, zeros((NX_traffic * nev, 1))])
 
+        # Add coupling constraints between the vehicles and power networks
+        for i in range(int(max(connection_matrix[:, 3]) / nb)):
+            row_index = find(connection_matrix[:, 3] >= i * nb + 1)
+            row_index_temp = find(connection_matrix[row_index, 3] <= (i + 1) * nb)
+            row_index = row_index[row_index_temp]
+
+            if len(row_index) != 0:
+                bus_index = connection_matrix[row_index, 3] - i * nb
+                charging_index = NX_status + T * nb_traffic + arange(i * nb_traffic, (i + 1) * nb_traffic)
+                discharging_index = NX_status + arange(i * nb_traffic, (i + 1) * nb_traffic)
+                power_traffic_charging = sparse((-ones(len(bus_index)), (bus_index, charging_index)), (nb, NX_traffic))
+
+                power_traffic_discharging = sparse((ones(len(bus_index)), (bus_index, discharging_index)),
+                                                   (nb, NX_traffic))
+                for j in range(nev):
+                    Aeq_full[i * nb:(i + 1) * nb, nx + j * NX_traffic: nx + (j + 1) * NX_traffic] = (
+                            power_traffic_discharging + power_traffic_charging).toarray()
+
+        nineq_traffic = A.shape[0]
+
+        Aineq_full = zeros((nineq + nineq_traffic, nx + NX_traffic * nev))
+        bineq_full = zeros((nineq + nineq_traffic, 1))
+        Aineq_full[0:nineq, 0:nx] = Aineq
+        bineq_full[0:nineq] = bineq
+        Aineq_full[nineq:, nx:] = A
+        bineq_full[nineq:, 0] = b
 
         model = {"c": c_full,
                  "q": q_full,
@@ -422,6 +500,7 @@ class TrafficPowerUnitCommitment():
                  "Aeq": Aeq_full,
                  "beq": beq_full,
                  "vtypes": vtypes}
+
         return model
 
     def problem_solving(self, model):
