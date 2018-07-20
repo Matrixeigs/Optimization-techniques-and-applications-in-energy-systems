@@ -8,8 +8,7 @@ Some notes on the jointed dispatch:
 @e-mail:zhaoty@ntu.edu.sg
 """
 
-from numpy import array, zeros, ones, concatenate, shape, repeat, diag, arange, eye
-from transportation_systems.transportation_network_models import TransportationNetworkModel
+from numpy import array, zeros, ones, concatenate, shape, diag, arange, eye
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, diags, vstack
 
@@ -18,18 +17,14 @@ from transportation_systems.test_cases import case3, TIME, LOCATION
 
 # Import data format for electricity networks
 from pypower import ext2int
-from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
-from pypower.idx_cost import MODEL, NCOST, PW_LINEAR, COST, POLYNOMIAL
-from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
-from pypower.idx_gen import GEN_BUS, VG, PG, QG, PMAX, PMIN, QMAX, QMIN
+from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, RATE_A
+from pypower.idx_bus import PD, VMAX, VMIN, QD
+from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
 from numpy import flatnonzero as find
 
 from gurobipy import *
 
 from matplotlib import pyplot
-
-
-# Import data format for traffic networks
 
 
 class TrafficPowerNetworks():
@@ -258,9 +253,10 @@ class TrafficPowerNetworks():
                 bus_index = connection_matrix[row_index, 3] - i * nb
                 charging_index = NX_status + T * nb_traffic + arange(i * nb_traffic, (i + 1) * nb_traffic)
                 discharging_index = NX_status + arange(i * nb_traffic, (i + 1) * nb_traffic)
-                power_traffic_charging = sparse((-ones(len(bus_index))/baseMVA, (bus_index, charging_index)), (nb, NX_traffic))
+                power_traffic_charging = sparse((-ones(len(bus_index)) / baseMVA, (bus_index, charging_index)),
+                                                (nb, NX_traffic))
 
-                power_traffic_discharging = sparse((ones(len(bus_index))/baseMVA, (bus_index, discharging_index)),
+                power_traffic_discharging = sparse((ones(len(bus_index)) / baseMVA, (bus_index, discharging_index)),
                                                    (nb, NX_traffic))
                 for j in range(nev):
                     Aeq[i * neq:i * neq + nb, nx + j * NX_traffic: nx + (j + 1) * NX_traffic] = (
