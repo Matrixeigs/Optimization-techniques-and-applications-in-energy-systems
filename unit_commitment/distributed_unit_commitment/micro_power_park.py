@@ -44,14 +44,24 @@ class UnitCommitmentPowerPark():
         nb = shape(mpc['bus'])[0]  ## number of buses
         nl = shape(mpc['branch'])[0]  ## number of branches
         ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
-
+        nmg = len(micro_grids)
         f = branch[:, F_BUS]  ## list of "from" buses
         t = branch[:, T_BUS]  ## list of "to" buses
         i = range(nl)  ## double set of row indices
+        m = zeros(nmg)  ## list of integration index
+        Pmg_l = zeros(nmg)  ## list of lower boundary
+        Pmg_u = zeros(nmg)  ## list of upper boundary
+        for i in range(nmg):
+            m[i] = micro_grids[i]["BUS"]
+            Pmg_l[i] = micro_grids[i]["PMG"]["lb"]
+            Pmg_u[i] = micro_grids[i]["PMG"]["ub"]
+
         # Connection matrix
         Cf = sparse((ones(nl), (i, f)), (nl, nb))
         Ct = sparse((ones(nl), (i, t)), (nl, nb))
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
+        Cmg = sparse((ones(nmg), (m, range(nmg))), (nb, nmg))
+
         Branch_X = branch[:, BR_X]
         Cf = Cf.T
         Ct = Ct.T
@@ -88,6 +98,33 @@ class UnitCommitmentPowerPark():
         Alpha_u[Root_line] = 1
         Beta_f_l[Root_line] = 0
         Beta_f_l[Root_line] = 0
+        PIJ = 0
+        IIJ = 1
+        VM = 2
+
+        nx = (2 * nl + nb + ng + nmg) * T + 3 * nl
+        lx = zeros(nx)
+        ux = zeros(nx)
+        lx[0:nl] = Alpha_l
+        ux[0:nl] = Alpha_u
+        lx[nl:2 * nl] = Beta_f_l
+        ux[nl:2 * nl] = Beta_f_u
+        lx[2 * nl:3 * nl] = Beta_t_l
+        ux[2 * nl:3 * nl] = Beta_t_u
+        for i in range(T):
+            # Upper boundary
+            lx[3 * nl + PIJ * nl:3 * nl + IIJ * nl] = Pij_l
+            lx[3 * nl + IIJ * nl:3 * nl + VM * nl] = Iij_l
+            lx[3 * nl + VM * nl:3 * nl + VM * nl + nb] = Vm_l
+            lx[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + ng] = Pg_l
+            lx[3 * nl + VM * nl + nb + ng:3 * nl + VM * nl + nb + ng + nmg] = Pmg_l
+
+            # Lower boundary
+            ux[3 * nl + PIJ * nl:3 * nl + IIJ * nl] = Pij_u
+            ux[3 * nl + IIJ * nl:3 * nl + VM * nl] = Iij_u
+            ux[3 * nl + VM * nl:3 * nl + VM * nl + nb] = Vm_u
+            ux[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + nb] = Pg_u
+            ux[3 * nl + VM * nl + nb + ng:3 * nl + VM * nl + nb + ng + nmg] = Pmg_u
 
         lx = concatenate([Pij_l, Iij_l, Vm_l, Pg_l, Alpha_l, Beta_f_l, Beta_t_l])
         ux = concatenate([Pij_u, Iij_u, Vm_u, Pg_u, Alpha_u, Beta_f_u, Beta_t_u])
