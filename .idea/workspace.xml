@@ -87,8 +87,8 @@
       <file leaf-file-name="micro_power_park.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2412">
-              <caret line="234" column="13" selection-start-line="234" selection-start-column="13" selection-end-line="234" selection-end-column="13" />
+            <state relative-caret-position="430">
+              <caret line="438" column="82" selection-start-line="438" selection-start-column="82" selection-end-line="438" selection-end-column="82" />
               <folding>
                 <element signature="e#63#123#0" expanded="true" />
               </folding>
@@ -99,7 +99,7 @@
       <file leaf-file-name="network_reconfiguration.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="352">
+            <state relative-caret-position="295">
               <caret line="162" column="36" lean-forward="true" selection-start-line="162" selection-start-column="36" selection-end-line="162" selection-end-column="36" />
               <folding>
                 <element signature="e#106#168#0" expanded="true" />
@@ -111,8 +111,8 @@
       <file leaf-file-name="idx_unit_commitment.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
+            <state relative-caret-position="195">
+              <caret line="13" column="27" lean-forward="true" selection-start-line="13" selection-start-column="27" selection-end-line="13" selection-end-column="27" />
             </state>
           </provider>
         </entry>
@@ -139,7 +139,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/two_stage_bidding_primal_dual_cuts.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_network_models.py" />
         <option value="$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py" />
         <option value="$PROJECT_DIR$/transportation_systems/test_cases/case5.py" />
@@ -188,6 +187,7 @@
         <option value="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" />
         <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/__init__.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" />
         <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" />
       </list>
@@ -222,7 +222,7 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="distribution_system_optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="energy_hub" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -540,20 +540,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00044" summary="add gas networks">
-      <created>1529979904513</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1529979904513</updated>
-    </task>
-    <task id="LOCAL-00045" summary="update case format">
-      <created>1529981119004</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1529981119005</updated>
     </task>
     <task id="LOCAL-00046" summary="upload data format">
       <created>1529981603308</created>
@@ -884,7 +870,21 @@
       <option name="project" value="LOCAL" />
       <updated>1532361645780</updated>
     </task>
-    <option name="localTasksCounter" value="93" />
+    <task id="LOCAL-00093" summary="update distribution network reconfiguration model for distribution networks">
+      <created>1532414008142</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1532414008142</updated>
+    </task>
+    <task id="LOCAL-00094" summary="formulate unit commitment plan for each micro_grid">
+      <created>1532441960511</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1532441960511</updated>
+    </task>
+    <option name="localTasksCounter" value="95" />
     <servers />
   </component>
   <component name="TodoView">
@@ -905,9 +905,10 @@
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.32848486" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49499285" weight="0.3090909" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49499285" visible="true" weight="0.3090909" />
+      <window_info anchor="right" id="Coverage" side_tool="true" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.22246066" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.22246066" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
@@ -959,8 +960,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add case6 test cases" />
-    <MESSAGE value="update branch information" />
     <MESSAGE value="unit commitment problem update" />
     <MESSAGE value="add mixed integer quadratic solvers" />
     <MESSAGE value="add quadratic programming" />
@@ -984,7 +983,9 @@
     <MESSAGE value="distributed unit commitment package" />
     <MESSAGE value="dynamic network reconfiguration" />
     <MESSAGE value="boundary information of network reconfiguration" />
-    <option name="LAST_COMMIT_MESSAGE" value="boundary information of network reconfiguration" />
+    <MESSAGE value="update distribution network reconfiguration model for distribution networks" />
+    <MESSAGE value="formulate unit commitment plan for each micro_grid" />
+    <option name="LAST_COMMIT_MESSAGE" value="formulate unit commitment plan for each micro_grid" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1225,27 +1226,6 @@ for i in range(N_scenario_second_stage):
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_recovery.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="515" selection-start-line="515" selection-end-line="526" selection-end-column="75" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="88" column="37" lean-forward="true" selection-start-line="88" selection-start-column="37" selection-end-line="88" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/price_first_stage.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
@@ -1318,13 +1298,6 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/branch_optimal_power_flow.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1200">
-          <caret line="80" column="27" lean-forward="true" selection-start-line="71" selection-start-column="8" selection-end-line="80" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3435">
@@ -1357,13 +1330,6 @@ for i in range(N_scenario_second_stage):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="222">
           <caret line="56" column="5" selection-start-line="56" selection-end-line="56" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="143">
-          <caret line="16" selection-start-line="16" selection-end-line="20" selection-end-column="35" />
         </state>
       </provider>
     </entry>
@@ -1569,13 +1535,6 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -1583,16 +1542,49 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py">
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/active_distribution_network.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/branch_optimal_power_flow.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
+        <state relative-caret-position="-67">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+          <folding>
+            <element signature="e#102#164#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1553">
+          <caret line="31" column="30" lean-forward="true" selection-start-line="31" selection-start-column="30" selection-end-line="31" selection-end-column="30" />
+          <folding>
+            <element signature="e#292#354#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="380" column="19" lean-forward="true" selection-start-line="380" selection-start-column="19" selection-end-line="380" selection-end-column="19" />
+          <folding>
+            <element signature="e#892#918#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
+        <state relative-caret-position="295">
           <caret line="162" column="36" lean-forward="true" selection-start-line="162" selection-start-column="36" selection-end-line="162" selection-end-column="36" />
           <folding>
             <element signature="e#106#168#0" expanded="true" />
@@ -1600,10 +1592,22 @@ for i in range(N_scenario_second_stage):
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="27" lean-forward="true" selection-start-line="13" selection-start-column="27" selection-end-line="13" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/two_stage_energy_hub_optimization.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2571" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2412">
-          <caret line="234" column="13" selection-start-line="234" selection-start-column="13" selection-end-line="234" selection-end-column="13" />
+        <state relative-caret-position="430">
+          <caret line="438" column="82" selection-start-line="438" selection-start-column="82" selection-end-line="438" selection-end-column="82" />
           <folding>
             <element signature="e#63#123#0" expanded="true" />
           </folding>

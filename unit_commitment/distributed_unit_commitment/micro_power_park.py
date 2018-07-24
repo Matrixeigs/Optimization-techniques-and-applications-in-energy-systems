@@ -15,6 +15,9 @@ from pypower.idx_bus import BUS_TYPE, REF, PD, VMAX, VMIN
 from pypower.idx_gen import GEN_BUS, PMAX, PMIN
 from pypower.ext2int import ext2int
 
+from unit_commitment.distributed_unit_commitment.idx_unit_commitment import ICH, IG, IUG, IBIC_AC2DC, \
+    PBIC_AC2DC, PG, PESS_DC, PMG, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, NX, EESS
+
 
 class UnitCommitmentPowerPark():
     """
@@ -43,6 +46,12 @@ class UnitCommitmentPowerPark():
         nl = shape(mpc['branch'])[0]  ## number of branches
         ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
         nmg = len(micro_grids)
+
+        self.nmg = nmg
+        self.nl = nl
+        self.nb = nb
+        self.ng = ng
+
         f = branch[:, F_BUS]  ## list of "from" buses
         t = branch[:, T_BUS]  ## list of "to" buses
         i = range(nl)  ## double set of row indices
@@ -209,6 +218,11 @@ class UnitCommitmentPowerPark():
 
         ## For the microgrids
 
+        Ax2y = zeros((nmg * T, nx))
+        for i in range(T):
+            for j in range(nmg):
+                Ax2y[i * nmg + j, 3 * nl + i * NX + 2 * nl + nb + ng + j] = 1
+
         model = Model("Network_reconfiguration")
         # Define the decision variables
         x = {}
@@ -228,8 +242,6 @@ class UnitCommitmentPowerPark():
         :param micro_grid:
         :return:
         """
-        from unit_commitment.distributed_unit_commitment.idx_unit_commitment import ICH, IG, IUG, IBIC_AC2DC, \
-            PBIC_AC2DC, PG, PESS_DC, PMG, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, NX, EESS
         T = self.T
         nx = NX * T
         ## 1) boundary information and objective function
@@ -418,10 +430,10 @@ class UnitCommitmentPowerPark():
         return model_micro_grid
 
 
-
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     unit_commitment_power_park = UnitCommitmentPowerPark()
     # import micro-grids models
 
     sol = unit_commitment_power_park.problem_formulation(case=mpc)
+    # formulate connection matrix between the distribution network and micro-grids
