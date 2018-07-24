@@ -12,7 +12,7 @@ IBIC_AC2DC = 6
 PBIC_AC2DC = 7
 PBIC_DC2AC = 8
 # Energy storage system set
-ICS = 9
+ICH = 9
 PESS_CH = 10
 PESS_DC = 11
 RESS = 12

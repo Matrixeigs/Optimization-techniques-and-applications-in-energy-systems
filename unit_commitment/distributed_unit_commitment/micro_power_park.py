@@ -51,8 +51,8 @@ class UnitCommitmentPowerPark():
         Pmg_u = zeros(nmg)  ## list of upper boundary
         for i in range(nmg):
             m[i] = micro_grids[i]["BUS"]
-            Pmg_l[i] = micro_grids[i]["PMG"]["lb"]
-            Pmg_u[i] = micro_grids[i]["PMG"]["ub"]
+            Pmg_l[i] = micro_grids[i]["MG"]["PMIN"]
+            Pmg_u[i] = micro_grids[i]["MG"]["PMAX"]
 
         # Connection matrix
         Cf = sparse((ones(nl), (i, f)), (nl, nb))
@@ -228,17 +228,200 @@ class UnitCommitmentPowerPark():
         :param micro_grid:
         :return:
         """
-        from unit_commitment.distributed_unit_commitment.idx_unit_commitment import ICS, IG, IUG, IBIC_AC2DC, \
-            PBIC_AC2DC, PG, PESS_DC, PMG, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, NX
+        from unit_commitment.distributed_unit_commitment.idx_unit_commitment import ICH, IG, IUG, IBIC_AC2DC, \
+            PBIC_AC2DC, PG, PESS_DC, PMG, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, NX, EESS
         T = self.T
         nx = NX * T
-        ## 1)
+        ## 1) boundary information and objective function
+        lx = zeros(nx)
+        ux = zeros(nx)
+        c = zeros(nx)
+        vtypes = ["c"] * nx
+        for i in range(T):
+            ## 1.1) lower boundary
+            lx[i * NX + IG] = 0
+            lx[i * NX + PG] = 0
+            lx[i * NX + RG] = 0
+            lx[i * NX + IUG] = 0
+            lx[i * NX + PUG] = 0
+            lx[i * NX + RUG] = 0
+            lx[i * NX + IBIC_AC2DC] = 0
+            lx[i * NX + PBIC_DC2AC] = 0
+            lx[i * NX + PBIC_AC2DC] = 0
+            lx[i * NX + ICH] = 0
+            lx[i * NX + PESS_CH] = 0
+            lx[i * NX + PESS_DC] = 0
+            lx[i * NX + RESS] = 0
+            lx[i * NX + EESS] = micro_grid["ESS"]["EMIN"]
+            lx[i * NX + PMG] = micro_grid["MG"]["PMIN"]
+            ## 1.2) upper boundary
+            ux[i * NX + IG] = 1
+            ux[i * NX + PG] = micro_grid["DG"]["PMAX"]
+            ux[i * NX + RG] = micro_grid["DG"]["PMAX"]
+            ux[i * NX + IUG] = 1
+            ux[i * NX + PUG] = micro_grid["UG"]["PMAX"]
+            ux[i * NX + RUG] = micro_grid["UG"]["PMAX"]
+            ux[i * NX + IBIC_AC2DC] = 1
+            ux[i * NX + PBIC_DC2AC] = micro_grid["DG"]["PMAX"]
+            ux[i * NX + PBIC_AC2DC] = micro_grid["DG"]["PMAX"]
+            ux[i * NX + ICH] = 1
+            ux[i * NX + PESS_CH] = micro_grid["ESS"]["PCH_MAX"]
+            ux[i * NX + PESS_DC] = micro_grid["ESS"]["PDC_MAX"]
+            ux[i * NX + RESS] = micro_grid["ESS"]["PCH_MAX"] + micro_grid["ESS"]["PDC_MAX"]
+            ux[i * NX + EESS] = micro_grid["ESS"]["EMAX"]
+            ux[i * NX + PMG] = micro_grid["MG"]["PMAX"]
+            ## 1.3) Objective functions
+            c[i * NX + PG] = micro_grid["DG"]["COST_A"]
+            c[i * NX + IG] = micro_grid["DG"]["COST_B"]
+            c[i * NX + PUG] = micro_grid["UG"]["COST"]
+
+            ## 1.4) Variable types
+            vtypes[i * NX + IG] = "b"
+            vtypes[i * NX + IUG] = "b"
+            vtypes[i * NX + IBIC_AC2DC] = "b"
+            vtypes[i * NX + ICH] = "b"
+        # 2) Formulate the equal constraints
+        # 2.1) Power balance equation
+        # a) AC bus equation
+        Aeq = zeros((T, nx))
+        beq = zeros(T)
+        for i in range(T):
+            Aeq[i, i * NX + PG] = 1
+            Aeq[i, i * NX + PUG] = 1
+            Aeq[i, i * NX + PBIC_AC2DC] = -1
+            Aeq[i, i * NX + PBIC_DC2AC] = micro_grid["BIC"]["EFF"]
+            beq[i] = micro_grid["PD"]["AC"]
+        # b) DC bus equation
+        Aeq_temp = zeros((T, nx))
+        beq_temp = zeros(T)
+        for i in range(T):
+            Aeq_temp[i, i * NX + PBIC_AC2DC] = micro_grid["BIC"]["EFF"]
+            Aeq_temp[i, i * NX + PBIC_DC2AC] = -1
+            Aeq_temp[i, i * NX + PESS_CH] = -1
+            Aeq_temp[i, i * NX + PESS_DC] = 1
+            Aeq_temp[i, i * NX + PMG] = -1
+            beq_temp[i] = micro_grid["PD"]["DC"]
+        Aeq = concatenate([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+        # 2.2) Energy storage balance equation
+        Aeq_temp = zeros((T, nx))
+        beq_temp = zeros(T)
+        for i in range(T):
+            Aeq_temp[i, i * NX + EESS] = 1
+            Aeq_temp[i, i * NX + PESS_CH] = -micro_grid["ESS"]["EFF_CH"]
+            Aeq_temp[i, i * NX + PESS_DC] = 1 / micro_grid["ESS"]["EFF_CH"]
+            if i == 0:
+                beq_temp[i] = micro_grid["ESS"]["E0"]
+            else:
+                Aeq_temp[i, (i - 1) * NX + EESS] = -1
+        Aeq = concatenate([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+        # 3) Formualte inequal constraints
+        # 3.1) Pg+Rg<=Ig*Pgmax
+        A = zeros((T, nx))
+        b = zeros(T)
+        for i in range(T):
+            A[i, i * NX + IG] = -micro_grid["DG"]["PMAX"]
+            A[i, i * NX + PG] = 1
+            A[i, i * NX + RG] = 1
+        # 3.2) Pg-Rg>=Ig*Pgmin
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + IG] = micro_grid["DG"]["PMIN"]
+            A_temp[i, i * NX + RG] = 1
+            A_temp[i, i * NX + PG] = -1
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3.3) Pbic_ac2dc<=Ibic*Pbic_max
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + IBIC_AC2DC] = -micro_grid["BIC"]["PMAX"]
+            A_temp[i, i * NX + PBIC_AC2DC] = 1
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3.4) Pbic_dc2sc<=(1-Ibic)*Pbic_max
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + IBIC_AC2DC] = micro_grid["BIC"]["PMAX"]
+            A_temp[i, i * NX + PBIC_DC2AC] = 1
+            b_temp[i] = micro_grid["BIC"]["PMAX"]
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3.5) Pess_ch<=Ich*Pess_ch_max
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + ICH] = -micro_grid["ESS"]["PCH_MAX"]
+            A_temp[i, i * NX + PESS_CH] = 1
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3.6) Pess_dc<=(1-Ich)*Pess_dc_max
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + ICH] = micro_grid["ESS"]["PDC_MAX"]
+            A_temp[i, i * NX + PESS_DC] = 1
+            b_temp[i] = micro_grid["ESS"]["PDC_MAX"]
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3.7) Pess_dc-Pess_ch+Ress<=Pess_dc_max
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + PESS_DC] = 1
+            A_temp[i, i * NX + PESS_CH] = -1
+            A_temp[i, i * NX + RESS] = 1
+            b_temp[i] = micro_grid["ESS"]["PDC_MAX"]
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3.8) Pess_ch-Pess_dc+Ress<=Pess_ch_max
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + PESS_CH] = 1
+            A_temp[i, i * NX + PESS_DC] = -1
+            A_temp[i, i * NX + RESS] = 1
+            b_temp[i] = micro_grid["ESS"]["PCH_MAX"]
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3.9) Pug+Rug<=Iug*Pugmax
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + IUG] = -micro_grid["UG"]["PMAX"]
+            A_temp[i, i * NX + PUG] = 1
+            A_temp[i, i * NX + RUG] = 1
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3.10) Pug-Rug>=Iug*Pugmin
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + IUG] = micro_grid["DG"]["PMIN"]
+            A_temp[i, i * NX + RUG] = 1
+            A_temp[i, i * NX + PUG] = -1
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+
+        model_micro_grid = {"c": c,
+                            "lb": lx,
+                            "ub": ux,
+                            "vtypes": vtypes,
+                            "A": A,
+                            "b": b,
+                            "Aeq": Aeq,
+                            "beq": beq}
+
+        return model_micro_grid
+
 
 
 if __name__ == "__main__":
-    from pypower import runopf
-
     mpc = case33.case33()  # Default test case
     unit_commitment_power_park = UnitCommitmentPowerPark()
+    # import micro-grids models
 
     sol = unit_commitment_power_park.problem_formulation(case=mpc)

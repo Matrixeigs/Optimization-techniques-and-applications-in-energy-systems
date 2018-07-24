@@ -24,7 +24,7 @@ from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate, power
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack, diags
-from Two_stage_stochastic_optimization.power_flow_modelling import case33, case_converters
+from distribution_system_optimization.test_cases import case33, case_converters
 # The following cases, data formats are imported from the Pypower package.
 from pypower import case6ww, case9, case30, case118, case300
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
