@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -89,8 +87,8 @@
       <file leaf-file-name="micro_power_park.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="380">
-              <caret line="46" lean-forward="true" selection-start-line="46" selection-end-line="46" />
+            <state relative-caret-position="2412">
+              <caret line="234" column="13" selection-start-line="234" selection-start-column="13" selection-end-line="234" selection-end-column="13" />
               <folding>
                 <element signature="e#63#123#0" expanded="true" />
               </folding>
@@ -101,8 +99,8 @@
       <file leaf-file-name="network_reconfiguration.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="550">
-              <caret line="242" selection-start-line="242" selection-end-line="250" selection-end-column="31" />
+            <state relative-caret-position="352">
+              <caret line="162" column="36" lean-forward="true" selection-start-line="162" selection-start-column="36" selection-end-line="162" selection-end-column="36" />
               <folding>
                 <element signature="e#106#168#0" expanded="true" />
               </folding>
@@ -230,12 +228,6 @@
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
               <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
-              <item name="distributed_unit_commitment" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -548,20 +540,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00042" summary="reorganise the codes framework">
-      <created>1529979343705</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1529979343705</updated>
-    </task>
-    <task id="LOCAL-00043" summary="update readme">
-      <created>1529979676373</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1529979676373</updated>
     </task>
     <task id="LOCAL-00044" summary="add gas networks">
       <created>1529979904513</created>
@@ -892,7 +870,21 @@
       <option name="project" value="LOCAL" />
       <updated>1532226765553</updated>
     </task>
-    <option name="localTasksCounter" value="91" />
+    <task id="LOCAL-00091" summary="dynamic network reconfiguration">
+      <created>1532352252549</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1532352252549</updated>
+    </task>
+    <task id="LOCAL-00092" summary="boundary information of network reconfiguration">
+      <created>1532361645780</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1532361645780</updated>
+    </task>
+    <option name="localTasksCounter" value="93" />
     <servers />
   </component>
   <component name="TodoView">
@@ -967,8 +959,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update test cases" />
-    <MESSAGE value="Add two stage robust unit commitment problem" />
     <MESSAGE value="add case6 test cases" />
     <MESSAGE value="update branch information" />
     <MESSAGE value="unit commitment problem update" />
@@ -992,7 +982,9 @@
     <MESSAGE value="find and remove bugs in reserve requirements" />
     <MESSAGE value="reduce the redundancy of codes" />
     <MESSAGE value="distributed unit commitment package" />
-    <option name="LAST_COMMIT_MESSAGE" value="distributed unit commitment package" />
+    <MESSAGE value="dynamic network reconfiguration" />
+    <MESSAGE value="boundary information of network reconfiguration" />
+    <option name="LAST_COMMIT_MESSAGE" value="boundary information of network reconfiguration" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1075,7 +1067,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="216" />
+      <option name="time" value="217" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1600,8 +1592,8 @@ for i in range(N_scenario_second_stage):
     </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="550">
-          <caret line="242" selection-start-line="242" selection-end-line="250" selection-end-column="31" />
+        <state relative-caret-position="352">
+          <caret line="162" column="36" lean-forward="true" selection-start-line="162" selection-start-column="36" selection-end-line="162" selection-end-column="36" />
           <folding>
             <element signature="e#106#168#0" expanded="true" />
           </folding>
@@ -1610,8 +1602,8 @@ for i in range(N_scenario_second_stage):
     </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="46" lean-forward="true" selection-start-line="46" selection-end-line="46" />
+        <state relative-caret-position="2412">
+          <caret line="234" column="13" selection-start-line="234" selection-start-column="13" selection-end-line="234" selection-end-column="13" />
           <folding>
             <element signature="e#63#123#0" expanded="true" />
           </folding>

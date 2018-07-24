@@ -4,18 +4,16 @@ Distributed unit commitment for micro-gird power park
 
 from numpy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
-from scipy.sparse import hstack, vstack
+from scipy.sparse import hstack
 from numpy import flatnonzero as find
 from gurobipy import *
 
 from distribution_system_optimization.test_cases import case33
 
-from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_STATUS, RATE_A
-from pypower.idx_bus import BUS_TYPE, REF, PD, VMAX, VMIN, QD
-from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
+from pypower.idx_brch import F_BUS, T_BUS, BR_X, BR_STATUS, RATE_A
+from pypower.idx_bus import BUS_TYPE, REF, PD, VMAX, VMIN
+from pypower.idx_gen import GEN_BUS, PMAX, PMIN
 from pypower.ext2int import ext2int
-from unit_commitment.distributed_unit_commitment.idx_unit_commitment import ICS, IG, IUG, IBIC_AC2DC, PBIC_AC2DC, PG, \
-    PESS_DC, PMG, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, NX
 
 
 class UnitCommitmentPowerPark():
@@ -31,7 +29,7 @@ class UnitCommitmentPowerPark():
 
         :param cases: Distribution network models
         :param micro_grids: Micro-grid models
-        :param profile: Load-profile within each MG
+        :param profile: Load-profile within the DC networks
         :return: Formulated centralized optimization problem
         """
         T = profile.length()
@@ -62,7 +60,7 @@ class UnitCommitmentPowerPark():
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
         Cmg = sparse((ones(nmg), (m, range(nmg))), (nb, nmg))
 
-        Branch_X = branch[:, BR_X]
+        Branch_R = branch[:, BR_X]
         Cf = Cf.T
         Ct = Ct.T
         # Obtain the boundary information
@@ -102,15 +100,25 @@ class UnitCommitmentPowerPark():
         IIJ = 1
         VM = 2
 
-        nx = (2 * nl + nb + ng + nmg) * T + 3 * nl
+        nx = (2 * nl + nb + ng + nmg) * T + 3 * nl  ## Dimension of decision variables
+        NX = 2 * nl + nb + ng + nmg
+        # 1) Lower, upper and types of variables
         lx = zeros(nx)
         ux = zeros(nx)
+        vtypes = ["c"] * nx
+        c = zeros(nx)
+        q = zeros(nx)
+
         lx[0:nl] = Alpha_l
         ux[0:nl] = Alpha_u
         lx[nl:2 * nl] = Beta_f_l
         ux[nl:2 * nl] = Beta_f_u
+        vtypes[nl:2 * nl] = ["b"] * nl
+
         lx[2 * nl:3 * nl] = Beta_t_l
         ux[2 * nl:3 * nl] = Beta_t_u
+        vtypes[2 * nl:3 * nl] = ["b"] * nl
+
         for i in range(T):
             # Upper boundary
             lx[3 * nl + PIJ * nl:3 * nl + IIJ * nl] = Pij_l
@@ -123,12 +131,83 @@ class UnitCommitmentPowerPark():
             ux[3 * nl + PIJ * nl:3 * nl + IIJ * nl] = Pij_u
             ux[3 * nl + IIJ * nl:3 * nl + VM * nl] = Iij_u
             ux[3 * nl + VM * nl:3 * nl + VM * nl + nb] = Vm_u
-            ux[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + nb] = Pg_u
+            ux[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + ng] = Pg_u
             ux[3 * nl + VM * nl + nb + ng:3 * nl + VM * nl + nb + ng + nmg] = Pmg_u
+            # Cost
+            c[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + ng] = gencost[:, 5] * baseMVA
+            q[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + ng] = gencost[:, 4] * baseMVA * baseMVA
 
-        lx = concatenate([Pij_l, Iij_l, Vm_l, Pg_l, Alpha_l, Beta_f_l, Beta_t_l])
-        ux = concatenate([Pij_u, Iij_u, Vm_u, Pg_u, Alpha_u, Beta_f_u, Beta_t_u])
-        vtypes = ["c"] * (3 * nl + nb + 2 * ng + nl) + ["b"] * 2 * nl
+        # Formulate equal constraints
+        ## 2) Equal constraints
+        # 2.1) Alpha = Beta_f + Beta_t
+        Aeq_f = zeros((nl, nx))
+        beq_f = zeros(nl)
+        Aeq_f[:, 0: nl] = -eye(nl)
+        Aeq_f[:, nl:2 * nl] = eye(nl)
+        Aeq_f[:, 2 * nl: 3 * nl] = eye(nl)
+        # 2.2) sum(alpha)=nb-1
+        Aeq_alpha = zeros((1, nx))
+        beq_alpha = zeros(1)
+        Aeq_alpha[0, 0:  nl] = ones(nl)
+        beq_alpha[0] = nb - 1
+        # 2.3) Span_f*Beta_f+Span_t*Beta_t = Spanning_tree
+        Aeq_span = zeros((nb, nx))
+        beq_span = ones(nb)
+        beq_span[Root_node] = 0
+        Aeq_span[:, nl:2 * nl] = Span_f
+        Aeq_span[:, 2 * nl:] = Span_t
+        # 2.4) Power balance equation
+        Aeq_p = hstack([Ct - Cf, -diag(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg, Cmg])
+        beq_p = bus[:, PD] / baseMVA
+        Aeq_power_balance = zeros((nb * T, nx))
+        beq_power_balance = zeros(nb * T)
+
+        for i in range(T):
+            Aeq_power_balance[i * nb:(i + 1) * nb, 3 * nl + i * NX: 3 * nl + (i + 1) * NX] = Aeq_p
+            beq_power_balance[i * nb:(i + 1) * nb] = beq_p * profile[i]
+
+        Aeq = concatenate([Aeq_f, Aeq_alpha, Aeq_span, Aeq_power_balance])
+        beq = concatenate([beq_f, beq_alpha, beq_span, beq_power_balance])
+
+        ## 3) Inequality constraints
+        # 3.1) Pij<=Iij*Pij_max
+        A_pij = zeros((nl * T, nx))
+        b_pij = zeros(nl * T)
+        for i in range(T):
+            A_pij[i * nl:(i + 1) * nl, 3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + (PIJ + 1) * nl] = eye(nl)
+            A_pij[i * nl:(i + 1) * nl, 0: nl] = -diag(Pij_u)
+        # 3.2) lij<=Iij*lij_max
+        A_lij = zeros((nl * T, nx))
+        b_lij = zeros(nl * T)
+        for i in range(T):
+            A_lij[i * nl:(i + 1) * nl, 3 * nl + i * NX + IIJ * nl:3 * nl + i * NX + (IIJ + 1) * nl] = eye(nl)
+            A_lij[i * nl:(i + 1) * nl, 0: nl] = -diag(Iij_u)
+        # 3.3) KVL equation
+        A_kvl = zeros((2 * nl * T, nx))
+        b_kvl = zeros(2 * nl * T)
+        for i in range(T):
+            A_kvl[i * nl:(i + 1) * nl, 3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + (PIJ + 1) * nl] = -2 * diag(
+                Branch_R)
+            A_kvl[i * nl:(i + 1) * nl, 3 * nl + i * NX + IIJ * nl:3 * nl + i * NX + (IIJ + 1) * nl] = diag(
+                Branch_R ** 2)
+            A_kvl[i * nl:(i + 1) * nl, 3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = (
+                    Cf.T - Ct.T).toarray()
+            A_kvl[i * nl:(i + 1) * nl, 0:nl] = eye(nl) * bigM
+            b_kvl[i * nl:(i + 1) * nl, 0:nl] = ones(nl) * bigM
+
+            A_kvl[nl * T + i * nl:nl * T + (i + 1) * nl,
+            3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + (PIJ + 1) * nl] = 2 * diag(Branch_R)
+            A_kvl[nl * T + i * nl:nl * T + (i + 1) * nl,
+            3 * nl + i * NX + IIJ * nl:3 * nl + i * NX + (IIJ + 1) * nl] = -diag(Branch_R ** 2)
+            A_kvl[nl * T + i * nl:nl * T + (i + 1) * nl, 3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = -(
+                    Cf.T - Ct.T).toarray()
+            A_kvl[nl * T + i * nl:nl * T + (i + 1) * nl, 0:nl] = eye(nl) * bigM
+            b_kvl[nl * T + i * nl:nl * T + (i + 1) * nl, 0:nl] = ones(nl) * bigM
+
+        A = concatenate([A_pij, A_lij, A_kvl])
+        b = concatenate([b_pij, b_lij, b_kvl])
+
+        ## For the microgrids
 
         model = Model("Network_reconfiguration")
         # Define the decision variables
@@ -141,82 +220,19 @@ class UnitCommitmentPowerPark():
             elif vtypes[i] == "b":
                 x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
 
-        # Alpha = Beta_f + Beta_t
-        Aeq_f = zeros((nl, nx))
-        beq_f = zeros(nl)
-        Aeq_f[:, 3 * nl + nb + 2 * ng:3 * nl + nb + 2 * ng + nl] = -eye(nl)
-        Aeq_f[:, 3 * nl + nb + 2 * ng + nl:3 * nl + nb + 2 * ng + 2 * nl] = eye(nl)
-        Aeq_f[:, 3 * nl + nb + 2 * ng + 2 * nl:3 * nl + nb + 2 * ng + 3 * nl] = eye(nl)
-
-        # sum(alpha)=nb-1
-        Aeq_alpha = zeros((1, nx))
-        beq_alpha = zeros(1)
-        Aeq_alpha[0, 3 * nl + nb + 2 * ng: 3 * nl + nb + 2 * ng + nl] = ones(nl)
-        beq_alpha[0] = nb - 1
-
-        # Span_f*Beta_f+Span_t*Beta_t = Spanning_tree
-        Aeq_span = zeros((nb, nx))
-        beq_span = ones(nb)
-        beq_span[Root_node] = 0
-        Aeq_span[:, 3 * nl + nb + 2 * ng + nl:3 * nl + nb + 2 * ng + 2 * nl] = Span_f
-        Aeq_span[:, 3 * nl + nb + 2 * ng + 2 * nl:] = Span_t
-
-        # Add system level constraints
-        Aeq_p = hstack(
-            [Ct - Cf, zeros((nb, nl)), -diag(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg, zeros((nb, ng + 3 * nl))])
-        beq_p = bus[:, PD] / baseMVA
-        # Add constraints for each sub system
-        Aeq_q = hstack([zeros((nb, nl)), Ct - Cf, -diag(Ct * Branch_X) * Ct, zeros((nb, nb)), zeros((nb, ng)), Cg,
-                        zeros((nb, 3 * nl))])
-        beq_q = bus[:, QD] / baseMVA
-
-        Aeq = vstack([Aeq_f, Aeq_alpha, Aeq_span, Aeq_p, Aeq_q])
-        Aeq = Aeq.toarray()
-        beq = concatenate([beq_f, beq_alpha, beq_span, beq_p, beq_q])
-
-        # Inequality constraints
-        A = zeros((nl, nx))
-        b = zeros(nl)
-        A[:, 2 * nl:3 * nl] = eye(nl)
-        A[:, 3 * nl + nb + 2 * ng:3 * nl + nb + 2 * ng + nl] = -diag(Iij_u)
-
-        A_temp = zeros((nl, nx))
-        b_temp = zeros(nl)
-        A_temp[:, 0: nl] = eye(nl)
-        A_temp[:, 3 * nl + nb + 2 * ng:3 * nl + nb + 2 * ng + nl] = -diag(Pij_u)
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
-        #
-        A_temp = zeros((nl, nx))
-        b_temp = zeros(nl)
-        A_temp[:, nl: 2 * nl] = eye(nl)
-        A_temp[:, 3 * nl + nb + 2 * ng:3 * nl + nb + 2 * ng + nl] = -diag(Qij_u)
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
-
-        A_temp = zeros((nl, nx))
-        b_temp = zeros(nl)
-        A_temp[:, 0:nl] = -2 * diag(Branch_R)
-        A_temp[:, nl:2 * nl] = -2 * diag(Branch_X)
-        A_temp[:, 2 * nl:3 * nl] = diag(Branch_R ** 2) + diag(Branch_X ** 2)
-        A_temp[:, 3 * nl:3 * nl + nb] = (Cf.T - Ct.T).toarray()
-        A_temp[:, 3 * nl + nb + 2 * ng:3 * nl + nb + 2 * ng + nl] = eye(nl) * bigM
-        b_temp = ones(nl) * bigM
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
-
-        A_temp = zeros((nl, nx))
-        b_temp = zeros(nl)
-        A_temp[:, 0:nl] = 2 * diag(Branch_R)
-        A_temp[:, nl:2 * nl] = 2 * diag(Branch_X)
-        A_temp[:, 2 * nl:3 * nl] = -diag(Branch_R ** 2) - diag(Branch_X ** 2)
-        A_temp[:, 3 * nl:3 * nl + nb] = (-Cf.T + Ct.T).toarray()
-        A_temp[:, 3 * nl + nb + 2 * ng:3 * nl + nb + 2 * ng + nl] = eye(nl) * bigM
-        b_temp = ones(nl) * bigM
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
-
         return model
+
+    def micro_grid(self, micro_grid):
+        """
+        Unit commitment problem formulation of single micro_grid
+        :param micro_grid:
+        :return:
+        """
+        from unit_commitment.distributed_unit_commitment.idx_unit_commitment import ICS, IG, IUG, IBIC_AC2DC, \
+            PBIC_AC2DC, PG, PESS_DC, PMG, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, NX
+        T = self.T
+        nx = NX * T
+        ## 1)
 
 
 if __name__ == "__main__":
