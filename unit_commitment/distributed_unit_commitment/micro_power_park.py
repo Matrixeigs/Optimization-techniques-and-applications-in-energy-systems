@@ -9,6 +9,7 @@ from numpy import flatnonzero as find
 from gurobipy import *
 
 from distribution_system_optimization.test_cases import case33
+from micro_grids.test_cases.cases_unit_commitment import micro_grid
 
 from pypower.idx_brch import F_BUS, T_BUS, BR_X, BR_STATUS, RATE_A
 from pypower.idx_bus import BUS_TYPE, REF, PD, VMAX, VMIN
@@ -274,8 +275,8 @@ class UnitCommitmentPowerPark():
             ux[i * NX + PUG] = micro_grid["UG"]["PMAX"]
             ux[i * NX + RUG] = micro_grid["UG"]["PMAX"]
             ux[i * NX + IBIC_AC2DC] = 1
-            ux[i * NX + PBIC_DC2AC] = micro_grid["DG"]["PMAX"]
-            ux[i * NX + PBIC_AC2DC] = micro_grid["DG"]["PMAX"]
+            ux[i * NX + PBIC_DC2AC] = micro_grid["BIC"]["PMAX"]
+            ux[i * NX + PBIC_AC2DC] = micro_grid["BIC"]["PMAX"]
             ux[i * NX + ICH] = 1
             ux[i * NX + PESS_CH] = micro_grid["ESS"]["PCH_MAX"]
             ux[i * NX + PESS_DC] = micro_grid["ESS"]["PDC_MAX"]
@@ -285,7 +286,7 @@ class UnitCommitmentPowerPark():
             ## 1.3) Objective functions
             c[i * NX + PG] = micro_grid["DG"]["COST_A"]
             c[i * NX + IG] = micro_grid["DG"]["COST_B"]
-            c[i * NX + PUG] = micro_grid["UG"]["COST"]
+            c[i * NX + PUG] = micro_grid["UG"]["COST"][i]
 
             ## 1.4) Variable types
             vtypes[i * NX + IG] = "b"
@@ -321,7 +322,7 @@ class UnitCommitmentPowerPark():
         for i in range(T):
             Aeq_temp[i, i * NX + EESS] = 1
             Aeq_temp[i, i * NX + PESS_CH] = -micro_grid["ESS"]["EFF_CH"]
-            Aeq_temp[i, i * NX + PESS_DC] = 1 / micro_grid["ESS"]["EFF_CH"]
+            Aeq_temp[i, i * NX + PESS_DC] = 1 / micro_grid["ESS"]["EFF_DC"]
             if i == 0:
                 beq_temp[i] = micro_grid["ESS"]["E0"]
             else:
@@ -433,7 +434,21 @@ class UnitCommitmentPowerPark():
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     unit_commitment_power_park = UnitCommitmentPowerPark()
-    # import micro-grids models
+
+    # import the information models of micro-grids
+    micro_grid_1 = micro_grid.copy()
+    micro_grid_1["PD"]["AC"] = micro_grid_1["PD"]["AC"] * micro_grid_1["PD"]["AC_MAX"]
+    micro_grid_1["BUS"] = 2
+
+    micro_grid_2 = micro_grid.copy()
+    micro_grid_2["PD"]["AC"] = micro_grid_2["PD"]["AC"] * micro_grid_1["PD"]["AC_MAX"]
+    micro_grid_2["BUS"] = 4
+
+    micro_grid_3 = micro_grid.copy()
+    micro_grid_3["PD"]["AC"] = micro_grid_3["PD"]["AC"] * micro_grid_3["PD"]["AC_MAX"]
+    micro_grid_3["BUS"] = 10
+
+    case_micro_grids = [micro_grid_1, micro_grid_2, micro_grid_3]
 
     sol = unit_commitment_power_park.problem_formulation(case=mpc)
     # formulate connection matrix between the distribution network and micro-grids
