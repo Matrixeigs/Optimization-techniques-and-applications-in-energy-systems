@@ -9,7 +9,7 @@ from scipy import stats
 from math import sqrt
 
 
-def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.99, Lam=0.1):
+def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.99, Lam=0.1, mode=0, cvar=0, ec=0):
     # 1) System level configuration
     T = 24
     weight_first_stage = ones((N_scenario_first_stage, 1)) / N_scenario_first_stage
@@ -227,7 +227,7 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.99, L
     # Group 7: conditional variables
     nu_index = {}
     epison = model.addVar(name="EPISON")
-    # Define the recovery index
+    # Define the conditional variables
     for i in range(N_scenario_second_stage):
         nu_index[i] = model.addVar(lb=0, name="NU_INDEX{0}".format(i))
 
@@ -492,6 +492,13 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.99, L
     for i in range(N_scenario_second_stage):
         obj_CVaR += nu_index[i] * weight_second_stage[i] / (1 - alpha)
 
+    if mode == 1:
+        model.addConstr(obj_DA + obj_RT == ec)
+    elif mode == 2:
+        model.addConstr(obj_CVaR == cvar)
+    elif mode == 3:
+        model.addConstr(obj_CVaR <= cvar)
+
     obj = (1 - Lam) * (obj_DA + obj_RT) + Lam * obj_CVaR
 
     model.setObjective(obj)
@@ -660,17 +667,32 @@ def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.99, L
                     obj_RT += VCHP[i, j, k] * CCHP["COST"] * weight_first_stage[k] * weight_second_stage[j]
                     obj_RT += PPV[i, j, k] * PV_cost * weight_first_stage[k] * weight_second_stage[j]
 
-    return obj, obj_CVaR
+    return obj[0], obj_CVaR
 
 
 if __name__ == "__main__":
+    """
+        Using Lexicographic construction of the pay-off table to solve the bi-objective optimization problem
+    """
+    # 1) To calculate Lex tablet
+    (obj, obj_cVaR) = main(10, 20, Lam=0)  # The operational cost
+    L11 = obj
+    (obj, obj_cVaR) = main(10, 20, Lam=0.999)  # The operational cost
+    L22 = obj_cVaR
+    (obj, obj_cVaR) = main(10, 20, Lam=0, mode=1, ec=L11)  # The operational cost
+    L12 = obj_cVaR
+    (obj, obj_cVaR) = main(10, 20, Lam=0, mode=2, cvar=L22)  # The operational cost
+    L21 = obj
 
-    N_weight = 21
+    P = 20
+    ep = [0] * P
+    for i in range(P):
+        ep[i] = L22 + i * (L12 - L22) / P
 
-    obj = zeros(N_weight)
-    obj_cVaR = zeros(N_weight)
-    for i in range(N_weight):
-        (obj[i], obj_cVaR[i]) = main(10, 20, Lam=i * 0.05)
+    obj = zeros(P)
+    obj_cVaR = zeros(P)
+    for i in range(P):
+        (obj[i], obj_cVaR[i]) = main(10, 20, Lam=0, mode=3, cvar=ep[i])
 
     f = open("obj.txt", "w+")
     np.savetxt(f, obj, '%.18g', delimiter=',')
