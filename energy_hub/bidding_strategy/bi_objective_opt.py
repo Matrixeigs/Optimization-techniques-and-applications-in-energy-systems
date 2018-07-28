@@ -4,9 +4,7 @@ CVaR and excepted operational cost balancing for energy hubs
 from numpy import zeros, ones, array
 import numpy as np
 from gurobipy import *
-from matplotlib import pyplot
 from scipy import stats
-from math import sqrt
 
 
 def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.99, Lam=0.1, mode=0, cvar=0, ec=0):
@@ -689,10 +687,15 @@ if __name__ == "__main__":
     for i in range(P):
         ep[i] = L22 + i * (L12 - L22) / P
 
-    obj = zeros(P)
-    obj_cVaR = zeros(P)
-    for i in range(P):
-        (obj[i], obj_cVaR[i]) = main(10, 20, Lam=0, mode=3, cvar=ep[i])
+    obj = zeros(P + 2)
+    obj_cVaR = zeros(P + 2)
+    for i in range(1, P + 1):
+        (obj[i], obj_cVaR[i]) = main(10, 20, Lam=0, mode=2, cvar=ep[i - 1])
+
+    obj[P + 1] = L11
+    obj_cVaR[P + 1] = L12
+    obj[0] = L21
+    obj_cVaR[0] = L22
 
     f = open("obj.txt", "w+")
     np.savetxt(f, obj, '%.18g', delimiter=',')
