@@ -140,13 +140,13 @@ class UnitCommitmentPowerPark():
             lx[3 * nl + i * NX + IIJ * nl:3 * nl + i * NX + VM * nl] = Iij_l
             lx[3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = Vm_l
             lx[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = Pg_l
-            lx[3 * nl + i * NX + VM * nl + nb + ng:3 * nl + i * NX + VM * nl + nb + ng + nmg] = Pmg_l
+            lx[3 * nl + i * NX + VM * nl + nb + ng:3 * nl + i * NX + VM * nl + nb + ng + nmg] = Pmg_l / baseMVA
             # Lower boundary
             ux[3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + IIJ * nl] = Pij_u
             ux[3 * nl + i * NX + IIJ * nl:3 * nl + i * NX + VM * nl] = Iij_u
             ux[3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = Vm_u
             ux[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = Pg_u
-            ux[3 * nl + i * NX + VM * nl + nb + ng:3 * nl + i * NX + VM * nl + nb + ng + nmg] = Pmg_u
+            ux[3 * nl + i * NX + VM * nl + nb + ng:3 * nl + i * NX + VM * nl + nb + ng + nmg] = Pmg_u / baseMVA
             # Cost
             c[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = gencost[:, 5] * baseMVA
             q[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = gencost[:, 4] * baseMVA * baseMVA
@@ -530,6 +530,9 @@ if __name__ == "__main__":
         nVariables_index[i + 1] = nVariables_index[i] + len(model_micro_grids[i]["c"])
         neq_index[i + 1] = neq_index[i] + model_micro_grids[0]["Aeq"].shape[0]
         nineq_index[i + 1] = nineq_index[i] + model_micro_grids[0]["A"].shape[0]
+        nVariables += len(model_micro_grids[i]["c"])
+        neq += int(model_micro_grids[0]["Aeq"].shape[0])
+        nineq += int(model_micro_grids[0]["A"].shape[0])
 
     # Extract information from information models
     lx = model_distribution_network["lb"]
@@ -579,13 +582,14 @@ if __name__ == "__main__":
             x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
         elif vtypes[i] == "b":
             x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
-
+    neq = Aeq.shape[0]
     for i in range(neq):
         expr = 0
         for j in range(nVariables):
             expr += x[j] * Aeq[i, j]
         model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
 
+    nineq = A.shape[0]
     for i in range(nineq):
         expr = 0
         for j in range(nVariables):
@@ -599,12 +603,12 @@ if __name__ == "__main__":
     # Add conic constraints
     nl = unit_commitment_power_park.nl
     f = model_distribution_network["f"]
-    NX = model_distribution_network["NX"]
+    NX_dsn = model_distribution_network["NX"]
     for i in range(T):
         for j in range(nl):
             model.addConstr(
-                x[3 * nl + i * NX + j] * x[3 * nl + i * NX + j] <= x[3 * nl + i * NX + j + nl] * x[
-                    3 * nl + i * NX + f[j] + 2 * nl])
+                x[3 * nl + i * NX_dsn + j] * x[3 * nl + i * NX_dsn + j] <= x[3 * nl + i * NX_dsn + j + nl] * x[
+                    3 * nl + i * NX_dsn + f[j] + 2 * nl])
 
     model.setObjective(obj)
     model.Params.OutputFlag = 0
@@ -618,5 +622,71 @@ if __name__ == "__main__":
     xx = []
     for v in model.getVars():
         xx.append(v.x)
-
+    xx = array(xx)  # convert the list to array
     # Obtain the solutions of distribution networks and micro-grids
+    nb = unit_commitment_power_park.nb
+    ng = unit_commitment_power_park.ng
+    # 1) The network topology
+    Alpha = xx[0:nl]
+    Beta = xx[nl:2 * nl]
+    Iij = xx[2 * nl:3 * nl]
+    # 2) The distribution network operational plan
+    Pij = zeros((nl, T))
+    lij = zeros((nl, T))
+    Vm = zeros((nb, T))
+    Pg = zeros((ng, T))
+    Pmg = zeros((nmg, T))
+    for i in range(T):
+        for j in range(nl):
+            Pij[j, i] = xx[3 * nl + i * NX_dsn + j]
+            lij[j, i] = xx[3 * nl + i * NX_dsn + nl + j]
+        for j in range(nb):
+            Vm[j, i] = xx[3 * nl + i * NX_dsn + 2 * nl + j]
+        for j in range(ng):
+            Pg[j, i] = xx[3 * nl + i * NX_dsn + 2 * nl + nb + j]
+        for j in range(nmg):
+            Pmg[j, i] = xx[3 * nl + i * NX_dsn + 2 * nl + nb + ng + j]
+    # 3) The scheduling plan of each MG
+    # 3.1) The energy storage system group
+    Ich = zeros((nmg, T))
+    Pess_dc = zeros((nmg, T))
+    Pess_ch = zeros((nmg, T))
+    Ress = zeros((nmg, T))
+    Eess = zeros((nmg, T))
+    # 3.2) The diesel generator group
+    Ig = zeros((nmg, T))
+    Pg_mg = zeros((nmg, T))
+    Rg_mg = zeros((nmg, T))
+    # 3.3) The utility grid group
+    Iug_mg = zeros((nmg, T))
+    Pug_mg = zeros((nmg, T))
+    Rug_mg = zeros((nmg, T))
+    # 3.4) Bi-directional converter group
+    Ibic = zeros((nmg, T))
+    Pbic_a2d = zeros((nmg, T))
+    Pbic_d2a = zeros((nmg, T))
+    # 3.5) Energy exchange part
+    Pmg_mg = zeros((nmg, T))
+    for i in range(T):
+        for j in range(nmg):
+            Ich[j, i] = xx[int(nVariables_index[j]) + i * NX + ICH]
+            Pess_dc[j, i] = xx[int(nVariables_index[j]) + i * NX + PESS_DC]
+            Pess_ch[j, i] = xx[int(nVariables_index[j]) + i * NX + PESS_CH]
+            Ress[j, i] = xx[int(nVariables_index[j]) + i * NX + RESS]
+            Eess[j, i] = xx[int(nVariables_index[j]) + i * NX + EESS]
+
+            Ig[j, i] = xx[int(nVariables_index[j]) + i * NX + IG]
+            Pg_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + PG]
+            Rg_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + RG]
+
+            Iug_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + IUG]
+            Pug_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + PUG]
+            Rug_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + RUG]
+
+            Ibic[j, i] = xx[int(nVariables_index[j]) + i * NX + IBIC_AC2DC]
+            Pbic_a2d[j, i] = xx[int(nVariables_index[j]) + i * NX + PBIC_AC2DC]
+            Pbic_d2a[j, i] = xx[int(nVariables_index[j]) + i * NX + PBIC_DC2AC]
+
+            Pmg_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + PMG]
+
+    vol = zeros((nl, T))
