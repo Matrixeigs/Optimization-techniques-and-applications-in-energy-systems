@@ -184,13 +184,13 @@ class UnitCommitmentPowerPark():
         beq = concatenate([beq_f, beq_alpha, beq_span, beq_power_balance])
 
         ## 3) Inequality constraints
-        # 3.1) Pij<=Iij*Pij_max
+        # 3.1) Pij<=Alpha*Pij_max
         A_pij = zeros((nl * T, nx))
         b_pij = zeros(nl * T)
         for i in range(T):
             A_pij[i * nl:(i + 1) * nl, 3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + (PIJ + 1) * nl] = eye(nl)
             A_pij[i * nl:(i + 1) * nl, 0: nl] = -diag(Pij_u)
-        # 3.2) lij<=Iij*lij_max
+        # 3.2) lij<=Alpha*lij_max
         A_lij = zeros((nl * T, nx))
         b_lij = zeros(nl * T)
         for i in range(T):
@@ -611,8 +611,8 @@ if __name__ == "__main__":
                     3 * nl + i * NX_dsn + f[j] + 2 * nl])
 
     model.setObjective(obj)
-    model.Params.OutputFlag = 0
-    model.Params.LogToConsole = 0
+    model.Params.OutputFlag = 1
+    model.Params.LogToConsole = 1
     model.Params.DisplayInterval = 1
     model.Params.LogFile = ""
 
@@ -690,3 +690,8 @@ if __name__ == "__main__":
             Pmg_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + PMG]
 
     vol = zeros((nl, T))
+    for i in range(T):
+        for j in range(nl):
+            vol[j, i] = Pij[j, i] ** 2 - Vm[int(f[j]), i] * lij[j, i]
+
+    print(vol)

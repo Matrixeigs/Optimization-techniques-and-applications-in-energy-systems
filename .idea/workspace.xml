@@ -52,7 +52,7 @@
     <SUITE FILE_PATH="coverage/Optimization$network_reconfiguration.coverage" NAME="network_reconfiguration Coverage Results" MODIFIED="1532480833226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_stochastic_unit_commitment.coverage" NAME="two_stage_stochastic_unit_commitment Coverage Results" MODIFIED="1529287857749" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$benders_solvers.coverage" NAME="benders_solvers Coverage Results" MODIFIED="1529422671060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
-    <SUITE FILE_PATH="coverage/Optimization$micro_power_park.coverage" NAME="micro_power_park Coverage Results" MODIFIED="1532769304430" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$micro_power_park.coverage" NAME="micro_power_park Coverage Results" MODIFIED="1532781498518" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$bidding_decomposition.coverage" NAME="bidding_decomposition Coverage Results" MODIFIED="1528336585311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_recovery.coverage" NAME="three_stage_bidding_recovery Coverage Results" MODIFIED="1529939892176" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_aggregration.coverage" NAME="three_stage_bidding_aggregration Coverage Results" MODIFIED="1530067983855" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
@@ -77,11 +77,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="micro_power_park.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="micro_power_park.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="206">
-              <caret line="682" column="70" lean-forward="true" selection-start-line="682" selection-start-column="70" selection-end-line="682" selection-end-column="70" />
+            <state relative-caret-position="356">
+              <caret line="696" column="14" lean-forward="true" selection-start-line="696" selection-start-column="14" selection-end-line="696" selection-end-column="14" />
               <folding>
                 <element signature="e#63#130#0" expanded="true" />
               </folding>
@@ -98,11 +98,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cases_unit_commitment.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="cases_unit_commitment.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="37" column="16" lean-forward="true" selection-start-line="37" selection-start-column="16" selection-end-line="37" selection-end-column="16" />
+            <state relative-caret-position="223">
+              <caret line="37" column="15" lean-forward="true" selection-start-line="37" selection-start-column="15" selection-end-line="37" selection-end-column="15" />
             </state>
           </provider>
         </entry>
@@ -178,8 +178,8 @@
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/bi_objective_opt.py" />
-        <option value="$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" />
+        <option value="$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py" />
       </list>
     </option>
   </component>
@@ -537,13 +537,6 @@
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
     </task>
-    <task id="LOCAL-00053" summary="double check the parameters">
-      <created>1530587844166</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1530587844166</updated>
-    </task>
     <task id="LOCAL-00054" summary="update scenario reduction module">
       <created>1530592520950</created>
       <option name="number" value="00054" />
@@ -880,7 +873,14 @@
       <option name="project" value="LOCAL" />
       <updated>1532764323337</updated>
     </task>
-    <option name="localTasksCounter" value="102" />
+    <task id="LOCAL-00102" summary="add verification codes">
+      <created>1532769695400</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1532769695400</updated>
+    </task>
+    <option name="localTasksCounter" value="103" />
     <servers />
   </component>
   <component name="TodoView">
@@ -909,7 +909,7 @@
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -957,7 +957,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update output control of the plan" />
     <MESSAGE value="bug found on the power flow and angle" />
     <MESSAGE value="add battery energy storage system integrated unit commitment" />
     <MESSAGE value="update data format of bess_unit_commitment" />
@@ -982,7 +981,8 @@
     <MESSAGE value="update sequence of figures" />
     <MESSAGE value="remove bugs in network reconfiguration problem" />
     <MESSAGE value="First version of the centralized model" />
-    <option name="LAST_COMMIT_MESSAGE" value="First version of the centralized model" />
+    <MESSAGE value="add verification codes" />
+    <option name="LAST_COMMIT_MESSAGE" value="add verification codes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1059,8 +1059,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py</url>
-          <line>691</line>
-          <option name="timeStamp" value="251" />
+          <line>696</line>
+          <option name="timeStamp" value="253" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1070,11 +1070,27 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="253" />
+      <option name="time" value="255" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>vol = zeros((nl, T))
+for i in range(T):
+    for j in range(nl):
+        vol[j, i] = Pij[j, i] ** 2 - Vm[int(f[j]), i] * lij[j, i]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>vol = zeros((nl, T))
+for i in range(T):
+    for j in range(nl):
+        vol[j, i] = Pij[j, i] ** 2 - Vm[f[j], i] * lij[j, i]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>xx = []
 for v in model.getVars():
@@ -1128,36 +1144,28 @@ for i in range(T):  # Dispatch at each time slot
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>obj_DA = 0
-for i in range(T):
-    for j in range(N_scenario_first_stage):
-        obj_DA += pDA[i, j] * Price_DA[i, j] * weight_first_stage[j]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>for j in range(N_scenario_second_stage):
-    expr = 0
-    for k in range(N_scenario_first_stage):
-        for i in range(T):
-            expr += PRT[i, j, k] * ELEC_PRICE[i]
-            expr += PRT_positive[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight
-            expr += PRT_negative[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight
-            expr += PESS_DC[i, j, k] * ESS[&quot;BESS&quot;][&quot;COST&quot;]
-            expr += PESS_CH[i, j, k] * ESS[&quot;BESS&quot;][&quot;COST&quot;]
-            expr += QHS_DC[i, j, k] * ESS[&quot;TESS&quot;][&quot;COST&quot;]
-            expr += QHS_CH[i, j, k] * ESS[&quot;TESS&quot;][&quot;COST&quot;]
-            expr += QCS_DC[i, j, k] * ESS[&quot;CESS&quot;][&quot;COST&quot;]
-            expr += QCS_CH[i, j, k] * ESS[&quot;CESS&quot;][&quot;COST&quot;]
-            expr += VGAS[i, j, k] * CCHP[&quot;COST&quot;]
-            expr += VCHP[i, j, k] * CCHP[&quot;COST&quot;]
-            expr += pDA[i, k] * Price_DA[i, k]* weight_first_stage[k]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
     </expressions>
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>pyplot.show()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>pyplot.plot(vol)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>sum(Alpha)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>sum(Iij)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>obj</expression-string>
         <language-id>Python</language-id>
@@ -1180,26 +1188,6 @@ for i in range(T):
       </expression>
       <expression>
         <expression-string>int(nVariables_index[-1] - nVariables_index[0]))</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>obj = obj.getValue()</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>nVariables_index[-1]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>neq_micro_grid[i]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>NX</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -1561,20 +1549,20 @@ for i in range(T):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="37" column="16" lean-forward="true" selection-start-line="37" selection-start-column="16" selection-end-line="37" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="682" column="70" lean-forward="true" selection-start-line="682" selection-start-column="70" selection-end-line="682" selection-end-column="70" />
+        <state relative-caret-position="356">
+          <caret line="696" column="14" lean-forward="true" selection-start-line="696" selection-start-column="14" selection-end-line="696" selection-end-column="14" />
           <folding>
             <element signature="e#63#130#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="223">
+          <caret line="37" column="15" lean-forward="true" selection-start-line="37" selection-start-column="15" selection-end-line="37" selection-end-column="15" />
         </state>
       </provider>
     </entry>
