@@ -35,7 +35,8 @@ BIC = {"PMAX": 5,
        "EFF_AC2DC": 0.9,
        "EFF_DC2AC": 0.9, }
 
-MG = {"PMAX": 5}
+MG = {"PMAX": 5,
+      "PMIN": -5}
 
 PD = {"AC": AC_PD / max(AC_PD),
       "AC_MAX": 5,

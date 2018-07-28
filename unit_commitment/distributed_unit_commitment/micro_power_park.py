@@ -2,7 +2,7 @@
 Distributed unit commitment for micro-gird power park
 """
 
-from numpy import zeros, shape, ones, diag, concatenate, eye
+from numpy import zeros, shape, ones, diag, concatenate, eye, array
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack
 from numpy import flatnonzero as find
@@ -18,6 +18,11 @@ from pypower.ext2int import ext2int
 
 from unit_commitment.distributed_unit_commitment.idx_unit_commitment import ICH, IG, IUG, IBIC_AC2DC, \
     PBIC_AC2DC, PG, PESS_DC, PMG, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, NX, EESS
+
+from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
+from copy import deepcopy
+
+from matplotlib import pyplot
 
 
 class UnitCommitmentPowerPark():
@@ -36,7 +41,7 @@ class UnitCommitmentPowerPark():
         :param profile: Load-profile within the DC networks
         :return: Formulated centralized optimization problem
         """
-        T = profile.length()
+        T = len(profile)
         self.T = T
         # Formulate the DC network reconfiguration
         case["branch"][:, BR_STATUS] = ones(case["branch"].shape[0])
@@ -55,7 +60,6 @@ class UnitCommitmentPowerPark():
 
         f = branch[:, F_BUS]  ## list of "from" buses
         t = branch[:, T_BUS]  ## list of "to" buses
-        i = range(nl)  ## double set of row indices
         m = zeros(nmg)  ## list of integration index
         Pmg_l = zeros(nmg)  ## list of lower boundary
         Pmg_u = zeros(nmg)  ## list of upper boundary
@@ -65,6 +69,7 @@ class UnitCommitmentPowerPark():
             Pmg_u[i] = micro_grids[i]["MG"]["PMAX"]
 
         # Connection matrix
+        i = range(nl)  ## double set of row indices
         Cf = sparse((ones(nl), (i, f)), (nl, nb))
         Ct = sparse((ones(nl), (i, t)), (nl, nb))
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
@@ -131,21 +136,21 @@ class UnitCommitmentPowerPark():
 
         for i in range(T):
             # Upper boundary
-            lx[3 * nl + PIJ * nl:3 * nl + IIJ * nl] = Pij_l
-            lx[3 * nl + IIJ * nl:3 * nl + VM * nl] = Iij_l
-            lx[3 * nl + VM * nl:3 * nl + VM * nl + nb] = Vm_l
-            lx[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + ng] = Pg_l
-            lx[3 * nl + VM * nl + nb + ng:3 * nl + VM * nl + nb + ng + nmg] = Pmg_l
+            lx[3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + IIJ * nl] = Pij_l
+            lx[3 * nl + i * NX + IIJ * nl:3 * nl + i * NX + VM * nl] = Iij_l
+            lx[3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = Vm_l
+            lx[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = Pg_l
+            lx[3 * nl + i * NX + VM * nl + nb + ng:3 * nl + i * NX + VM * nl + nb + ng + nmg] = Pmg_l
 
             # Lower boundary
-            ux[3 * nl + PIJ * nl:3 * nl + IIJ * nl] = Pij_u
-            ux[3 * nl + IIJ * nl:3 * nl + VM * nl] = Iij_u
-            ux[3 * nl + VM * nl:3 * nl + VM * nl + nb] = Vm_u
-            ux[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + ng] = Pg_u
-            ux[3 * nl + VM * nl + nb + ng:3 * nl + VM * nl + nb + ng + nmg] = Pmg_u
+            ux[3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + IIJ * nl] = Pij_u
+            ux[3 * nl + i * NX + IIJ * nl:3 * nl + i * NX + VM * nl] = Iij_u
+            ux[3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = Vm_u
+            ux[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = Pg_u
+            ux[3 * nl + i * NX + VM * nl + nb + ng:3 * nl + i * NX + VM * nl + nb + ng + nmg] = Pmg_u
             # Cost
-            c[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + ng] = gencost[:, 5] * baseMVA
-            q[3 * nl + VM * nl + nb:3 * nl + VM * nl + nb + ng] = gencost[:, 4] * baseMVA * baseMVA
+            c[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = gencost[:, 5] * baseMVA
+            q[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = gencost[:, 4] * baseMVA * baseMVA
 
         # Formulate equal constraints
         ## 2) Equal constraints
@@ -165,7 +170,7 @@ class UnitCommitmentPowerPark():
         beq_span = ones(nb)
         beq_span[Root_node] = 0
         Aeq_span[:, nl:2 * nl] = Span_f
-        Aeq_span[:, 2 * nl:] = Span_t
+        Aeq_span[:, 2 * nl:3 * nl] = Span_t
         # 2.4) Power balance equation
         Aeq_p = hstack([Ct - Cf, -diag(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg, Cmg])
         beq_p = bus[:, PD] / baseMVA
@@ -173,7 +178,7 @@ class UnitCommitmentPowerPark():
         beq_power_balance = zeros(nb * T)
 
         for i in range(T):
-            Aeq_power_balance[i * nb:(i + 1) * nb, 3 * nl + i * NX: 3 * nl + (i + 1) * NX] = Aeq_p
+            Aeq_power_balance[i * nb:(i + 1) * nb, 3 * nl + i * NX: 3 * nl + (i + 1) * NX] = Aeq_p.toarray()
             beq_power_balance[i * nb:(i + 1) * nb] = beq_p * profile[i]
 
         Aeq = concatenate([Aeq_f, Aeq_alpha, Aeq_span, Aeq_power_balance])
@@ -203,7 +208,7 @@ class UnitCommitmentPowerPark():
             A_kvl[i * nl:(i + 1) * nl, 3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = (
                     Cf.T - Ct.T).toarray()
             A_kvl[i * nl:(i + 1) * nl, 0:nl] = eye(nl) * bigM
-            b_kvl[i * nl:(i + 1) * nl, 0:nl] = ones(nl) * bigM
+            b_kvl[i * nl:(i + 1) * nl] = ones(nl) * bigM
 
             A_kvl[nl * T + i * nl:nl * T + (i + 1) * nl,
             3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + (PIJ + 1) * nl] = 2 * diag(Branch_R)
@@ -212,28 +217,36 @@ class UnitCommitmentPowerPark():
             A_kvl[nl * T + i * nl:nl * T + (i + 1) * nl, 3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = -(
                     Cf.T - Ct.T).toarray()
             A_kvl[nl * T + i * nl:nl * T + (i + 1) * nl, 0:nl] = eye(nl) * bigM
-            b_kvl[nl * T + i * nl:nl * T + (i + 1) * nl, 0:nl] = ones(nl) * bigM
+            b_kvl[nl * T + i * nl:nl * T + (i + 1) * nl] = ones(nl) * bigM
 
         A = concatenate([A_pij, A_lij, A_kvl])
         b = concatenate([b_pij, b_lij, b_kvl])
 
         ## For the microgrids
+        model = {"c": c,
+                 "lb": lx,
+                 "ub": ux,
+                 "vtypes": vtypes,
+                 "A": A,
+                 "b": b,
+                 "Aeq": Aeq,
+                 "beq": beq}
 
-        Ax2y = zeros((nmg * T, nx))
-        for i in range(T):
-            for j in range(nmg):
-                Ax2y[i * nmg + j, 3 * nl + i * NX + 2 * nl + nb + ng + j] = 1
-
-        model = Model("Network_reconfiguration")
-        # Define the decision variables
-        x = {}
-        nx = lx.shape[0]
-
-        for i in range(nx):
-            if vtypes[i] == "c":
-                x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
-            elif vtypes[i] == "b":
-                x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
+        # Ax2y = zeros((nmg * T, nx))
+        # for i in range(T):
+        #     for j in range(nmg):
+        #         Ax2y[i * nmg + j, 3 * nl + i * NX + 2 * nl + nb + ng + j] = 1
+        #
+        # model = Model("Network_reconfiguration")
+        # # Define the decision variables
+        # x = {}
+        # nx = lx.shape[0]
+        #
+        # for i in range(nx):
+        #     if vtypes[i] == "c":
+        #         x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
+        #     elif vtypes[i] == "b":
+        #         x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
 
         return model
 
@@ -243,7 +256,10 @@ class UnitCommitmentPowerPark():
         :param micro_grid:
         :return:
         """
-        T = self.T
+        try:
+            T = self.T
+        except:
+            T = 24
         nx = NX * T
         ## 1) boundary information and objective function
         lx = zeros(nx)
@@ -302,18 +318,18 @@ class UnitCommitmentPowerPark():
             Aeq[i, i * NX + PG] = 1
             Aeq[i, i * NX + PUG] = 1
             Aeq[i, i * NX + PBIC_AC2DC] = -1
-            Aeq[i, i * NX + PBIC_DC2AC] = micro_grid["BIC"]["EFF"]
-            beq[i] = micro_grid["PD"]["AC"]
+            Aeq[i, i * NX + PBIC_DC2AC] = micro_grid["BIC"]["EFF_DC2AC"]
+            beq[i] = micro_grid["PD"]["AC"][i]
         # b) DC bus equation
         Aeq_temp = zeros((T, nx))
         beq_temp = zeros(T)
         for i in range(T):
-            Aeq_temp[i, i * NX + PBIC_AC2DC] = micro_grid["BIC"]["EFF"]
+            Aeq_temp[i, i * NX + PBIC_AC2DC] = micro_grid["BIC"]["EFF_AC2DC"]
             Aeq_temp[i, i * NX + PBIC_DC2AC] = -1
             Aeq_temp[i, i * NX + PESS_CH] = -1
             Aeq_temp[i, i * NX + PESS_DC] = 1
             Aeq_temp[i, i * NX + PMG] = -1
-            beq_temp[i] = micro_grid["PD"]["DC"]
+            beq_temp[i] = micro_grid["PD"]["DC"][i]
         Aeq = concatenate([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
         # 2.2) Energy storage balance equation
@@ -436,19 +452,52 @@ if __name__ == "__main__":
     unit_commitment_power_park = UnitCommitmentPowerPark()
 
     # import the information models of micro-grids
-    micro_grid_1 = micro_grid.copy()
+    micro_grid_1 = deepcopy(micro_grid)
     micro_grid_1["PD"]["AC"] = micro_grid_1["PD"]["AC"] * micro_grid_1["PD"]["AC_MAX"]
+    micro_grid_1["PD"]["DC"] = micro_grid_1["PD"]["DC"] * micro_grid_1["PD"]["DC_MAX"]
     micro_grid_1["BUS"] = 2
+    # micro_grid_1["MG"]["PMIN"] = 0
+    # micro_grid_1["MG"]["PMAX"] = 0
 
-    micro_grid_2 = micro_grid.copy()
+    micro_grid_2 = deepcopy(micro_grid)
     micro_grid_2["PD"]["AC"] = micro_grid_2["PD"]["AC"] * micro_grid_1["PD"]["AC_MAX"]
+    micro_grid_2["PD"]["DC"] = micro_grid_2["PD"]["DC"] * micro_grid_2["PD"]["DC_MAX"]
     micro_grid_2["BUS"] = 4
+    # micro_grid_2["MG"]["PMIN"] = 0
+    # micro_grid_2["MG"]["PMAX"] = 0
 
-    micro_grid_3 = micro_grid.copy()
+    micro_grid_3 = deepcopy(micro_grid)
     micro_grid_3["PD"]["AC"] = micro_grid_3["PD"]["AC"] * micro_grid_3["PD"]["AC_MAX"]
+    micro_grid_3["PD"]["DC"] = micro_grid_3["PD"]["DC"] * micro_grid_3["PD"]["DC_MAX"]
     micro_grid_3["BUS"] = 10
+    # micro_grid_3["MG"]["PMIN"] = 0
+    # micro_grid_3["MG"]["PMAX"] = 0
 
     case_micro_grids = [micro_grid_1, micro_grid_2, micro_grid_3]
+    # Test the unit commitment problem within each micro-grid
+    nmg = len(case_micro_grids)
+    result = [0] * nmg
+    model_micro_grids = [0] * nmg
 
-    sol = unit_commitment_power_park.problem_formulation(case=mpc)
+    for i in range(nmg):
+        model_micro_grids[i] = unit_commitment_power_park.micro_grid(case_micro_grids[i])
+        result[i] = milp(model_micro_grids[i]["c"], Aeq=model_micro_grids[i]["Aeq"], beq=model_micro_grids[i]["beq"],
+                         A=model_micro_grids[i]["A"], b=model_micro_grids[i]["b"], xmin=model_micro_grids[i]["lb"],
+                         xmax=model_micro_grids[i]["ub"], vtypes=model_micro_grids[i]["vtypes"])
+
+    # check the network reconfiguration problem
+    load_profile = array(
+        [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00])
+
+    model_distribution_network = unit_commitment_power_park.problem_formulation(case=mpc, micro_grids=case_micro_grids,
+                                                                                profile=load_profile)
+
+    result_distribution_network = milp(model_distribution_network["c"], Aeq=model_distribution_network["Aeq"],
+                                       beq=model_distribution_network["beq"],
+                                       A=model_distribution_network["A"], b=model_distribution_network["b"],
+                                       xmin=model_distribution_network["lb"],
+                                       xmax=model_distribution_network["ub"],
+                                       vtypes=model_distribution_network["vtypes"])
+    print(result_distribution_network)
     # formulate connection matrix between the distribution network and micro-grids
