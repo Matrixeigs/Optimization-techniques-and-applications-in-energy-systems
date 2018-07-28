@@ -141,7 +141,6 @@ class UnitCommitmentPowerPark():
             lx[3 * nl + i * NX + VM * nl:3 * nl + i * NX + VM * nl + nb] = Vm_l
             lx[3 * nl + i * NX + VM * nl + nb:3 * nl + i * NX + VM * nl + nb + ng] = Pg_l
             lx[3 * nl + i * NX + VM * nl + nb + ng:3 * nl + i * NX + VM * nl + nb + ng + nmg] = Pmg_l
-
             # Lower boundary
             ux[3 * nl + i * NX + PIJ * nl:3 * nl + i * NX + IIJ * nl] = Pij_u
             ux[3 * nl + i * NX + IIJ * nl:3 * nl + i * NX + VM * nl] = Iij_u
@@ -222,6 +221,11 @@ class UnitCommitmentPowerPark():
         A = concatenate([A_pij, A_lij, A_kvl])
         b = concatenate([b_pij, b_lij, b_kvl])
 
+        Ax2y = zeros((nmg * T, nx))  # The boundary information
+        for i in range(T):
+            for j in range(nmg):
+                Ax2y[i * nmg + j, 3 * nl + i * NX + 2 * nl + nb + ng + j] = baseMVA
+
         ## For the microgrids
         model = {"c": c,
                  "lb": lx,
@@ -230,12 +234,11 @@ class UnitCommitmentPowerPark():
                  "A": A,
                  "b": b,
                  "Aeq": Aeq,
-                 "beq": beq}
+                 "beq": beq,
+                 "Ax2y": Ax2y,
+                 "f": f,
+                 "NX": NX}
 
-        # Ax2y = zeros((nmg * T, nx))
-        # for i in range(T):
-        #     for j in range(nmg):
-        #         Ax2y[i * nmg + j, 3 * nl + i * NX + 2 * nl + nb + ng + j] = 1
         #
         # model = Model("Network_reconfiguration")
         # # Define the decision variables
@@ -442,7 +445,8 @@ class UnitCommitmentPowerPark():
                             "A": A,
                             "b": b,
                             "Aeq": Aeq,
-                            "beq": beq}
+                            "beq": beq,
+                            "NX": NX}
 
         return model_micro_grid
 
@@ -476,28 +480,143 @@ if __name__ == "__main__":
     case_micro_grids = [micro_grid_1, micro_grid_2, micro_grid_3]
     # Test the unit commitment problem within each micro-grid
     nmg = len(case_micro_grids)
-    result = [0] * nmg
+    # result = [0] * nmg
     model_micro_grids = [0] * nmg
 
     for i in range(nmg):
         model_micro_grids[i] = unit_commitment_power_park.micro_grid(case_micro_grids[i])
-        result[i] = milp(model_micro_grids[i]["c"], Aeq=model_micro_grids[i]["Aeq"], beq=model_micro_grids[i]["beq"],
-                         A=model_micro_grids[i]["A"], b=model_micro_grids[i]["b"], xmin=model_micro_grids[i]["lb"],
-                         xmax=model_micro_grids[i]["ub"], vtypes=model_micro_grids[i]["vtypes"])
+        # result[i] = milp(model_micro_grids[i]["c"], Aeq=model_micro_grids[i]["Aeq"], beq=model_micro_grids[i]["beq"],
+        #                  A=model_micro_grids[i]["A"], b=model_micro_grids[i]["b"], xmin=model_micro_grids[i]["lb"],
+        #                  xmax=model_micro_grids[i]["ub"], vtypes=model_micro_grids[i]["vtypes"])
 
     # check the network reconfiguration problem
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00])
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
 
     model_distribution_network = unit_commitment_power_park.problem_formulation(case=mpc, micro_grids=case_micro_grids,
                                                                                 profile=load_profile)
 
-    result_distribution_network = milp(model_distribution_network["c"], Aeq=model_distribution_network["Aeq"],
-                                       beq=model_distribution_network["beq"],
-                                       A=model_distribution_network["A"], b=model_distribution_network["b"],
-                                       xmin=model_distribution_network["lb"],
-                                       xmax=model_distribution_network["ub"],
-                                       vtypes=model_distribution_network["vtypes"])
-    print(result_distribution_network)
+    # result_distribution_network = milp(model_distribution_network["c"], Aeq=model_distribution_network["Aeq"],
+    #                                    beq=model_distribution_network["beq"],
+    #                                    A=model_distribution_network["A"], b=model_distribution_network["b"],
+    #                                    xmin=model_distribution_network["lb"],
+    #                                    xmax=model_distribution_network["ub"],
+    #                                    vtypes=model_distribution_network["vtypes"])
+    #
+    #
+    # print(result_distribution_network)
     # formulate connection matrix between the distribution network and micro-grids
+    nVariables_distribution_network = len(model_distribution_network["c"])
+    neq_distribution_network = model_distribution_network["Aeq"].shape[0]
+    nineq_distribution_network = model_distribution_network["A"].shape[0]
+
+    nVariables_micro_grid = zeros(nmg)
+    neq_micro_grid = zeros(nmg)
+    nineq_micro_grid = zeros(nmg)
+
+    nVariables = int(nVariables_distribution_network)
+    neq = int(neq_distribution_network)
+    nineq = int(nineq_distribution_network)
+
+    nVariables_index = zeros(nmg + 1)
+    neq_index = zeros(nmg + 1)
+    nineq_index = zeros(nmg + 1)
+
+    nVariables_index[0] = int(nVariables_distribution_network)
+    neq_index[0] = int(neq_distribution_network)
+    nineq_index[0] = int(nineq_distribution_network)
+    for i in range(nmg):
+        nVariables_index[i + 1] = nVariables_index[i] + len(model_micro_grids[i]["c"])
+        neq_index[i + 1] = neq_index[i] + model_micro_grids[0]["Aeq"].shape[0]
+        nineq_index[i + 1] = nineq_index[i] + model_micro_grids[0]["A"].shape[0]
+
+    # Extract information from information models
+    lx = model_distribution_network["lb"]
+    ux = model_distribution_network["ub"]
+    c = model_distribution_network["c"]
+    vtypes = model_distribution_network["vtypes"]
+
+    beq = model_distribution_network["beq"]
+    b = model_distribution_network["b"]
+
+    A = zeros((int(nineq_index[-1]), int(nVariables_index[-1])))
+    Aeq = zeros((int(neq_index[-1]), int(nVariables_index[-1])))
+
+    Aeq[0:neq_distribution_network, 0:nVariables_distribution_network] = model_distribution_network["Aeq"]
+    A[0:nineq_distribution_network, 0:nVariables_distribution_network] = model_distribution_network["A"]
+
+    for i in range(nmg):
+        lx = concatenate([lx, model_micro_grids[i]["lb"]])
+        ux = concatenate([ux, model_micro_grids[i]["ub"]])
+        c = concatenate([c, model_micro_grids[i]["c"]])
+        vtypes += model_micro_grids[i]["vtypes"]
+        beq = concatenate([beq, model_micro_grids[i]["beq"]])
+        b = concatenate([b, model_micro_grids[i]["b"]])
+        Aeq[int(neq_index[i]):int(neq_index[i + 1]), int(nVariables_index[i]):int(nVariables_index[i + 1])] = \
+            model_micro_grids[i]["Aeq"]
+        A[int(nineq_index[i]):int(nineq_index[i + 1]), int(nVariables_index[i]):int(nVariables_index[i + 1])] = \
+            model_micro_grids[i]["A"]
+
+    # Add coupling constraints
+    T = unit_commitment_power_park.T
+    Ay2x = zeros((nmg * T, int(nVariables_index[-1] - nVariables_index[0])))
+    for i in range(T):
+        for j in range(nmg):
+            Ay2x[i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * NX + PMG] = -1
+
+    Aeq_temp = concatenate([model_distribution_network["Ax2y"], Ay2x], axis=1)
+    beq_temp = zeros(nmg * T)
+
+    Aeq = concatenate([Aeq, Aeq_temp])
+    beq = concatenate([beq, beq_temp])
+
+    model = Model("Centralized model")
+    # Define the decision variables
+    x = {}
+    for i in range(nVariables):
+        if vtypes[i] == "c":
+            x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
+        elif vtypes[i] == "b":
+            x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
+
+    for i in range(neq):
+        expr = 0
+        for j in range(nVariables):
+            expr += x[j] * Aeq[i, j]
+        model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
+
+    for i in range(nineq):
+        expr = 0
+        for j in range(nVariables):
+            expr += x[j] * A[i, j]
+        model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b[i])
+
+    obj = 0
+    for i in range(nVariables):
+        obj += x[i] * c[i]
+
+    # Add conic constraints
+    nl = unit_commitment_power_park.nl
+    f = model_distribution_network["f"]
+    NX = model_distribution_network["NX"]
+    for i in range(T):
+        for j in range(nl):
+            model.addConstr(
+                x[3 * nl + i * NX + j] * x[3 * nl + i * NX + j] <= x[3 * nl + i * NX + j + nl] * x[
+                    3 * nl + i * NX + f[j] + 2 * nl])
+
+    model.setObjective(obj)
+    model.Params.OutputFlag = 0
+    model.Params.LogToConsole = 0
+    model.Params.DisplayInterval = 1
+    model.Params.LogFile = ""
+
+    model.optimize()
+    obj = obj.getValue()
+
+    xx = []
+    for v in model.getVars():
+        xx.append(v.x)
+
+    # Obtain the solutions of distribution networks and micro-grids

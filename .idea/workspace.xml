@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/energy_hub/bidding_strategy/bi_objective_opt.py" beforeDir="false" afterPath="$PROJECT_DIR$/energy_hub/bidding_strategy/bi_objective_opt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -52,7 +52,7 @@
     <SUITE FILE_PATH="coverage/Optimization$network_reconfiguration.coverage" NAME="network_reconfiguration Coverage Results" MODIFIED="1532480833226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_stochastic_unit_commitment.coverage" NAME="two_stage_stochastic_unit_commitment Coverage Results" MODIFIED="1529287857749" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$benders_solvers.coverage" NAME="benders_solvers Coverage Results" MODIFIED="1529422671060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
-    <SUITE FILE_PATH="coverage/Optimization$micro_power_park.coverage" NAME="micro_power_park Coverage Results" MODIFIED="1532655575424" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$micro_power_park.coverage" NAME="micro_power_park Coverage Results" MODIFIED="1532764271495" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$bidding_decomposition.coverage" NAME="bidding_decomposition Coverage Results" MODIFIED="1528336585311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_recovery.coverage" NAME="three_stage_bidding_recovery Coverage Results" MODIFIED="1529939892176" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_aggregration.coverage" NAME="three_stage_bidding_aggregration Coverage Results" MODIFIED="1530067983855" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
@@ -77,41 +77,41 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/__init__.py">
+      <file leaf-file-name="micro_power_park.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="three_stage_bidding_CVaR.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3750">
-              <caret line="254" column="43" selection-start-line="254" selection-start-column="43" selection-end-line="254" selection-end-column="43" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="three_stage_bidding_pes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="34" column="37" selection-start-line="34" selection-end-line="35" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="bi_objective_opt.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/bi_objective_opt.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="130">
-              <caret line="671" column="7" lean-forward="true" selection-start-line="671" selection-start-column="7" selection-end-line="671" selection-end-column="7" />
+            <state relative-caret-position="356">
+              <caret line="622" column="4" selection-start-line="622" selection-start-column="4" selection-end-line="622" selection-end-column="4" />
               <folding>
-                <element signature="e#69#105#0" expanded="true" />
+                <element signature="e#63#130#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="_pydev_execfile.py" pinned="false" current-in-tab="false">
+        <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" selection-start-line="17" selection-end-line="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="idx_unit_commitment.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="195">
+              <caret line="13" column="27" lean-forward="true" selection-start-line="13" selection-start-column="27" selection-end-line="13" selection-end-column="27" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cases_unit_commitment.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="261">
+              <caret line="37" column="15" lean-forward="true" selection-start-line="37" selection-start-column="15" selection-end-line="37" selection-end-column="15" />
             </state>
           </provider>
         </entry>
@@ -184,11 +184,11 @@
         <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" />
         <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/test_cases/cases_micro_grids.py" />
-        <option value="$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/bi_objective_opt.py" />
+        <option value="$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" />
       </list>
     </option>
   </component>
@@ -221,18 +221,18 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="energy_hub" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="energy_hub" type="462c0819:PsiDirectoryNode" />
-              <item name="bidding_strategy" type="462c0819:PsiDirectoryNode" />
+              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
               <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
+              <item name="data_format" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -280,7 +280,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.bi_objective_opt">
+  <component name="RunManager" selected="Python.micro_power_park">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -527,10 +527,10 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.micro_power_park" />
         <item itemvalue="Python.bi_objective_opt" />
         <item itemvalue="Python.three_stage_bidding_pes" />
         <item itemvalue="Python.three_stage_bidding_CVaR" />
-        <item itemvalue="Python.micro_power_park" />
         <item itemvalue="Python.network_reconfiguration" />
       </list>
     </recent_temporary>
@@ -545,20 +545,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00050" summary="add test cases">
-      <created>1530548016902</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1530548016902</updated>
-    </task>
-    <task id="LOCAL-00051" summary="add paper version">
-      <created>1530580821761</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1530580821761</updated>
     </task>
     <task id="LOCAL-00052" summary="add relaxation">
       <created>1530580900751</created>
@@ -889,7 +875,21 @@
       <option name="project" value="LOCAL" />
       <updated>1532703186255</updated>
     </task>
-    <option name="localTasksCounter" value="99" />
+    <task id="LOCAL-00099" summary="update sequence of figures">
+      <created>1532744443624</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1532744443625</updated>
+    </task>
+    <task id="LOCAL-00100" summary="remove bugs in network reconfiguration problem">
+      <created>1532750582265</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1532750582265</updated>
+    </task>
+    <option name="localTasksCounter" value="101" />
     <servers />
   </component>
   <component name="TodoView">
@@ -906,19 +906,19 @@
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50500715" side_tool="true" weight="0.3090909" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5064378" side_tool="true" weight="0.3987879" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.32848486" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49499285" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.2911302" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.2911302" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" weight="0.3987879" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -933,28 +933,29 @@
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.2911302" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.21101573" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49570817" weight="0.32848486" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49570817" weight="0.32848486" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49713877" weight="0.3090909" />
+      <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49499285" weight="0.3090909" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.32848486" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
-      <window_info anchor="right" x="0" y="0" width="310" height="700" id="Documentation" order="5" side_tool="true" weight="0.3297568" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
+      <window_info anchor="right" x="0" y="0" width="310" height="700" id="Documentation" order="6" side_tool="true" weight="0.3297568" />
       <window_info anchor="right" id="Database" order="4" weight="0.3297568" />
       <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.5064378" side_tool="true" weight="0.3987879" />
-      <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.50500715" side_tool="true" weight="0.3090909" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
+      <window_info anchor="bottom" id="Concurrent Activities Diagram" order="13" weight="0.32969698" />
       <window_info anchor="bottom" id="Database Console" order="14" weight="0.32848486" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Concurrent Activities Diagram" order="13" weight="0.32969698" />
+      <window_info anchor="right" id="Coverage" order="5" side_tool="true" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
     </layout-to-restore>
   </component>
@@ -965,8 +966,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add security check procedure" />
-    <MESSAGE value="Reformulate the transmission line constraints" />
     <MESSAGE value="add swing bus limitation" />
     <MESSAGE value="update output control of the plan" />
     <MESSAGE value="bug found on the power flow and angle" />
@@ -990,7 +989,9 @@
     <MESSAGE value="add test cases for unit commitment and microgirds" />
     <MESSAGE value="bi-objective optimization between excepted operation cost and CVaR" />
     <MESSAGE value="using AUGMECON method to solve bi-objective optimization" />
-    <option name="LAST_COMMIT_MESSAGE" value="using AUGMECON method to solve bi-objective optimization" />
+    <MESSAGE value="update sequence of figures" />
+    <MESSAGE value="remove bugs in network reconfiguration problem" />
+    <option name="LAST_COMMIT_MESSAGE" value="remove bugs in network reconfiguration problem" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1061,14 +1062,14 @@
           <option name="timeStamp" value="215" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py</url>
-          <line>452</line>
-          <option name="timeStamp" value="218" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py</url>
           <line>535</line>
           <option name="timeStamp" value="220" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py</url>
+          <line>573</line>
+          <option name="timeStamp" value="244" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1078,11 +1079,18 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="224" />
+      <option name="time" value="250" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>xx = []
+for v in model.getVars():
+    xx.append(v.x)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>P = 20
 ep = [0] * P
@@ -1157,71 +1165,45 @@ for i in range(T):
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>for j in range(N_scenario_second_stage):
-    expr = 0
-    for k in range(N_scenario_first_stage):
-        for i in range(T):
-            expr += pRT[i, j, k] * ELEC_PRICE[i]
-            expr += pRT_positive[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight
-            expr += pRT_negative[i, j, k] * ELEC_PRICE[i] * forecasting_errors_prices * Weight
-            expr += pESS_DC[i, j, k] * ESS[&quot;BESS&quot;][&quot;COST&quot;]
-            expr += pESS_CH[i, j, k] * ESS[&quot;BESS&quot;][&quot;COST&quot;]
-            expr += qHS_DC[i, j, k] * ESS[&quot;TESS&quot;][&quot;COST&quot;]
-            expr += qHS_CH[i, j, k] * ESS[&quot;TESS&quot;][&quot;COST&quot;]
-            expr += qCS_DC[i, j, k] * ESS[&quot;CESS&quot;][&quot;COST&quot;]
-            expr += qCS_CH[i, j, k] * ESS[&quot;CESS&quot;][&quot;COST&quot;]
-            expr += vGAS[i, j, k] * CCHP[&quot;COST&quot;]
-            expr += vCHP[i, j, k] * CCHP[&quot;COST&quot;]
-            expr += PDA[i, k] * Price_DA[i, k]* weight_first_stage[k]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>ep = [0] * P
-for i in range(P):         ep[i] = L22 + i * (L12 - L22) / P</expression-string>
+        <expression-string>int(nVariables_index[j] - nVariables_index[0])</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>L12-L22</expression-string>
+        <expression-string>int(nVariables_index[-1] - nVariables_index[0])</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>(1 - Lam) * (obj_DA + obj_RT)</expression-string>
+        <expression-string>int(nVariables_index[-1] - nVariables_index[0]))</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>(1 - Lam) * (obj_DA + obj_RT) + Lam * obj_CVaR</expression-string>
+        <expression-string>obj = obj.getValue()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>AC_PD / max(AC_PD)</expression-string>
+        <expression-string>nVariables_index[-1]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>int(max(connection_matrix[:, 3]) / nb)</expression-string>
+        <expression-string>neq_micro_grid[i]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>T*nb_traffic</expression-string>
+        <expression-string>NX</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>n_stops</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>row_index_temp = find(connection_matrix[row_index, 3] &lt;= (i + 1) * nb)</expression-string>
+        <expression-string>MX</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -1233,20 +1215,6 @@ for i in range(P):         ep[i] = L22 + i * (L12 - L22) / P</expression-string>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/obj_cvar.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="19" lean-forward="true" selection-start-line="13" selection-start-column="19" selection-end-line="13" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/obj.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="18" lean-forward="true" selection-end-line="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/obj_cvar.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
@@ -1300,13 +1268,6 @@ for i in range(P):         ep[i] = L22 + i * (L12 - L22) / P</expression-string>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1632">
           <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-175">
-          <caret line="149" column="26" lean-forward="true" selection-end-line="194" />
         </state>
       </provider>
     </entry>
@@ -1383,13 +1344,6 @@ for i in range(P):         ep[i] = L22 + i * (L12 - L22) / P</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/scipy/sparse/coo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="231" selection-start-line="231" selection-end-line="231" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6660">
@@ -1449,16 +1403,6 @@ for i in range(P):         ep[i] = L22 + i * (L12 - L22) / P</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="356">
-          <caret line="187" column="56" lean-forward="true" selection-start-line="187" selection-start-column="56" selection-end-line="187" selection-end-column="56" />
-          <folding>
-            <element signature="e#92#165#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/ccg.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
@@ -1498,20 +1442,6 @@ for i in range(P):         ep[i] = L22 + i * (L12 - L22) / P</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/branch_optimal_power_flow.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-67">
-          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1553">
@@ -1533,55 +1463,10 @@ for i in range(P):         ep[i] = L22 + i * (L12 - L22) / P</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="27" lean-forward="true" selection-start-line="13" selection-start-column="27" selection-end-line="13" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="251">
           <caret line="244" lean-forward="true" selection-start-line="244" selection-end-line="244" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-145">
-          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="442" column="36" lean-forward="true" selection-start-line="442" selection-start-column="36" selection-end-line="442" selection-end-column="36" />
-          <folding>
-            <element signature="e#63#123#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3750">
-          <caret line="254" column="43" selection-start-line="254" selection-start-column="43" selection-end-line="254" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="34" column="37" selection-start-line="34" selection-end-line="35" />
         </state>
       </provider>
     </entry>
@@ -1601,10 +1486,103 @@ for i in range(P):         ep[i] = L22 + i * (L12 - L22) / P</expression-string>
     </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/bi_objective_opt.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="671" column="7" lean-forward="true" selection-start-line="671" selection-start-column="7" selection-end-line="671" selection-end-column="7" />
+        <state relative-caret-position="9462">
+          <caret line="693" lean-forward="true" selection-start-line="693" selection-end-line="693" />
           <folding>
             <element signature="e#69#105#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="34" column="37" selection-start-line="34" selection-end-line="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="254" column="43" selection-start-line="254" selection-start-column="43" selection-end-line="254" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/active_distribution_network.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/scipy/sparse/coo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="230" selection-start-line="230" selection-end-line="230" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="237">
+          <caret line="638" selection-start-line="638" selection-end-line="640" selection-end-column="69" />
+          <folding>
+            <element signature="e#92#165#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="139" selection-start-line="139" selection-end-line="139" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/branch_optimal_power_flow.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="193">
+          <caret line="95" column="52" selection-start-line="94" selection-start-column="28" selection-end-line="95" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="27" lean-forward="true" selection-start-line="13" selection-start-column="27" selection-end-line="13" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="261">
+          <caret line="37" column="15" lean-forward="true" selection-start-line="37" selection-start-column="15" selection-end-line="37" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="356">
+          <caret line="622" column="4" selection-start-line="622" selection-start-column="4" selection-end-line="622" selection-end-column="4" />
+          <folding>
+            <element signature="e#63#130#0" expanded="true" />
           </folding>
         </state>
       </provider>
