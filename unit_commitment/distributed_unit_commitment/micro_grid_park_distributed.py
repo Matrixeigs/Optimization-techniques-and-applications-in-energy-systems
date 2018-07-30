@@ -75,7 +75,7 @@ class UnitCommitmentPowerPark():
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
         Cmg = sparse((ones(nmg), (m, range(nmg))), (nb, nmg))
 
-        Branch_R = branch[:, BR_X] * 10
+        Branch_R = branch[:, BR_X]
         Cf = Cf.T
         Ct = Ct.T
         # Obtain the boundary information
@@ -485,279 +485,270 @@ if __name__ == "__main__":
     nmg = len(case_micro_grids)
     # result = [0] * nmg
     model_micro_grids = [0] * nmg
-
-    for i in range(nmg):
-        model_micro_grids[i] = unit_commitment_power_park.micro_grid(case_micro_grids[i])
-        # result[i] = milp(model_micro_grids[i]["c"], Aeq=model_micro_grids[i]["Aeq"], beq=model_micro_grids[i]["beq"],
-        #                  A=model_micro_grids[i]["A"], b=model_micro_grids[i]["b"], xmin=model_micro_grids[i]["lb"],
-        #                  xmax=model_micro_grids[i]["ub"], vtypes=model_micro_grids[i]["vtypes"])
-
-    # check the network reconfiguration problem
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
          0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
 
     model_distribution_network = unit_commitment_power_park.problem_formulation(case=mpc, micro_grids=case_micro_grids,
                                                                                 profile=load_profile)
+    for i in range(nmg):
+        model_micro_grids[i] = unit_commitment_power_park.micro_grid(case_micro_grids[i])
 
-    # result_distribution_network = milp(model_distribution_network["c"], Aeq=model_distribution_network["Aeq"],
-    #                                    beq=model_distribution_network["beq"],
-    #                                    A=model_distribution_network["A"], b=model_distribution_network["b"],
-    #                                    xmin=model_distribution_network["lb"],
-    #                                    xmax=model_distribution_network["ub"],
-    #                                    vtypes=model_distribution_network["vtypes"])
-    #
-    #
-    # print(result_distribution_network)
-    # formulate connection matrix between the distribution network and micro-grids
-    nVariables_distribution_network = len(model_distribution_network["c"])
-    neq_distribution_network = model_distribution_network["Aeq"].shape[0]
-    nineq_distribution_network = model_distribution_network["A"].shape[0]
-
-    nVariables_micro_grid = zeros(nmg)
-    neq_micro_grid = zeros(nmg)
-    nineq_micro_grid = zeros(nmg)
-
-    nVariables = int(nVariables_distribution_network)
-    neq = int(neq_distribution_network)
-    nineq = int(nineq_distribution_network)
+    nx = len(model_distribution_network["c"])
+    neq_x = model_distribution_network["Aeq"].shape[0]
+    nineq_x = model_distribution_network["A"].shape[0]
 
     nVariables_index = zeros(nmg + 1)
     neq_index = zeros(nmg + 1)
     nineq_index = zeros(nmg + 1)
 
-    nVariables_index[0] = int(nVariables_distribution_network)
-    neq_index[0] = int(neq_distribution_network)
-    nineq_index[0] = int(nineq_distribution_network)
+    nVariables_index[0] = 0
+    neq_index[0] = 0
+    nineq_index[0] = 0
+
+    ny = 0
+    neq_y = 0
+    nineq_y = 0
+
     for i in range(nmg):
         nVariables_index[i + 1] = nVariables_index[i] + len(model_micro_grids[i]["c"])
         neq_index[i + 1] = neq_index[i] + model_micro_grids[0]["Aeq"].shape[0]
         nineq_index[i + 1] = nineq_index[i] + model_micro_grids[0]["A"].shape[0]
-        nVariables += len(model_micro_grids[i]["c"])
-        neq += int(model_micro_grids[0]["Aeq"].shape[0])
-        nineq += int(model_micro_grids[0]["A"].shape[0])
+        ny += len(model_micro_grids[i]["c"])
+        neq_y += int(model_micro_grids[0]["Aeq"].shape[0])
+        nineq_y += int(model_micro_grids[0]["A"].shape[0])
 
     # Extract information from information models
     lx = model_distribution_network["lb"]
     ux = model_distribution_network["ub"]
-    c = model_distribution_network["c"]
-    vtypes = model_distribution_network["vtypes"]
+    cx = model_distribution_network["c"]
+    vtypes_x = model_distribution_network["vtypes"]
+    beq_x = model_distribution_network["beq"]
+    b_x = model_distribution_network["b"]
+    Aeq_x = model_distribution_network["Aeq"]
+    A_x = model_distribution_network["A"]
 
-    beq = model_distribution_network["beq"]
-    b = model_distribution_network["b"]
-
-    A = zeros((int(nineq_index[-1]), int(nVariables_index[-1])))
-    Aeq = zeros((int(neq_index[-1]), int(nVariables_index[-1])))
-
-    Aeq[0:neq_distribution_network, 0:nVariables_distribution_network] = model_distribution_network["Aeq"]
-    A[0:nineq_distribution_network, 0:nVariables_distribution_network] = model_distribution_network["A"]
+    A_y = zeros((nineq_y, ny))
+    Aeq_y = zeros((neq_y, ny))
+    vtypes_y = []
+    ly = zeros(0)
+    uy = zeros(0)
+    cy = zeros(0)
+    beq_y = zeros(0)
+    b_y = zeros(0)
 
     for i in range(nmg):
-        lx = concatenate([lx, model_micro_grids[i]["lb"]])
-        ux = concatenate([ux, model_micro_grids[i]["ub"]])
-        c = concatenate([c, model_micro_grids[i]["c"]])
-        vtypes += model_micro_grids[i]["vtypes"]
-        beq = concatenate([beq, model_micro_grids[i]["beq"]])
-        b = concatenate([b, model_micro_grids[i]["b"]])
-        Aeq[int(neq_index[i]):int(neq_index[i + 1]), int(nVariables_index[i]):int(nVariables_index[i + 1])] = \
+        ly = concatenate([ly, model_micro_grids[i]["lb"]])
+        uy = concatenate([uy, model_micro_grids[i]["ub"]])
+        cy = concatenate([cy, model_micro_grids[i]["c"]])
+        vtypes_y += model_micro_grids[i]["vtypes"]
+        beq_y = concatenate([beq_y, model_micro_grids[i]["beq"]])
+        b_y = concatenate([b_y, model_micro_grids[i]["b"]])
+        Aeq_y[int(neq_index[i]):int(neq_index[i + 1]), int(nVariables_index[i]):int(nVariables_index[i + 1])] = \
             model_micro_grids[i]["Aeq"]
-        A[int(nineq_index[i]):int(nineq_index[i + 1]), int(nVariables_index[i]):int(nVariables_index[i + 1])] = \
+        A_y[int(nineq_index[i]):int(nineq_index[i + 1]), int(nVariables_index[i]):int(nVariables_index[i + 1])] = \
             model_micro_grids[i]["A"]
 
     # Add coupling constraints
     T = unit_commitment_power_park.T
-    Ay2x = zeros((nmg * T, int(nVariables_index[-1] - nVariables_index[0])))
+    Ay2x = zeros((nmg * T, ny))
     for i in range(T):
         for j in range(nmg):
             Ay2x[i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * NX + PMG] = -1
 
-    Aeq_temp = concatenate([model_distribution_network["Ax2y"], Ay2x], axis=1)
-    beq_temp = zeros(nmg * T)
+    #### ADMM solver ####
+    step = 0.1
+    lam = zeros(nmg * T)
+    ru = 0.5
+    x0 = zeros((nx, 1))
+    y0 = zeros((ny, 1))
 
-    Aeq = concatenate([Aeq, Aeq_temp])
-    beq = concatenate([beq, beq_temp])
-
-    model = Model("Centralized model")
-    # # Define the decision variables
+    # 1) Formulate the distribution network and microgrid cluster problem respectively
+    model_dso = Model("Model_DSO")
     x = {}
-    for i in range(nVariables):
-        if vtypes[i] == "c":
-            x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
-        elif vtypes[i] == "b":
-            x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
+    for i in range(nx):  # Decision making problem for the DSO
+        if vtypes_x[i] == "c":
+            x[i] = model_dso.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
+        elif vtypes_x[i] == "b":
+            x[i] = model_dso.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
 
-    neq = Aeq.shape[0]
-    for i in range(neq):
+    for i in range(neq_x):
         expr = 0
-        for j in range(nVariables):
-            expr += x[j] * Aeq[i, j]
-        model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
+        for j in range(nx):
+            expr += x[j] * Aeq_x[i, j]
+        model_dso.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq_x[i])
 
-    nineq = A.shape[0]
-    for i in range(nineq):
+    for i in range(nineq_x):
         expr = 0
-        for j in range(nVariables):
-            expr += x[j] * A[i, j]
-        model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b[i])
+        for j in range(nx):
+            expr += x[j] * A_x[i, j]
+        model_dso.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b_x[i])
 
-    obj = 0
-    for i in range(nVariables):
-        obj += x[i] * c[i]
-
-    # Add conic constraints
     nl = unit_commitment_power_park.nl
     f = model_distribution_network["f"]
     NX_dsn = model_distribution_network["NX"]
     for i in range(T):
         for j in range(nl):
-            model.addConstr(
+            model_dso.addConstr(
                 x[3 * nl + i * NX_dsn + j] * x[3 * nl + i * NX_dsn + j] <= x[3 * nl + i * NX_dsn + j + nl] * x[
                     3 * nl + i * NX_dsn + f[j] + 2 * nl])
 
-    model.setObjective(obj)
-    model.Params.OutputFlag = 1
-    model.Params.LogToConsole = 1
-    model.Params.DisplayInterval = 1
-    model.Params.LogFile = ""
+    c_dso = cx
+    c_dso = c_dso + model_distribution_network["Ax2y"].transpose().dot(lam) + ru * (
+        (model_distribution_network["Ax2y"].transpose().dot(Ay2x)).dot(y0)).transpose()
+    q_dso = model_distribution_network["Ax2y"].transpose().dot(model_distribution_network["Ax2y"]) * ru / 2
 
-    model.optimize()
-    obj = obj.getValue()
+    # generate a list to store the non-zeros-index
+    quadratic_item = []
+    for i in range(nx):
+        for j in range(nx):
+            if q_dso[i, j] > 0:
+                quadratic_item.append([i, j, q_dso[i, j]])
+
+    obj_dso_linear = 0
+    for i in range(nx):
+        obj_dso_linear += c_dso[0][i] * x[i]  # only need to update this
+
+    obj_dso_quadratic = 0
+    for i in range(len(quadratic_item)):
+        obj_dso_quadratic += quadratic_item[i][2] * x[quadratic_item[i][0]] * x[quadratic_item[i][1]]
+
+    obj_dso = obj_dso_linear + obj_dso_quadratic
+    model_dso.setObjective(obj_dso)
+    model_dso.Params.OutputFlag = 0
+    model_dso.Params.LogToConsole = 0
+    model_dso.Params.DisplayInterval = 1
+    model_dso.Params.MIPGap = 10 ** -2
+    # model_dso.Params.Method = 2
+
+    model_dso.Params.LogFile = " "
+
+    model_dso.optimize()
+    obj_dso = obj_dso.getValue()
 
     xx = []
-    for v in model.getVars():
+    for v in model_dso.getVars():
         xx.append(v.x)
-    xx = array(xx)  # convert the list to array
-    # Obtain the solutions of distribution networks and micro-grids
-    nb = unit_commitment_power_park.nb
-    ng = unit_commitment_power_park.ng
-    # 1) The network topology
-    Alpha = xx[0:nl]
-    Beta = xx[nl:2 * nl]
-    Iij = xx[2 * nl:3 * nl]
-    # 2) The distribution network operational plan
-    Pij = zeros((nl, T))
-    lij = zeros((nl, T))
-    Vm = zeros((nb, T))
-    Pg = zeros((ng, T))
-    Pmg = zeros((nmg, T))
-    for i in range(T):
-        for j in range(nl):
-            Pij[j, i] = xx[3 * nl + i * NX_dsn + j]
-            lij[j, i] = xx[3 * nl + i * NX_dsn + nl + j]
-        for j in range(nb):
-            Vm[j, i] = xx[3 * nl + i * NX_dsn + 2 * nl + j]
-        for j in range(ng):
-            Pg[j, i] = xx[3 * nl + i * NX_dsn + 2 * nl + nb + j]
-        for j in range(nmg):
-            Pmg[j, i] = xx[3 * nl + i * NX_dsn + 2 * nl + nb + ng + j]
-    # 3) The scheduling plan of each MG
-    # 3.1) The energy storage system group
-    Ich = zeros((nmg, T))
-    Pess_dc = zeros((nmg, T))
-    Pess_ch = zeros((nmg, T))
-    Ress = zeros((nmg, T))
-    Eess = zeros((nmg, T))
-    # 3.2) The diesel generator group
-    Ig = zeros((nmg, T))
-    Pg_mg = zeros((nmg, T))
-    Rg_mg = zeros((nmg, T))
-    # 3.3) The utility grid group
-    Iug_mg = zeros((nmg, T))
-    Pug_mg = zeros((nmg, T))
-    Rug_mg = zeros((nmg, T))
-    # 3.4) Bi-directional converter group
-    Ibic = zeros((nmg, T))
-    Pbic_a2d = zeros((nmg, T))
-    Pbic_d2a = zeros((nmg, T))
-    # 3.5) Energy exchange part
-    Pmg_mg = zeros((nmg, T))
-    for i in range(T):
-        for j in range(nmg):
-            Ich[j, i] = xx[int(nVariables_index[j]) + i * NX + ICH]
-            Pess_dc[j, i] = xx[int(nVariables_index[j]) + i * NX + PESS_DC]
-            Pess_ch[j, i] = xx[int(nVariables_index[j]) + i * NX + PESS_CH]
-            Ress[j, i] = xx[int(nVariables_index[j]) + i * NX + RESS]
-            Eess[j, i] = xx[int(nVariables_index[j]) + i * NX + EESS]
+    xx = array(xx).reshape((nx, 1))  # convert the list to array
+    # Calculate the real-objective function
+    obj_dso_real = 0
+    for i in range(nx):
+        obj_dso_real += cx[i] * xx[i]
 
-            Ig[j, i] = xx[int(nVariables_index[j]) + i * NX + IG]
-            Pg_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + PG]
-            Rg_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + RG]
+    # 2) Formulte the micro-girds problems
+    model_mgs = Model("Model_Micro_grids")
+    y = {}
+    for i in range(ny):  # Decision making problem for the DSO
+        if vtypes_y[i] == "c":
+            y[i] = model_mgs.addVar(lb=ly[i], ub=uy[i], vtype=GRB.CONTINUOUS)
+        elif vtypes_y[i] == "b":
+            y[i] = model_mgs.addVar(lb=ly[i], ub=uy[i], vtype=GRB.BINARY)
 
-            Iug_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + IUG]
-            Pug_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + PUG]
-            Rug_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + RUG]
+    for i in range(neq_y):
+        expr = 0
+        for j in range(ny):
+            if Aeq_y[i, j] != 0:
+                expr += y[j] * Aeq_y[i, j]
+        model_mgs.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq_y[i])
 
-            Ibic[j, i] = xx[int(nVariables_index[j]) + i * NX + IBIC_AC2DC]
-            Pbic_a2d[j, i] = xx[int(nVariables_index[j]) + i * NX + PBIC_AC2DC]
-            Pbic_d2a[j, i] = xx[int(nVariables_index[j]) + i * NX + PBIC_DC2AC]
+    for i in range(nineq_y):
+        expr = 0
+        for j in range(ny):
+            if A_y[i, j] != 0:
+                expr += y[j] * A_y[i, j]
+        model_mgs.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b_y[i])
 
-            Pmg_mg[j, i] = xx[int(nVariables_index[j]) + i * NX + PMG]
+    q_mgs = Ay2x.transpose().dot(Ay2x) * ru / 2
+    # generate a list to store the non-zeros-index
+    quadratic_item_mgs = []
+    for i in range(ny):
+        for j in range(ny):
+            if q_mgs[i, j] > 0:
+                quadratic_item_mgs.append([i, j, q_mgs[i, j]])
 
-    vol = zeros((nl, T))
-    for i in range(T):
-        for j in range(nl):
-            if Alpha[j] > 0:
-                vol[j, i] = Pij[j, i] ** 2 - Vm[int(f[j]), i] * lij[j, i]
-    #### ADMM solver ####
-    # step = 0.1
-    # lam = zeros(nmg * T)
-    # ru = 0.5
-    # x0 = zeros((int(nVariables_index[0]), 1))
-    # y0 = zeros((int(nVariables_index[-1] - nVariables_index[0]), 1))
+    obj_mgs_quadratic = 0
+    for i in range(len(quadratic_item_mgs)):
+        obj_mgs_quadratic += quadratic_item_mgs[i][2] * y[quadratic_item_mgs[i][0]] * y[quadratic_item_mgs[i][1]]
 
-    # Formulate the distribution network and microgrid cluster problem respectively
-    # model_dso = Model("Model_DSO")
-    # x = {}
-    # for i in range(int(nVariables_index[0])):  # Decision making problem for the DSO
-    #     if vtypes[i] == "c":
-    #         x[i] = model_dso.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
-    #     elif vtypes[i] == "b":
-    #         x[i] = model_dso.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
-    #
-    # neq = model_distribution_network["Aeq"].shape[0]
-    # for i in range(neq):
-    #     expr = 0
-    #     for j in range(int(nVariables_index[0])):
-    #         expr += x[j] * model_distribution_network["Aeq"][i, j]
-    #     model_dso.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=model_distribution_network["beq"][i])
-    #
-    # nineq = model_distribution_network["A"].shape[0]
-    # for i in range(nineq):
-    #     expr = 0
-    #     for j in range(int(nVariables_index[0])):
-    #         expr += x[j] * model_distribution_network["A"][i, j]
-    #     model_dso.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=model_distribution_network["b"][i])
-    #
-    # nl = unit_commitment_power_park.nl
-    # f = model_distribution_network["f"]
-    # NX_dsn = model_distribution_network["NX"]
-    # for i in range(T):
-    #     for j in range(nl):
-    #         model_dso.addConstr(
-    #             x[3 * nl + i * NX_dsn + j] * x[3 * nl + i * NX_dsn + j] <= x[3 * nl + i * NX_dsn + j + nl] * x[
-    #                 3 * nl + i * NX_dsn + f[j] + 2 * nl])
-    #
-    # c_dso = model_distribution_network["c"]
-    # c_dso = c_dso + model_distribution_network["Ax2y"].transpose().dot(lam) + ru * (
-    #     (model_distribution_network["Ax2y"].transpose().dot(Ay2x)).dot(y0)).transpose()
-    # q_dso = model_distribution_network["Ax2y"].transpose().dot(model_distribution_network["Ax2y"]) * ru / 2
-    # obj_dso = 0
-    # for i in range(int(nVariables_index[0])):
-    #     obj_dso += c_dso[0][i] * x[i]
-    #     for j in range(int(nVariables_index[0])):
-    #         obj_dso += q_dso[i, j] * x[i] * x[j]
-    #
-    # model_dso.setObjective(obj_dso)
-    # model_dso.Params.OutputFlag = 1
-    # model_dso.Params.LogToConsole = 1
-    # model_dso.Params.DisplayInterval = 1
-    # model_dso.Params.LogFile = ""
-    #
-    # model_dso.optimize()
-    # obj = model_dso.getValue()
-    #
-    # xx = []
-    # for v in model_dso.getVars():
-    #     xx.append(v.x)
-    # xx = array(xx)  # convert the list to array
-    print(xx)
+    c_mgs = cy
+    c_mgs = c_mgs + Ay2x.transpose().dot(lam) + ru * (
+        (Ay2x.transpose().dot(model_distribution_network["Ax2y"])).dot(xx)).transpose()
+
+    obj_mgs_linear = 0
+    for i in range(ny):
+        obj_mgs_linear += c_mgs[0][i] * y[i]  # only need to update this
+
+    obj_mgs = obj_mgs_linear + obj_mgs_quadratic
+
+    model_mgs.setObjective(obj_mgs)
+    model_mgs.Params.OutputFlag = 0
+    model_mgs.Params.LogToConsole = 0
+    model_mgs.Params.DisplayInterval = 1
+    model_mgs.Params.MIPGap = 10 ** -4
+    model_mgs.optimize()
+    obj_mgs = obj_mgs.getValue()
+
+    yy = []
+    for v in model_mgs.getVars():
+        yy.append(v.x)
+    yy = array(yy).reshape((ny, 1))  # convert the list to array
+    # Calculate the real objective value
+    obj_mgs_real = 0
+    for i in range(ny):
+        obj_mgs_real += cy[i] * yy[i]
+
+    # Update the objective functions
+    Iter = 0
+    Iter_max = 1000
+    obj_index = []
+    while Iter <= Iter_max:
+        # Update the lambda set
+        lam += step * (model_distribution_network["Ax2y"].dot(xx[:, 0]) + Ay2x.dot(yy[:, 0]))
+        #### Update the x part
+        c_dso = cx
+        c_dso = c_dso + model_distribution_network["Ax2y"].transpose().dot(lam) + ru * (
+            (model_distribution_network["Ax2y"].transpose().dot(Ay2x)).dot(yy)).transpose()
+
+        obj_dso_linear = 0
+        for i in range(nx):
+            obj_dso_linear += c_dso[0][i] * x[i]  # only need to update this
+
+        obj_dso = obj_dso_linear + obj_dso_quadratic
+        model_dso.setObjective(obj_dso)
+        model_dso.optimize()
+        xx = []
+        for v in model_dso.getVars():
+            xx.append(v.x)
+        xx = array(xx).reshape((nx, 1))  # convert the list to array
+        # Calculate the real-objective function
+        obj_dso_real = 0
+        for i in range(nx):
+            obj_dso_real += cx[i] * xx[i]
+
+        #### Update the y part
+        c_mgs = cy
+        c_mgs = c_mgs + Ay2x.transpose().dot(lam) + ru * (
+            (Ay2x.transpose().dot(model_distribution_network["Ax2y"])).dot(xx)).transpose()
+
+        obj_mgs_linear = 0
+        for i in range(ny):
+            obj_mgs_linear += c_mgs[0][i] * y[i]  # only need to update this
+
+        obj_mgs = obj_mgs_linear + obj_mgs_quadratic
+        model_mgs.setObjective(obj_mgs)
+        model_mgs.optimize()
+        yy = []
+        for v in model_mgs.getVars():
+            yy.append(v.x)
+        yy = array(yy).reshape((ny, 1))  # convert the list to array
+        # Calculate the real objective value
+        obj_mgs_real = 0
+        for i in range(ny):
+            obj_mgs_real += cy[i] * yy[i]
+
+        # Store the objective values
+        obj_index.append(obj_mgs_real + obj_dso_real)
+        print(obj_index[-1])
+        Iter += 1
+
+    print(yy)
