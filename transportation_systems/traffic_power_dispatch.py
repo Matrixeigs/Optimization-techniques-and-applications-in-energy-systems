@@ -17,7 +17,7 @@ from transportation_systems.test_cases import case3, TIME, LOCATION
 
 # Import data format for electricity networks
 from pypower import ext2int
-from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, RATE_A
+from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, RATE_A
 from pypower.idx_bus import PD, VMAX, VMIN, QD
 from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
 from numpy import flatnonzero as find

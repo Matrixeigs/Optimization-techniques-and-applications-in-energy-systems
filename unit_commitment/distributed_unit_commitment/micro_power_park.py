@@ -75,7 +75,7 @@ class UnitCommitmentPowerPark():
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
         Cmg = sparse((ones(nmg), (m, range(nmg))), (nb, nmg))
 
-        Branch_R = branch[:, BR_X] * 10
+        Branch_R = branch[:, BR_X]
         Cf = Cf.T
         Ct = Ct.T
         # Obtain the boundary information
@@ -698,66 +698,4 @@ if __name__ == "__main__":
         for j in range(nl):
             if Alpha[j] > 0:
                 vol[j, i] = Pij[j, i] ** 2 - Vm[int(f[j]), i] * lij[j, i]
-    #### ADMM solver ####
-    # step = 0.1
-    # lam = zeros(nmg * T)
-    # ru = 0.5
-    # x0 = zeros((int(nVariables_index[0]), 1))
-    # y0 = zeros((int(nVariables_index[-1] - nVariables_index[0]), 1))
-
-    # Formulate the distribution network and microgrid cluster problem respectively
-    # model_dso = Model("Model_DSO")
-    # x = {}
-    # for i in range(int(nVariables_index[0])):  # Decision making problem for the DSO
-    #     if vtypes[i] == "c":
-    #         x[i] = model_dso.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
-    #     elif vtypes[i] == "b":
-    #         x[i] = model_dso.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
-    #
-    # neq = model_distribution_network["Aeq"].shape[0]
-    # for i in range(neq):
-    #     expr = 0
-    #     for j in range(int(nVariables_index[0])):
-    #         expr += x[j] * model_distribution_network["Aeq"][i, j]
-    #     model_dso.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=model_distribution_network["beq"][i])
-    #
-    # nineq = model_distribution_network["A"].shape[0]
-    # for i in range(nineq):
-    #     expr = 0
-    #     for j in range(int(nVariables_index[0])):
-    #         expr += x[j] * model_distribution_network["A"][i, j]
-    #     model_dso.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=model_distribution_network["b"][i])
-    #
-    # nl = unit_commitment_power_park.nl
-    # f = model_distribution_network["f"]
-    # NX_dsn = model_distribution_network["NX"]
-    # for i in range(T):
-    #     for j in range(nl):
-    #         model_dso.addConstr(
-    #             x[3 * nl + i * NX_dsn + j] * x[3 * nl + i * NX_dsn + j] <= x[3 * nl + i * NX_dsn + j + nl] * x[
-    #                 3 * nl + i * NX_dsn + f[j] + 2 * nl])
-    #
-    # c_dso = model_distribution_network["c"]
-    # c_dso = c_dso + model_distribution_network["Ax2y"].transpose().dot(lam) + ru * (
-    #     (model_distribution_network["Ax2y"].transpose().dot(Ay2x)).dot(y0)).transpose()
-    # q_dso = model_distribution_network["Ax2y"].transpose().dot(model_distribution_network["Ax2y"]) * ru / 2
-    # obj_dso = 0
-    # for i in range(int(nVariables_index[0])):
-    #     obj_dso += c_dso[0][i] * x[i]
-    #     for j in range(int(nVariables_index[0])):
-    #         obj_dso += q_dso[i, j] * x[i] * x[j]
-    #
-    # model_dso.setObjective(obj_dso)
-    # model_dso.Params.OutputFlag = 1
-    # model_dso.Params.LogToConsole = 1
-    # model_dso.Params.DisplayInterval = 1
-    # model_dso.Params.LogFile = ""
-    #
-    # model_dso.optimize()
-    # obj = model_dso.getValue()
-    #
-    # xx = []
-    # for v in model_dso.getVars():
-    #     xx.append(v.x)
-    # xx = array(xx)  # convert the list to array
-    print(xx)
+    print(vol)
