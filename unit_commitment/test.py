@@ -1,4 +1,4 @@
 from unit_commitment.test_cases.case24 import case24
-from pypower.runpf import runpf
+from pypower.runopf import runopf
 case=case24()
-runpf(case)
+runopf(case)

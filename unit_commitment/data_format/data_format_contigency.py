@@ -8,6 +8,6 @@ PG = 3
 RS = 4
 RU = 5
 RD = 6
+NG = 7
 THETA = 7
 PL = 8
-nVarialbes = 9
