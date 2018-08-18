@@ -4,7 +4,7 @@ Network constrained unit commitment problem
 """
 from numpy import zeros, shape, ones, diag, concatenate, r_, arange, array, eye
 import matplotlib.pyplot as plt
-from solvers.mixed_integer_quadratic_programming import mixed_integer_quadratic_programming as miqp
+from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
 from scipy.sparse import csr_matrix as sparse
 
 from pypower.idx_brch import F_BUS, T_BUS, BR_X, RATE_A
@@ -19,7 +19,7 @@ class NetworkConstrainedUnitCommitment():
     def __init__(self):
         self.name = "Network constrained unit commitment"
 
-    def problem_formulation(self, case, delta=0.03, delta_r=0.02):
+    def problem_formulation(self, case, delta=0.10, delta_r=0.03):
         baseMVA, bus, gen, branch, gencost, profile = case["baseMVA"], case["bus"], case["gen"], case["branch"], case[
             "gencost"], case["Load_profile"]
         MIN_UP = -3
@@ -29,9 +29,9 @@ class NetworkConstrainedUnitCommitment():
         gen[:, GEN_BUS] = gen[:, GEN_BUS] - 1
         branch[:, F_BUS] = branch[:, F_BUS] - 1
         branch[:, T_BUS] = branch[:, T_BUS] - 1
-        gen[:, RAMP_10] = gencost[:, -8] * 10
-        gen[:, RAMP_AGC] = gencost[:, -8] * 5
-        gen[:, RAMP_30] = gencost[:, -8] * 30
+        gen[:, RAMP_10] = gencost[:, -8] * 30
+        gen[:, RAMP_AGC] = gencost[:, -8] * 10
+        gen[:, RAMP_30] = gencost[:, -8] * 60
 
         ng = shape(case['gen'])[0]  # number of schedule injections
         nl = shape(case['branch'])[0]  ## number of branches
@@ -79,8 +79,8 @@ class NetworkConstrainedUnitCommitment():
                 ub[IG * ng * T + i * ng + j] = 1
                 ub[PG * ng * T + i * ng + j] = gen[j, PMAX]
                 ub[RS * ng * T + i * ng + j] = gen[j, RAMP_10]
-                ub[RU * ng * T + i * ng + j] = gen[j, RAMP_30]
-                ub[RD * ng * T + i * ng + j] = gen[j, RAMP_30]
+                ub[RU * ng * T + i * ng + j] = gen[j, RAMP_AGC]
+                ub[RD * ng * T + i * ng + j] = gen[j, RAMP_AGC]
                 # variable types
                 vtypes[IG * ng * T + i * ng + j] = "B"
 
@@ -96,8 +96,8 @@ class NetworkConstrainedUnitCommitment():
         # The power flow
         for i in range(T):
             for j in range(nl):
-                lb[NG * ng * T + T * nb + i * nl + j] = -branch[j, RATE_A]
-                ub[NG * ng * T + T * nb + i * nl + j] = branch[j, RATE_A]
+                lb[NG * ng * T + T * nb + i * nl + j] = -branch[j, RATE_A] * 10
+                ub[NG * ng * T + T * nb + i * nl + j] = branch[j, RATE_A] * 10
 
         c = zeros((nx, 1))
         q = zeros((nx, 1))
@@ -152,7 +152,7 @@ class NetworkConstrainedUnitCommitment():
 
         Aeq = concatenate((Aeq, Aeq_temp), axis=0)
         beq = concatenate((beq, beq_temp), axis=0)
-        # 2.5) Power range limitation
+        # 2.4) Power range limitation
         Aineq = zeros((T * ng, nx))
         bineq = zeros((T * ng, 1))
         for i in range(T):
@@ -182,13 +182,13 @@ class NetworkConstrainedUnitCommitment():
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
-        # 2.6) Start up and shut down time limitation
+        # 2.5) Start up and shut down time limitation
         UP_LIMIT = [0] * ng
         DOWN_LIMIT = [0] * ng
         for i in range(ng):
             UP_LIMIT[i] = T - int(gencost[i, MIN_UP])
             DOWN_LIMIT[i] = T - int(gencost[i, MIN_UP])
-        # 2.6.1) Up limit
+        # 2.5.1) Up limit
         Aineq_temp = zeros((sum(UP_LIMIT), nx))
         bineq_temp = zeros((sum(UP_LIMIT), 1))
         for i in range(ng):
@@ -198,7 +198,7 @@ class NetworkConstrainedUnitCommitment():
                 Aineq_temp[sum(UP_LIMIT[0:i]) + j - int(gencost[i, MIN_UP]), IG * ng * T + j * ng + i] = -1
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
-        # 2.6.2) Down limit
+        # 2.5.2) Down limit
         Aineq_temp = zeros((sum(DOWN_LIMIT), nx))
         bineq_temp = ones((sum(DOWN_LIMIT), 1))
         for i in range(ng):
@@ -210,8 +210,8 @@ class NetworkConstrainedUnitCommitment():
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
-        # 2.7) Ramp constraints:
-        # 2.7.1) Ramp up limitation
+        # 2.6) Ramp constraints:
+        # 2.6.1) Ramp up limitation
         Aineq_temp = zeros((ng * (T - 1), nx))
         bineq_temp = zeros((ng * (T - 1), 1))
         for i in range(ng):
@@ -223,7 +223,7 @@ class NetworkConstrainedUnitCommitment():
 
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
-        # # 2.7.2) Ramp up limitation
+        # # 2.6.2) Ramp up limitation
         Aineq_temp = zeros((ng * (T - 1), nx))
         bineq_temp = zeros((ng * (T - 1), 1))
         for i in range(ng):
@@ -234,8 +234,8 @@ class NetworkConstrainedUnitCommitment():
                 bineq_temp[i * (T - 1) + j] = gen[i, RAMP_30]
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
-        # 2.8)  Reserve constraints
-        # 2.8.1) Rs<=Ig*RAMP_10
+        # 2.7)  Reserve constraints
+        # 2.7.1) Rs<=Ig*RAMP_10
         Aineq_temp = zeros((T * ng, nx))
         bineq_temp = zeros((T * ng, 1))
         for i in range(T):
@@ -244,7 +244,7 @@ class NetworkConstrainedUnitCommitment():
                 Aineq_temp[i * ng + j, RS * ng * T + i * ng + j] = 1
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
-        # 2.8.2) ru<=Ig*RAMP_AGC
+        # 2.7.2) ru<=Ig*RAMP_AGC
         Aineq_temp = zeros((T * ng, nx))
         bineq_temp = zeros((T * ng, 1))
         for i in range(T):
@@ -253,7 +253,7 @@ class NetworkConstrainedUnitCommitment():
                 Aineq_temp[i * ng + j, RU * ng * T + i * ng + j] = 1
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
-        # 2.8.3) rd<=Ig*RAMP_AGC
+        # 2.7.3) rd<=Ig*RAMP_AGC
         Aineq_temp = zeros((T * ng, nx))
         bineq_temp = zeros((T * ng, 1))
         for i in range(T):
@@ -263,18 +263,17 @@ class NetworkConstrainedUnitCommitment():
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
-        # 2.9)  Up and down reserve for the forecasting errors
-        # Spinning reserve limitation
+        # 2.8)  Up and down reserve for the forecasting errors
+        # 2.8.1) Spinning reserve limitation
         Aineq_temp = zeros((T, nx))
         bineq_temp = zeros((T, 1))
         for i in range(T):
             for j in range(ng):
                 Aineq_temp[i, RS * ng * T + i * ng + j] = -1
-
             bineq_temp[i] -= delta * profile[i] * sum(bus[:, PD])
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
-        # Up reserve limitation
+        # 2.8.2) Up regulation reserve limitation
         Aineq_temp = zeros((T, nx))
         bineq_temp = zeros((T, 1))
         for i in range(T):
@@ -284,7 +283,7 @@ class NetworkConstrainedUnitCommitment():
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
-        # Down reserve limitation
+        # 2.8.3) Down regulation reserve limitation
         Aineq_temp = zeros((T, nx))
         bineq_temp = zeros((T, 1))
         for i in range(T):
@@ -379,7 +378,7 @@ if __name__ == "__main__":
     case_base = case24()
     profile = array(
         [1.75, 1.65, 1.58, 1.54, 1.55, 1.60, 1.73, 1.77, 1.86, 2.07, 2.29, 2.36, 2.42, 2.44, 2.49, 2.56, 2.56, 2.47,
-         2.46, 2.37, 2.37, 2.33, 1.96, 1.96]) / 2
+         2.46, 2.37, 2.37, 2.33, 1.96, 1.96]) / 3
     case_base["Load_profile"] = profile
 
     network_constrained_unit_commitment = NetworkConstrainedUnitCommitment()
