@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="upgrade profile cases">
-      <change afterPath="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/security_constainted_unit_commitment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/unit_commitment/test_cases/case24.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Optimization.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Optimization.iml" afterDir="false" />
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/test_cases/case24.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/test_cases/case24.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -95,7 +91,7 @@
         <entry file="file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/security_constainted_unit_commitment.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="45">
-              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+              <caret line="3" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
@@ -104,7 +100,7 @@
         <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case14.py">
           <provider selected="true" editor-type-id="text-editor">
             <state>
-              <caret column="3" lean-forward="true" selection-start-column="3" selection-end-column="3" />
+              <caret column="3" selection-start-column="3" selection-end-column="3" />
             </state>
           </provider>
         </entry>
@@ -112,8 +108,8 @@
       <file leaf-file-name="case24.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case24.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="211">
-              <caret line="25" column="62" lean-forward="true" selection-start-line="25" selection-start-column="62" selection-end-line="25" selection-end-column="62" />
+            <state relative-caret-position="474">
+              <caret line="126" column="8" selection-start-line="126" selection-start-column="8" selection-end-line="126" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -232,12 +228,11 @@
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
-              <item name="Extensions" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
             </path>
           </expand>
           <select />
@@ -542,13 +537,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00058" summary="using multiple processes to accerlate the calculation">
-      <created>1530670300042</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
-      <option name="project" value="LOCAL" />
-      <updated>1530670300042</updated>
     </task>
     <task id="LOCAL-00059" summary="update room temperature settings">
       <created>1530671513227</created>
@@ -886,7 +874,14 @@
       <option name="project" value="LOCAL" />
       <updated>1533276879231</updated>
     </task>
-    <option name="localTasksCounter" value="107" />
+    <task id="LOCAL-00107" summary="add ieee-24 test system">
+      <created>1534577886638</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1534577886639</updated>
+    </task>
+    <option name="localTasksCounter" value="108" />
     <servers />
   </component>
   <component name="TodoView">
@@ -906,7 +901,7 @@
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5064378" side_tool="true" weight="0.3987879" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.32848486" />
-      <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
+      <window_info anchor="bottom" id="Python Console" order="7" visible="true" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49499285" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.3297568" />
@@ -963,7 +958,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="verified unit commitment with batteries" />
     <MESSAGE value="manage multiple energy storage systems" />
     <MESSAGE value="add traffic power unit commitment" />
     <MESSAGE value="bugs found in the connection matrix" />
@@ -988,7 +982,8 @@
     <MESSAGE value="add some kinds od distributed algorithm" />
     <MESSAGE value="add distributed solvers" />
     <MESSAGE value="upgrade profile cases" />
-    <option name="LAST_COMMIT_MESSAGE" value="upgrade profile cases" />
+    <MESSAGE value="add ieee-24 test system" />
+    <option name="LAST_COMMIT_MESSAGE" value="add ieee-24 test system" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1576,21 +1571,21 @@ for i in range(P):
     <entry file="file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/security_constainted_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
-          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case14.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
-          <caret column="3" lean-forward="true" selection-start-column="3" selection-end-column="3" />
+          <caret column="3" selection-start-column="3" selection-end-column="3" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case24.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
-          <caret line="25" column="62" lean-forward="true" selection-start-line="25" selection-start-column="62" selection-end-line="25" selection-end-column="62" />
+        <state relative-caret-position="474">
+          <caret line="126" column="8" selection-start-line="126" selection-start-column="8" selection-end-line="126" selection-end-column="8" />
         </state>
       </provider>
     </entry>
