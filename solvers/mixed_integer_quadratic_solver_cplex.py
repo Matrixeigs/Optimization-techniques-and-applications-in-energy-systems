@@ -32,7 +32,7 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
 
     if vtypes == None:
         vtypes = ["c"] * nx
-    # Fulfilling the missing informations
+    # Fulfilling the missing information
     if beq is None or len(beq) == 0: beq = -cplex.infinity * ones(neq)
     if b is None or len(b) == 0: b = cplex.infinity * ones(nineq)
     if xmin is None or len(xmin) == 0: xmin = -cplex.infinity * ones(nx)
