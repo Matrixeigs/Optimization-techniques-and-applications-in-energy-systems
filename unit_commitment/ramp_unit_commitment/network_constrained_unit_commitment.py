@@ -108,7 +108,7 @@ class NetworkConstrainedUnitCommitment():
                 c[IG * ng * T + i * ng + j] = gencost[j, 6]
                 c[PG * ng * T + i * ng + j] = gencost[j, 5]
                 # cost, the quadratic objective value
-                q[PG * ng * T + i * ng + j] = gencost[j, 4]
+                # q[PG * ng * T + i * ng + j] = gencost[j, 4]
         # 2) Constraint set
         # 2.1) Power balance equation, for each node
         Aeq = zeros((T * nb, nx))
