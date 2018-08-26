@@ -319,8 +319,10 @@ class TwoStageStochasticUnitCommitment():
     def problem_formulation_seond_stage(self):
         """
         Problem formulation for the second stage problem
+        Found problem: The upper and lower boundary should be modified to the standard format
         :return:
         """
+
         ng = self.ng
         nb = self.nb
         nl = self.nl
