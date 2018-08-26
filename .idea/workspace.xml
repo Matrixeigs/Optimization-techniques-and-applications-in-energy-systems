@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -41,7 +41,7 @@
     <SUITE FILE_PATH="coverage/Optimization$test_cases.coverage" NAME="test_cases Coverage Results" MODIFIED="1530670210731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_solver_cplex.coverage" NAME="mixed_integer_quadratic_solver_cplex Coverage Results" MODIFIED="1534604482705" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_battery_energy_storage_system.coverage" NAME="unit_commitment_battery_energy_storage_system Coverage Results" MODIFIED="1535185117751" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_stochastic.coverage" NAME="two_stage_unit_commitment_stochastic Coverage Results" MODIFIED="1535270922588" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_stochastic.coverage" NAME="two_stage_unit_commitment_stochastic Coverage Results" MODIFIED="1535275050938" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding.coverage" NAME="two_stage_bidding Coverage Results" MODIFIED="1529145749009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_deterministic.coverage" NAME="three_stage_bidding_deterministic Coverage Results" MODIFIED="1530711143843" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$opf_branch_power_flow_ADMM.coverage" NAME="opf_branch_power_flow_ADMM Coverage Results" MODIFIED="1535179636273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
@@ -85,10 +85,10 @@
       <file leaf-file-name="two_stage_unit_commitment_stochastic.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
-              <caret line="433" lean-forward="true" selection-start-line="433" selection-end-line="433" />
+            <state relative-caret-position="193">
+              <caret line="505" column="35" lean-forward="true" selection-start-line="505" selection-start-column="35" selection-end-line="505" selection-end-column="35" />
               <folding>
-                <element signature="e#192#271#0" expanded="true" />
+                <element signature="e#192#278#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -97,8 +97,8 @@
       <file leaf-file-name="two_stage_stochastic_unit_commitment.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="93">
-              <caret line="499" column="11" lean-forward="true" selection-start-line="499" selection-end-line="500" />
+            <state relative-caret-position="141">
+              <caret line="496" column="4" selection-start-line="496" selection-start-column="4" selection-end-line="496" selection-end-column="40" />
               <folding>
                 <element signature="e#192#238#0" expanded="true" />
               </folding>
@@ -130,6 +130,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>pRT_positive</find>
+      <find>sub_problem_dual</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -140,7 +141,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/../Energy-systems-modelling-and-optimization/README.md" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py" />
@@ -190,6 +190,7 @@
         <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" />
       </list>
     </option>
@@ -548,20 +549,6 @@
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
     </task>
-    <task id="LOCAL-00068" summary="update branch information">
-      <created>1531649548947</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1531649548947</updated>
-    </task>
-    <task id="LOCAL-00069" summary="unit commitment problem update">
-      <created>1531669826024</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1531669826024</updated>
-    </task>
     <task id="LOCAL-00070" summary="add mixed integer quadratic solvers">
       <created>1531703042997</created>
       <option name="number" value="00070" />
@@ -891,7 +878,21 @@
       <option name="project" value="LOCAL" />
       <updated>1535209264311</updated>
     </task>
-    <option name="localTasksCounter" value="117" />
+    <task id="LOCAL-00117" summary="add two-stage stochastic unit commitment">
+      <created>1535271341001</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1535271341001</updated>
+    </task>
+    <task id="LOCAL-00118" summary="formulate the second stage problem">
+      <created>1535273722380</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1535273722380</updated>
+    </task>
+    <option name="localTasksCounter" value="119" />
     <servers />
   </component>
   <component name="TodoView">
@@ -968,8 +969,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="dynamic network reconfiguration" />
-    <MESSAGE value="boundary information of network reconfiguration" />
     <MESSAGE value="update distribution network reconfiguration model for distribution networks" />
     <MESSAGE value="formulate unit commitment plan for each micro_grid" />
     <MESSAGE value="draft version" />
@@ -993,7 +992,9 @@
     <MESSAGE value="parameter adjustment" />
     <MESSAGE value="update mixed integer quadratic programming settings" />
     <MESSAGE value="add first result to energy hubs" />
-    <option name="LAST_COMMIT_MESSAGE" value="add first result to energy hubs" />
+    <MESSAGE value="add two-stage stochastic unit commitment" />
+    <MESSAGE value="formulate the second stage problem" />
+    <option name="LAST_COMMIT_MESSAGE" value="formulate the second stage problem" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1070,8 +1071,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py</url>
-          <line>447</line>
+          <line>695</line>
           <option name="timeStamp" value="279" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py</url>
+          <line>514</line>
+          <option name="timeStamp" value="280" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1081,7 +1087,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="280" />
+      <option name="time" value="281" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1593,8 +1599,8 @@ for i in range(P):
     </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="93">
-          <caret line="499" column="11" lean-forward="true" selection-start-line="499" selection-end-line="500" />
+        <state relative-caret-position="141">
+          <caret line="496" column="4" selection-start-line="496" selection-start-column="4" selection-end-line="496" selection-end-column="40" />
           <folding>
             <element signature="e#192#238#0" expanded="true" />
           </folding>
@@ -1603,10 +1609,10 @@ for i in range(P):
     </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="433" lean-forward="true" selection-start-line="433" selection-end-line="433" />
+        <state relative-caret-position="193">
+          <caret line="505" column="35" lean-forward="true" selection-start-line="505" selection-start-column="35" selection-end-line="505" selection-end-column="35" />
           <folding>
-            <element signature="e#192#271#0" expanded="true" />
+            <element signature="e#192#278#0" expanded="true" />
           </folding>
         </state>
       </provider>

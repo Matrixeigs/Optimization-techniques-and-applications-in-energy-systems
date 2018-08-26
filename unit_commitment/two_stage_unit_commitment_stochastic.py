@@ -5,7 +5,7 @@ This algorithm is solved using multi-cuts benders decomposition
 @e-mail:zhaoty@ntu.edu.sg
 """
 
-from numpy import zeros, shape, ones, diag, concatenate, r_, arange, array, eye
+from numpy import zeros, shape, ones, diag, concatenate, r_, arange, array, eye, random
 import matplotlib.pyplot as plt
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
 from scipy.sparse import csr_matrix as sparse
@@ -14,7 +14,8 @@ from pypower.idx_brch import F_BUS, T_BUS, BR_X, RATE_A
 from pypower.idx_bus import BUS_TYPE, REF, PD, BUS_I
 from pypower.idx_gen import GEN_BUS, PG, PMAX, PMIN, RAMP_AGC, RAMP_10, RAMP_30
 from pypower.idx_cost import STARTUP
-
+import os
+from multiprocessing import Pool
 from unit_commitment.data_format.data_format_contigency import ALPHA, BETA, IG, PG, RS, RU, RD, THETA, PL, NG
 
 
@@ -127,8 +128,9 @@ class TwoStageStochasticUnitCommitment():
                 Cft.transpose()).todense()
 
             beq[i * nb:(i + 1) * nb, 0] = profile[i] * bus[:, PD]
-        self.umean = beq  # Stochastic variables
+        self.u_mean = beq  # Stochastic variables
         self.u_delta = beq * delta_r
+        self.nu = T * nb
         self.Cg = Cg
         self.Cft = Cft
 
@@ -333,9 +335,8 @@ class TwoStageStochasticUnitCommitment():
         c = zeros((nx, 1))
         pg = 0
         pd = 1
-        theta = 2
-        pf = 3
-        M = 10 ** 3
+        M = 10 ** 4
+
         for i in range(T):
             for j in range(ng):
                 # real-time power dispatch
@@ -364,7 +365,7 @@ class TwoStageStochasticUnitCommitment():
         # Construct the constraint set
         # 3.1) Power balance constraints
         NX = self.nx
-        nu = len(self.umean)
+        nu = self.nu
         Cg = self.Cg
         Cft = self.Cft
 
@@ -460,12 +461,141 @@ class TwoStageStochasticUnitCommitment():
         M_temp = zeros((nx, nu))
         G_temp = -eye(nx)
         h_temp = -ub
+
         G = concatenate([G, G_temp])
         M = concatenate([M, M_temp])
         E = concatenate([E, E_temp])
         h = concatenate([h, h_temp])
         d = c
 
+        model = {"G": G,
+                 "M": M,
+                 "E": E,
+                 "h": h,
+                 "d": d}
+
+        return model
+
+    def bender_decomposition(self, model_first_stage, model_second_stage, n_scenario, xx):
+        """
+        Bender decomposition strategies
+        :param model_first_stage:
+        :param model_second_stage:
+        :param n_scenario:
+        :param xx:
+        :return:
+        """
+        h = model_second_stage["h"]
+        G = model_second_stage["G"]
+        M = model_second_stage["M"]
+        E = model_second_stage["E"]
+        d = model_second_stage["d"]
+        nu = self.nu
+        u_mean = self.u_mean
+        u_delta = self.u_delta
+        NX = self.nx
+
+        xx = array(xx).reshape((len(xx), 1))
+        u_scenario = zeros((nu, n_scenario))
+        for i in range(n_scenario):
+            u_scenario[:, i] = (u_mean - u_delta + 2 * diag(random.rand(nu)).dot(u_delta)).reshape(nu)
+
+        model_second_stage_dual = [0] * n_scenario
+
+        n_processors = os.cpu_count()
+        for i in range(n_scenario):
+            model_second_stage_dual[i] = {"c": h - M.dot((u_scenario[:, i]).reshape(nu, 1)) - E.dot(xx),
+                                          "Aeq": G.transpose(),
+                                          "beq": d,
+                                          "lb": zeros((h.shape[0], 1))}
+        with Pool(n_processors) as p:
+            result_second_stage_dual = list(p.map(sub_problem_dual, model_second_stage_dual))
+
+        # Modify the first stage optimization problem
+        model_first_stage["c"] = concatenate([model_first_stage["c"], ones((n_scenario, 1)) / n_scenario])
+        model_first_stage["lb"] = concatenate([model_first_stage["lb"], ones((n_scenario, 1)) * (-10 ** 8)])
+        model_first_stage["ub"] = concatenate([model_first_stage["ub"], ones((n_scenario, 1)) * (10 ** 8)])
+        model_first_stage["A"] = concatenate(
+            [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], n_scenario))],
+            axis=1)
+        model_first_stage["Aeq"] = concatenate(
+            [model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], n_scenario))],
+            axis=1)
+        model_first_stage["vtypes"] += ["c"] * n_scenario
+
+        # Obtain cuts for the first stage optimization
+        Acuts = zeros((n_scenario, NX + n_scenario))
+        bcuts = zeros((n_scenario, 1))
+        for i in range(n_scenario):
+            pi_temp = array(result_second_stage_dual[i]["x"]).reshape((1, len(result_second_stage_dual[i]["x"])))
+            Acuts[i, 0:NX] = -pi_temp.dot(E)
+            Acuts[i, NX + i] = -1
+            bcuts[i] = -pi_temp.dot(h - M.dot((u_scenario[:, i]).reshape(nu, 1)))
+        model_first_stage["A"] = concatenate([model_first_stage["A"], Acuts])
+        model_first_stage["b"] = concatenate([model_first_stage["b"], bcuts])
+
+        (xx, obj, success) = milp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
+                                  A=model_first_stage["A"],
+                                  b=model_first_stage["b"], xmin=model_first_stage["lb"], xmax=model_first_stage["ub"],
+                                  vtypes=model_first_stage["vtypes"], objsense="min")
+
+        xx = array(xx[0:NX]).reshape((NX, 1))
+
+        LB = obj
+        UB = 0
+        for i in range(n_scenario):
+            UB += result_second_stage_dual[i]["objvalue"] / n_scenario
+        UB += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
+        Gap = abs((UB - LB) / LB)
+        k = 1
+        kmax = 1000
+        while Gap > 10 ** -3:
+            # Update the second stage optimization problem
+            for i in range(n_scenario):
+                model_second_stage_dual[i] = {"c": h - M.dot((u_scenario[:, i]).reshape(nu, 1)) - E.dot(xx),
+                                              "Aeq": G.transpose(),
+                                              "beq": d,
+                                              "lb": zeros((h.shape[0], 1))}
+            with Pool(n_processors) as p:
+                result_second_stage_dual = list(p.map(sub_problem_dual, model_second_stage_dual))
+
+            # Add cuts
+            Acuts = zeros((n_scenario, NX + n_scenario))
+            bcuts = zeros((n_scenario, 1))
+            for i in range(n_scenario):
+                pi_temp = array(result_second_stage_dual[i]["x"]).reshape((1, len(result_second_stage_dual[i]["x"])))
+                Acuts[i, 0:NX] = -pi_temp.dot(E)
+                Acuts[i, NX + i] = -1
+                bcuts[i] = -pi_temp.dot(h - M.dot((u_scenario[:, i]).reshape(nu, 1)))
+            model_first_stage["A"] = concatenate([model_first_stage["A"], Acuts])
+            model_first_stage["b"] = concatenate([model_first_stage["b"], bcuts])
+
+            (xx, obj, success) = milp(model_first_stage["c"],
+                                      Aeq=model_first_stage["Aeq"],
+                                      beq=model_first_stage["beq"],
+                                      A=model_first_stage["A"],
+                                      b=model_first_stage["b"],
+                                      xmin=model_first_stage["lb"],
+                                      xmax=model_first_stage["ub"],
+                                      vtypes=model_first_stage["vtypes"], objsense="min")
+
+            xx = array(xx[0:NX]).reshape((NX, 1))
+
+            LB = obj
+            UB = 0
+            for i in range(n_scenario):
+                UB += result_second_stage_dual[i]["objvalue"] / n_scenario
+            UB += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
+            Gap = abs((UB - LB) / LB)
+            print("The upper boundary is {0}".format(UB))
+            print("The lower boundary is {0}".format(LB))
+            print("The gap is {0}".format(Gap))
+
+            k += 1
+            if k > kmax:
+                break
+
+        return xx, obj
 
     def problem_solving(self, model):
         """
@@ -559,6 +689,8 @@ if __name__ == "__main__":
 
     two_stage_unit_commitment = TwoStageStochasticUnitCommitment()
 
-    model = two_stage_unit_commitment.problem_formulation_first_stage(case_base)
-    (sol, obj) = two_stage_unit_commitment.problem_solving(model)
+    model_first_stage = two_stage_unit_commitment.problem_formulation_first_stage(case_base)
+    model_second_stage = two_stage_unit_commitment.problem_formulation_seond_stage()
+    (sol, obj) = two_stage_unit_commitment.problem_solving(model_first_stage)
+    (sol, obj) = two_stage_unit_commitment.bender_decomposition(model_first_stage, model_second_stage, 10, sol)
     sol = two_stage_unit_commitment.result_check(sol)
