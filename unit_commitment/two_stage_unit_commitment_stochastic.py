@@ -69,6 +69,7 @@ class TwoStageStochasticUnitCommitment():
         lb = zeros((nx, 1))
         ub = zeros((nx, 1))
         vtypes = ["c"] * nx
+        self.nx = nx
 
         for i in range(T):
             for j in range(ng):
@@ -128,6 +129,9 @@ class TwoStageStochasticUnitCommitment():
             beq[i * nb:(i + 1) * nb, 0] = profile[i] * bus[:, PD]
         self.umean = beq  # Stochastic variables
         self.u_delta = beq * delta_r
+        self.Cg = Cg
+        self.Cft = Cft
+
         # 2.2) Status transformation of each unit
         Aeq_temp = zeros((T * ng, nx))
         beq_temp = zeros((T * ng, 1))
@@ -322,6 +326,7 @@ class TwoStageStochasticUnitCommitment():
         bus = self.bus
         branch = self.branch
         gen = self.gen
+        # Number of variables
         nx = ng * T + nb * T + nb * T + nl * T
         lb = zeros((nx, 1))
         ub = zeros((nx, 1))
@@ -333,27 +338,134 @@ class TwoStageStochasticUnitCommitment():
         M = 10 ** 3
         for i in range(T):
             for j in range(ng):
-                # lower boundary information
+                # real-time power dispatch
                 lb[pg * ng * T + i * ng + j] = 0
                 ub[pg * ng * T + i * ng + j] = gen[j, PMAX]
+            for j in range(nb):
+                # load shedding at different buses
+                lb[pd * ng * T + i * nb + j] = 0
+                ub[pd * ng * T + i * nb + j] = M
+                c[pd * ng * T + i * nb + j] = M
 
-                lb[pd * ng * T + i * ng + j] = 0
-                ub[pd * ng * T + i * ng + j] = M
-
-        # The bus angle
         for i in range(T):
             for j in range(nb):
+                # The bus angle
                 lb[ng * T + nb * T + i * nb + j] = -360
                 ub[ng * T + nb * T + i * nb + j] = 360
                 if bus[j, BUS_TYPE] == REF:
                     lb[ng * T + nb * T + i * nb + j] = 0
                     ub[ng * T + nb * T + i * nb + j] = 0
 
-        # The power flow
         for i in range(T):
             for j in range(nl):
+                # The power flow
                 lb[ng * T + nb * T + nb * T + i * nl + j] = -branch[j, RATE_A]
                 ub[ng * T + nb * T + nb * T + i * nl + j] = branch[j, RATE_A]
+        # Construct the constraint set
+        # 3.1) Power balance constraints
+        NX = self.nx
+        nu = len(self.umean)
+        Cg = self.Cg
+        Cft = self.Cft
+
+        E = zeros((T * nb, NX))
+        M = zeros((T * nb, nu))
+        G = zeros((T * nb, nx))
+        h = zeros((T * nb, 1))
+        beq = zeros((T * nb, 1))
+        for i in range(T):
+            # For the unit
+            G[i * nb:(i + 1) * nb, pg * ng * T + i * ng:pg * ng * T + (i + 1) * ng] = Cg.todense()
+            # For the transmission lines
+            G[i * nb:(i + 1) * nb, ng * T + nb * T + nb * T + i * nl: ng * T + nb * T + nb * T + (i + 1) * nl] = -(
+                Cft.transpose()).todense()
+            M[i * nb:(i + 1) * nb, i * nb:(i + 1) * nb] = -eye(nb)
+        # Update G,M,E,h
+        G = concatenate([G, -G])
+        M = concatenate([M, -M])
+        E = concatenate([E, -E])
+        h = concatenate([h, -h])
+        # 3.2 Line flow equation
+        E_temp = zeros((T * nl, NX))
+        M_temp = zeros((T * nl, nu))
+        G_temp = zeros((T * nl, nx))
+        h_temp = zeros((T * nl, 1))
+
+        X = zeros((nl, nl))
+        for i in range(nl):
+            X[i, i] = 1 / branch[i, BR_X]
+
+        for i in range(T):
+            # For the unit
+            G_temp[i * nl:(i + 1) * nl,
+            ng * T + nb * T + nb * T + i * nl:ng * T + nb * T + nb * T + (i + 1) * nl] = -eye(nl)
+            G_temp[i * nl:(i + 1) * nl, ng * T + nb * T + i * nb: ng * T + nb * T + (i + 1) * nb] = X.dot(Cft.todense())
+        G = concatenate([G, G_temp, -G_temp])
+        M = concatenate([M, M_temp, -M_temp])
+        E = concatenate([E, E_temp, -E_temp])
+        h = concatenate([h, h_temp, -h_temp])
+
+        # 3.3) Power range limitation
+        E_temp = zeros((T * ng, NX))
+        M_temp = zeros((T * ng, nu))
+        G_temp = zeros((T * ng, nx))
+        h_temp = zeros((T * ng, 1))
+        for i in range(T):
+            for j in range(ng):
+                G_temp[i * ng + j, pg * ng * T + i * ng + j] = 1
+                E_temp[i * ng + j, PG * ng * T + i * ng + j] = -1
+                E_temp[i * ng + j, RD * ng * T + i * ng + j] = 1
+        G = concatenate([G, G_temp])
+        M = concatenate([M, M_temp])
+        E = concatenate([E, E_temp])
+        h = concatenate([h, h_temp])
+
+        E_temp = zeros((T * ng, NX))
+        M_temp = zeros((T * ng, nu))
+        G_temp = zeros((T * ng, nx))
+        h_temp = zeros((T * ng, 1))
+        for i in range(T):
+            for j in range(ng):
+                G_temp[i * ng + j, pg * ng * T + i * ng + j] = -1
+                E_temp[i * ng + j, PG * ng * T + i * ng + j] = 1
+                E_temp[i * ng + j, RU * ng * T + i * ng + j] = 1
+        G = concatenate([G, G_temp])
+        M = concatenate([M, M_temp])
+        E = concatenate([E, E_temp])
+        h = concatenate([h, h_temp])
+        # 3.4) Load shedding constraint
+        E_temp = zeros((T * nb, NX))
+        M_temp = zeros((T * nb, nu))
+        G_temp = zeros((T * nb, nx))
+        h_temp = zeros((T * nb, 1))
+        for i in range(T):
+            for j in range(nb):
+                G_temp[i * nb + j, ng * T + i * nb + j] = -1
+                M_temp[i * nb + j, i * nb + j] = 1
+        G = concatenate([G, G_temp])
+        M = concatenate([M, M_temp])
+        E = concatenate([E, E_temp])
+        h = concatenate([h, h_temp])
+        # 3.5) Upper and lower boundary inforamtion
+        E_temp = zeros((nx, NX))
+        M_temp = zeros((nx, nu))
+        G_temp = eye(nx)
+        h_temp = lb
+        G = concatenate([G, G_temp])
+        M = concatenate([M, M_temp])
+        E = concatenate([E, E_temp])
+        h = concatenate([h, h_temp])
+
+        E_temp = zeros((nx, NX))
+        M_temp = zeros((nx, nu))
+        G_temp = -eye(nx)
+        h_temp = -ub
+        G = concatenate([G, G_temp])
+        M = concatenate([M, M_temp])
+        E = concatenate([E, E_temp])
+        h = concatenate([h, h_temp])
+        d = c
+
 
     def problem_solving(self, model):
         """
