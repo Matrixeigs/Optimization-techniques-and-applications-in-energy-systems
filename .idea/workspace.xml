@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/micro_grids/hybrid_AC_DC_microgrids.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -82,11 +82,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="two_stage_unit_commitment_stochastic.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="two_stage_unit_commitment_stochastic.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="193">
-              <caret line="505" column="35" lean-forward="true" selection-start-line="505" selection-start-column="35" selection-end-line="505" selection-end-column="35" />
+            <state relative-caret-position="45">
+              <caret line="3" column="22" lean-forward="true" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
               <folding>
                 <element signature="e#192#278#0" expanded="true" />
               </folding>
@@ -94,26 +94,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="two_stage_stochastic_unit_commitment.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
+      <file leaf-file-name="hybrid_AC_DC_microgrids.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/micro_grids/hybrid_AC_DC_microgrids.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="141">
-              <caret line="496" column="4" selection-start-line="496" selection-start-column="4" selection-end-line="496" selection-end-column="40" />
-              <folding>
-                <element signature="e#192#238#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="network_constrained_unit_commitment.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-6">
-              <caret line="4" selection-start-line="4" selection-end-line="14" selection-end-column="109" />
-              <folding>
-                <element signature="e#53#132#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="75">
+              <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
             </state>
           </provider>
         </entry>
@@ -141,7 +126,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_base.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_ADMM_bi_level.py" />
@@ -192,6 +176,7 @@
         <option value="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" />
+        <option value="$PROJECT_DIR$/micro_grids/hybrid_AC_DC_microgrids.py" />
       </list>
     </option>
   </component>
@@ -224,19 +209,7 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
-              <item name="ramp_unit_commitment" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
-              <item name="wind_hydro" type="462c0819:PsiDirectoryNode" />
+              <item name="micro_grids" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -548,20 +521,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00070" summary="add mixed integer quadratic solvers">
-      <created>1531703042997</created>
-      <option name="number" value="00070" />
-      <option name="presentableId" value="LOCAL-00070" />
-      <option name="project" value="LOCAL" />
-      <updated>1531703042997</updated>
-    </task>
-    <task id="LOCAL-00071" summary="add quadratic programming">
-      <created>1531703207139</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1531703207139</updated>
     </task>
     <task id="LOCAL-00072" summary="update the index">
       <created>1531704380853</created>
@@ -892,7 +851,21 @@
       <option name="project" value="LOCAL" />
       <updated>1535273722380</updated>
     </task>
-    <option name="localTasksCounter" value="119" />
+    <task id="LOCAL-00119" summary="first version of two stage unit commitment">
+      <created>1535275210825</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
+      <option name="project" value="LOCAL" />
+      <updated>1535275210825</updated>
+    </task>
+    <task id="LOCAL-00120" summary="some bugs in the seond stage optimization, the boundary information">
+      <created>1535275953481</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1535275953481</updated>
+    </task>
+    <option name="localTasksCounter" value="121" />
     <servers />
   </component>
   <component name="TodoView">
@@ -915,13 +888,13 @@
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.30972818" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.30972818" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49284694" visible="true" weight="0.3490909" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49284694" visible="true" weight="0.3490909" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -969,8 +942,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update distribution network reconfiguration model for distribution networks" />
-    <MESSAGE value="formulate unit commitment plan for each micro_grid" />
     <MESSAGE value="draft version" />
     <MESSAGE value="add test cases for unit commitment and microgirds" />
     <MESSAGE value="bi-objective optimization between excepted operation cost and CVaR" />
@@ -994,7 +965,9 @@
     <MESSAGE value="add first result to energy hubs" />
     <MESSAGE value="add two-stage stochastic unit commitment" />
     <MESSAGE value="formulate the second stage problem" />
-    <option name="LAST_COMMIT_MESSAGE" value="formulate the second stage problem" />
+    <MESSAGE value="first version of two stage unit commitment" />
+    <MESSAGE value="some bugs in the seond stage optimization, the boundary information" />
+    <option name="LAST_COMMIT_MESSAGE" value="some bugs in the seond stage optimization, the boundary information" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1071,12 +1044,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py</url>
-          <line>695</line>
-          <option name="timeStamp" value="279" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py</url>
-          <line>514</line>
+          <line>516</line>
           <option name="timeStamp" value="280" />
         </line-breakpoint>
       </breakpoints>
@@ -1232,13 +1200,6 @@ for i in range(P):
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/obj_cvar.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="19" lean-forward="true" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/obj.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
@@ -1535,16 +1496,6 @@ for i in range(P):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" selection-start-line="21" selection-end-line="21" />
-          <folding>
-            <element signature="e#122#168#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-2369">
@@ -1587,16 +1538,6 @@ for i in range(P):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6">
-          <caret line="4" selection-start-line="4" selection-end-line="14" selection-end-column="109" />
-          <folding>
-            <element signature="e#53#132#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="141">
@@ -1607,13 +1548,40 @@ for i in range(P):
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="11246">
+          <caret line="912" lean-forward="true" selection-start-line="912" selection-end-line="912" />
+          <folding>
+            <element signature="e#122#168#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-6">
+          <caret line="4" selection-start-line="4" selection-end-line="14" selection-end-column="109" />
+          <folding>
+            <element signature="e#53#132#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="193">
-          <caret line="505" column="35" lean-forward="true" selection-start-line="505" selection-start-column="35" selection-end-line="505" selection-end-column="35" />
+        <state relative-caret-position="45">
+          <caret line="3" column="22" lean-forward="true" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
           <folding>
             <element signature="e#192#278#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/micro_grids/hybrid_AC_DC_microgrids.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
         </state>
       </provider>
     </entry>
