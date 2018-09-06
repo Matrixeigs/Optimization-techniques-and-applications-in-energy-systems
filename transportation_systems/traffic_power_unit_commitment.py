@@ -15,7 +15,7 @@ from pypower.idx_gen import GEN_BUS, PG, PMAX, PMIN, RAMP_10, RAMP_AGC, RAMP_30
 
 from numpy import flatnonzero as find
 
-from unit_commitment.data_format.data_formate_bess import ALPHA, BETA, IG, PG, RS, RU, RD, THETA, PL, NG
+from unit_commitment.data_format.data_format_bess import ALPHA, BETA, IG, PG, RS, RU, RD, THETA, PL, NG
 
 from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
 from unit_commitment.test_cases.case6 import case6 as power_network
