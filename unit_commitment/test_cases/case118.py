@@ -21,8 +21,8 @@ PG_MIN = 5
 I0 = 6
 MIN_DOWN = 7
 MIN_UP = 8
-RU = 9
-RD = 10
+RUG = 9
+RDG = 10
 COLD_START = 11
 
 # Bus format
