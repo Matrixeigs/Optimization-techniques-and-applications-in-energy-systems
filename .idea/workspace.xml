@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,6 +17,7 @@
     <SUITE FILE_PATH="coverage/Optimization$branch_optimal_power_flow.coverage" NAME="branch_optimal_power_flow Coverage Results" MODIFIED="1529333737140" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$case5.coverage" NAME="case5 Coverage Results" MODIFIED="1529722490753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems/test_cases" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_robust.coverage" NAME="two_stage_unit_commitment_robust Coverage Results" MODIFIED="1531709677297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1536412600667" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_jointed_chance_constained_programming.coverage" NAME="two_stage_jointed_chance_constained_programming Coverage Results" MODIFIED="1529422831373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_MGs.coverage" NAME="optimal_power_flow_hybrid_AC_DC_MGs Coverage Results" MODIFIED="1529981065995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
     <SUITE FILE_PATH="coverage/Optimization$test.coverage" NAME="test Coverage Results" MODIFIED="1534581154663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
@@ -29,7 +30,7 @@
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_mosek.coverage" NAME="mixed_integer_solvers_mosek Coverage Results" MODIFIED="1535186849765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_deposit_problem.coverage" NAME="optimal_deposit_problem Coverage Results" MODIFIED="1536295996477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1535185147812" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
-    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contingency.coverage" NAME="unit_commitment_contingency Coverage Results" MODIFIED="1536394956563" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contingency.coverage" NAME="unit_commitment_contingency Coverage Results" MODIFIED="1536410865832" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding.coverage" NAME="three_stage_bidding Coverage Results" MODIFIED="1529115812370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$opf.coverage" NAME="opf Coverage Results" MODIFIED="1528180458741" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/pypower" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_programming.coverage" NAME="mixed_integer_quadratic_programming Coverage Results" MODIFIED="1529422374406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
@@ -86,23 +87,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="unit_commitment_battery_energy_storage_system.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="352">
-              <caret line="574" lean-forward="true" selection-start-line="574" selection-end-line="574" />
-              <folding>
-                <element signature="e#252#331#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="traffic_power_unit_commitment.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-6494">
-              <caret line="181" column="26" lean-forward="true" selection-start-line="181" selection-start-column="26" selection-end-line="181" selection-end-column="26" />
+            <state relative-caret-position="1071">
+              <caret line="673" column="69" lean-forward="true" selection-end-line="674" />
               <folding>
                 <element signature="e#92#165#0" expanded="true" />
               </folding>
@@ -110,35 +99,26 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="unit_commitment_contingency.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="transportation_power_unit_commitment.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="157">
+              <caret line="730" column="28" lean-forward="true" selection-start-line="730" selection-start-column="28" selection-end-line="730" selection-end-column="28" />
+              <folding>
+                <element signature="e#150#223#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="unit_commitment_contingency.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-281">
-              <caret line="314" column="32" lean-forward="true" selection-start-line="314" selection-start-column="32" selection-end-line="314" selection-end-column="32" />
+            <state relative-caret-position="216">
+              <caret line="385" column="33" lean-forward="true" selection-start-line="385" selection-start-column="33" selection-end-line="385" selection-end-column="33" />
               <folding>
                 <element signature="e#155#234#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mixed_integer_solvers_cplex.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="341">
-              <caret line="124" column="75" lean-forward="true" selection-start-line="124" selection-start-column="75" selection-end-line="124" selection-end-column="75" />
-              <folding>
-                <element signature="e#50#97#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="case118.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="100">
-              <caret line="159" column="88" lean-forward="true" selection-start-line="159" selection-start-column="88" selection-end-line="159" selection-end-column="88" />
             </state>
           </provider>
         </entry>
@@ -168,7 +148,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/optimal_power_flow_branch_power_flow_area.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power.py" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py" />
@@ -219,6 +198,7 @@
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py" />
+        <option value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" />
       </list>
     </option>
   </component>
@@ -303,7 +283,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.unit_commitment_contingency">
+  <component name="RunManager" selected="Python.transportation_power_unit_commitment">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -347,7 +327,7 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
     </configuration>
-    <configuration name="traffic_power_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="transportation_power_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -360,7 +340,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -542,19 +522,19 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <list>
-      <item itemvalue="Python.traffic_power_unit_commitment" />
       <item itemvalue="Python.unit_commitment_contigency" />
       <item itemvalue="Python.unit_commitment_battery_energy_storage_system" />
       <item itemvalue="Python.unit_commitment_transmission_networks" />
       <item itemvalue="Python.unit_commitment_contingency" />
+      <item itemvalue="Python.transportation_power_unit_commitment" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.transportation_power_unit_commitment" />
         <item itemvalue="Python.unit_commitment_contingency" />
         <item itemvalue="Python.unit_commitment_transmission_networks" />
         <item itemvalue="Python.unit_commitment_battery_energy_storage_system" />
         <item itemvalue="Python.unit_commitment_contigency" />
-        <item itemvalue="Python.traffic_power_unit_commitment" />
       </list>
     </recent_temporary>
   </component>
@@ -568,20 +548,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00076" summary="update output control of the plan">
-      <created>1531715247475</created>
-      <option name="number" value="00076" />
-      <option name="presentableId" value="LOCAL-00076" />
-      <option name="project" value="LOCAL" />
-      <updated>1531715247475</updated>
-    </task>
-    <task id="LOCAL-00077" summary="bug found on the power flow and angle">
-      <created>1531756452704</created>
-      <option name="number" value="00077" />
-      <option name="presentableId" value="LOCAL-00077" />
-      <option name="project" value="LOCAL" />
-      <updated>1531756452704</updated>
     </task>
     <task id="LOCAL-00078" summary="add battery energy storage system integrated unit commitment">
       <created>1531810045142</created>
@@ -912,7 +878,21 @@
       <option name="project" value="LOCAL" />
       <updated>1536391464531</updated>
     </task>
-    <option name="localTasksCounter" value="125" />
+    <task id="LOCAL-00125" summary="Update unit commitment of IEEE-118 systems with line flow limitations">
+      <created>1536395118010</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
+      <option name="project" value="LOCAL" />
+      <updated>1536395118010</updated>
+    </task>
+    <task id="LOCAL-00126" summary="verified the IEEE-118 UC problem">
+      <created>1536408216873</created>
+      <option name="number" value="00126" />
+      <option name="presentableId" value="LOCAL-00126" />
+      <option name="project" value="LOCAL" />
+      <updated>1536408216873</updated>
+    </task>
+    <option name="localTasksCounter" value="127" />
     <servers />
   </component>
   <component name="TodoView">
@@ -926,6 +906,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5071531" side_tool="true" weight="0.3490909" />
@@ -934,13 +915,13 @@
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.17739628" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.27038628" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49284694" visible="true" weight="0.3490909" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49284694" visible="true" weight="0.3490909" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -988,8 +969,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update sequence of figures" />
-    <MESSAGE value="remove bugs in network reconfiguration problem" />
     <MESSAGE value="First version of the centralized model" />
     <MESSAGE value="add verification codes" />
     <MESSAGE value="first round verification" />
@@ -1013,7 +992,9 @@
     <MESSAGE value="Add traffic power network systems modelling" />
     <MESSAGE value="Update the price unit commitment" />
     <MESSAGE value="Update the unit commitment data format of IEEE-118 systems" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update the unit commitment data format of IEEE-118 systems" />
+    <MESSAGE value="Update unit commitment of IEEE-118 systems with line flow limitations" />
+    <MESSAGE value="verified the IEEE-118 UC problem" />
+    <option name="LAST_COMMIT_MESSAGE" value="verified the IEEE-118 UC problem" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1090,8 +1071,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py</url>
-          <line>311</line>
-          <option name="timeStamp" value="295" />
+          <line>404</line>
+          <option name="timeStamp" value="300" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py</url>
+          <line>674</line>
+          <option name="timeStamp" value="304" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py</url>
+          <line>745</line>
+          <option name="timeStamp" value="305" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1101,11 +1092,49 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="296" />
+      <option name="time" value="306" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>for i in range(nev):
+    for j in range(nl_traffic):
+        tsn_ev[j, i] = sol[nx + i * NX_traffic + j]
+    for j in range(n_stops):
+        ich_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 0 * n_stops + j]
+    for j in range(n_stops):
+        pdc_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 1 * n_stops + j]
+    for j in range(n_stops):
+        pch_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 2 * n_stops + j]
+    for j in range(n_stops):
+        rs_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 3 * n_stops + j]
+    for j in range(n_stops):
+        ru_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 4 * n_stops + j]
+    for j in range(n_stops):
+        rd_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 5 * n_stops + j]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for i in range(nev):
+    for j in range(nl_traffic):
+        tsn_ev[j, i] = sol[nx + i * NX_traffic+j]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for i in range(nev):
+    tsn_ev[:, i] = sol[nx + i * NX_traffic:nx + i * NX_traffic + nl_traffic]
+    ich_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 0 * n_stops:nx+i * NX_traffic + nl_traffic + 1 * n_stops]
+    pdc_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 1 * n_stops:nx+i * NX_traffic + nl_traffic + 2 * n_stops]
+    pch_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 2 * n_stops:nx+i * NX_traffic + nl_traffic + 3 * n_stops]
+    rs_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 3 * n_stops:nx+i * NX_traffic + nl_traffic + 4 * n_stops]
+    ru_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 4 * n_stops:nx+i * NX_traffic + nl_traffic + 5 * n_stops]
+    rd_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 5 * n_stops:nx+i * NX_traffic + nl_traffic + 6 * n_stops]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>c_dso = cx
 c_dso = c_dso + model_distribution_network[&quot;Ax2y&quot;].transpose().dot(lam) + ru * (
@@ -1176,28 +1205,28 @@ for i in range(T):
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>xx = []
-for v in model.getVars():
-    xx.append(v.x)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>P = 20
-ep = [0] * P
-for i in range(P):
-    ep[i] = L22 + i * (L12 - L22) / P</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>branch[:, RATE_A] - Distribution_factor * bus[:, PD] * profile[i]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
     </expressions>
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>sum(gen[:,PG_MAX])/max(profile*sum(bus[:,PD]))</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>sum(gen[:,PG_MAX])</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>profile*sum(bus[:,PD])</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>gen[:,MIN_UP]-gen[:,I0]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>sum(bus[:, PD]) * profile[i]</expression-string>
         <language-id>Python</language-id>
@@ -1223,36 +1252,9 @@ for i in range(P):
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>(2*nl+nb)*T-2*(sum(network[&quot;branch&quot;][:,2])+nl)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>(2*nl+nb)*T-2(sum(network[&quot;branch&quot;][:,2])+nl)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>(2*nl+nb)*T-sum(network[&quot;branch&quot;][:,2])+nl</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>index = find(connection_matrix[:, T_BUS] &gt;= T * nb)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/interval_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-11810">
-          <caret line="118" column="61" lean-forward="true" selection-start-line="118" selection-start-column="61" selection-end-line="118" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
@@ -1536,29 +1538,12 @@ for i in range(P):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_bess.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="20" selection-start-line="21" selection-start-column="20" selection-end-line="21" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="427">
           <caret line="49" column="35" lean-forward="true" selection-start-line="49" selection-start-column="35" selection-end-line="49" selection-end-column="35" />
           <folding>
             <element signature="e#862#937#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="574" lean-forward="true" selection-start-line="574" selection-end-line="574" />
-          <folding>
-            <element signature="e#252#331#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1587,19 +1572,22 @@ for i in range(P):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="159" column="88" lean-forward="true" selection-start-line="159" selection-start-column="88" selection-end-line="159" selection-end-column="88" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="320">
           <caret line="155" column="23" lean-forward="true" selection-start-line="155" selection-start-column="23" selection-end-line="155" selection-end-column="23" />
           <folding>
             <element signature="e#1#76#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="574" lean-forward="true" selection-start-line="574" selection-end-line="574" />
+          <folding>
+            <element signature="e#252#331#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1614,10 +1602,24 @@ for i in range(P):
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="159" column="88" lean-forward="true" selection-start-line="159" selection-start-column="88" selection-end-line="159" selection-end-column="88" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_bess.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="20" selection-start-line="21" selection-start-column="20" selection-end-line="21" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6494">
-          <caret line="181" column="26" lean-forward="true" selection-start-line="181" selection-start-column="26" selection-end-line="181" selection-end-column="26" />
+        <state relative-caret-position="1071">
+          <caret line="673" column="69" lean-forward="true" selection-end-line="674" />
           <folding>
             <element signature="e#92#165#0" expanded="true" />
           </folding>
@@ -1626,10 +1628,20 @@ for i in range(P):
     </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-281">
-          <caret line="314" column="32" lean-forward="true" selection-start-line="314" selection-start-column="32" selection-end-line="314" selection-end-column="32" />
+        <state relative-caret-position="216">
+          <caret line="385" column="33" lean-forward="true" selection-start-line="385" selection-start-column="33" selection-end-line="385" selection-end-column="33" />
           <folding>
             <element signature="e#155#234#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="730" column="28" lean-forward="true" selection-start-line="730" selection-start-column="28" selection-end-line="730" selection-end-column="28" />
+          <folding>
+            <element signature="e#150#223#0" expanded="true" />
           </folding>
         </state>
       </provider>

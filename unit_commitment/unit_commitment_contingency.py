@@ -261,6 +261,34 @@ class UnitCommitmentContingency():
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
+        # 2.6.3) Rs<=Ig*RAMP_10
+        Aineq_temp = zeros((T * ng, nx))
+        bineq_temp = zeros((T * ng, 1))
+        for i in range(T):
+            for j in range(ng):
+                Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = -gen[j, RUG] / 6
+                Aineq_temp[i * ng + j, RS * ng * T + i * ng + j] = 1
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.6.4) ru<=Ig*RAMP_AGC
+        Aineq_temp = zeros((T * ng, nx))
+        bineq_temp = zeros((T * ng, 1))
+        for i in range(T):
+            for j in range(ng):
+                Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = -gen[j, RUG] / 12
+                Aineq_temp[i * ng + j, RU * ng * T + i * ng + j] = 1
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # 2.6.5) rd<=Ig*RAMP_AGC
+        Aineq_temp = zeros((T * ng, nx))
+        bineq_temp = zeros((T * ng, 1))
+        for i in range(T):
+            for j in range(ng):
+                Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = -gen[j, RUG] / 12
+                Aineq_temp[i * ng + j, RD * ng * T + i * ng + j] = 1
+        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        bineq = concatenate((bineq, bineq_temp), axis=0)
+
         # 2.7)  Up and down reserve for the forecasting errors
         # Spinning reserve limitation
         Aineq_temp = zeros((T, nx))
