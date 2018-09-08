@@ -4,6 +4,9 @@ Unit Commitment Problem Considering the Failures of Transmission Lines
 @date: 8 September 2018
 @author: Tianyang Zhao
 @e-mail: zhaoty@ntu.edu.sg
+Problem found:
+1) Spinning reserve can not be too large, due to the capacity limitation of generators.
+
 """
 
 from numpy import zeros, shape, ones, concatenate, r_, arange, array, eye
@@ -372,3 +375,4 @@ if __name__ == "__main__":
     model = unit_commitment_contingency.problem_formulation(case)
     (sol, obj) = unit_commitment_contingency.problem_solving(model)
     sol = unit_commitment_contingency.result_check(sol)
+
