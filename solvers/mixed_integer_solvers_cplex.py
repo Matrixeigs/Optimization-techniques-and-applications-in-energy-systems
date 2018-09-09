@@ -118,22 +118,25 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         #                 cols.append(j)
         #                 vals.append(float(A[i, j]))
         try:
-            if A.format == 'csr' and Aeq.format == 'csr':
-                rows = zeros(0)
-                cols = zeros(0)
-                vals = zeros(0)
-                if neq != 0:
-                    [rows, cols] = csc_matrix.nonzero(Aeq)
-                    vals = Aeq[rows, cols].tolist()[0]
-                rows_A = zeros(0)
-                cols_A = zeros(0)
-                vals_A = zeros(0)
-                if nineq != 0:
-                    [rows_A, cols_A] = csc_matrix.nonzero(A)
-                    vals_A = A[rows_A, cols_A].tolist()[0]
-                rows = concatenate((rows, neq + rows_A)).tolist()
-                cols = concatenate((cols, cols_A)).tolist()
-                vals = vals+vals_A
+            rows = zeros(0)
+            cols = zeros(0)
+            vals = zeros(0)
+            if Aeq.format=='lil':
+                Aeq = Aeq.tocsr()
+            if A.format=='lil':
+                A = A.tocsr()
+            if neq != 0:
+                [rows, cols] = csc_matrix.nonzero(Aeq)
+                vals = Aeq[rows, cols].tolist()[0]
+            rows_A = zeros(0)
+            cols_A = zeros(0)
+            vals_A = zeros(0)
+            if nineq != 0:
+                [rows_A, cols_A] = csc_matrix.nonzero(A)
+                vals_A = A[rows_A, cols_A].tolist()[0]
+            rows = concatenate((rows, neq + rows_A)).tolist()
+            cols = concatenate((cols, cols_A)).tolist()
+            vals = vals+vals_A
         except:
             rows = zeros(0)
             cols = zeros(0)
