@@ -8,7 +8,7 @@ Using the sparse matrix structure to test big systems
 # Import data format
 from numpy import array, zeros, ones, concatenate, shape, arange, eye, r_
 from scipy.sparse import csr_matrix as sparse
-from scipy.sparse import vstack,hstack
+from scipy.sparse import vstack, hstack, lil_matrix
 from transportation_systems.test_cases import case3, TIME, LOCATION, case6
 from transportation_systems.test_cases import case3_modified
 # Import data format for electricity networks
@@ -133,7 +133,7 @@ class TrafficPowerUnitCommitment():
                 c[PG * ng * T + i * ng + j] = gen[j, COST_B]
         # 2) Constraint set
         # 2.1) Power balance equation, for each node
-        Aeq = sparse((T * nb, nx))
+        Aeq = lil_matrix((T * nb, nx))
         beq = zeros((T * nb, 1))
         for i in range(T):
             # For the unit
@@ -146,7 +146,7 @@ class TrafficPowerUnitCommitment():
             beq[i * nb:(i + 1) * nb, 0] = profile[i] * bus[:, PD]
 
         # 2.2) Status transformation of each unit
-        Aeq_temp = sparse((T * ng, nx))
+        Aeq_temp = lil_matrix((T * ng, nx))
         beq_temp = zeros((T * ng, 1))
         for i in range(T):
             for j in range(ng):
@@ -158,11 +158,11 @@ class TrafficPowerUnitCommitment():
                 else:
                     beq_temp[i * T + j] = 0
 
-        Aeq = vstack((Aeq, Aeq_temp))
+        Aeq = vstack((Aeq, Aeq_temp),format='lil')
         beq = concatenate((beq, beq_temp), axis=0)
 
         # 2.3) Transmission line flows
-        Aeq_temp = sparse((T * nl, nx))
+        Aeq_temp = lil_matrix((T * nl, nx))
         beq_temp = zeros((T * nl, 1))
         X = zeros((nl, nl))
         for i in range(nl):
@@ -175,10 +175,10 @@ class TrafficPowerUnitCommitment():
             Aeq_temp[i * nl:(i + 1) * nl, THETA * ng * T + i * nb:THETA * ng * T + (i + 1) * nb] = X.dot(
                 Cft.todense())
 
-        Aeq = vstack((Aeq, Aeq_temp))
+        Aeq = vstack((Aeq, Aeq_temp),format='lil')
         beq = concatenate((beq, beq_temp), axis=0)
         # 2.4) Power range limitation
-        Aineq = sparse((T * ng, nx))
+        Aineq = lil_matrix((T * ng, nx))
         bineq = zeros((T * ng, 1))
         for i in range(T):
             for j in range(ng):
@@ -186,17 +186,17 @@ class TrafficPowerUnitCommitment():
                 Aineq[i * ng + j, BETA * ng * T + i * ng + j] = 1
                 bineq[i * ng + j] = 1
 
-        Aineq_temp = sparse((T * ng, nx))
+        Aineq_temp = lil_matrix((T * ng, nx))
         bineq_temp = zeros((T * ng, 1))
         for i in range(T):
             for j in range(ng):
                 Aineq_temp[i * ng + j, IG * ng * T + i * ng + j] = gen[j, PG_MIN]
                 Aineq_temp[i * ng + j, PG * ng * T + i * ng + j] = -1
                 Aineq_temp[i * ng + j, RD * ng * T + i * ng + j] = 1
-        Aineq = vstack((Aineq, Aineq_temp))
+        Aineq = vstack((Aineq, Aineq_temp),format='lil')
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
-        Aineq_temp = sparse((T * ng, nx))
+        Aineq_temp = lil_matrix((T * ng, nx))
         bineq_temp = zeros((T * ng, 1))
         for i in range(T):
             for j in range(ng):
@@ -215,17 +215,17 @@ class TrafficPowerUnitCommitment():
             UP_LIMIT[i] = T - int(ur[i])
             DOWN_LIMIT[i] = T - int(dr[i])
         # 2.5.1) Up limit
-        Aineq_temp = sparse((sum(UP_LIMIT), nx))
+        Aineq_temp = lil_matrix((sum(UP_LIMIT), nx))
         bineq_temp = zeros((sum(UP_LIMIT), 1))
         for i in range(ng):
             for j in range(int(gen[i, MIN_UP]), T):
                 for k in range(j - int(gen[i, MIN_UP]), j):
                     Aineq_temp[sum(UP_LIMIT[0:i]) + j - int(gen[i, MIN_UP]), ALPHA * ng * T + k * ng + i] = 1
                 Aineq_temp[sum(UP_LIMIT[0:i]) + j - int(gen[i, MIN_UP]), IG * ng * T + j * ng + i] = -1
-        Aineq = vstack((Aineq, Aineq_temp))
+        Aineq = vstack((Aineq, Aineq_temp),format='lil')
         bineq = concatenate((bineq, bineq_temp), axis=0)
         # 2.5.2) Down limit
-        Aineq_temp = sparse((sum(DOWN_LIMIT), nx))
+        Aineq_temp = lil_matrix((sum(DOWN_LIMIT), nx))
         bineq_temp = ones((sum(DOWN_LIMIT), 1))
         for i in range(ng):
             for j in range(int(gen[i, MIN_DOWN]), T):
@@ -233,7 +233,7 @@ class TrafficPowerUnitCommitment():
                     Aineq_temp[
                         sum(DOWN_LIMIT[0:i]) + j - int(gen[i, MIN_DOWN]), BETA * ng * T + k * ng + i] = 1
                 Aineq_temp[sum(DOWN_LIMIT[0:i]) + j - int(gen[i, MIN_DOWN]), IG * ng * T + j * ng + i] = 1
-        Aineq = vstack((Aineq, Aineq_temp))
+        Aineq = vstack((Aineq, Aineq_temp),format='lil')
         bineq = concatenate((bineq, bineq_temp), axis=0)
         # 2.5.3) Modify the upper and lower boundary of generation status
         for j in range(ng):
@@ -245,7 +245,7 @@ class TrafficPowerUnitCommitment():
 
         # 2.6) Ramp constraints:
         # 2.6.1) Ramp up limitation
-        Aineq_temp = sparse((ng * (T - 1), nx))
+        Aineq_temp = lil_matrix((ng * (T - 1), nx))
         bineq_temp = zeros((ng * (T - 1), 1))
         for i in range(ng):
             for j in range(T - 1):
@@ -253,10 +253,10 @@ class TrafficPowerUnitCommitment():
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + j * ng + i] = -1
                 Aineq_temp[i * (T - 1) + j, IG * ng * T + j * ng + i] = -gen[i, RUG]
                 Aineq_temp[i * (T - 1) + j, ALPHA * ng * T + (j + 1) * ng + i] = -gen[i, PG_MIN]
-        Aineq = vstack((Aineq, Aineq_temp))
+        Aineq = vstack((Aineq, Aineq_temp),format='lil')
         bineq = concatenate((bineq, bineq_temp), axis=0)
         # 2.6.2) Ramp up limitation
-        Aineq_temp = sparse((ng * (T - 1), nx))
+        Aineq_temp = lil_matrix((ng * (T - 1), nx))
         bineq_temp = zeros((ng * (T - 1), 1))
         for i in range(ng):
             for j in range(T - 1):
@@ -264,7 +264,7 @@ class TrafficPowerUnitCommitment():
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + j * ng + i] = 1
                 Aineq_temp[i * (T - 1) + j, IG * ng * T + (j + 1) * ng + i] = -gen[i, RDG]
                 Aineq_temp[i * (T - 1) + j, BETA * ng * T + (j + 1) * ng + i] = -gen[i, PG_MIN]
-        Aineq = vstack((Aineq, Aineq_temp))
+        Aineq = vstack((Aineq, Aineq_temp),format='lil')
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
         # The transportable energy storage set
@@ -341,8 +341,8 @@ class TrafficPowerUnitCommitment():
                         i + 1) * nb_traffic + 1:
                     status_matrix[i, j] = 1
         # Update connection matrix
-        connection_matrix_f = sparse((T * nb_traffic + 2, nl_traffic))
-        connection_matrix_t = sparse((T * nb_traffic + 2, nl_traffic))
+        connection_matrix_f = lil_matrix((T * nb_traffic + 2, nl_traffic))
+        connection_matrix_t = lil_matrix((T * nb_traffic + 2, nl_traffic))
 
         for i in range(T * nb_traffic + 2):
             connection_matrix_f[i, find(connection_matrix[:, F_BUS] == i)] = 1
@@ -385,14 +385,14 @@ class TrafficPowerUnitCommitment():
         beq_traffic[0] = 1
         beq_traffic[-1] = -1
         # statue constraints
-        Aeq_temp_traffic = sparse(status_matrix)
+        Aeq_temp_traffic = lil_matrix(status_matrix)
         beq_temp_traffic = ones(status_matrix.shape[0])
-        Aeq_traffic = vstack([Aeq_traffic, Aeq_temp_traffic])
+        Aeq_traffic = vstack([Aeq_traffic, Aeq_temp_traffic],format='lil')
         beq_traffic = concatenate([beq_traffic, beq_temp_traffic])
         neq_traffic = Aeq_traffic.shape[0]
-        Aeq_traffic = hstack([Aeq_traffic, sparse((neq_traffic, 6 * n_stops))])
+        Aeq_traffic = hstack([Aeq_traffic, lil_matrix((neq_traffic, 6 * n_stops))],format='lil')
 
-        Aeq_traffic_full = sparse((neq_traffic * nev, NX_traffic * nev))
+        Aeq_traffic_full = lil_matrix((neq_traffic * nev, NX_traffic * nev))
         beq_traffic_full = zeros(neq_traffic * nev)
         for i in range(nev):
             Aeq_traffic_full[i * neq_traffic:(i + 1) * neq_traffic, i * NX_traffic:(i + 1) * NX_traffic] = Aeq_traffic
@@ -403,7 +403,7 @@ class TrafficPowerUnitCommitment():
         index_operation = arange(n_stops)
         power_limit = sparse((ones(n_stops), (index_operation, index_stops)), (n_stops, NX_status))
 
-        Aev = sparse((5 * n_stops * nev, NX_traffic * nev))  # Charging, discharging status,RBS,rbu,rbd
+        Aev = lil_matrix((5 * n_stops * nev, NX_traffic * nev))  # Charging, discharging status,RBS,rbu,rbd
 
         for i in range(nev):
             # Discharging
@@ -440,7 +440,7 @@ class TrafficPowerUnitCommitment():
         bev = zeros(5 * n_stops * nev)
         A = Aev
         # Add constraints on the charging and discharging
-        Arange = sparse((2 * n_stops * nev, NX_traffic * nev))
+        Arange = lil_matrix((2 * n_stops * nev, NX_traffic * nev))
         brange = zeros(2 * n_stops * nev)
         for i in range(nev):
             # 1) Pdc<(1-Ic)*Pdc_max
@@ -454,11 +454,11 @@ class TrafficPowerUnitCommitment():
             i * NX_traffic + NX_status:i * NX_traffic + NX_status + n_stops] = -eye(n_stops) * ev[i]["PCMAX"]
             Arange[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2,
             i * NX_traffic + NX_status + n_stops * 2:i * NX_traffic + NX_status + n_stops * 3] = eye(n_stops)
-        A = vstack([A, Arange])
+        A = vstack([A, Arange],format='lil')
         b = concatenate([bev, brange])
 
         # Add constraints on the charging and discharging
-        Areserve = sparse((2 * n_stops * nev, NX_traffic * nev))
+        Areserve = lil_matrix((2 * n_stops * nev, NX_traffic * nev))
         breserve = zeros(2 * n_stops * nev)
         for i in range(nev):
             # 1) Pdc-Pc+Rbs+rbu<=Pdc_max
@@ -479,11 +479,11 @@ class TrafficPowerUnitCommitment():
             Areserve[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2,
             i * NX_traffic + NX_status + n_stops * 5:i * NX_traffic + NX_status + n_stops * 6] = eye(n_stops)
             breserve[i * n_stops * 2 + n_stops:i * n_stops * 2 + n_stops * 2] = ones(n_stops) * ev[i]["PCMAX"]
-        A = vstack([A, Areserve])
+        A = vstack([A, Areserve],format='lil')
         b = concatenate([b, breserve])
 
         # Add constraints on the energy status
-        Aenergy = sparse((2 * T * nev, NX_traffic * nev))
+        Aenergy = lil_matrix((2 * T * nev, NX_traffic * nev))
         benergy = zeros(2 * T * nev)
         for i in range(nev):
             for j in range(T):
@@ -514,7 +514,7 @@ class TrafficPowerUnitCommitment():
                 else:
                     benergy[i * T * 2 + T + j] = 0
 
-        A = vstack([A, Aenergy])
+        A = vstack([A, Aenergy],format='lil')
         b = concatenate([b, benergy])
 
         # Merge the variables and constraints
@@ -523,7 +523,7 @@ class TrafficPowerUnitCommitment():
         vtypes = vtypes + vtypes_traffic
         lb_full = concatenate([lb, lb_traffic])
         ub_full = concatenate([ub, ub_traffic])
-        Aeq_full = sparse((neq + neq_traffic * nev, nx + NX_traffic * nev))
+        Aeq_full = lil_matrix((neq + neq_traffic * nev, nx + NX_traffic * nev))
         beq_full = zeros((neq + neq_traffic * nev, 1))
         Aeq_full[0:neq, 0:nx] = Aeq
         beq_full[0:neq] = beq
@@ -552,7 +552,7 @@ class TrafficPowerUnitCommitment():
                             power_traffic_discharging + power_traffic_charging).toarray()
 
         nineq_traffic = A.shape[0]
-        Aineq_full = sparse((nineq + nineq_traffic, nx + NX_traffic * nev))
+        Aineq_full = lil_matrix((nineq + nineq_traffic, nx + NX_traffic * nev))
         bineq_full = zeros((nineq + nineq_traffic))
         Aineq_full[0:nineq, 0:nx] = Aineq
         bineq_full[0:nineq] = bineq[:, 0]
@@ -560,7 +560,7 @@ class TrafficPowerUnitCommitment():
         bineq_full[nineq:] = b
         # Add constraints on the reserve requirements
         # 1) Spinning reserve
-        Aineq_full_temp = sparse((T, nx + NX_traffic * nev))
+        Aineq_full_temp = lil_matrix((T, nx + NX_traffic * nev))
         bineq_full_temp = zeros(T)
         for i in range(T):
             for j in range(ng):
@@ -570,10 +570,10 @@ class TrafficPowerUnitCommitment():
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 3 + arange(i * nb_traffic_electric,
                                                                                           (
                                                                                                   i + 1) * nb_traffic_electric)] = -1
-        Aineq_full = vstack([Aineq_full, Aineq_full_temp])
+        Aineq_full = vstack([Aineq_full, Aineq_full_temp],format='lil')
         bineq_full = concatenate([bineq_full, bineq_full_temp])
         # 2) Regulation up reserve
-        Aineq_full_temp = sparse((T, nx + NX_traffic * nev))
+        Aineq_full_temp = lil_matrix((T, nx + NX_traffic * nev))
         bineq_full_temp = zeros(T)
         for i in range(T):
             for j in range(ng):
@@ -583,10 +583,10 @@ class TrafficPowerUnitCommitment():
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 4 + arange(i * nb_traffic_electric,
                                                                                           (
                                                                                                   i + 1) * nb_traffic_electric)] = -1
-        Aineq_full = vstack([Aineq_full, Aineq_full_temp])
+        Aineq_full = vstack([Aineq_full, Aineq_full_temp],format='lil')
         bineq_full = concatenate([bineq_full, bineq_full_temp])
         # 3) Regulation down reserve
-        Aineq_full_temp = sparse((T, nx + NX_traffic * nev))
+        Aineq_full_temp = lil_matrix((T, nx + NX_traffic * nev))
         bineq_full_temp = zeros(T)
         for i in range(T):
             for j in range(ng):
@@ -596,7 +596,7 @@ class TrafficPowerUnitCommitment():
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 5 + arange(i * nb_traffic_electric,
                                                                                           (
                                                                                                   i + 1) * nb_traffic_electric)] = -1
-        Aineq_full = vstack([Aineq_full, Aineq_full_temp])
+        Aineq_full = vstack([Aineq_full, Aineq_full_temp],format='lil')
         bineq_full = concatenate([bineq_full, bineq_full_temp])
 
         model = {"c": c_full,
@@ -719,6 +719,28 @@ if __name__ == "__main__":
     ev = []
     traffic_networks = case6.transportation_network()  # Default test case
     ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([1, 0, 0, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 1, 0, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
                "end": array([0, 0, 1, 0, 0, 0]),
                "PCMAX": 100,
                "PDMAX": 100,
@@ -729,6 +751,41 @@ if __name__ == "__main__":
                "EMIN": 100,
                "COST_OP": 0.01,
                })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 0, 1, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 0, 0, 1, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 0, 0, 0, 1]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev = ev*6
+
 
     # traffic_networks = case3.transportation_network()  # Default test case
     # ev.append({"initial": array([1, 0, 0]),
@@ -755,105 +812,7 @@ if __name__ == "__main__":
     #            "EMIN": 100,
     #            "COST_OP": 0.01,
     #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
-    # ev.append({"initial": traffic_networks["initial"],
-    #            "end": traffic_networks["end"],
-    #            "PCMAX": 100,
-    #            "PDMAX": 100,
-    #            "EFF_CH": 0.9,
-    #            "EFF_DC": 0.9,
-    #            "E0": 200,
-    #            "EMAX": 400,
-    #            "EMIN": 100,
-    #            "COST_OP": 0.01,
-    #            })
+
 
     traffic_power_unit_commitment = TrafficPowerUnitCommitment()
 
