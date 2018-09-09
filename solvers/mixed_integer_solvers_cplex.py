@@ -3,6 +3,7 @@ Mixed-integer programming using the CPLEX
 """
 import cplex  # import the cplex solver package
 from numpy import ones, nonzero, zeros, concatenate
+from scipy.sparse import csc_matrix
 from cplex.exceptions import CplexError
 
 
@@ -101,9 +102,6 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         rhs = beq + b
         sense = ['E'] * neq + ["L"] * nineq
 
-        rows = zeros(0)
-        cols = zeros(0)
-        vals = zeros(0)
         # if neq != 0:
         #     for i in range(neq):
         #         for j in range(nx):
@@ -119,20 +117,41 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         #                 rows.append(i + neq)
         #                 cols.append(j)
         #                 vals.append(float(A[i, j]))
-        if neq != 0:
-            [rows, cols] = nonzero(Aeq)
-            vals = Aeq[rows, cols]
+        try:
+            if A.format == 'csr' and Aeq.format == 'csr':
+                rows = zeros(0)
+                cols = zeros(0)
+                vals = zeros(0)
+                if neq != 0:
+                    [rows, cols] = csc_matrix.nonzero(Aeq)
+                    vals = Aeq[rows, cols].tolist()[0]
+                rows_A = zeros(0)
+                cols_A = zeros(0)
+                vals_A = zeros(0)
+                if nineq != 0:
+                    [rows_A, cols_A] = csc_matrix.nonzero(A)
+                    vals_A = A[rows_A, cols_A].tolist()[0]
+                rows = concatenate((rows, neq + rows_A)).tolist()
+                cols = concatenate((cols, cols_A)).tolist()
+                vals = vals+vals_A
+        except:
+            rows = zeros(0)
+            cols = zeros(0)
+            vals = zeros(0)
+            if neq != 0:
+                [rows, cols] = nonzero(Aeq)
+                vals = Aeq[rows, cols]
 
-        rows_A = zeros(0)
-        cols_A = zeros(0)
-        vals_A = zeros(0)
-        if nineq != 0:
-            [rows_A, cols_A] = nonzero(A)
-            vals_A = A[rows_A, cols_A]
+            rows_A = zeros(0)
+            cols_A = zeros(0)
+            vals_A = zeros(0)
+            if nineq != 0:
+                [rows_A, cols_A] = nonzero(A)
+                vals_A = A[rows_A, cols_A]
 
-        rows = concatenate((rows, neq + rows_A)).tolist()
-        cols = concatenate((cols, cols_A)).tolist()
-        vals = concatenate((vals, vals_A)).tolist()
+            rows = concatenate((rows, neq + rows_A)).tolist()
+            cols = concatenate((cols, cols_A)).tolist()
+            vals = concatenate((vals, vals_A)).tolist()
 
         if len(rows) != 0:
             prob.linear_constraints.add(rhs=rhs,
@@ -151,7 +170,7 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         # prob.parameters.preprocessing.presolve = 0
         # prob.parameters.mip.tolerances.mipgap = 10**-3
         # prob.parameters.mip.tolerances.absmipgap = 10**-3
-        prob.parameters.mip.tolerances.mipgap.set(10**-3)
+        prob.parameters.mip.tolerances.mipgap.set(10 ** -3)
         prob.solve()
 
         obj = prob.solution.get_objective_value()
