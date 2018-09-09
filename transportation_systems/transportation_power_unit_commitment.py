@@ -7,7 +7,7 @@ Transportation power based unit commitment based on IEEE-118 test system
 from numpy import array, zeros, ones, concatenate, shape, arange, eye, r_
 from scipy.sparse import csr_matrix as sparse
 
-from transportation_systems.test_cases import case3, TIME, LOCATION
+from transportation_systems.test_cases import case3, TIME, LOCATION, case6
 from transportation_systems.test_cases import case3_modified
 # Import data format for electricity networks
 from unit_commitment.test_cases.case118 import F_BUS, T_BUS, BR_X, RATE_A
@@ -269,7 +269,7 @@ class TrafficPowerUnitCommitment():
         # For each vehicle
         nb_traffic = traffic_networks["bus"].shape[0]
         nl_traffic = traffic_networks["branch"].shape[0]
-        nb_traffic_electric = sum((traffic_networks["bus"][:,2])>=0)
+        nb_traffic_electric = sum((traffic_networks["bus"][:, 2]) >= 0)
         # Develop the connection matrix
         connection_matrix = zeros(((2 * nl_traffic + nb_traffic) * T, 4))
         weight = zeros(((2 * nl_traffic + nb_traffic) * T, 1))
@@ -300,10 +300,10 @@ class TrafficPowerUnitCommitment():
                         2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, F_BUS] = j + i * nb_traffic  # This time slot
                 connection_matrix[i * (2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, T_BUS] = j + (
                         i + 1) * nb_traffic  # The next time slot
-                if traffic_networks["bus"][j, LOCATION]>=0:
+                if traffic_networks["bus"][j, LOCATION] >= 0:
                     connection_matrix[i * (
-                        2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, 3] = traffic_networks["bus"][
-                                                                                    j, LOCATION] + i * nb  # Location information
+                            2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, 3] = traffic_networks["bus"][
+                                                                                        j, LOCATION] + i * nb  # Location information
 
         # Delete the out of range lines
         index = find(connection_matrix[:, T_BUS] < T * nb_traffic)
@@ -322,7 +322,7 @@ class TrafficPowerUnitCommitment():
             temp = zeros((1, 4))
             temp[0, 0] = nb_traffic * (T - 1) + i + 1
             temp[0, 1] = nb_traffic * T + 1
-            if traffic_networks["bus"][i, LOCATION]>=0:
+            if traffic_networks["bus"][i, LOCATION] >= 0:
                 temp[0, 3] = traffic_networks["bus"][i, LOCATION] + (T - 1) * nb
             connection_matrix = concatenate([connection_matrix, temp])
 
@@ -486,18 +486,27 @@ class TrafficPowerUnitCommitment():
         for i in range(nev):
             for j in range(T):
                 # minimal energy
-                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic_electric] = 1 / ev[i]["EFF_DC"]
-                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 2 * n_stops + (j + 1) * nb_traffic_electric] = -ev[i]["EFF_CH"]
-                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + 3 * n_stops + (j + 1) * nb_traffic_electric - 1] = alpha_s
-                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + 4 * n_stops + (j + 1) * nb_traffic_electric - 1] = alpha_r
+                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (
+                        j + 1) * nb_traffic_electric] = 1 / ev[i]["EFF_DC"]
+                Aenergy[i * T * 2 + j,
+                i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 2 * n_stops + (
+                        j + 1) * nb_traffic_electric] = -ev[i]["EFF_CH"]
+                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + 3 * n_stops + (
+                        j + 1) * nb_traffic_electric - 1] = alpha_s
+                Aenergy[i * T * 2 + j, i * NX_traffic + NX_status + 4 * n_stops + (
+                        j + 1) * nb_traffic_electric - 1] = alpha_r
                 if j != (T - 1):
                     benergy[i * T * 2 + j] = ev[i]["E0"] - ev[i]["EMIN"]
                 else:
                     benergy[i * T * 2 + j] = 0
                 # maximal energy
-                Aenergy[i * T * 2 + T + j, i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (j + 1) * nb_traffic_electric] = -1 / ev[i]["EFF_DC"]
-                Aenergy[i * T * 2 + T + j, i * NX_traffic + NX_status + 2 * n_stops: i * NX_traffic + NX_status + 2 * n_stops + (j + 1) * nb_traffic_electric] = ev[i]["EFF_CH"]
-                Aenergy[i * T * 2 + T + j, i * NX_traffic + NX_status + 5 * n_stops + (j + 1) * nb_traffic_electric - 1] = alpha_r
+                Aenergy[i * T * 2 + T + j, i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + n_stops + (
+                        j + 1) * nb_traffic_electric] = -1 / ev[i]["EFF_DC"]
+                Aenergy[i * T * 2 + T + j,
+                i * NX_traffic + NX_status + 2 * n_stops: i * NX_traffic + NX_status + 2 * n_stops + (
+                        j + 1) * nb_traffic_electric] = ev[i]["EFF_CH"]
+                Aenergy[i * T * 2 + T + j, i * NX_traffic + NX_status + 5 * n_stops + (
+                        j + 1) * nb_traffic_electric - 1] = alpha_r
                 if j != (T - 1):
                     benergy[i * T * 2 + T + j] = ev[i]["EMAX"] - ev[i]["E0"]
                 else:
@@ -529,7 +538,8 @@ class TrafficPowerUnitCommitment():
 
             if len(row_index) != 0:
                 bus_index = connection_matrix[row_index, 3] - i * nb
-                charging_index = NX_status + n_stops * 2 + arange(i * nb_traffic_electric, (i + 1) * nb_traffic_electric)
+                charging_index = NX_status + n_stops * 2 + arange(i * nb_traffic_electric,
+                                                                  (i + 1) * nb_traffic_electric)
                 discharging_index = NX_status + n_stops + arange(i * nb_traffic_electric, (i + 1) * nb_traffic_electric)
                 power_traffic_charging = sparse((-ones(len(bus_index)), (bus_index, charging_index)), (nb, NX_traffic))
 
@@ -556,7 +566,8 @@ class TrafficPowerUnitCommitment():
             bineq_full_temp[i] = -delta * profile[i] * sum(bus[:, PD])
             for j in range(nev):
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 3 + arange(i * nb_traffic_electric,
-                                                                                          (i + 1) * nb_traffic_electric)] = -1
+                                                                                          (
+                                                                                                  i + 1) * nb_traffic_electric)] = -1
         Aineq_full = concatenate([Aineq_full, Aineq_full_temp])
         bineq_full = concatenate([bineq_full, bineq_full_temp])
         # 2) Regulation up reserve
@@ -568,7 +579,8 @@ class TrafficPowerUnitCommitment():
             bineq_full_temp[i] = -delta_r * profile[i] * sum(bus[:, PD])
             for j in range(nev):
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 4 + arange(i * nb_traffic_electric,
-                                                                                          (i + 1) * nb_traffic_electric)] = -1
+                                                                                          (
+                                                                                                  i + 1) * nb_traffic_electric)] = -1
         Aineq_full = concatenate([Aineq_full, Aineq_full_temp])
         bineq_full = concatenate([bineq_full, bineq_full_temp])
         # 3) Regulation down reserve
@@ -580,7 +592,8 @@ class TrafficPowerUnitCommitment():
             bineq_full_temp[i] = -delta_r * profile[i] * sum(bus[:, PD])
             for j in range(nev):
                 Aineq_full_temp[i, nx + j * NX_traffic + NX_status + n_stops * 5 + arange(i * nb_traffic_electric,
-                                                                                          (i + 1) * nb_traffic_electric)] = -1
+                                                                                          (
+                                                                                                  i + 1) * nb_traffic_electric)] = -1
         Aineq_full = concatenate([Aineq_full, Aineq_full_temp])
         bineq_full = concatenate([bineq_full, bineq_full_temp])
 
@@ -702,118 +715,130 @@ class TrafficPowerUnitCommitment():
 if __name__ == "__main__":
     electricity_networks = case118()  # Default test case
     ev = []
+    traffic_networks = case6.transportation_network()  # Default test case
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 1, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 1, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 0, 1, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 0, 0, 1, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 0, 0, 0, 1]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 1, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 1, 0, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([1, 0, 1, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 1, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
+               "end": array([0, 0, 1, 0, 0, 0]),
+               "PCMAX": 100,
+               "PDMAX": 100,
+               "EFF_CH": 0.9,
+               "EFF_DC": 0.9,
+               "E0": 200,
+               "EMAX": 400,
+               "EMIN": 100,
+               "COST_OP": 0.01,
+               })
+    # traffic_networks = case3.transportation_network()  # Default test case
+    # ev.append({"initial": array([1, 0, 0]),
+    #            "end": array([1, 0, 0]),
+    #            "PCMAX": 100,
+    #            "PDMAX": 100,
+    #            "EFF_CH": 0.9,
+    #            "EFF_DC": 0.9,
+    #            "E0": 200,
+    #            "EMAX": 400,
+    #            "EMIN": 100,
+    #            "COST_OP": 0.01,
+    #            })
 
-    traffic_networks = case3.transportation_network()  # Default test case
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([1, 0, 0]),
-               "PCMAX": 100,
-               "PDMAX": 100,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 200,
-               "EMAX": 400,
-               "EMIN": 100,
-               "COST_OP": 0.01,
-               })
     # traffic_networks = case3_modified.transportation_network()
     # ev.append({"initial": traffic_networks["initial"],
     #            "end": traffic_networks["end"],

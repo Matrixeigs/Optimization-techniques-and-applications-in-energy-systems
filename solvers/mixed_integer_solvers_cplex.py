@@ -148,8 +148,10 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         # prob.set_warning_stream(None)
         # prob.set_results_stream(None)
         # prob.set_problem_type(type=prob.problem_type.LP)
-        prob.parameters.preprocessing.presolve = 0
-
+        # prob.parameters.preprocessing.presolve = 0
+        # prob.parameters.mip.tolerances.mipgap = 10**-3
+        # prob.parameters.mip.tolerances.absmipgap = 10**-3
+        prob.parameters.mip.tolerances.mipgap.set(10**-3)
         prob.solve()
 
         obj = prob.solution.get_objective_value()
