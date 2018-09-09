@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,7 +15,7 @@
     <SUITE FILE_PATH="coverage/Optimization$branch_optimal_power_flow.coverage" NAME="branch_optimal_power_flow Coverage Results" MODIFIED="1529333737140" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$case5.coverage" NAME="case5 Coverage Results" MODIFIED="1529722490753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems/test_cases" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_robust.coverage" NAME="two_stage_unit_commitment_robust Coverage Results" MODIFIED="1531709677297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1536412600667" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
+    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1536456548186" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_jointed_chance_constained_programming.coverage" NAME="two_stage_jointed_chance_constained_programming Coverage Results" MODIFIED="1529422831373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_MGs.coverage" NAME="optimal_power_flow_hybrid_AC_DC_MGs Coverage Results" MODIFIED="1529981065995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
     <SUITE FILE_PATH="coverage/Optimization$test.coverage" NAME="test Coverage Results" MODIFIED="1534581154663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
@@ -44,9 +42,9 @@
     <SUITE FILE_PATH="coverage/Optimization$two_stage_robust_unit_commitment.coverage" NAME="two_stage_robust_unit_commitment Coverage Results" MODIFIED="1535180267691" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment__1_.coverage" NAME="two_stage_unit_commitment (1) Coverage Results" MODIFIED="1529074110487" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$test_cases.coverage" NAME="test_cases Coverage Results" MODIFIED="1530670210731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
-    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_solver_cplex.coverage" NAME="mixed_integer_quadratic_solver_cplex Coverage Results" MODIFIED="1534604482705" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_stochastic.coverage" NAME="two_stage_unit_commitment_stochastic Coverage Results" MODIFIED="1535275050938" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_battery_energy_storage_system.coverage" NAME="unit_commitment_battery_energy_storage_system Coverage Results" MODIFIED="1536386873724" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_solver_cplex.coverage" NAME="mixed_integer_quadratic_solver_cplex Coverage Results" MODIFIED="1536456689685" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding.coverage" NAME="two_stage_bidding Coverage Results" MODIFIED="1529145749009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_deterministic.coverage" NAME="three_stage_bidding_deterministic Coverage Results" MODIFIED="1530711143843" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$opf_branch_power_flow_ADMM.coverage" NAME="opf_branch_power_flow_ADMM Coverage Results" MODIFIED="1535179636273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
@@ -99,14 +97,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="transportation_power_unit_commitment.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="transportation_power_unit_commitment.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="157">
-              <caret line="730" column="28" lean-forward="true" selection-start-line="730" selection-start-column="28" selection-end-line="730" selection-end-column="28" />
+            <state relative-caret-position="165">
+              <caret line="695" column="31" lean-forward="true" selection-start-line="695" selection-start-column="31" selection-end-line="695" selection-end-column="31" />
               <folding>
                 <element signature="e#150#223#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mixed_integer_solvers_cplex.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="157">
+              <caret line="134" column="51" lean-forward="true" selection-start-line="103" selection-start-column="8" selection-end-line="134" selection-end-column="51" />
+              <folding>
+                <element signature="e#50#97#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mixed_integer_quadratic_solver_cplex.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="4" column="48" selection-start-line="4" selection-start-column="48" selection-end-line="4" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -181,7 +200,6 @@
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" />
         <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_bess.py" />
         <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" />
-        <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" />
@@ -196,9 +214,10 @@
         <option value="$PROJECT_DIR$/unit_commitment/price_based_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/test_cases/case118.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py" />
-        <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
       </list>
     </option>
   </component>
@@ -226,6 +245,11 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="solvers" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -283,7 +307,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.transportation_power_unit_commitment">
+  <component name="RunManager" selected="Python.mixed_integer_quadratic_solver_cplex">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -327,6 +351,25 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
     </configuration>
+    <configuration name="mixed_integer_quadratic_solver_cplex" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
     <configuration name="transportation_power_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -360,25 +403,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="unit_commitment_contigency" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_commitment" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -522,19 +546,19 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <list>
-      <item itemvalue="Python.unit_commitment_contigency" />
       <item itemvalue="Python.unit_commitment_battery_energy_storage_system" />
       <item itemvalue="Python.unit_commitment_transmission_networks" />
       <item itemvalue="Python.unit_commitment_contingency" />
       <item itemvalue="Python.transportation_power_unit_commitment" />
+      <item itemvalue="Python.mixed_integer_quadratic_solver_cplex" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.mixed_integer_quadratic_solver_cplex" />
         <item itemvalue="Python.transportation_power_unit_commitment" />
         <item itemvalue="Python.unit_commitment_contingency" />
         <item itemvalue="Python.unit_commitment_transmission_networks" />
         <item itemvalue="Python.unit_commitment_battery_energy_storage_system" />
-        <item itemvalue="Python.unit_commitment_contigency" />
       </list>
     </recent_temporary>
   </component>
@@ -548,20 +572,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00078" summary="add battery energy storage system integrated unit commitment">
-      <created>1531810045142</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1531810045142</updated>
-    </task>
-    <task id="LOCAL-00079" summary="update data format of bess_unit_commitment">
-      <created>1531812457990</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1531812457990</updated>
     </task>
     <task id="LOCAL-00080" summary="update bess models">
       <created>1531840305020</created>
@@ -892,7 +902,21 @@
       <option name="project" value="LOCAL" />
       <updated>1536408216873</updated>
     </task>
-    <option name="localTasksCounter" value="127" />
+    <task id="LOCAL-00127" summary="verify the IEEE-118 electric power systems with TESSs">
+      <created>1536413178847</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1536413178847</updated>
+    </task>
+    <task id="LOCAL-00128" summary="update cplex solvers using nonzeros function of numpy">
+      <created>1536456634576</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1536456634576</updated>
+    </task>
+    <option name="localTasksCounter" value="129" />
     <servers />
   </component>
   <component name="TodoView">
@@ -909,19 +933,19 @@
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5071531" side_tool="true" weight="0.3490909" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5078684" side_tool="true" weight="0.3490909" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.32848486" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.27038628" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.27038628" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49284694" visible="true" weight="0.3490909" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" visible="true" weight="0.3490909" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -969,8 +993,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="First version of the centralized model" />
-    <MESSAGE value="add verification codes" />
     <MESSAGE value="first round verification" />
     <MESSAGE value="add some kinds od distributed algorithm" />
     <MESSAGE value="add distributed solvers" />
@@ -994,7 +1016,9 @@
     <MESSAGE value="Update the unit commitment data format of IEEE-118 systems" />
     <MESSAGE value="Update unit commitment of IEEE-118 systems with line flow limitations" />
     <MESSAGE value="verified the IEEE-118 UC problem" />
-    <option name="LAST_COMMIT_MESSAGE" value="verified the IEEE-118 UC problem" />
+    <MESSAGE value="verify the IEEE-118 electric power systems with TESSs" />
+    <MESSAGE value="update cplex solvers using nonzeros function of numpy" />
+    <option name="LAST_COMMIT_MESSAGE" value="update cplex solvers using nonzeros function of numpy" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1080,9 +1104,9 @@
           <option name="timeStamp" value="304" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py</url>
-          <line>745</line>
-          <option name="timeStamp" value="305" />
+          <url>file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py</url>
+          <line>154</line>
+          <option name="timeStamp" value="307" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1092,121 +1116,63 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="306" />
+      <option name="time" value="308" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
       <expression>
-        <expression-string>for i in range(nev):
-    for j in range(nl_traffic):
-        tsn_ev[j, i] = sol[nx + i * NX_traffic + j]
-    for j in range(n_stops):
-        ich_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 0 * n_stops + j]
-    for j in range(n_stops):
-        pdc_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 1 * n_stops + j]
-    for j in range(n_stops):
-        pch_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 2 * n_stops + j]
-    for j in range(n_stops):
-        rs_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 3 * n_stops + j]
-    for j in range(n_stops):
-        ru_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 4 * n_stops + j]
-    for j in range(n_stops):
-        rd_ev[j, i] = sol[nx + i * NX_traffic + nl_traffic + 5 * n_stops + j]</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>for i in range(nev):
-    for j in range(nl_traffic):
-        tsn_ev[j, i] = sol[nx + i * NX_traffic+j]</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>for i in range(nev):
-    tsn_ev[:, i] = sol[nx + i * NX_traffic:nx + i * NX_traffic + nl_traffic]
-    ich_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 0 * n_stops:nx+i * NX_traffic + nl_traffic + 1 * n_stops]
-    pdc_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 1 * n_stops:nx+i * NX_traffic + nl_traffic + 2 * n_stops]
-    pch_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 2 * n_stops:nx+i * NX_traffic + nl_traffic + 3 * n_stops]
-    rs_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 3 * n_stops:nx+i * NX_traffic + nl_traffic + 4 * n_stops]
-    ru_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 4 * n_stops:nx+i * NX_traffic + nl_traffic + 5 * n_stops]
-    rd_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 5 * n_stops:nx+i * NX_traffic + nl_traffic + 6 * n_stops]</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>c_dso = cx
-c_dso = c_dso + model_distribution_network[&quot;Ax2y&quot;].transpose().dot(lam) + ru * (
-    (model_distribution_network[&quot;Ax2y&quot;].transpose().dot(Ay2x)).dot(yy)).transpose()
-obj_dso_linear = 0
-for i in range(nx):
-    obj_dso_linear += c_dso[0][i] * x[i]  # only need to update this
-obj_dso = obj_dso_linear + obj_dso_quadratic
-model_dso.setObjective(obj_dso)
-model_dso.optimize()
-xx = []
-for v in model_dso.getVars():
-    xx.append(v.x)
-xx = array(xx).reshape((nx, 1))  # convert the list to array
-# Calculate the real-objective function
-obj_dso_real = 0
-for i in range(nx):
-    obj_dso_real += cx[i] * xx[i]</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>#### Update the x part
-c_dso = cx
-c_dso = c_dso + model_distribution_network[&quot;Ax2y&quot;].transpose().dot(lam) + ru * (
-    (model_distribution_network[&quot;Ax2y&quot;].transpose().dot(Ay2x)).dot(yy)).transpose()
-obj_dso_linear = 0
-for i in range(nx):
-    obj_dso_linear += c_dso[0][i] * x[i]  # only need to update this
-obj_dso = obj_dso_linear + obj_dso_quadratic
-model_dso.setObjective(obj_dso)
-xx = []
-for v in model_dso.getVars():
-    xx.append(v.x)
-xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>xx = []
-for v in model_dso.getVars():
-    xx.append(v.x)
-xx = array(xx)</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>for i in range(int(nVariables_index[0])):
-    obj_dso += c_dso[0][i] * x[i]
-    for j in range(int(nVariables_index[0])):
-        obj_dso += q_dso[i, j] * x[i] * x[j]</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>vol = zeros((nl, T))
-for i in range(T):
-    for j in range(nl):
-        vol[j, i] = Pij[j, i] ** 2 - Vm[int(f[j]), i] * lij[j, i]</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>vol = zeros((nl, T))
-for i in range(T):
-    for j in range(nl):
-        vol[j, i] = Pij[j, i] ** 2 - Vm[f[j], i] * lij[j, i]</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
     </expressions>
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>len(rows)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>sum(gen[:,PG_MAX])/max(profile*sum(bus[:,PD]))</expression-string>
         <language-id>Python</language-id>
@@ -1228,12 +1194,12 @@ for i in range(T):
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>sum(bus[:, PD]) * profile[i]</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>sum(bus[:, PD])</expression-string>
+        <expression-string />
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -1244,11 +1210,6 @@ for i in range(T):
       </expression>
       <expression>
         <expression-string>17575-8592</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>(2*nl+nb)*T-2*(sum(network[&quot;branch&quot;][:,2])-nl)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -1295,13 +1256,6 @@ for i in range(T):
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2340">
           <caret line="156" column="37" selection-start-line="156" selection-start-column="37" selection-end-line="156" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="29" column="9" lean-forward="true" selection-start-line="29" selection-start-column="9" selection-end-line="29" selection-end-column="9" />
         </state>
       </provider>
     </entry>
@@ -1592,16 +1546,6 @@ for i in range(T):
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="124" column="75" lean-forward="true" selection-start-line="124" selection-start-column="75" selection-end-line="124" selection-end-column="75" />
-          <folding>
-            <element signature="e#50#97#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="100">
@@ -1638,11 +1582,28 @@ for i in range(T):
     </entry>
     <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="730" column="28" lean-forward="true" selection-start-line="730" selection-start-column="28" selection-end-line="730" selection-end-column="28" />
+        <state relative-caret-position="165">
+          <caret line="695" column="31" lean-forward="true" selection-start-line="695" selection-start-column="31" selection-end-line="695" selection-end-column="31" />
           <folding>
             <element signature="e#150#223#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="134" column="51" lean-forward="true" selection-start-line="103" selection-start-column="8" selection-end-line="134" selection-end-column="51" />
+          <folding>
+            <element signature="e#50#97#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="48" selection-start-line="4" selection-start-column="48" selection-end-line="4" selection-end-column="48" />
         </state>
       </provider>
     </entry>

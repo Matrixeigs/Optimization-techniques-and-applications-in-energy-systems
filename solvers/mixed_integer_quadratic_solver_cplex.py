@@ -2,7 +2,7 @@
 Mixed-integer programming using the CPLEX
 """
 import cplex  # import the cplex solver package
-from numpy import ones
+from numpy import ones,zeros,nonzero,concatenate
 from cplex.exceptions import CplexError
 
 
@@ -109,24 +109,39 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
         rhs = beq + b
         sense = ['E'] * neq + ["L"] * nineq
 
-        rows = []
-        cols = []
-        vals = []
+        rows = zeros(0)
+        cols = zeros(0)
+        vals = zeros(0)
+        # if neq != 0:
+        #     for i in range(neq):
+        #         for j in range(nx):
+        #             if Aeq[i, j] != 0:
+        #                 rows.append(i)
+        #                 cols.append(j)
+        #                 vals.append(float(Aeq[i, j]))
+        #
+        # if nineq != 0:
+        #     for i in range(nineq):
+        #         for j in range(nx):
+        #             if A[i, j] != 0:
+        #                 rows.append(i + neq)
+        #                 cols.append(j)
+        #                 vals.append(float(A[i, j]))
         if neq != 0:
-            for i in range(neq):
-                for j in range(nx):
-                    if Aeq[i, j] != 0:
-                        rows.append(i)
-                        cols.append(j)
-                        vals.append(float(Aeq[i, j]))
+            [rows, cols] = nonzero(Aeq)
+            vals = Aeq[rows, cols]
 
+        rows_A = zeros(0)
+        cols_A = zeros(0)
+        vals_A = zeros(0)
         if nineq != 0:
-            for i in range(nineq):
-                for j in range(nx):
-                    if A[i, j] != 0:
-                        rows.append(i + neq)
-                        cols.append(j)
-                        vals.append(float(A[i, j]))
+            [rows_A, cols_A] = nonzero(A)
+            vals_A = A[rows_A, cols_A]
+
+        rows = concatenate((rows, neq + rows_A)).tolist()
+        cols = concatenate((cols, cols_A)).tolist()
+        vals = concatenate((vals, vals_A)).tolist()
+
         if len(rows) != 0:
             prob.linear_constraints.add(rhs=rhs,
                                         senses=sense)
