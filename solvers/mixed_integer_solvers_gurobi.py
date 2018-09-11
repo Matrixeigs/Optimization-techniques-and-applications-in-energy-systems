@@ -48,7 +48,7 @@ import time
 
 
 def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
-                                     opt=None):
+                                     opt=None,objsense=None):
     if type(c) == list:
         nx = len(c)
     else:
@@ -120,6 +120,11 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                 obj.addTerms(c[i], x[i])
 
         gurobi_model.setObjective(obj)
+        if objsense is not None:
+            if objsense == "max":
+                gurobi_model.setObjective(obj,GRB.MAXIMIZE)
+        else:
+            gurobi_model.setObjective(obj)
 
         gurobi_model.Params.OutputFlag = 0
         gurobi_model.Params.LogToConsole = 0

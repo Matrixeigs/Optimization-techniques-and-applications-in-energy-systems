@@ -142,7 +142,7 @@ class TwoStageRobustOptimization():
         k = 0
         kmax = 1000
 
-        while Gap > 10 ** -2:
+        while Gap > 10**-2:
             # Solve the first stage problem
             (yy, obj_first_stage, success_first_stage) = lp(c_first_stage,
                                                             Aeq=Aeq_first_stage,
