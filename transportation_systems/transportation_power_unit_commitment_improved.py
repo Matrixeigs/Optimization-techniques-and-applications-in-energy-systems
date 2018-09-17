@@ -784,7 +784,7 @@ if __name__ == "__main__":
                "EMIN": 100,
                "COST_OP": 0.01,
                })
-    ev = ev*6
+    ev = ev*3
 
 
     # traffic_networks = case3.transportation_network()  # Default test case

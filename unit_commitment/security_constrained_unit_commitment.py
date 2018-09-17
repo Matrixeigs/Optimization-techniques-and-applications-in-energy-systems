@@ -31,7 +31,7 @@ def problem_formulation(case):
     from unit_commitment.data_format.data_format import IG, PG
     from unit_commitment.test_cases.case118 import F_BUS, T_BUS, BR_X, RATE_A
     from unit_commitment.test_cases.case118 import GEN_BUS, COST_C, COST_B, COST_A, PG_MAX, PG_MIN, I0, MIN_DOWN, \
-        MIN_UP, RU, RD, COLD_START
+        MIN_UP, RUG, RDG, COLD_START
     from unit_commitment.test_cases.case118 import BUS_ID, PD
     baseMVA, bus, gen, branch, profile = case["baseMVA"], case["bus"], case["gen"], case["branch"], case["Load_profile"]
 
@@ -167,8 +167,8 @@ def problem_formulation(case):
         for j in range(T - 1):
             Aineq_temp[i * (T - 1) + j, i * NX + 3 * T + j + 1] = 1
             Aineq_temp[i * (T - 1) + j, i * NX + 3 * T + j] = -1
-            Aineq_temp[i * (T - 1) + j, i * NX + j + 1] = gen[i, RU] - gen[i, PG_MIN]
-            bineq_temp[i * (T - 1) + j] = gen[i, RU]
+            Aineq_temp[i * (T - 1) + j, i * NX + j + 1] = gen[i, RUG] - gen[i, PG_MIN]
+            bineq_temp[i * (T - 1) + j] = gen[i, RUG]
 
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq += bineq_temp
@@ -179,8 +179,8 @@ def problem_formulation(case):
         for j in range(T - 1):
             Aineq_temp[i * (T - 1) + j, i * NX + 3 * T + j + 1] = -1
             Aineq_temp[i * (T - 1) + j, i * NX + 3 * T + j] = 1
-            Aineq_temp[i * (T - 1) + j, i * NX + T + j + 1] = gen[i, RD] - gen[i, PG_MIN]
-            bineq_temp[i * (T - 1) + j] = gen[i, RD]
+            Aineq_temp[i * (T - 1) + j, i * NX + T + j + 1] = gen[i, RDG] - gen[i, PG_MIN]
+            bineq_temp[i * (T - 1) + j] = gen[i, RDG]
     Aineq = concatenate((Aineq, Aineq_temp), axis=0)
     bineq += bineq_temp
     # 2.6) Line flow limitation

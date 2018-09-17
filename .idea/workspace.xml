@@ -3,10 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solvers/ccg.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/ccg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -19,7 +17,7 @@
     <SUITE FILE_PATH="coverage/Optimization$branch_optimal_power_flow.coverage" NAME="branch_optimal_power_flow Coverage Results" MODIFIED="1529333737140" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$case5.coverage" NAME="case5 Coverage Results" MODIFIED="1529722490753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems/test_cases" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_robust.coverage" NAME="two_stage_unit_commitment_robust Coverage Results" MODIFIED="1531709677297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment_improved.coverage" NAME="transportation_power_unit_commitment_improved Coverage Results" MODIFIED="1536493664300" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
+    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment_improved.coverage" NAME="transportation_power_unit_commitment_improved Coverage Results" MODIFIED="1537146902764" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1536477866539" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_jointed_chance_constained_programming.coverage" NAME="two_stage_jointed_chance_constained_programming Coverage Results" MODIFIED="1529422831373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_MGs.coverage" NAME="optimal_power_flow_hybrid_AC_DC_MGs Coverage Results" MODIFIED="1529981065995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
@@ -61,7 +59,7 @@
     <SUITE FILE_PATH="coverage/Optimization$traffic_power_dispatch.coverage" NAME="traffic_power_dispatch Coverage Results" MODIFIED="1532049230311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_CVaR.coverage" NAME="three_stage_bidding_CVaR Coverage Results" MODIFIED="1535208413974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_network_models.coverage" NAME="transportation_network_models Coverage Results" MODIFIED="1529679951854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
-    <SUITE FILE_PATH="coverage/Optimization$security_constrained_unit_commitment.coverage" NAME="security_constrained_unit_commitment Coverage Results" MODIFIED="1529066133924" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$security_constrained_unit_commitment.coverage" NAME="security_constrained_unit_commitment Coverage Results" MODIFIED="1536800483067" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$ccg_benders_decomposition.coverage" NAME="ccg_benders_decomposition Coverage Results" MODIFIED="1535184787912" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_distributed.coverage" NAME="unit_commitment_distributed Coverage Results" MODIFIED="1529030430079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_pes.coverage" NAME="three_stage_bidding_pes Coverage Results" MODIFIED="1535208465958" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
@@ -90,44 +88,68 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="mixed_integer_solvers_gurobi.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py">
+      <file leaf-file-name="transportation_power_unit_commitment_improved.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="294">
-              <caret line="124" column="59" lean-forward="true" selection-start-line="124" selection-start-column="59" selection-end-line="124" selection-end-column="59" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="two_stage_robust_unit_commitment.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="147">
-              <caret line="828" column="90" lean-forward="true" selection-start-line="828" selection-start-column="90" selection-end-line="828" selection-end-column="90" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ccg.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/solvers/ccg.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="173" column="57" lean-forward="true" selection-start-line="173" selection-start-column="57" selection-end-line="173" selection-end-column="57" />
+            <state relative-caret-position="-866">
+              <caret line="550" column="26" selection-start-line="550" selection-start-column="26" selection-end-line="550" selection-end-column="26" />
               <folding>
-                <element signature="e#295#368#0" expanded="true" />
+                <element signature="e#205#278#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mixed_integer_solvers_cplex.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
+      <file leaf-file-name="case3.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2445">
-              <caret line="163" selection-start-line="163" selection-end-line="164" selection-end-column="33" />
+            <state relative-caret-position="285">
+              <caret line="19" column="18" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
               <folding>
-                <element signature="e#50#97#0" expanded="true" />
+                <element signature="e#92#115#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="transportation_network_models.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_network_models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="585">
+              <caret line="39" column="39" lean-forward="true" selection-start-line="39" selection-start-column="39" selection-end-line="39" selection-end-column="39" />
+              <folding>
+                <element signature="e#76#99#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="165">
+              <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="case5.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case5.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="10" column="20" lean-forward="true" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+              <folding>
+                <element signature="e#92#115#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="case6.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case6.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="360">
+              <caret line="26" column="21" lean-forward="true" selection-start-line="26" selection-start-column="21" selection-end-line="26" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -194,7 +216,6 @@
         <option value="$PROJECT_DIR$/unit_commitment/modelling_using_Gurobi/network_constrained_unit_commitment.py" />
         <option value="$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py" />
         <option value="$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" />
         <option value="$PROJECT_DIR$/unit_commitment/price_based_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py" />
@@ -209,6 +230,7 @@
         <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py" />
         <option value="$PROJECT_DIR$/solvers/ccg.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" />
       </list>
     </option>
   </component>
@@ -241,6 +263,17 @@
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
               <item name="solvers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
+              <item name="test_cases" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -281,117 +314,6 @@
       <recent name="$PROJECT_DIR$/solvers/modelCSV" />
     </key>
   </component>
-  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
-    <UpdatedFiles>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Updated from server" />
-        <option name="myStatusName" value="Changed on server" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="CHANGED_ON_SERVER" />
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Updated" />
-          <option name="myStatusName" value="Changed" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="UPDATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py</PATH>
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Created" />
-          <option name="myStatusName" value="Created" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="CREATED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Deleted" />
-          <option name="myStatusName" value="Deleted" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="true" />
-          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Restored" />
-          <option name="myStatusName" value="Will be restored" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="RESTORED" />
-        </FILE-GROUP>
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Modified" />
-        <option name="myStatusName" value="Modified" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MODIFIED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Skipped" />
-        <option name="myStatusName" value="Skipped" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="SKIPPED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with conflicts" />
-        <option name="myStatusName" value="Will be merged with conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_CONFLICTS" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with tree conflicts" />
-        <option name="myStatusName" value="Merged with tree conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with property conflicts" />
-        <option name="myStatusName" value="Will be merged with property conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged" />
-        <option name="myStatusName" value="Will be merged" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Not in repository" />
-        <option name="myStatusName" value="Not in repository" />
-        <option name="mySupportsDeletion" value="true" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="UNKNOWN" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Locally added" />
-        <option name="myStatusName" value="Locally added" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="LOCALLY_ADDED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Locally removed" />
-        <option name="myStatusName" value="Locally removed" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="LOCALLY_REMOVED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Switched" />
-        <option name="myStatusName" value="Switched" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="SWITCHED" />
-      </FILE-GROUP>
-    </UpdatedFiles>
-  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -404,26 +326,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.two_stage_robust_unit_commitment">
-    <configuration name="mixed_integer_quadratic_solver_cplex" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
+  <component name="RunManager" selected="Python.transportation_power_unit_commitment_improved">
     <configuration name="mixed_integer_solvers_cplex" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -438,6 +341,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="security_constrained_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_commitment" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -644,18 +566,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.transportation_power_unit_commitment" />
-      <item itemvalue="Python.mixed_integer_quadratic_solver_cplex" />
       <item itemvalue="Python.transportation_power_unit_commitment_improved" />
       <item itemvalue="Python.two_stage_robust_unit_commitment" />
       <item itemvalue="Python.mixed_integer_solvers_cplex" />
+      <item itemvalue="Python.security_constrained_unit_commitment" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.transportation_power_unit_commitment_improved" />
+        <item itemvalue="Python.security_constrained_unit_commitment" />
         <item itemvalue="Python.two_stage_robust_unit_commitment" />
         <item itemvalue="Python.mixed_integer_solvers_cplex" />
-        <item itemvalue="Python.transportation_power_unit_commitment_improved" />
         <item itemvalue="Python.transportation_power_unit_commitment" />
-        <item itemvalue="Python.mixed_integer_quadratic_solver_cplex" />
       </list>
     </recent_temporary>
   </component>
@@ -669,13 +591,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00085" summary="update traffic power systems">
-      <created>1531927401671</created>
-      <option name="number" value="00085" />
-      <option name="presentableId" value="LOCAL-00085" />
-      <option name="project" value="LOCAL" />
-      <updated>1531927401671</updated>
     </task>
     <task id="LOCAL-00086" summary="first version traffic power unit commitment">
       <created>1531932383578</created>
@@ -1013,7 +928,14 @@
       <option name="project" value="LOCAL" />
       <updated>1536482889308</updated>
     </task>
-    <option name="localTasksCounter" value="134" />
+    <task id="LOCAL-00134" summary="update gurobi solver input">
+      <created>1536634695074</created>
+      <option name="number" value="00134" />
+      <option name="presentableId" value="LOCAL-00134" />
+      <option name="project" value="LOCAL" />
+      <updated>1536634695074</updated>
+    </task>
+    <option name="localTasksCounter" value="135" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1027,6 +949,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5078684" side_tool="true" weight="0.3490909" />
@@ -1035,13 +958,13 @@
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" weight="0.3090909" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.2811159" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.29685265" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
       <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" weight="0.3490909" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" visible="true" weight="0.3490909" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="8" weight="0.32969698" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1089,7 +1012,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add ieee-24 test system" />
     <MESSAGE value="update ieee-24 test system" />
     <MESSAGE value="update the cost matrix in ieee-24 test system" />
     <MESSAGE value="verify the added case 24 test systems" />
@@ -1114,7 +1036,8 @@
     <MESSAGE value="update case6 test systems" />
     <MESSAGE value="update case6 test systems(the end status)" />
     <MESSAGE value="update data structure using sparse matrix" />
-    <option name="LAST_COMMIT_MESSAGE" value="update data structure using sparse matrix" />
+    <MESSAGE value="update gurobi solver input" />
+    <option name="LAST_COMMIT_MESSAGE" value="update gurobi solver input" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1205,9 +1128,9 @@
           <option name="timeStamp" value="338" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solvers/ccg.py</url>
-          <line>170</line>
-          <option name="timeStamp" value="343" />
+          <url>file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py</url>
+          <line>352</line>
+          <option name="timeStamp" value="346" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -1217,7 +1140,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="344" />
+      <option name="time" value="347" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1394,41 +1317,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/distributed_energy_management/main_distributed.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="15" lean-forward="true" selection-start-line="12" selection-start-column="15" selection-end-line="12" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="30" selection-start-line="10" selection-start-column="30" selection-end-line="10" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/branch_optimal_power_flow.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1290">
-          <caret line="96" lean-forward="true" selection-start-line="96" selection-end-line="96" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/opf_branch_power_flow_ADMM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="153" column="27" lean-forward="true" selection-start-line="153" selection-start-column="27" selection-end-line="153" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/test_cases/case33.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1230">
@@ -1450,13 +1338,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
           <folding>
             <element signature="e#63#130#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/importlib/_bootstrap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="218" selection-start-line="218" selection-end-line="218" />
         </state>
       </provider>
     </entry>
@@ -1603,13 +1484,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="427">
-          <caret line="49" column="35" lean-forward="true" selection-start-line="49" selection-start-column="35" selection-end-line="49" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" />
     <entry file="file://$PROJECT_DIR$/unit_commitment/price_based_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -1694,26 +1568,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
           <caret line="32" column="27" selection-start-line="32" selection-start-column="27" selection-end-line="32" selection-end-column="27" />
-          <folding>
-            <element signature="e#92#115#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="25" column="10" selection-start-line="25" selection-start-column="10" selection-end-line="25" selection-end-column="10" />
-          <folding>
-            <element signature="e#92#115#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case6.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="30" column="19" selection-start-line="30" selection-start-column="19" selection-end-line="30" selection-end-column="19" />
         </state>
       </provider>
     </entry>
@@ -1731,16 +1585,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="815" lean-forward="true" selection-start-line="815" selection-end-line="815" />
-          <folding>
-            <element signature="e#205#278#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1561">
@@ -1751,36 +1595,121 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py">
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/importlib/_bootstrap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="124" column="59" lean-forward="true" selection-start-line="124" selection-start-column="59" selection-end-line="124" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="147">
-          <caret line="828" column="90" lean-forward="true" selection-start-line="828" selection-start-column="90" selection-end-line="828" selection-end-column="90" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2445">
-          <caret line="163" selection-start-line="163" selection-end-line="164" selection-end-column="33" />
-          <folding>
-            <element signature="e#50#97#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="258">
+          <caret line="218" selection-start-line="218" selection-end-line="218" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/solvers/ccg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="173" column="57" lean-forward="true" selection-start-line="173" selection-start-column="57" selection-end-line="173" selection-end-column="57" />
+        <state relative-caret-position="745">
+          <caret line="172" column="47" selection-start-line="172" selection-start-column="47" selection-end-line="172" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3150">
+          <caret line="210" column="26" lean-forward="true" selection-start-line="210" selection-start-column="26" selection-end-line="210" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/scenario_reduction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="46" lean-forward="true" selection-start-line="23" selection-start-column="46" selection-end-line="23" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/TSN_test_system.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2">
+          <caret line="29" column="33" lean-forward="true" selection-start-line="29" selection-start-column="33" selection-end-line="29" selection-end-column="33" />
           <folding>
-            <element signature="e#295#368#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+          <folding>
+            <element signature="e#122#168#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="745">
+          <caret line="76" column="37" selection-start-line="76" selection-start-column="37" selection-end-line="76" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3825">
+          <caret line="255" lean-forward="true" selection-start-line="255" selection-end-line="255" />
+          <folding>
+            <element signature="e#862#937#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case6.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="26" column="21" lean-forward="true" selection-start-line="26" selection-start-column="21" selection-end-line="26" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case5.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="20" lean-forward="true" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+          <folding>
+            <element signature="e#92#115#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="18" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
+          <folding>
+            <element signature="e#92#115#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_network_models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="585">
+          <caret line="39" column="39" lean-forward="true" selection-start-line="39" selection-start-column="39" selection-end-line="39" selection-end-column="39" />
+          <folding>
+            <element signature="e#76#99#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-866">
+          <caret line="550" column="26" selection-start-line="550" selection-start-column="26" selection-end-line="550" selection-end-column="26" />
+          <folding>
+            <element signature="e#205#278#0" expanded="true" />
           </folding>
         </state>
       </provider>
