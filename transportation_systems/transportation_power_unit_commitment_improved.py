@@ -378,7 +378,7 @@ class TrafficPowerUnitCommitment():
             lb_traffic[i * NX_traffic + find(connection_matrix[:, T_BUS] == T * nb_traffic + 1), 0] = ev[i]["end"]
             ub_traffic[i * NX_traffic + find(connection_matrix[:, T_BUS] == T * nb_traffic + 1), 0] = ev[i]["end"]
 
-        vtypes_traffic = (["b"] * status_matrix.shape[1] + ["b"] * T * nb_traffic + ["c"] * 5 * T * nb_traffic) * nev
+        vtypes_traffic = (["b"] * NX_status + ["b"] * T * n_stops + ["c"] * 5 * T * n_stops) * nev
 
         Aeq_traffic = connection_matrix_f - connection_matrix_t
         beq_traffic = zeros(Aeq_traffic.shape[0])
