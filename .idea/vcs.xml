@@ -3,5 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../Energy-systems-modelling-and-optimization" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../microgrid_energy_management_system" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../universal_ems" vcs="Git" />
   </component>
 </project>

@@ -8,6 +8,9 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="ethereumbook" />
     <orderEntry type="module" module-name="Energy-systems-modelling-and-optimization" />
+    <orderEntry type="module" module-name="MG-OS" />
+    <orderEntry type="module" module-name="microgrid_energy_management_system" />
+    <orderEntry type="module" module-name="universal_ems" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="Unittests" />

@@ -3,8 +3,11 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../Energy-systems-modelling-and-optimization/.idea/Energy-systems-modelling-and-optimization.iml" filepath="$PROJECT_DIR$/../Energy-systems-modelling-and-optimization/.idea/Energy-systems-modelling-and-optimization.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../MG-OS/.idea/MG-OS.iml" filepath="$PROJECT_DIR$/../MG-OS/.idea/MG-OS.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Optimization.iml" filepath="$PROJECT_DIR$/.idea/Optimization.iml" />
       <module fileurl="file://$PROJECT_DIR$/../ethereumbook/.idea/ethereumbook.iml" filepath="$PROJECT_DIR$/../ethereumbook/.idea/ethereumbook.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../microgrid_energy_management_system/.idea/microgrid_energy_management_system.iml" filepath="$PROJECT_DIR$/../microgrid_energy_management_system/.idea/microgrid_energy_management_system.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../universal_ems/.idea/universal_ems.iml" filepath="$PROJECT_DIR$/../universal_ems/.idea/universal_ems.iml" />
     </modules>
   </component>
 </project>

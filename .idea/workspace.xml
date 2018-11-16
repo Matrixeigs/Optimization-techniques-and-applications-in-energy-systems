@@ -2,8 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Optimization.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Optimization.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gas_networks/test_cases/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/gas_networks/test_cases/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_systems/transportation_network_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/transportation_network_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/.idea/microgrid_energy_management_system.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../microgrid_energy_management_system/.idea/microgrid_energy_management_system.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py" beforeDir="false" afterPath="$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/gurobi.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/log/Local_ems_start_up.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/log/Long_term_dispatch_output_check.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/log/Real_time_simulation.log" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -15,9 +29,10 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Optimization$branch_optimal_power_flow.coverage" NAME="branch_optimal_power_flow Coverage Results" MODIFIED="1529333737140" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$case5.coverage" NAME="case5 Coverage Results" MODIFIED="1529722490753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems/test_cases" />
+    <SUITE FILE_PATH="coverage/Optimization$local_ems.coverage" NAME="local_ems Coverage Results" MODIFIED="1539655483351" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../microgrid_energy_management_system" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_robust.coverage" NAME="two_stage_unit_commitment_robust Coverage Results" MODIFIED="1531709677297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment_improved.coverage" NAME="transportation_power_unit_commitment_improved Coverage Results" MODIFIED="1537330498908" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
-    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1536477866539" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
+    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1539242951800" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_jointed_chance_constained_programming.coverage" NAME="two_stage_jointed_chance_constained_programming Coverage Results" MODIFIED="1529422831373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_MGs.coverage" NAME="optimal_power_flow_hybrid_AC_DC_MGs Coverage Results" MODIFIED="1529981065995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
     <SUITE FILE_PATH="coverage/Optimization$test.coverage" NAME="test Coverage Results" MODIFIED="1534581154663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
@@ -29,9 +44,11 @@
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding_primal_dual_cuts.coverage" NAME="two_stage_bidding_primal_dual_cuts Coverage Results" MODIFIED="1529423920631" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_mosek.coverage" NAME="mixed_integer_solvers_mosek Coverage Results" MODIFIED="1535186849765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_deposit_problem.coverage" NAME="optimal_deposit_problem Coverage Results" MODIFIED="1536295996477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
+    <SUITE FILE_PATH="coverage/Optimization$database_format.coverage" NAME="database_format Coverage Results" MODIFIED="1539572624844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1536633133729" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contingency.coverage" NAME="unit_commitment_contingency Coverage Results" MODIFIED="1536410865832" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding.coverage" NAME="three_stage_bidding Coverage Results" MODIFIED="1529115812370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
+    <SUITE FILE_PATH="coverage/Optimization$local_ems__1_.coverage" NAME="local_ems (1) Coverage Results" MODIFIED="1539572133189" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../universal_ems" />
     <SUITE FILE_PATH="coverage/Optimization$opf.coverage" NAME="opf Coverage Results" MODIFIED="1528180458741" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/pypower" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_programming.coverage" NAME="mixed_integer_quadratic_programming Coverage Results" MODIFIED="1529422374406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$traffic_power_unit_commitment.coverage" NAME="traffic_power_unit_commitment Coverage Results" MODIFIED="1536385865142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
@@ -79,76 +96,69 @@
     <option name="HIDDEN_KINDS">
       <set />
     </option>
-    <expand />
+    <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="history_data@localhost" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="history_data@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="history_data@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="history_data: schema" type="c314c289:MysqlImplModel$Schema" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="local_ems: schema" type="c314c289:MysqlImplModel$Schema" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="microgrid@localhost" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="microgrid@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="microgrid@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="microgrid: schema" type="c314c289:MysqlImplModel$Schema" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="weather_station@localhost" type="feb32156:DbDataSourceImpl" />
+      </path>
+    </expand>
     <select />
   </component>
   <component name="FavoritesManager">
     <favorites_list name="Optimization" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="transportation_power_unit_commitment_improved.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="710">
-              <caret line="450" column="47" selection-start-line="450" selection-start-column="47" selection-end-line="450" selection-end-column="47" />
-              <folding>
-                <element signature="e#205#278#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="case3.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="19" column="18" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
-              <folding>
-                <element signature="e#92#115#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="transportation_network_models.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_network_models.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="492">
-              <caret line="39" column="39" selection-start-line="39" selection-start-column="39" selection-end-line="39" selection-end-column="39" />
-              <folding>
-                <element signature="e#76#99#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" selection-start-line="11" selection-end-line="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="case5.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case5.py">
+    <leaf>
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/gas_networks/test_cases/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="120">
-              <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
-              <folding>
-                <element signature="e#92#115#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="case6.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case6.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="26" column="21" selection-start-line="26" selection-start-column="21" selection-end-line="26" selection-end-column="21" />
+              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
             </state>
           </provider>
         </entry>
@@ -179,9 +189,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py" />
-        <option value="$PROJECT_DIR$/solvers/distributionally_robust_optimization/robust_saa.py" />
-        <option value="$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_distribution_networks.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_deterministic.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" />
         <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py" />
@@ -225,11 +232,14 @@
         <option value="$PROJECT_DIR$/transportation_systems/test_cases/case3.py" />
         <option value="$PROJECT_DIR$/transportation_systems/test_cases/case6.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py" />
         <option value="$PROJECT_DIR$/solvers/ccg.py" />
         <option value="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" />
+        <option value="$PROJECT_DIR$/transportation_systems/transportation_network_models.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
+        <option value="$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py" />
+        <option value="$PROJECT_DIR$/gas_networks/test_cases/__init__.py" />
       </list>
     </option>
   </component>
@@ -262,23 +272,22 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="solvers" type="462c0819:PsiDirectoryNode" />
+              <item name="gas_networks" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
+              <item name="gas_networks" type="462c0819:PsiDirectoryNode" />
               <item name="test_cases" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
               <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="universal_ems" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -325,7 +334,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.transportation_power_unit_commitment_improved">
+  <component name="RunManager" selected="Python.local_ems">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -369,39 +378,58 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
     </configuration>
-    <configuration name="mixed_integer_solvers_cplex" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
+    <configuration name="database_format" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="microgrid_energy_management_system" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database/database_format.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="security_constrained_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
+    <configuration name="local_ems (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="universal_ems" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_commitment" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../universal_ems" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../universal_ems/local_ems.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="local_ems" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="microgrid_energy_management_system" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../microgrid_energy_management_system" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../microgrid_energy_management_system/local_ems.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -440,25 +468,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="two_stage_robust_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_commitment/wind_hydro" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -566,17 +575,17 @@
     <list>
       <item itemvalue="Python.transportation_power_unit_commitment" />
       <item itemvalue="Python.transportation_power_unit_commitment_improved" />
-      <item itemvalue="Python.two_stage_robust_unit_commitment" />
-      <item itemvalue="Python.mixed_integer_solvers_cplex" />
-      <item itemvalue="Python.security_constrained_unit_commitment" />
+      <item itemvalue="Python.local_ems" />
+      <item itemvalue="Python.local_ems (1)" />
+      <item itemvalue="Python.database_format" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.transportation_power_unit_commitment_improved" />
-        <item itemvalue="Python.security_constrained_unit_commitment" />
-        <item itemvalue="Python.two_stage_robust_unit_commitment" />
-        <item itemvalue="Python.mixed_integer_solvers_cplex" />
+        <item itemvalue="Python.local_ems" />
+        <item itemvalue="Python.database_format" />
+        <item itemvalue="Python.local_ems (1)" />
         <item itemvalue="Python.transportation_power_unit_commitment" />
+        <item itemvalue="Python.transportation_power_unit_commitment_improved" />
       </list>
     </recent_temporary>
   </component>
@@ -590,20 +599,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00087" summary="find and remove bugs in reserve requirements">
-      <created>1531933026385</created>
-      <option name="number" value="00087" />
-      <option name="presentableId" value="LOCAL-00087" />
-      <option name="project" value="LOCAL" />
-      <updated>1531933026385</updated>
-    </task>
-    <task id="LOCAL-00088" summary="find and remove bugs in reserve requirements">
-      <created>1531934152816</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
-      <option name="project" value="LOCAL" />
-      <updated>1531934152816</updated>
     </task>
     <task id="LOCAL-00089" summary="reduce the redundancy of codes">
       <created>1532051379190</created>
@@ -934,7 +929,21 @@
       <option name="project" value="LOCAL" />
       <updated>1537147433810</updated>
     </task>
-    <option name="localTasksCounter" value="136" />
+    <task id="LOCAL-00136" summary="rename some variable names">
+      <created>1537347727570</created>
+      <option name="number" value="00136" />
+      <option name="presentableId" value="LOCAL-00136" />
+      <option name="project" value="LOCAL" />
+      <updated>1537347727570</updated>
+    </task>
+    <task id="LOCAL-00137" summary="add gas flow and optimal gas flow package">
+      <created>1542246685731</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1542246685732</updated>
+    </task>
+    <option name="localTasksCounter" value="138" />
     <servers />
   </component>
   <component name="TodoView">
@@ -953,55 +962,55 @@
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5078684" side_tool="true" weight="0.3490909" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.32848486" />
-      <window_info anchor="bottom" id="Python Console" order="7" weight="0.32848486" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" weight="0.3090909" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.30114448" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.32780084" />
+      <window_info anchor="bottom" id="Python Console" order="7" weight="0.32780084" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" weight="0.36652237" />
+      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32918397" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.3505007" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="right" id="Database" order="3" weight="0.3297568" />
+      <window_info anchor="right" id="Database" order="3" weight="0.32892057" />
       <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" visible="true" weight="0.3490909" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" weight="0.34854773" />
+      <window_info anchor="bottom" id="Concurrent Activities Diagram" order="8" weight="0.32969698" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" x="0" y="0" width="310" height="700" id="Documentation" order="4" side_tool="true" weight="0.3297568" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Database Console" order="8" weight="0.32848486" />
+      <window_info active="true" anchor="bottom" id="Database Console" order="8" visible="true" weight="0.32756132" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
-      <window_info anchor="bottom" id="Concurrent Activities Diagram" order="8" weight="0.32969698" />
+      <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.2911302" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49570817" weight="0.32848486" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49499285" weight="0.3090909" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
-      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32848486" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
       <window_info anchor="right" x="0" y="0" width="310" height="700" id="Documentation" order="6" side_tool="true" weight="0.3297568" />
       <window_info anchor="right" id="Database" order="4" weight="0.3297568" />
       <window_info anchor="right" id="Coverage" order="5" side_tool="true" />
       <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.50500715" side_tool="true" weight="0.3090909" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49570817" weight="0.32848486" />
       <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
       <window_info anchor="bottom" id="Database Console" order="14" weight="0.32848486" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
       <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49928468" weight="0.32969698" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="13" weight="0.32969698" />
-      <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32848486" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1011,8 +1020,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update the cost matrix in ieee-24 test system" />
-    <MESSAGE value="verify the added case 24 test systems" />
     <MESSAGE value="update data format for unit commitment" />
     <MESSAGE value="the first version of network constrained unit commitment" />
     <MESSAGE value="parameter adjustment" />
@@ -1036,7 +1043,9 @@
     <MESSAGE value="update data structure using sparse matrix" />
     <MESSAGE value="update gurobi solver input" />
     <MESSAGE value="update unit commitment models" />
-    <option name="LAST_COMMIT_MESSAGE" value="update unit commitment models" />
+    <MESSAGE value="rename some variable names" />
+    <MESSAGE value="add gas flow and optimal gas flow package" />
+    <option name="LAST_COMMIT_MESSAGE" value="add gas flow and optimal gas flow package" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1131,6 +1140,11 @@
           <line>352</line>
           <option name="timeStamp" value="346" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../microgrid_energy_management_system/real_time_operation/main.py</url>
+          <line>35</line>
+          <option name="timeStamp" value="347" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -1139,7 +1153,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="347" />
+      <option name="time" value="348" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1316,236 +1330,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/test_cases/case33.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1230">
-          <caret line="82" selection-start-line="82" selection-end-line="86" selection-end-column="81" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="339">
-          <caret line="235" column="32" lean-forward="true" selection-start-line="235" selection-start-column="32" selection-end-line="235" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_grid_park_distributed.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2900">
-          <caret line="532" column="17" lean-forward="true" selection-start-line="532" selection-start-column="17" selection-end-line="532" selection-end-column="17" />
-          <folding>
-            <element signature="e#63#130#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/interior_point_method.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="24" column="38" selection-start-line="24" selection-start-column="38" selection-end-line="24" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mix_integer_solvers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-279">
-          <caret line="16" column="45" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="556" column="33" lean-forward="true" selection-start-line="556" selection-start-column="33" selection-end-line="556" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4352">
-          <caret line="526" column="12" lean-forward="true" selection-start-line="526" selection-start-column="12" selection-end-line="526" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="336" column="49" lean-forward="true" selection-start-line="336" selection-start-column="49" selection-end-line="336" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/benders_solvers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="13" lean-forward="true" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1663">
-          <caret line="288" lean-forward="true" selection-start-line="288" selection-end-line="288" />
-          <folding>
-            <element signature="e#176#250#0" expanded="true" />
-            <marker date="1531705744592" expanded="true" signature="9024:12100" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="496" column="4" selection-start-line="496" selection-start-column="4" selection-end-line="496" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_read_write.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/modelling_using_Gurobi/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/micro_grids/hybrid_AC_DC_microgrids.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="398">
-          <caret line="363" column="29" lean-forward="true" selection-start-line="363" selection-start-column="29" selection-end-line="363" selection-end-column="29" />
-          <folding>
-            <element signature="e#53#132#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/security_constainted_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_basic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1170">
-          <caret line="80" column="23" lean-forward="true" selection-start-line="80" selection-start-column="23" selection-end-line="80" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-7074">
-          <caret line="20" lean-forward="true" selection-start-line="20" selection-end-line="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/modelling_using_Gurobi/network_constrained_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="53" lean-forward="true" selection-start-line="1" selection-start-column="53" selection-end-line="1" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
-          <folding>
-            <element signature="e#105#154#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5929">
-          <caret line="414" lean-forward="true" selection-start-line="414" selection-end-line="414" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contigency.py" />
-    <entry file="file://$PROJECT_DIR$/unit_commitment/price_based_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="105" selection-start-line="1" selection-start-column="105" selection-end-line="1" selection-end-column="105" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="6" lean-forward="true" selection-start-line="8" selection-start-column="6" selection-end-line="8" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="155" column="23" lean-forward="true" selection-start-line="155" selection-start-column="23" selection-end-line="155" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="574" lean-forward="true" selection-start-line="574" selection-end-line="574" />
-          <folding>
-            <element signature="e#252#331#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/data_format/data_format_bess.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="20" selection-start-line="21" selection-start-column="20" selection-end-line="21" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="9" lean-forward="true" selection-start-line="21" selection-start-column="9" selection-end-line="21" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/benders_decomposition.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1980">
-          <caret line="137" column="16" lean-forward="true" selection-start-line="137" selection-start-column="16" selection-end-line="137" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="385" column="33" lean-forward="true" selection-start-line="385" selection-start-column="33" selection-end-line="385" selection-end-column="33" />
-          <folding>
-            <element signature="e#155#234#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1071">
@@ -1584,16 +1368,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1561">
-          <caret line="25" column="7" lean-forward="true" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
-          <folding>
-            <element signature="e#150#223#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/importlib/_bootstrap.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="258">
@@ -1605,13 +1379,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="745">
           <caret line="172" column="47" selection-start-line="172" selection-start-column="47" selection-end-line="172" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3150">
-          <caret line="210" column="26" lean-forward="true" selection-start-line="210" selection-start-column="26" selection-end-line="210" selection-end-column="26" />
         </state>
       </provider>
     </entry>
@@ -1660,6 +1427,34 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case5.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="20" column="20" selection-start-line="20" selection-start-column="20" selection-end-line="20" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://f3384a2d-8ae0-47b9-ae4d-7368e27b90af/schema/weather_station/table/issdata">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="34" selection-start-line="17" selection-start-column="34" selection-end-line="17" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
@@ -1667,43 +1462,210 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case5.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
-          <folding>
-            <element signature="e#92#115#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_network_models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="39" column="39" selection-start-line="39" selection-start-column="39" selection-end-line="39" selection-end-column="39" />
+        <state relative-caret-position="225">
+          <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../MG-OS/configuration/config.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="35" column="4" lean-forward="true" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../MG-OS/log/db.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../MG-OS/log/SYSTEM.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="57" selection-start-line="25" selection-start-column="57" selection-end-line="25" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://7c78702a-5d41-42f2-a890-19e18c286317/schema/module2/table/pv_status">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://df246f80-8e02-41d8-be63-1373207c29da/schema/module2/table/battery_status" />
+    <entry file="das://7c78702a-5d41-42f2-a890-19e18c286317/schema/module2/table/bic_status">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://df246f80-8e02-41d8-be63-1373207c29da/schema/module2/table/pv_status" />
+    <entry file="das://df246f80-8e02-41d8-be63-1373207c29da/schema/module2/table/bic_status" />
+    <entry file="das://df246f80-8e02-41d8-be63-1373207c29da/schema/module2/table/rm_status" />
+    <entry file="das://7c78702a-5d41-42f2-a890-19e18c286317/schema/module2/table/battery_status">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="268">
+          <caret line="841" column="33" selection-start-line="841" selection-start-column="33" selection-end-line="841" selection-end-column="33" />
           <folding>
-            <element signature="e#76#99#0" expanded="true" />
+            <element signature="e#150#223#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="19" column="18" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
+        <state relative-caret-position="2550">
+          <caret line="173" column="54" selection-start-line="173" selection-start-column="54" selection-end-line="173" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../universal_ems/local_ems.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="30" column="83" selection-start-line="30" selection-start-column="83" selection-end-line="30" selection-end-column="83" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/codecs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="308" selection-start-line="308" selection-end-line="308" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://a57ddaee-5736-499d-8307-02143cbe0b8a/schema/local_ems/table/short_term_operation">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/real_time_operation/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="33" column="54" lean-forward="true" selection-start-line="33" selection-start-column="54" selection-end-line="33" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/database_management/database_management.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="59">
+          <caret line="4" column="35" lean-forward="true" selection-start-line="4" selection-start-column="35" selection-end-line="4" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database/database_format.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="37" lean-forward="true" selection-start-line="9" selection-start-column="37" selection-end-line="9" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/database_management/database_functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="18" lean-forward="true" selection-start-line="13" selection-start-column="18" selection-end-line="13" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_database.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="40" column="32" selection-start-line="40" selection-start-column="20" selection-end-line="40" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://b1118311-3890-4da9-9c4c-b4c5d1113d91/schema/history_data/table/one_minute_data">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="66" lean-forward="true" selection-start-line="7" selection-start-column="66" selection-end-line="7" selection-end-column="66" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="das://b1118311-3890-4da9-9c4c-b4c5d1113d91/schema/history_data/table/hourly_data">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Dropbox/Books/Lessons/Power Flow Analysis/Gauss-Sidel.m" />
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/local_ems.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="226">
+          <caret line="26" column="52" selection-start-line="26" selection-start-column="52" selection-end-line="26" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="27" column="30" selection-start-line="27" selection-start-column="30" selection-end-line="27" selection-end-column="30" />
           <folding>
-            <element signature="e#92#115#0" expanded="true" />
+            <element signature="e#252#331#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py">
+    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/real_time_operation/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="710">
-          <caret line="450" column="47" selection-start-line="450" selection-start-column="47" selection-end-line="450" selection-end-column="47" />
-          <folding>
-            <element signature="e#205#278#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="300">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/Pug.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="6" lean-forward="true" selection-start-line="21" selection-start-column="6" selection-end-line="21" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/price_first_stage.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="34" lean-forward="true" selection-start-line="13" selection-start-column="34" selection-end-line="13" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/pDA.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="26" lean-forward="true" selection-start-line="5" selection-end-line="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gas_networks/test_cases/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
         </state>
       </provider>
     </entry>
