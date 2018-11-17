@@ -2,22 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Optimization.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Optimization.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/transportation_systems/tess_uc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gas_networks/test_cases/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/gas_networks/test_cases/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_systems/transportation_network_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/transportation_network_models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/.idea/microgrid_energy_management_system.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../microgrid_energy_management_system/.idea/microgrid_energy_management_system.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py" beforeDir="false" afterPath="$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/gurobi.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/log/Local_ems_start_up.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/log/Long_term_dispatch_output_check.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../microgrid_energy_management_system/log/Real_time_simulation.log" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -99,36 +85,6 @@
     <expand>
       <path>
         <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="history_data@localhost" type="feb32156:DbDataSourceImpl" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="history_data@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="history_data@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="history_data: schema" type="c314c289:MysqlImplModel$Schema" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="local_ems@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="local_ems: schema" type="c314c289:MysqlImplModel$Schema" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
         <item name="microgrid@localhost" type="feb32156:DbDataSourceImpl" />
       </path>
       <path>
@@ -154,11 +110,34 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gas_networks/test_cases/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="120">
               <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="case14.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case14.py">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file leaf-file-name="case6.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="100">
+              <caret line="23" column="34" selection-start-line="23" selection-start-column="34" selection-end-line="23" selection-end-column="34" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tess_uc.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/tess_uc.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="278">
+              <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
             </state>
           </provider>
         </entry>
@@ -189,7 +168,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_deterministic.py" />
         <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/test_cases.py" />
         <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py" />
         <option value="$PROJECT_DIR$/unit_commitment/data_format/data_formate_bess.py" />
@@ -240,6 +218,7 @@
         <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
         <option value="$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py" />
         <option value="$PROJECT_DIR$/gas_networks/test_cases/__init__.py" />
+        <option value="$PROJECT_DIR$/transportation_systems/tess_uc.py" />
       </list>
     </option>
   </component>
@@ -272,22 +251,7 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="gas_networks" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="gas_networks" type="462c0819:PsiDirectoryNode" />
-              <item name="test_cases" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="universal_ems" type="462c0819:PsiDirectoryNode" />
+              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -599,20 +563,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00089" summary="reduce the redundancy of codes">
-      <created>1532051379190</created>
-      <option name="number" value="00089" />
-      <option name="presentableId" value="LOCAL-00089" />
-      <option name="project" value="LOCAL" />
-      <updated>1532051379191</updated>
-    </task>
-    <task id="LOCAL-00090" summary="distributed unit commitment package">
-      <created>1532226765552</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1532226765553</updated>
     </task>
     <task id="LOCAL-00091" summary="dynamic network reconfiguration">
       <created>1532352252549</created>
@@ -943,7 +893,21 @@
       <option name="project" value="LOCAL" />
       <updated>1542246685732</updated>
     </task>
-    <option name="localTasksCounter" value="138" />
+    <task id="LOCAL-00138" summary="continue works">
+      <created>1542369095686</created>
+      <option name="number" value="00138" />
+      <option name="presentableId" value="LOCAL-00138" />
+      <option name="project" value="LOCAL" />
+      <updated>1542369095686</updated>
+    </task>
+    <task id="LOCAL-00139" summary="add gas network models and optimal gas flow problem">
+      <created>1542369186419</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1542369186419</updated>
+    </task>
+    <option name="localTasksCounter" value="140" />
     <servers />
   </component>
   <component name="TodoView">
@@ -968,7 +932,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32918397" />
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.3505007" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="right" id="Database" order="3" weight="0.32892057" />
+      <window_info anchor="right" id="Database" order="3" weight="0.32832617" />
       <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
@@ -1020,8 +984,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update data format for unit commitment" />
-    <MESSAGE value="the first version of network constrained unit commitment" />
     <MESSAGE value="parameter adjustment" />
     <MESSAGE value="update mixed integer quadratic programming settings" />
     <MESSAGE value="add first result to energy hubs" />
@@ -1045,7 +1007,9 @@
     <MESSAGE value="update unit commitment models" />
     <MESSAGE value="rename some variable names" />
     <MESSAGE value="add gas flow and optimal gas flow package" />
-    <option name="LAST_COMMIT_MESSAGE" value="add gas flow and optimal gas flow package" />
+    <MESSAGE value="continue works" />
+    <MESSAGE value="add gas network models and optimal gas flow problem" />
+    <option name="LAST_COMMIT_MESSAGE" value="add gas network models and optimal gas flow problem" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1330,30 +1294,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1071">
-          <caret line="673" column="69" lean-forward="true" selection-end-line="674" />
-          <folding>
-            <element signature="e#92#165#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/scipy/sparse/coo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="231" selection-start-line="231" selection-end-line="231" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3_modified.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="32" column="27" selection-start-line="32" selection-start-column="27" selection-end-line="32" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="457">
@@ -1666,6 +1606,23 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case14.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="23" column="34" selection-start-line="23" selection-start-column="34" selection-end-line="23" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/tess_uc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
         </state>
       </provider>
     </entry>
