@@ -775,7 +775,7 @@ class SecondstageTest:
                 hv[2 * ng * T + 2 * ng * (T - 1) + i * T + j, i * T + j] = 1
 
         # Define first stage constraints where only alpha beta Ig Nstatus Ic are incorporated
-        nscenario = 50
+        nscenario = 5
         Aeq_first = Aeq_UnitStatus[:, :nFSpower]
         Aeq_first = hstack([Aeq_first, zeros((Aeq_first.shape[0], nFStraffic + nSSVar*nscenario))], format='lil')
         for i in range(nev):
