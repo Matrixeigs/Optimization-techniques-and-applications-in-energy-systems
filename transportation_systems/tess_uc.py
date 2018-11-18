@@ -25,6 +25,7 @@ from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming
 from unit_commitment.data_format.data_format_contigency import ALPHA, BETA, IG, PG, RS, RD, RU, THETA, NG, PL
 from transportation_systems import windfarm
 from scipy.stats import beta
+from solvers.benders_decomposition import BendersDecomposition
 
 
 class SecondstageTest:
@@ -775,18 +776,18 @@ class SecondstageTest:
                 hv[2 * ng * T + 2 * ng * (T - 1) + i * T + j, i * T + j] = 1
 
         # Define first stage constraints where only alpha beta Ig Nstatus Ic are incorporated
-        nscenario = 5
+        nscenario = 10
         Aeq_first = Aeq_UnitStatus[:, :nFSpower]
-        Aeq_first = hstack([Aeq_first, zeros((Aeq_first.shape[0], nFStraffic + nSSVar*nscenario))], format='lil')
+        Aeq_first = hstack([Aeq_first, zeros((Aeq_first.shape[0], nFStraffic))], format='lil')
         for i in range(nev):
             if i == 0:
                 Aeqtemp = Aeq_traffic_full[:, :(nl_traffic + n_stops)]
                 continue
             Aeqtemp = hstack([Aeqtemp, Aeq_traffic_full[:, i * NX_traffic: i * NX_traffic + (nl_traffic + n_stops)]], format='lil')
-        Aeqtemp = hstack([zeros((Aeqtemp.shape[0], nFSpower)), Aeqtemp, zeros((Aeqtemp.shape[0], nSSVar * nscenario))])
+        Aeqtemp = hstack([zeros((Aeqtemp.shape[0], nFSpower)), Aeqtemp])
         Aeq_first = vstack([Aeq_first, Aeqtemp], format='lil')
         Aineq_first = vstack([Aineq_signal[:, :nFSpower], Aineq_Uptime[:, :nFSpower], Aineq_Downtime[:, :nFSpower]], format ='lil')
-        Aineq_first = hstack([Aineq_first, zeros((Aineq_first.shape[0], nFStraffic + nSSVar * nscenario))], format='lil')
+        Aineq_first = hstack([Aineq_first, zeros((Aineq_first.shape[0], nFStraffic))], format='lil')
         beq_first = concatenate([beq_UnitStatus, beq_traffic_full[:, newaxis]])
         bineq_first = concatenate([bineq_signal, bineq_Uptime, bineq_Downtime])
 
@@ -805,12 +806,12 @@ class SecondstageTest:
                 hverror = samples
                 continue
             hverror = concatenate([hverror, samples])
-        h0 = tile(h0, (nscenario, 1))
-        bineq_all = h0 + hverror
+        # h0 = tile(h0, (nscenario, 1))
+        # bineq_all = h0 + hverror
         # define stochastic problem
         c_first = c_first[:,newaxis]
         c_second = c_second[:,newaxis]
-        c_second = tile(c_second,(nscenario, 1))
+        # c_second = tile(c_second,(nscenario, 1))
         c_all = concatenate([c_first, c_second/nscenario])
         Aineq_all = Tss
         Aeq_T = TAeqtemp
@@ -819,13 +820,13 @@ class SecondstageTest:
             Aeq_T = vstack([Aeq_T, TAeqtemp])
         W = block_diag(eval(('Wss,'*nscenario).rstrip(',')),format='lil')
         Weq = block_diag(eval(('WAeqtemp,'*nscenario).rstrip(',')),format='lil')
-        Aineq_all = hstack([Aineq_all, W], format='lil')
-        Aineq_all = vstack([Aineq_first, Aineq_all], format='lil')
-        bineq_all = concatenate([bineq_first, bineq_all])
+        # Aineq_all = hstack([Aineq_all, W], format='lil')
+        # Aineq_all = vstack([Aineq_first, Aineq_all], format='lil')
+        # bineq_all = concatenate([bineq_first, bineq_all])
         TWeq = hstack([Aeq_T, Weq], format='lil')
-        Aeq_all = vstack([Aeq_first, TWeq], format='lil')
-        beq_exempt = tile(beq_exempt, (nscenario,1))
-        beq_all = concatenate([beq_first, beq_exempt])
+        # Aeq_all = vstack([Aeq_first, TWeq], format='lil')
+        # beq_exempt = tile(beq_exempt, (nscenario,1))
+        # beq_all = concatenate([beq_first, beq_exempt])
         lb_first = lb_full[:nFSpower, 0]
         ub_first = ub_full[:nFSpower, 0]
         for i in range(nev):
@@ -840,14 +841,45 @@ class SecondstageTest:
         vtypes = ["c"] * (nFSpower + nFStraffic + nSSVar * nscenario)
         vtypes[0: nFSpower + nFStraffic] = ["B"] * (nFSpower + nFStraffic)
         vtypes_first = ["b"] * (nFStraffic + nFSpower)
-        model = {"c": c_all,
-                 "lb": lb_all,
-                 "ub": ub_all,
-                 "A": Aineq_all,
-                 "b": bineq_all,
-                 "Aeq": Aeq_all,
-                 "beq": beq_all,
-                 "vtypes": vtypes}
+        # benders decompo format
+        nAuxiliary = WAineqtemp.shape[0]
+        Aineq_auxi = eye(nAuxiliary)
+        # transform Aineqall to equality
+        WAineqtemp = hstack([WAineqtemp, Aineq_auxi], format='lil')
+        WAeqtemp = hstack([WAeqtemp, zeros((WAeqtemp.shape[0], nAuxiliary))])
+        prob = 1/nscenario
+        ps = prob * ones((nscenario, 1))
+        c_second = c_second.transpose()
+        qs = [0] * nscenario
+        Ws = [0] * nscenario
+        Ts = [0] * nscenario
+        hs = [0] * nscenario
+        for i in range(nscenario):
+            qs[i] = concatenate([c_second, zeros((1, nAuxiliary))], axis=1)
+            Ts[i] = vstack([TAeqtemp, TAineqtemp], format='lil').toarray()
+            Ws[i] = vstack([WAeqtemp, WAineqtemp], format='lil').toarray()
+            hs[i] = concatenate([beq_exempt, (h0 + hv * winderror[:,i])])
+        # model = {"c": c_all,
+        #          "lb": lb_all,
+        #          "ub": ub_all,
+        #          "A": Aineq_all,
+        #          "b": bineq_all,
+        #          "Aeq": Aeq_all,
+        #          "beq": beq_all,
+        #          "vtypes": vtypes}
+        model = {"c": c_first,
+                 "A": Aineq_first.toarray(),
+                 "b": bineq_first,
+                 "Aeq": Aeq_first.toarray(),
+                 "beq": beq_first,
+                 "vtype": vtypes_first,
+                 "lb": lb_first,
+                 "ub": ub_first,
+                 "ps": ps,
+                 "qs": qs,
+                 "Ws": Ws,
+                 "hs": hs,
+                 "Ts": Ts}
 
         return model
 
@@ -1058,9 +1090,11 @@ if __name__ == "__main__":
 
 
     traffic_power_unit_commitment = SecondstageTest()
-
+    benders = BendersDecomposition()
     model = traffic_power_unit_commitment.run(electricity_networks=electricity_networks,
                                               traffic_networks=traffic_networks, windfarm=windfarm, electric_vehicles=ev)
-    (sol, obj) = traffic_power_unit_commitment.problem_solving(model)
-    sol = traffic_power_unit_commitment.result_check(sol)
+    # (sol, obj) = traffic_power_unit_commitment.problem_solving(model)
+    # sol = traffic_power_unit_commitment.result_check(sol)
+    sol = benders.main(c=model["c"], A=model["A"], b=model["b"], Aeq=model["Aeq"], beq=model["beq"], lb=model["lb"], ub=model["ub"],
+                       vtype=model["vtype"], ps=model["ps"], qs=model["qs"], Ws=model["Ws"], Ts=model["Ts"], hs=model["hs"])
     print(sol)
