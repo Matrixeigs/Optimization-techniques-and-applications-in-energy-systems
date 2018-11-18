@@ -134,8 +134,8 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
             if nineq != 0:
                 [rows_A, cols_A] = csc_matrix.nonzero(A)
                 vals_A = A[rows_A, cols_A].tolist()[0]
-            rows = concatenate((rows, neq + rows_A)).tolist()
-            cols = concatenate((cols, cols_A)).tolist()
+            rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
+            cols = concatenate((cols, cols_A)).astype(int).tolist()
             vals = vals+vals_A
         except:
             rows = zeros(0)
@@ -152,9 +152,9 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                 [rows_A, cols_A] = nonzero(A)
                 vals_A = A[rows_A, cols_A]
 
-            rows = concatenate((rows, neq + rows_A)).tolist()
-            cols = concatenate((cols, cols_A)).tolist()
-            vals = concatenate((vals, vals_A)).tolist()
+            rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
+            cols = concatenate((cols, cols_A)).astype(int).tolist()
+            vals = concatenate((vals, vals_A)).astype(int).tolist()
 
         if len(rows) != 0:
             prob.linear_constraints.add(rhs=rhs,

@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/transportation_systems/tess_uc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_systems/tess_uc.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/tess_uc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_systems/windfarm.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/windfarm.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -31,13 +33,14 @@
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_mosek.coverage" NAME="mixed_integer_solvers_mosek Coverage Results" MODIFIED="1535186849765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_deposit_problem.coverage" NAME="optimal_deposit_problem Coverage Results" MODIFIED="1536295996477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$database_format.coverage" NAME="database_format Coverage Results" MODIFIED="1539572624844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database" />
-    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1536633133729" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1542517991520" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contingency.coverage" NAME="unit_commitment_contingency Coverage Results" MODIFIED="1536410865832" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding.coverage" NAME="three_stage_bidding Coverage Results" MODIFIED="1529115812370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$local_ems__1_.coverage" NAME="local_ems (1) Coverage Results" MODIFIED="1539572133189" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../universal_ems" />
     <SUITE FILE_PATH="coverage/Optimization$opf.coverage" NAME="opf Coverage Results" MODIFIED="1528180458741" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/pypower" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_programming.coverage" NAME="mixed_integer_quadratic_programming Coverage Results" MODIFIED="1529422374406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$traffic_power_unit_commitment.coverage" NAME="traffic_power_unit_commitment Coverage Results" MODIFIED="1536385865142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
+    <SUITE FILE_PATH="coverage/Optimization$tess_uc.coverage" NAME="tess_uc Coverage Results" MODIFIED="1542518052315" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_stochastic_unit_commitment.coverage" NAME="two_stage_stochastic_unit_commitment Coverage Results" MODIFIED="1529287857749" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$benders_solvers.coverage" NAME="benders_solvers Coverage Results" MODIFIED="1529422671060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$micro_power_park.coverage" NAME="micro_power_park Coverage Results" MODIFIED="1533286026334" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
@@ -57,12 +60,13 @@
     <SUITE FILE_PATH="coverage/Optimization$bi_objective_opt.coverage" NAME="bi_objective_opt Coverage Results" MODIFIED="1532705877896" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contigency.coverage" NAME="unit_commitment_contigency Coverage Results" MODIFIED="1536386799807" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$TSN_test_system.coverage" NAME="TSN_test_system Coverage Results" MODIFIED="1529141246377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
-    <SUITE FILE_PATH="coverage/Optimization$benders_decomposition.coverage" NAME="benders_decomposition Coverage Results" MODIFIED="1535184931250" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$benders_decomposition.coverage" NAME="benders_decomposition Coverage Results" MODIFIED="1542518401082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$ccg.coverage" NAME="ccg Coverage Results" MODIFIED="1542518531294" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$traffic_power_dispatch.coverage" NAME="traffic_power_dispatch Coverage Results" MODIFIED="1532049230311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_CVaR.coverage" NAME="three_stage_bidding_CVaR Coverage Results" MODIFIED="1535208413974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_network_models.coverage" NAME="transportation_network_models Coverage Results" MODIFIED="1529679951854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$security_constrained_unit_commitment.coverage" NAME="security_constrained_unit_commitment Coverage Results" MODIFIED="1536800483067" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$ccg_benders_decomposition.coverage" NAME="ccg_benders_decomposition Coverage Results" MODIFIED="1535184787912" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$ccg_benders_decomposition.coverage" NAME="ccg_benders_decomposition Coverage Results" MODIFIED="1542518464899" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_distributed.coverage" NAME="unit_commitment_distributed Coverage Results" MODIFIED="1529030430079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_pes.coverage" NAME="three_stage_bidding_pes Coverage Results" MODIFIED="1535208465958" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$network_reconfiguration.coverage" NAME="network_reconfiguration Coverage Results" MODIFIED="1535179587449" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
@@ -133,11 +137,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tess_uc.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="tess_uc.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/transportation_systems/tess_uc.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="278">
-              <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+            <state relative-caret-position="8471">
+              <caret line="570" column="63" lean-forward="true" selection-start-line="570" selection-start-column="63" selection-end-line="570" selection-end-column="63" />
+              <folding>
+                <element signature="e#212#224#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mixed_integer_solvers_cplex.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="120">
+              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+              <folding>
+                <element signature="e#50#97#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ccg_benders_decomposition.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="666">
+              <caret line="181" column="40" lean-forward="true" selection-start-line="181" selection-start-column="40" selection-end-line="181" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -215,10 +243,10 @@
         <option value="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_network_models.py" />
-        <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
         <option value="$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py" />
         <option value="$PROJECT_DIR$/gas_networks/test_cases/__init__.py" />
         <option value="$PROJECT_DIR$/transportation_systems/tess_uc.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
       </list>
     </option>
   </component>
@@ -251,7 +279,7 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
+              <item name="solvers" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -273,17 +301,17 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/distribution_system_optimization/data_format" />
-      <recent name="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
-      <recent name="$PROJECT_DIR$/solvers" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/transportation_systems" />
       <recent name="$PROJECT_DIR$/direct_current_networks" />
       <recent name="$PROJECT_DIR$/hybrid_AC_DC_networks" />
       <recent name="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
       <recent name="$PROJECT_DIR$/distribution_system_optimization/test_cases" />
-      <recent name="$PROJECT_DIR$/solvers/modelCSV" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/distribution_system_optimization/data_format" />
+      <recent name="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
+      <recent name="$PROJECT_DIR$/solvers" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -298,7 +326,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.local_ems">
+  <component name="RunManager" selected="Python.ccg">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -342,64 +370,83 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
     </configuration>
-    <configuration name="database_format" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="microgrid_energy_management_system" />
+    <configuration name="benders_decomposition" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database/database_format.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/benders_decomposition.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="local_ems (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="universal_ems" />
+    <configuration name="ccg" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../universal_ems" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../universal_ems/local_ems.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/ccg.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="local_ems" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="microgrid_energy_management_system" />
+    <configuration name="ccg_benders_decomposition" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../microgrid_energy_management_system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../microgrid_energy_management_system/local_ems.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/ccg_benders_decomposition.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="transportation_power_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="mixed_integer_solvers_cplex" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="tess_uc" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -412,26 +459,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="transportation_power_unit_commitment_improved" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/transportation_systems" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/tess_uc.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -537,19 +565,19 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <list>
-      <item itemvalue="Python.transportation_power_unit_commitment" />
-      <item itemvalue="Python.transportation_power_unit_commitment_improved" />
-      <item itemvalue="Python.local_ems" />
-      <item itemvalue="Python.local_ems (1)" />
-      <item itemvalue="Python.database_format" />
+      <item itemvalue="Python.tess_uc" />
+      <item itemvalue="Python.benders_decomposition" />
+      <item itemvalue="Python.ccg_benders_decomposition" />
+      <item itemvalue="Python.mixed_integer_solvers_cplex" />
+      <item itemvalue="Python.ccg" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.local_ems" />
-        <item itemvalue="Python.database_format" />
-        <item itemvalue="Python.local_ems (1)" />
-        <item itemvalue="Python.transportation_power_unit_commitment" />
-        <item itemvalue="Python.transportation_power_unit_commitment_improved" />
+        <item itemvalue="Python.ccg" />
+        <item itemvalue="Python.ccg_benders_decomposition" />
+        <item itemvalue="Python.benders_decomposition" />
+        <item itemvalue="Python.tess_uc" />
+        <item itemvalue="Python.mixed_integer_solvers_cplex" />
       </list>
     </recent_temporary>
   </component>
@@ -563,20 +591,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00091" summary="dynamic network reconfiguration">
-      <created>1532352252549</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1532352252549</updated>
-    </task>
-    <task id="LOCAL-00092" summary="boundary information of network reconfiguration">
-      <created>1532361645780</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1532361645780</updated>
     </task>
     <task id="LOCAL-00093" summary="update distribution network reconfiguration model for distribution networks">
       <created>1532414008142</created>
@@ -907,7 +921,21 @@
       <option name="project" value="LOCAL" />
       <updated>1542369186419</updated>
     </task>
-    <option name="localTasksCounter" value="140" />
+    <task id="LOCAL-00140" summary="add test cases for unit commitment and tess">
+      <created>1542466630128</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1542466630128</updated>
+    </task>
+    <task id="LOCAL-00141" summary="add test cases for unit commitment and tess">
+      <created>1542466741049</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1542466741049</updated>
+    </task>
+    <option name="localTasksCounter" value="142" />
     <servers />
   </component>
   <component name="TodoView">
@@ -928,15 +956,15 @@
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.32780084" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32780084" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" weight="0.36652237" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49356222" visible="true" weight="0.3660606" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32918397" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.3505007" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.3505007" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.32832617" />
       <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" weight="0.34854773" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" weight="0.34787878" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="8" weight="0.32969698" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -984,7 +1012,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="parameter adjustment" />
     <MESSAGE value="update mixed integer quadratic programming settings" />
     <MESSAGE value="add first result to energy hubs" />
     <MESSAGE value="add two-stage stochastic unit commitment" />
@@ -1009,7 +1036,8 @@
     <MESSAGE value="add gas flow and optimal gas flow package" />
     <MESSAGE value="continue works" />
     <MESSAGE value="add gas network models and optimal gas flow problem" />
-    <option name="LAST_COMMIT_MESSAGE" value="add gas network models and optimal gas flow problem" />
+    <MESSAGE value="add test cases for unit commitment and tess" />
+    <option name="LAST_COMMIT_MESSAGE" value="add test cases for unit commitment and tess" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1109,6 +1137,11 @@
           <line>35</line>
           <option name="timeStamp" value="347" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py</url>
+          <line>181</line>
+          <option name="timeStamp" value="350" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -1117,7 +1150,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="348" />
+      <option name="time" value="351" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1247,6 +1280,31 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
+        <expression-string>model_second_stage[index[0]]['lb']</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>model_second_stage[index[0]]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>index[0]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>prob.linear_constraints.set_coefficients(zip(int(rows), int(cols), vals))</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>prob.linear_constraints.set_coefficients(zip(rows, cols, vals))</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>vals = Aeq[rows, cols].tolist()[0]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
@@ -1266,86 +1324,9 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>cols = concatenate((cols, cols_A)).tolist()</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>rows = concatenate((rows, neq + rows_A)).tolist()</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>A.format=='csr' and Aeq.format=='csr'</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>A.format</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>A.__format__</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case118.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="457">
-          <caret line="234" column="49" selection-start-line="234" selection-start-column="49" selection-end-line="234" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_mosek.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="539">
-          <caret line="186" column="22" lean-forward="true" selection-start-line="186" selection-start-column="22" selection-end-line="186" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/importlib/_bootstrap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="218" selection-start-line="218" selection-end-line="218" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/ccg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="745">
-          <caret line="172" column="47" selection-start-line="172" selection-start-column="47" selection-end-line="172" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/scenario_reduction.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="46" lean-forward="true" selection-start-line="23" selection-start-column="46" selection-end-line="23" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/TSN_test_system.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2">
-          <caret line="29" column="33" lean-forward="true" selection-start-line="29" selection-start-column="33" selection-end-line="29" selection-end-column="33" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="12" selection-start-line="12" selection-end-line="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="745">
@@ -1462,13 +1443,6 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
           <folding>
             <element signature="e#150#223#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2550">
-          <caret line="173" column="54" selection-start-line="173" selection-start-column="54" selection-end-line="173" selection-end-column="54" />
         </state>
       </provider>
     </entry>
@@ -1619,10 +1593,74 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/multiprocessing/pool.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="241">
+          <caret line="118" selection-start-line="118" selection-end-line="118" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/transportation_systems/tess_uc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
+        <state relative-caret-position="8471">
+          <caret line="570" column="63" lean-forward="true" selection-start-line="570" selection-start-column="63" selection-end-line="570" selection-end-column="63" />
+          <folding>
+            <element signature="e#212#224#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="1067" selection-start-line="1067" selection-end-line="1067" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/benders_decomposition.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="652">
+          <caret line="141" column="45" lean-forward="true" selection-start-line="141" selection-start-column="45" selection-end-line="141" selection-end-column="45" />
+          <folding>
+            <element signature="e#1185#1271#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+          <folding>
+            <element signature="e#50#97#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/ccg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2820">
+          <caret line="188" lean-forward="true" selection-start-line="188" selection-end-line="188" />
+          <folding>
+            <element signature="e#295#368#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="666">
+          <caret line="181" column="40" lean-forward="true" selection-start-line="181" selection-start-column="40" selection-end-line="181" selection-end-column="40" />
         </state>
       </provider>
     </entry>
