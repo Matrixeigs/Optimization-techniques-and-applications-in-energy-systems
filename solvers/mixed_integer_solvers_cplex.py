@@ -154,7 +154,7 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
 
             rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
             cols = concatenate((cols, cols_A)).astype(int).tolist()
-            vals = concatenate((vals, vals_A)).astype(int).tolist()
+            vals = concatenate((vals, vals_A)).tolist()
 
         if len(rows) != 0:
             prob.linear_constraints.add(rhs=rhs,
@@ -165,14 +165,13 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
             if objsense == "max":
                 prob.objective.set_sense(prob.objective.sense.maximize)
 
-        #prob.set_log_stream(None)
-        #prob.set_error_stream(None)
-        #prob.set_warning_stream(None)
-        #prob.set_results_stream(None)
+        prob.set_log_stream(None)
+        prob.set_error_stream(None)
+        prob.set_warning_stream(None)
+        prob.set_results_stream(None)
         # prob.set_problem_type(type=prob.problem_type.LP)
         # prob.parameters.preprocessing.presolve = 0
-        # prob.parameters.mip.tolerances.mipgap = 10**-3
-        # prob.parameters.mip.tolerances.absmipgap = 10**-3
+
         prob.parameters.mip.tolerances.mipgap.set(10 ** -3)
         prob.solve()
 
