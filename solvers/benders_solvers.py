@@ -3,7 +3,7 @@ Mixed-integer programming using the CPLEX
 """
 from docplex.mp.model import Model
 import cplex
-from numpy import ones,array
+from numpy import ones,array,zeros,concatenate,nonzero
 from cplex.exceptions import CplexError
 
 
@@ -83,62 +83,75 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
     if nineq == 0: b = []
     # modelling based on the high level cplex api
     try:
-        model = Model()
-        x = model.continuous_var_dict(nx, lb=xmin, ub=xmax, name=None)
+        prob = cplex.Cplex()
+        # prob.objective.set_sense(prob.objective.sense.minimize)
+        # Declear the variables
+        varnames = ["x" + str(j) for j in range(nx)]
+        var_types = [prob.variables.type.continuous] * nx
 
-        if neq != 0:
-            for i in range(neq):
-                expr = 0
-                for j in range(nx):
-                    if Aeq[i, j] != 0:
-                        expr += Aeq[i, j] * x[j]
-                model.add_constraint(expr == beq[i])
-        # Inequal constraints
-        if nineq != 0:
-            for i in range(nineq):
-                expr = 0
-                for j in range(nx):
-                    if A[i, j] != 0:
-                        expr += A[i, j] * x[j]
-                model.add_constraint(expr <= b[i])
-        # Set the objective function
-        obj = 0
         for i in range(nx):
-            if c[i] != 0:
-                obj += c[i] * x[i]
+            if vtypes[i] == "b" or vtypes[i] == "B":
+                var_types[i] = prob.variables.type.binary
 
-        # model.maximize(obj)
-        model.set_objective(expr=obj,sense="max")
+            elif vtypes[i] == "d" or vtypes[i] == "D":
+                var_types[i] = prob.variables.type.integer
 
-        model.parameters.preprocessing.presolve = 0
+        prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
+        # Populate by non-zero to accelerate the formulation
 
-        solution = model.solve()
-        if solution is None:
-            cp = model.get_engine().get_cplex()
-            x = cp.solution.advanced.get_ray()  # The extreme rays
-            obj = 0
-            success = 2
-        else:
-            if solution.solve_details.status == 'optimal':
-                x = [solution.get_value(x[i]) for i in range(nx)]
-                obj = solution.get_objective_value()
-                success = 1
-            else:
-                x = [0] * nx
-                obj = 0
-                success = 0
+        rhs = beq + b
+        sense = ['E'] * neq + ["L"] * nineq
+
+        rows = zeros(0)
+        cols = zeros(0)
+        vals = zeros(0)
+        if neq != 0:
+            [rows, cols] = nonzero(Aeq)
+            vals = Aeq[rows, cols]
+
+        rows_A = zeros(0)
+        cols_A = zeros(0)
+        vals_A = zeros(0)
+        if nineq != 0:
+            [rows_A, cols_A] = nonzero(A)
+            vals_A = A[rows_A, cols_A]
+
+        rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
+        cols = concatenate((cols, cols_A)).astype(int).tolist()
+        vals = concatenate((vals, vals_A)).tolist()
+        if len(rows) != 0:
+            prob.linear_constraints.add(rhs=rhs,
+                                        senses=sense)
+            prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
+
+        prob.objective.set_sense(prob.objective.sense.maximize)
+
+        prob.set_log_stream(None)
+        prob.set_error_stream(None)
+        prob.set_warning_stream(None)
+        prob.set_results_stream(None)
+        # prob.set_problem_type(type=prob.problem_type.LP)
+        # prob.parameters.preprocessing.presolve = 0
+
+        prob.parameters.mip.tolerances.mipgap.set(10 ** -3)
+        prob.solve()
+
+        obj = prob.solution.get_objective_value()
+        x = prob.solution.get_values()
+        success = 1
 
     except CplexError:
-        x = 0
-        obj = 0
-        success = 0
-        print(CplexError)
+            x = 0
+            obj = 0
+            success = 0
+            print(CplexError)
 
     except AttributeError:
-        print('Encountered an attribute error')
-        x = 0
-        obj = 0
-        success = 0
+            print('Encountered an attribute error')
+            x = 0
+            obj = 0
+            success = 0
+
 
     # elapse_time = time.time() - t0
     # print(elapse_time)
