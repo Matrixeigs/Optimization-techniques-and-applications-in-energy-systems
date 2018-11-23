@@ -3,7 +3,6 @@ Mixed-integer programming using the CPLEX
 """
 import cplex  # import the cplex solver package
 from numpy import ones, nonzero, zeros, concatenate
-from scipy.sparse import csc_matrix
 from cplex.exceptions import CplexError
 
 
@@ -97,46 +96,32 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
                 var_types[i] = prob.variables.type.integer
 
         prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
-        # Populate by non-zero to accelerate the formulation
 
         rhs = beq + b
         sense = ['E'] * neq + ["L"] * nineq
 
-        # if neq != 0:
-        #     for i in range(neq):
-        #         for j in range(nx):
-        #             if Aeq[i, j] != 0:
-        #                 rows.append(i)
-        #                 cols.append(j)
-        #                 vals.append(float(Aeq[i, j]))
-        #
-        # if nineq != 0:
-        #     for i in range(nineq):
-        #         for j in range(nx):
-        #             if A[i, j] != 0:
-        #                 rows.append(i + neq)
-        #                 cols.append(j)
-        #                 vals.append(float(A[i, j]))
         try:
             rows = zeros(0)
             cols = zeros(0)
             vals = zeros(0)
-            if Aeq.format=='lil':
-                Aeq = Aeq.tocsr()
-            if A.format=='lil':
-                A = A.tocsr()
+
             if neq != 0:
-                [rows, cols] = csc_matrix.nonzero(Aeq)
-                vals = Aeq[rows, cols].tolist()[0]
+                rows = Aeq.row
+                cols = Aeq.col
+                vals = Aeq.data.tolist()
+
             rows_A = zeros(0)
             cols_A = zeros(0)
             vals_A = zeros(0)
             if nineq != 0:
-                [rows_A, cols_A] = csc_matrix.nonzero(A)
-                vals_A = A[rows_A, cols_A].tolist()[0]
+                rows_A = A.row
+                cols_A = A.col
+                vals_A = A.data.tolist()
+
             rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
             cols = concatenate((cols, cols_A)).astype(int).tolist()
             vals = vals+vals_A
+
         except:
             rows = zeros(0)
             cols = zeros(0)
