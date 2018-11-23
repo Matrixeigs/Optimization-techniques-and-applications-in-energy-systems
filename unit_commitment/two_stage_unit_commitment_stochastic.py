@@ -9,7 +9,7 @@ from numpy import zeros, shape, ones, diag, concatenate, r_, arange, array, eye,
 import matplotlib.pyplot as plt
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
 from scipy.sparse import csr_matrix as sparse
-
+from solvers.benders_solvers import linear_programming as lp
 from pypower.idx_brch import F_BUS, T_BUS, BR_X, RATE_A
 from pypower.idx_bus import BUS_TYPE, REF, PD, BUS_I
 from pypower.idx_gen import GEN_BUS, PG, PMAX, PMIN, RAMP_AGC, RAMP_10, RAMP_30
@@ -283,8 +283,8 @@ class TwoStageStochasticUnitCommitment():
             for j in range(ng):
                 Aineq_temp[i, RS * ng * T + i * ng + j] = -1
             bineq_temp[i] -= delta * profile[i] * sum(bus[:, PD])
-        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        # bineq = concatenate((bineq, bineq_temp), axis=0)
         # 2.8.2) Up regulation reserve limitation
         Aineq_temp = zeros((T, nx))
         bineq_temp = zeros((T, 1))
@@ -292,8 +292,8 @@ class TwoStageStochasticUnitCommitment():
             for j in range(ng):
                 Aineq_temp[i, RU * ng * T + i * ng + j] = -1
             bineq_temp[i] -= delta_r * profile[i] * sum(bus[:, PD])
-        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        # bineq = concatenate((bineq, bineq_temp), axis=0)
 
         # 2.8.3) Down regulation reserve limitation
         Aineq_temp = zeros((T, nx))
@@ -302,8 +302,8 @@ class TwoStageStochasticUnitCommitment():
             for j in range(ng):
                 Aineq_temp[i, RD * ng * T + i * ng + j] = -1
             bineq_temp[i] -= delta_r * profile[i] * sum(bus[:, PD])
-        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        # bineq = concatenate((bineq, bineq_temp), axis=0)
 
         model = {"c": c,
                  "lb": lb,
@@ -337,7 +337,7 @@ class TwoStageStochasticUnitCommitment():
         c = zeros((nx, 1))
         pg = 0
         pd = 1
-        M = 10 ** 4
+        bigM = 10 ** 4
 
         for i in range(T):
             for j in range(ng):
@@ -347,8 +347,8 @@ class TwoStageStochasticUnitCommitment():
             for j in range(nb):
                 # load shedding at different buses
                 lb[pd * ng * T + i * nb + j] = 0
-                ub[pd * ng * T + i * nb + j] = M
-                c[pd * ng * T + i * nb + j] = M
+                ub[pd * ng * T + i * nb + j] = bigM
+                c[pd * ng * T + i * nb + j] = bigM
 
         for i in range(T):
             for j in range(nb):
@@ -371,23 +371,24 @@ class TwoStageStochasticUnitCommitment():
         Cg = self.Cg
         Cft = self.Cft
 
-        E = zeros((T * nb, NX))
-        M = zeros((T * nb, nu))
-        G = zeros((T * nb, nx))
-        h = zeros((T * nb, 1))
-        beq = zeros((T * nb, 1))
+        E_temp = zeros((T * nb, NX))
+        M_temp = zeros((T * nb, nu))
+        G_temp = zeros((T * nb, nx))
+        h_temp = zeros((T * nb, 1))
         for i in range(T):
             # For the unit
-            G[i * nb:(i + 1) * nb, pg * ng * T + i * ng:pg * ng * T + (i + 1) * ng] = Cg.todense()
+            G_temp[i * nb:(i + 1) * nb, pg * ng * T + i * ng:pg * ng * T + (i + 1) * ng] = Cg.todense()
+            # For the load shedding
+            G_temp[i * nb:(i + 1) * nb, pd * ng * T + i * nb:pd * ng * T + (i + 1) * nb] = eye(nb)
             # For the transmission lines
-            G[i * nb:(i + 1) * nb, ng * T + nb * T + nb * T + i * nl: ng * T + nb * T + nb * T + (i + 1) * nl] = -(
+            G_temp[i * nb:(i + 1) * nb, ng * T + nb * T + nb * T + i * nl: ng * T + nb * T + nb * T + (i + 1) * nl] = -(
                 Cft.transpose()).todense()
-            M[i * nb:(i + 1) * nb, i * nb:(i + 1) * nb] = -eye(nb)
+            M_temp[i * nb:(i + 1) * nb, i * nb:(i + 1) * nb] = -eye(nb)
         # Update G,M,E,h
-        G = concatenate([G, -G])
-        M = concatenate([M, -M])
-        E = concatenate([E, -E])
-        h = concatenate([h, -h])
+        G = concatenate([G_temp, -G_temp])
+        M = concatenate([M_temp, -M_temp])
+        E = concatenate([E_temp, -E_temp])
+        h = concatenate([h_temp, -h_temp])
         # 3.2 Line flow equation
         E_temp = zeros((T * nl, NX))
         M_temp = zeros((T * nl, nu))
@@ -475,6 +476,8 @@ class TwoStageStochasticUnitCommitment():
                  "E": E,
                  "h": h,
                  "d": d}
+        # Modify the lower boundary
+
 
         return model
 
@@ -510,6 +513,7 @@ class TwoStageStochasticUnitCommitment():
                                           "Aeq": G.transpose(),
                                           "beq": d,
                                           "lb": zeros((h.shape[0], 1))}
+        # sub_problem_dual(model_second_stage_dual[0])
         with Pool(n_processors) as p:
             result_second_stage_dual = list(p.map(sub_problem_dual, model_second_stage_dual))
 
@@ -551,7 +555,7 @@ class TwoStageStochasticUnitCommitment():
         Gap = abs((UB - LB) / LB)
         k = 1
         kmax = 1000
-        while Gap > 10 ** -3:
+        while Gap > 10 ** -5:
             # Update the second stage optimization problem
             for i in range(n_scenario):
                 model_second_stage_dual[i] = {"c": h - M.dot((u_scenario[:, i]).reshape(nu, 1)) - E.dot(xx),
@@ -671,7 +675,7 @@ def sub_problem_dual(model):
     :param model:
     :return:
         """
-    (x, objvalue, status) = milp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"], objsense="max")
+    (x, objvalue, status) = lp(model["c"], Aeq=model["Aeq"], beq=model["beq"], xmin=model["lb"])
 
     sol = {"x": x,
            "objvalue": objvalue,
