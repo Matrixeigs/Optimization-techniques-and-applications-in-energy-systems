@@ -592,7 +592,7 @@ def add_constraints_cpx(self, dsnet, ssnet, tessnet, tsnnet):
                 dsnet.incidence_ds_fbus2line)
         # aggregate generation q
         aeq_dskclq[np.ix_(j_interval * n_bus + np.arange(n_bus),
-                          self.var_aggregate_pg_x[:, j_interval])] \
+                          self.var_aggregate_qg_x[:, j_interval])] \
             = ssnet.mapping_station2dsbus.T
         # gama_load
         aeq_dskclq[np.ix_(j_interval * n_bus + np.arange(n_bus),
