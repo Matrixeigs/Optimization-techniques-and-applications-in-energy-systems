@@ -6,7 +6,6 @@ This algorithm is solved using multi-cuts benders decomposition
 """
 
 from numpy import zeros, shape, ones, diag, concatenate, r_, arange, array, eye, random
-import matplotlib.pyplot as plt
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
 from scipy.sparse import csr_matrix as sparse
 from solvers.benders_solvers import linear_programming as lp
@@ -478,7 +477,6 @@ class TwoStageStochasticUnitCommitment():
                  "d": d}
         # Modify the lower boundary
 
-
         return model
 
     def bender_decomposition(self, model_first_stage, model_second_stage, n_scenario, xx):
@@ -553,9 +551,14 @@ class TwoStageStochasticUnitCommitment():
             UB += result_second_stage_dual[i]["objvalue"] / n_scenario
         UB += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
         Gap = abs((UB - LB) / LB)
+
+        print("The upper boundary is {0}".format(UB))
+        print("The lower boundary is {0}".format(LB))
+        print("The gap is {0}".format(Gap))
+
         k = 1
         kmax = 1000
-        while Gap > 10 ** -5:
+        while Gap > 10 ** -3:
             # Update the second stage optimization problem
             for i in range(n_scenario):
                 model_second_stage_dual[i] = {"c": h - M.dot((u_scenario[:, i]).reshape(nu, 1)) - E.dot(xx),
@@ -588,10 +591,11 @@ class TwoStageStochasticUnitCommitment():
             xx = array(xx[0:NX]).reshape((NX, 1))
 
             LB = obj
-            UB = 0
+            UB_temp = 0
             for i in range(n_scenario):
-                UB += result_second_stage_dual[i]["objvalue"] / n_scenario
-            UB += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
+                UB_temp += result_second_stage_dual[i]["objvalue"] / n_scenario
+            UB_temp += (model_first_stage["c"][0:NX].transpose()).dot(xx)[0][0]
+            UB = min(UB, UB_temp)
             Gap = abs((UB - LB) / LB)
             print("The upper boundary is {0}".format(UB))
             print("The lower boundary is {0}".format(LB))
@@ -698,5 +702,5 @@ if __name__ == "__main__":
     model_first_stage = two_stage_unit_commitment.problem_formulation_first_stage(case_base)
     model_second_stage = two_stage_unit_commitment.problem_formulation_seond_stage()
     (sol, obj) = two_stage_unit_commitment.problem_solving(model_first_stage)
-    (sol, obj) = two_stage_unit_commitment.bender_decomposition(model_first_stage, model_second_stage, 10, sol)
+    (sol, obj) = two_stage_unit_commitment.bender_decomposition(model_first_stage, model_second_stage, 100, sol)
     sol = two_stage_unit_commitment.result_check(sol)

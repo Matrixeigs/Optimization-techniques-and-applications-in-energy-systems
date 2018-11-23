@@ -15,7 +15,7 @@ Important note:
 1) If you are familiar with Matlab, you are strongly recommended to know the differences between Matlab and numpy, which you can found in the following link.
 https://docs.scipy.org/doc/numpy-dev/user/numpy-for-matlab-users.html
 """
-from numpy import zeros, shape, ones, diag, concatenate, r_, arange, divide
+from numpy import zeros, shape, ones, diag, concatenate, r_, arange
 import matplotlib.pyplot as plt
 from solvers.mixed_integer_quadratic_programming import mixed_integer_quadratic_programming as miqp
 import scipy.linalg as linalg
