@@ -3,7 +3,7 @@ Mixed-integer programming using the CPLEX
 """
 from docplex.mp.model import Model
 import cplex
-from numpy import ones,array,zeros,concatenate,nonzero
+from numpy import ones, array, zeros, concatenate, nonzero
 from cplex.exceptions import CplexError
 
 
@@ -104,21 +104,21 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
 
         rows = zeros(0)
         cols = zeros(0)
-        vals = zeros(0)
+        vals = []
         if neq != 0:
             [rows, cols] = nonzero(Aeq)
-            vals = Aeq[rows, cols]
+            vals = Aeq[rows, cols].tolist()
 
         rows_A = zeros(0)
         cols_A = zeros(0)
-        vals_A = zeros(0)
+        vals_A = []
         if nineq != 0:
             [rows_A, cols_A] = nonzero(A)
-            vals_A = A[rows_A, cols_A]
+            vals_A = A[rows_A, cols_A].tolist()
 
         rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
         cols = concatenate((cols, cols_A)).astype(int).tolist()
-        vals = concatenate((vals, vals_A)).tolist()
+        vals = vals + vals_A
         if len(rows) != 0:
             prob.linear_constraints.add(rhs=rhs,
                                         senses=sense)
@@ -130,10 +130,10 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
         prob.set_error_stream(None)
         prob.set_warning_stream(None)
         prob.set_results_stream(None)
-        # prob.set_problem_type(type=prob.problem_type.LP)
+        prob.set_problem_type(type=prob.problem_type.LP)
         # prob.parameters.preprocessing.presolve = 0
 
-        prob.parameters.mip.tolerances.mipgap.set(10 ** -3)
+        # prob.parameters.mip.tolerances.mipgap.set(10 ** -3)
         prob.solve()
 
         obj = prob.solution.get_objective_value()
@@ -141,21 +141,20 @@ def linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=No
         success = 1
 
     except CplexError:
-            x = 0
-            obj = 0
-            success = 0
-            print(CplexError)
+        x = 0
+        obj = 0
+        success = 0
+        print(CplexError)
 
     except AttributeError:
-            print('Encountered an attribute error')
-            x = 0
-            obj = 0
-            success = 0
-
+        print('Encountered an attribute error')
+        x = 0
+        obj = 0
+        success = 0
 
     # elapse_time = time.time() - t0
     # print(elapse_time)
-    return array(x).reshape(nx,1), obj, success
+    return array(x).reshape(nx, 1), obj, success
 
 
 if __name__ == "__main__":
@@ -166,8 +165,6 @@ if __name__ == "__main__":
     #        x + 2 y + 3 z <= 4
     #        x +   y       >= 1
     #  x, y, z binary
-
-
 
     # c = array([4, 5, 6])
     #
@@ -189,7 +186,7 @@ if __name__ == "__main__":
     A = array([[1, -2],
                [-2, 1],
                [-1, -1]])
-    b = array([1, 1, -2]).reshape(3,1)
+    b = array([1, 1, -2]).reshape(3, 1)
     # lb = array([6, 6])
     solution = linear_programming(c, A=A, b=b)
 
