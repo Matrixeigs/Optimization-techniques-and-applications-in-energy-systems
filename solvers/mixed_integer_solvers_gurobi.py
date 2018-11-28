@@ -74,7 +74,7 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
     if b is None or len(b) == 0: b = GRB.INFINITY * ones(nineq)
     if xmin is None or len(xmin) == 0: xmin = -GRB.INFINITY * ones(nx)
     if xmax is None or len(xmax) == 0: xmax = GRB.INFINITY * ones(nx)
-    if vtypes is None:vtypes=["c"]*nx
+    if vtypes is None: vtypes = ["c"] * nx
     # modelling based on the high level gurobi api
     try:
         gurobi_model = Model("MIP")
@@ -94,25 +94,27 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
         gurobi_model.update()
 
         if neq != 0:
-            for i in range(neq):
-                expr = LinExpr()
-                for j in range(nx):
-                    if Aeq[i, j] != 0:
-                        expr.addTerms(Aeq[i, j], x[j])
-                gurobi_model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
-                # gurobi_model.addConstr(beq[i] == quicksum(Aeq[i, j] * x[j] for j in range(nx)))
-                # gurobi_model.addConstr(x.prod(Aeq[i, :]) == beq[i])
-                # print(i)
+            # for i in range(neq):
+            #     expr = LinExpr()
+            #     for j in range(nx):
+            #         if Aeq[i, j] != 0:
+            #             expr.addTerms(Aeq[i, j], x[j])
+            #     gurobi_model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
+            # gurobi_model.addConstr(beq[i] == quicksum(Aeq[i, j] * x[j] for j in range(nx)))
+            # gurobi_model.addConstr(x.prod(Aeq[i, :]) == beq[i])
+            # print(i)
+            gurobi_model.addConstrs(quicksum(Aeq[i, j] * x[j] for j in range(nx)) == beq[i] for i in range(neq))
 
             # gurobi_model.addConstrs()
         # Inequal constraints
         if nineq != 0:
-            for i in range(nineq):
-                expr = LinExpr()
-                for j in range(nx):
-                    if A[i, j] != 0:
-                        expr.addTerms(A[i, j], x[j])
-                gurobi_model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b[i])
+            # for i in range(nineq):
+            #     expr = LinExpr()
+            #     for j in range(nx):
+            #         if A[i, j] != 0:
+            #             expr.addTerms(A[i, j], x[j])
+            #     gurobi_model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b[i])
+            gurobi_model.addConstrs(quicksum(A[i, j] * x[j] for j in range(nx)) <= b[i] for i in range(nineq))
         # Set the objective function
         obj = LinExpr()
         for i in range(nx):
