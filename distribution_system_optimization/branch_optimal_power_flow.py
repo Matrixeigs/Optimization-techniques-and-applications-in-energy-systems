@@ -10,7 +10,6 @@ from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack, diags
 
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
-from pypower.idx_cost import MODEL, NCOST, PW_LINEAR, COST, POLYNOMIAL
 from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
 from pypower.idx_gen import GEN_BUS, VG, PG, QG, PMAX, PMIN, QMAX, QMIN
 from pypower.ext2int import ext2int
