@@ -5,7 +5,6 @@ Dynamic distribution network reconfiguration
 """
 
 from distribution_system_optimization.test_cases import case33
-from gurobipy import *
 from scipy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack, lil_matrix
@@ -16,6 +15,7 @@ from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_STATUS, RATE_A
 from pypower.idx_bus import BUS_TYPE, REF, PD, VMAX, VMIN, QD
 from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
 from pypower.ext2int import ext2int
+from solvers.mixed_integer_quadratic_constrained_cplex import mixed_integer_quadratic_constrained_programming as miqcp
 
 
 class NetworkReconfiguration():
@@ -86,21 +86,13 @@ class NetworkReconfiguration():
         Beta_f_l[Root_line] = 0
 
         T = len(profile)
-        nx = 3 * nl + nb + 2 * ng
+        nx = int(3 * nl + nb + 2 * ng)
         lx = concatenate([Alpha_l, Beta_f_l, Beta_t_l, tile(concatenate([Pij_l, Qij_l, Iij_l, Vm_l, Pg_l, Qg_l]), T)])
         ux = concatenate([Alpha_u, Beta_f_u, Beta_t_u, tile(concatenate([Pij_u, Qij_u, Iij_u, Vm_u, Pg_u, Qg_u]), T)])
         vtypes = ["b"] * 2 * nl + ["c"] * nl + ["c"] * nx * T
 
-        model = Model("Network_reconfiguration")
         # Define the decision variables
-        x = {}
         NX = lx.shape[0]
-
-        for i in range(NX):
-            if vtypes[i] == "c":
-                x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.CONTINUOUS)
-            elif vtypes[i] == "b":
-                x[i] = model.addVar(lb=lx[i], ub=ux[i], vtype=GRB.BINARY)
 
         # Alpha = Beta_f + Beta_t
         Aeq_f = zeros((nl, NX))
@@ -195,58 +187,25 @@ class NetworkReconfiguration():
         A = concatenate([A, A_temp])
         b = concatenate([b, b_temp])
 
-        neq = len(beq)
-        # if neq != 0:
-        #     model.addConstrs(quicksum(Aeq[i, j] * x[j] for j in range(NX)) == beq[i] for i in range(neq))
-        if neq != 0:
-            for i in range(neq):
-                expr = LinExpr()
-                for j in range(NX):
-                    if Aeq[i, j] != 0:
-                        expr.addTerms(Aeq[i, j], x[j])
-                model.addConstr(lhs=expr, sense=GRB.EQUAL, rhs=beq[i])
-
-        nineq = len(b)
-        # if nineq != 0:
-        #     model.addConstrs(quicksum(A[i, j] * x[j] for j in range(NX)) <= b[i] for i in range(nineq))
-        if nineq != 0:
-            for i in range(nineq):
-                expr = LinExpr()
-                for j in range(NX):
-                    if A[i, j] != 0:
-                        expr.addTerms(A[i, j], x[j])
-                model.addConstr(lhs=expr, sense=GRB.LESS_EQUAL, rhs=b[i])
-
+        Qc = dict()
         for t in range(T):
             for i in range(nl):
-                model.addConstr(x[3 * nl + t * nx + i] * x[3 * nl + t * nx + i] +
-                                x[3 * nl + t * nx + i + nl] * x[3 * nl + t * nx + i + nl] <=
-                                x[3 * nl + t * nx + i + 2 * nl] * x[3 * nl + t * nx + f[i] + 3 * nl])
-
-        obj = 0
-        # for t in range(T):
-        #     for i in range(ng):
-        #         obj += gencost[i, 4] * x[3 * nl + t * nx + i + 3 * nl + nb] * \
-        #                x[3 * nl + t * nx + i + 3 * nl + nb] * baseMVA * baseMVA + \
-        #                gencost[i, 5] * x[3 * nl + t * nx + i + 3 * nl + nb] * baseMVA + gencost[i, 6]
+                Qc[t * nl + i] = [[int(3 * nl + t * nx + i), int(3 * nl + t * nx + i + nl),
+                                   int(3 * nl + t * nx + i + 2 * nl), int(3 * nl + t * nx + f[i] + 3 * nl)],
+                                  [int(3 * nl + t * nx + i), int(3 * nl + t * nx + i + nl),
+                                   int(3 * nl + t * nx + f[i] + 3 * nl), int(3 * nl + t * nx + i + 2 * nl)],
+                                  [1, 1, -1 / 2, -1 / 2]]
+        c = zeros(NX)
+        q = zeros(NX)
+        c0 = 0
         for t in range(T):
             for i in range(ng):
-                obj += gencost[i, 5] * x[3 * nl + t * nx + i + 3 * nl + nb] * baseMVA + gencost[i, 6]
+                c[3 * nl + t * nx + i + 3 * nl + nb] = gencost[i, 5] * baseMVA
+                q[3 * nl + t * nx + i + 3 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
+                c0 += gencost[i, 6]
 
-        model.setObjective(obj)
-        model.Params.OutputFlag = 1
-        model.Params.LogToConsole = 1
-        model.Params.DisplayInterval = 1
-        model.Params.LogFile = ""
-
-        model.optimize()
-
-        xx = []
-        for v in model.getVars():
-            xx.append(v.x)
-
-        obj = obj.getValue()
-
+        sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lx, xmax=ux, vtypes=vtypes, Qc=Qc)
+        xx = sol[0]
         Alpha = xx[0:nl]
         Beta_f = xx[nl:2 * nl]
         Beta_t = xx[2 * nl:3 * nl]
@@ -279,7 +238,7 @@ class NetworkReconfiguration():
                "Beta_f": Beta_f,
                "Beta_t": Beta_t,
                "residual": primal_residual,
-               "obj": obj}
+               "obj": sol[1] + c0}
 
         return sol
 
