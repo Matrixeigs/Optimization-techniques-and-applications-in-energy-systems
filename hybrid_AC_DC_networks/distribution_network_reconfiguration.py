@@ -7,7 +7,7 @@ Dynamic distribution network reconfiguration
 from distribution_system_optimization.test_cases import case33
 from scipy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
-from scipy.sparse import hstack, vstack, lil_matrix
+from scipy.sparse import hstack, vstack
 from numpy import flatnonzero as find
 from numpy import array, tile
 
