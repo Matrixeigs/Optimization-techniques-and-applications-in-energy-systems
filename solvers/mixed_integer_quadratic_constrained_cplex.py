@@ -1,14 +1,14 @@
 """
-Mixed-integer programming using the CPLEX
+Mixed-integer quadratic constrained programming solvers
 """
 import cplex  # import the cplex solver package
-from scipy import ones, concatenate, zeros
+from numpy import ones, nonzero, concatenate, zeros
 from cplex.exceptions import CplexError
 
 
-def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
-                                        opt=None, objsense=None):
-    # t0 = time.time()
+def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None,
+                                                    vtypes=None, Qc=None,
+                                                    opt=None, objsense=None):
     if type(c) == list:
         nx = len(c)
     else:
@@ -29,6 +29,11 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
             neq = 0
     else:
         neq = 0
+
+    if Qc is not None:
+        nqc = len(Qc)
+    else:
+        nqc = 0
 
     # Fulfilling the missing information
     if vtypes == None: vtypes = ["c"] * nx
@@ -87,10 +92,11 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
 
     if neq == 0: beq = []
     if nineq == 0: b = []
-    # modelling based on the high level gurobi api
+
     try:
         prob = cplex.Cplex()
-        # 1) Variable announcement
+
+        # 1) Variables Announcement
         varnames = ["x" + str(j) for j in range(nx)]
         var_types = [prob.variables.type.continuous] * nx
 
@@ -102,40 +108,42 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
                 var_types[i] = prob.variables.type.integer
 
         prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
-        # 2) Constraints
+        # 2) Linear constraints
         rhs = beq + b
         sense = ['E'] * neq + ["L"] * nineq
 
         rows = zeros(0)
         cols = zeros(0)
-        vals = []
+        vals = zeros(0)
 
         if neq != 0:
-            rows = Aeq.row
-            cols = Aeq.col
-            vals = Aeq.data.tolist()
+            [rows, cols] = nonzero(Aeq)
+            vals = Aeq[rows, cols]
 
         rows_A = zeros(0)
         cols_A = zeros(0)
-        vals_A = []
+        vals_A = zeros(0)
         if nineq != 0:
-            rows_A = A.row
-            cols_A = A.col
-            vals_A = A.data.tolist()
+            [rows_A, cols_A] = nonzero(A)
+            vals_A = A[rows_A, cols_A]
 
         rows = concatenate((rows, neq + rows_A)).tolist()
         cols = concatenate((cols, cols_A)).tolist()
-        vals += vals_A
+        vals = concatenate((vals, vals_A)).tolist()
 
         if len(rows) != 0:
             prob.linear_constraints.add(rhs=rhs,
                                         senses=sense)
             prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
-        # 3) Objective function
+        # 3) Quadratic constraints
+        if nqc != 0:
+            for i in range(nqc):
+                prob.quadratic_constraints.add(quad_expr=cplex.SparseTriple(Qc[i][0], Qc[i][1], Qc[i][2]))
+
+        # 4) Objective values
         qmat = [0] * nx
         for i in range(nx):
             qmat[i] = [[i], [q[i]]]
-
         prob.objective.set_quadratic(qmat)
 
         if objsense is not None:
@@ -144,11 +152,11 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
         else:
             prob.objective.set_sense(prob.objective.sense.minimize)
 
-        prob.set_log_stream(None)
-        prob.set_error_stream(None)
-        prob.set_warning_stream(None)
-        prob.set_results_stream(None)
-        # prob.set_problem_type(type=prob.problem_type.LP)
+        # prob.set_log_stream(None)
+        # prob.set_error_stream(None)
+        # prob.set_warning_stream(None)
+        # prob.set_results_stream(None)
+
         prob.parameters.preprocessing.presolve = 0
 
         prob.solve()
@@ -205,6 +213,6 @@ if __name__ == "__main__":
     A = array([[1, 1]])
     b = array([11])
     lb = array([6, 6])
-    solution = mixed_integer_quadratic_programming(c, A=A, b=b, xmin=lb)
+    solution = mixed_integer_quadratic_constrained_programming(c, A=A, b=b, xmin=lb)
 
     print(solution)

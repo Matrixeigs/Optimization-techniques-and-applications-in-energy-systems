@@ -2,7 +2,7 @@
 Mixed-integer programming using the CPLEX
 """
 import cplex  # import the cplex solver package
-from numpy import ones,nonzero,concatenate
+from numpy import ones, nonzero, concatenate
 from cplex.exceptions import CplexError
 
 
@@ -30,14 +30,12 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
     else:
         neq = 0
 
-    if vtypes == None:
-        vtypes = ["c"] * nx
     # Fulfilling the missing information
+    if vtypes == None: vtypes = ["c"] * nx
     if beq is None or len(beq) == 0: beq = -cplex.infinity * ones(neq)
     if b is None or len(b) == 0: b = cplex.infinity * ones(nineq)
     if xmin is None or len(xmin) == 0: xmin = -cplex.infinity * ones(nx)
     if xmax is None or len(xmax) == 0: xmax = cplex.infinity * ones(nx)
-    # Convert the data format
     try:
         c = c[:, 0]
         c = c.tolist()
@@ -88,10 +86,8 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
 
     if neq == 0: beq = []
     if nineq == 0: b = []
-    # modelling based on the high level gurobi api
     try:
         prob = cplex.Cplex()
-        # prob.objective.set_sense(prob.objective.sense.minimize)
         # Declear the variables
         varnames = ["x" + str(j) for j in range(nx)]
         var_types = [prob.variables.type.continuous] * nx
