@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="first version of two-stage stochastic optimization">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="update">
+      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC.mps" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/dynamic_network_reconfiguration_with_microgrids.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solvers/benders_decomposition.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/benders_decomposition.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solvers/ccg_benders_decomposition.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/ccg_benders_decomposition.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" beforeDir="false" afterPath="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/dual_decomposition_opf.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/dual_decomposition_opf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pytess/pytess_main_4.py" beforeDir="false" afterPath="$PROJECT_DIR$/pytess/pytess_main_4.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/transportation_systems/windfarm.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/windfarm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_grid_park_distributed.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/micro_grid_park_distributed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" beforeDir="false" afterPath="$PROJECT_DIR$/direct_current_networks/micro_power_park.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,62 +19,70 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/Optimization$branch_optimal_power_flow.coverage" NAME="branch_optimal_power_flow Coverage Results" MODIFIED="1529333737140" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$case5.coverage" NAME="case5 Coverage Results" MODIFIED="1529722490753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems/test_cases" />
+    <SUITE FILE_PATH="coverage/Optimization$branch_optimal_power_flow.coverage" NAME="branch_optimal_power_flow Coverage Results" MODIFIED="1543391907959" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$local_ems.coverage" NAME="local_ems Coverage Results" MODIFIED="1539655483351" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../microgrid_energy_management_system" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_robust.coverage" NAME="two_stage_unit_commitment_robust Coverage Results" MODIFIED="1531709677297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment_improved.coverage" NAME="transportation_power_unit_commitment_improved Coverage Results" MODIFIED="1537330498908" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1539242951800" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_jointed_chance_constained_programming.coverage" NAME="two_stage_jointed_chance_constained_programming Coverage Results" MODIFIED="1529422831373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub" />
-    <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_MGs.coverage" NAME="optimal_power_flow_hybrid_AC_DC_MGs Coverage Results" MODIFIED="1529981065995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
+    <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_MGs.coverage" NAME="optimal_power_flow_hybrid_AC_DC_MGs Coverage Results" MODIFIED="1543391941992" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
     <SUITE FILE_PATH="coverage/Optimization$test.coverage" NAME="test Coverage Results" MODIFIED="1534581154663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_basic.coverage" NAME="unit_commitment_basic Coverage Results" MODIFIED="1528982534765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$pytess_main_4.coverage" NAME="pytess_main_4 Coverage Results" MODIFIED="1542938219275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pytess" />
+    <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_networks.coverage" NAME="optimal_power_flow_hybrid_AC_DC_networks Coverage Results" MODIFIED="1543416516863" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
+    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_basic.coverage" NAME="unit_commitment_basic Coverage Results" MODIFIED="1542983445181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$scenario_reduction.coverage" NAME="scenario_reduction Coverage Results" MODIFIED="1529947033164" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
-    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_transmission_networks.coverage" NAME="unit_commitment_transmission_networks Coverage Results" MODIFIED="1536391374306" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_transmission_networks.coverage" NAME="unit_commitment_transmission_networks Coverage Results" MODIFIED="1542980494453" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1528180668792" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment.coverage" NAME="two_stage_unit_commitment Coverage Results" MODIFIED="1528904746232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding_primal_dual_cuts.coverage" NAME="two_stage_bidding_primal_dual_cuts Coverage Results" MODIFIED="1529423920631" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_mosek.coverage" NAME="mixed_integer_solvers_mosek Coverage Results" MODIFIED="1535186849765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_deposit_problem.coverage" NAME="optimal_deposit_problem Coverage Results" MODIFIED="1536295996477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$database_format.coverage" NAME="database_format Coverage Results" MODIFIED="1539572624844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database" />
-    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1542517991520" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_cplex.coverage" NAME="mixed_integer_solvers_cplex Coverage Results" MODIFIED="1542984001440" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contingency.coverage" NAME="unit_commitment_contingency Coverage Results" MODIFIED="1536410865832" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding.coverage" NAME="three_stage_bidding Coverage Results" MODIFIED="1529115812370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$local_ems__1_.coverage" NAME="local_ems (1) Coverage Results" MODIFIED="1539572133189" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../universal_ems" />
     <SUITE FILE_PATH="coverage/Optimization$opf.coverage" NAME="opf Coverage Results" MODIFIED="1528180458741" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/pypower" />
-    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_programming.coverage" NAME="mixed_integer_quadratic_programming Coverage Results" MODIFIED="1529422374406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_programming.coverage" NAME="mixed_integer_quadratic_programming Coverage Results" MODIFIED="1543384069980" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$traffic_power_unit_commitment.coverage" NAME="traffic_power_unit_commitment Coverage Results" MODIFIED="1536385865142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$tess_uc.coverage" NAME="tess_uc Coverage Results" MODIFIED="1542542972303" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
-    <SUITE FILE_PATH="coverage/Optimization$two_stage_stochastic_unit_commitment.coverage" NAME="two_stage_stochastic_unit_commitment Coverage Results" MODIFIED="1542522822482" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
-    <SUITE FILE_PATH="coverage/Optimization$benders_solvers.coverage" NAME="benders_solvers Coverage Results" MODIFIED="1542703254502" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$define_class.coverage" NAME="define_class Coverage Results" MODIFIED="1542709730925" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pytess" />
+    <SUITE FILE_PATH="coverage/Optimization$distribution_network_reconfiguration__1_.coverage" NAME="distribution_network_reconfiguration (1) Coverage Results" MODIFIED="1543576906232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks" />
+    <SUITE FILE_PATH="coverage/Optimization$two_stage_stochastic_unit_commitment.coverage" NAME="two_stage_stochastic_unit_commitment Coverage Results" MODIFIED="1542703520742" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
+    <SUITE FILE_PATH="coverage/Optimization$benders_solvers.coverage" NAME="benders_solvers Coverage Results" MODIFIED="1542982676216" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_solvers_gurobi.coverage" NAME="mixed_integer_solvers_gurobi Coverage Results" MODIFIED="1543413304075" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$micro_power_park.coverage" NAME="micro_power_park Coverage Results" MODIFIED="1533286026334" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$test_read_write.coverage" NAME="test_read_write Coverage Results" MODIFIED="1535385826340" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
     <SUITE FILE_PATH="coverage/Optimization$interval_unit_commitment.coverage" NAME="interval_unit_commitment Coverage Results" MODIFIED="1542521653641" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$network_constrained_unit_commitment.coverage" NAME="network_constrained_unit_commitment Coverage Results" MODIFIED="1535264893753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$two_stage_robust_unit_commitment.coverage" NAME="two_stage_robust_unit_commitment Coverage Results" MODIFIED="1542521631931" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
+    <SUITE FILE_PATH="coverage/Optimization$two_stage_robust_unit_commitment.coverage" NAME="two_stage_robust_unit_commitment Coverage Results" MODIFIED="1542703504383" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment__1_.coverage" NAME="two_stage_unit_commitment (1) Coverage Results" MODIFIED="1529074110487" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$test_cases.coverage" NAME="test_cases Coverage Results" MODIFIED="1530670210731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
-    <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_stochastic.coverage" NAME="two_stage_unit_commitment_stochastic Coverage Results" MODIFIED="1535275050938" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_battery_energy_storage_system.coverage" NAME="unit_commitment_battery_energy_storage_system Coverage Results" MODIFIED="1536386873724" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_solver_cplex.coverage" NAME="mixed_integer_quadratic_solver_cplex Coverage Results" MODIFIED="1536456689685" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_stochastic.coverage" NAME="two_stage_unit_commitment_stochastic Coverage Results" MODIFIED="1542984062493" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$mixed_integer_quadratic_solver_cplex.coverage" NAME="mixed_integer_quadratic_solver_cplex Coverage Results" MODIFIED="1543557252264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$unit_commitment_sparse.coverage" NAME="unit_commitment_sparse Coverage Results" MODIFIED="1542982829507" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding.coverage" NAME="two_stage_bidding Coverage Results" MODIFIED="1529145749009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_deterministic.coverage" NAME="three_stage_bidding_deterministic Coverage Results" MODIFIED="1530711143843" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$opf_branch_power_flow_ADMM.coverage" NAME="opf_branch_power_flow_ADMM Coverage Results" MODIFIED="1535179636273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
-    <SUITE FILE_PATH="coverage/Optimization$distributed_opf_branch_power.coverage" NAME="distributed_opf_branch_power Coverage Results" MODIFIED="1529981565565" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
+    <SUITE FILE_PATH="coverage/Optimization$distributed_opf_branch_power.coverage" NAME="distributed_opf_branch_power Coverage Results" MODIFIED="1543577700498" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
     <SUITE FILE_PATH="coverage/Optimization$bi_objective_opt.coverage" NAME="bi_objective_opt Coverage Results" MODIFIED="1532705877896" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contigency.coverage" NAME="unit_commitment_contigency Coverage Results" MODIFIED="1536386799807" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$TSN_test_system.coverage" NAME="TSN_test_system Coverage Results" MODIFIED="1529141246377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$ccg.coverage" NAME="ccg Coverage Results" MODIFIED="1542518531294" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
-    <SUITE FILE_PATH="coverage/Optimization$benders_decomposition.coverage" NAME="benders_decomposition Coverage Results" MODIFIED="1542703365674" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$benders_decomposition.coverage" NAME="benders_decomposition Coverage Results" MODIFIED="1542787704469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$traffic_power_dispatch.coverage" NAME="traffic_power_dispatch Coverage Results" MODIFIED="1532049230311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_CVaR.coverage" NAME="three_stage_bidding_CVaR Coverage Results" MODIFIED="1535208413974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
+    <SUITE FILE_PATH="coverage/Optimization$optimization_model_toolbox.coverage" NAME="optimization_model_toolbox Coverage Results" MODIFIED="1542936295828" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pytess" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_network_models.coverage" NAME="transportation_network_models Coverage Results" MODIFIED="1529679951854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$security_constrained_unit_commitment.coverage" NAME="security_constrained_unit_commitment Coverage Results" MODIFIED="1536800483067" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$ccg_benders_decomposition.coverage" NAME="ccg_benders_decomposition Coverage Results" MODIFIED="1542703372236" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
+    <SUITE FILE_PATH="coverage/Optimization$ccg_benders_decomposition.coverage" NAME="ccg_benders_decomposition Coverage Results" MODIFIED="1542703426106" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_distributed.coverage" NAME="unit_commitment_distributed Coverage Results" MODIFIED="1529030430079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_pes.coverage" NAME="three_stage_bidding_pes Coverage Results" MODIFIED="1535208465958" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
-    <SUITE FILE_PATH="coverage/Optimization$network_reconfiguration.coverage" NAME="network_reconfiguration Coverage Results" MODIFIED="1535179587449" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
-    <SUITE FILE_PATH="coverage/Optimization$micro_grid_park_distributed.coverage" NAME="micro_grid_park_distributed Coverage Results" MODIFIED="1535179276015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$network_reconfiguration.coverage" NAME="network_reconfiguration Coverage Results" MODIFIED="1543508785141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
+    <SUITE FILE_PATH="coverage/Optimization$distribution_network_reconfiguration.coverage" NAME="distribution_network_reconfiguration Coverage Results" MODIFIED="1543577767780" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
+    <SUITE FILE_PATH="coverage/Optimization$micro_grid_park_distributed.coverage" NAME="micro_grid_park_distributed Coverage Results" MODIFIED="1543577954892" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$bidding_decomposition.coverage" NAME="bidding_decomposition Coverage Results" MODIFIED="1528336585311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_recovery.coverage" NAME="three_stage_bidding_recovery Coverage Results" MODIFIED="1529939892176" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$three_stage_bidding_aggregration.coverage" NAME="three_stage_bidding_aggregration Coverage Results" MODIFIED="1530067983855" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
@@ -138,73 +148,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="benders_decomposition.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/benders_decomposition.py">
+      <file leaf-file-name="distribution_network_reconfiguration.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/distribution_network_reconfiguration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="229">
-              <caret line="290" lean-forward="true" selection-start-line="290" selection-end-line="290" />
+            <state relative-caret-position="2400">
+              <caret line="160" column="36" lean-forward="true" selection-end-line="259" />
               <folding>
-                <element signature="e#1185#1271#0" expanded="true" />
+                <element signature="e#95#157#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="benders_solvers.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/benders_solvers.py">
+      <file leaf-file-name="dynamic_network_reconfiguration_with_microgrids.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/dynamic_network_reconfiguration_with_microgrids.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76">
-              <caret line="169" lean-forward="true" selection-start-line="169" selection-end-line="169" />
+            <state relative-caret-position="187">
+              <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
               <folding>
-                <element signature="e#50#84#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="tess_uc.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/transportation_systems/tess_uc.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="6" column="3" selection-start-line="6" selection-start-column="3" selection-end-line="6" selection-end-column="3" />
-              <folding>
-                <element signature="e#212#224#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ccg_benders_decomposition.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="7" column="37" lean-forward="true" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
-              <folding>
-                <element signature="e#1229#1315#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mixed_integer_solvers_cplex.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="186">
-              <caret line="172" column="52" lean-forward="true" selection-start-line="172" selection-start-column="52" selection-end-line="172" selection-end-column="52" />
-              <folding>
-                <element signature="e#50#97#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="two_stage_stochastic_unit_commitment.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15375">
-              <caret line="1031" column="52" selection-start-line="1031" selection-start-column="52" selection-end-line="1031" selection-end-column="52" />
-              <folding>
-                <element signature="e#192#238#0" expanded="true" />
+                <element signature="e#95#157#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -226,6 +188,7 @@
       <find>RD</find>
       <find>I0</find>
       <find>print</find>
+      <find>station</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -236,28 +199,11 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/unit_commitment/test_cases/case6.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/__init__.py" />
-        <option value="$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py" />
-        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/idx_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/test_cases/cases_micro_grids.py" />
-        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py" />
-        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_pes.py" />
-        <option value="$PROJECT_DIR$/energy_hub/bidding_strategy/bi_objective_opt.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_grid_park_distributed.py" />
-        <option value="$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/transportation_systems/traffic_power_dispatch.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/__init__.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/security_constainted_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/test_cases/case24.py" />
         <option value="$PROJECT_DIR$/unit_commitment/test.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py" />
         <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_bess.py" />
         <option value="$PROJECT_DIR$/unit_commitment/data_format/data_format_contigency.py" />
         <option value="$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" />
         <option value="$PROJECT_DIR$/micro_grids/hybrid_AC_DC_microgrids.py" />
         <option value="$PROJECT_DIR$/test/test_read_write.py" />
         <option value="$PROJECT_DIR$/unit_commitment/modelling_using_Gurobi/__init__.py" />
@@ -268,25 +214,42 @@
         <option value="$PROJECT_DIR$/unit_commitment/price_based_unit_commitment.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py" />
         <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py" />
-        <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
         <option value="$PROJECT_DIR$/unit_commitment/test_cases/case118.py" />
         <option value="$PROJECT_DIR$/transportation_systems/test_cases/case3_modified.py" />
         <option value="$PROJECT_DIR$/transportation_systems/test_cases/case3.py" />
         <option value="$PROJECT_DIR$/transportation_systems/test_cases/case6.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py" />
         <option value="$PROJECT_DIR$/solvers/ccg.py" />
-        <option value="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py" />
         <option value="$PROJECT_DIR$/transportation_systems/transportation_network_models.py" />
         <option value="$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py" />
         <option value="$PROJECT_DIR$/gas_networks/test_cases/__init__.py" />
         <option value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py" />
         <option value="$PROJECT_DIR$/transportation_systems/tess_uc.py" />
-        <option value="$PROJECT_DIR$/solvers/benders_decomposition.py" />
-        <option value="$PROJECT_DIR$/solvers/benders_solvers.py" />
         <option value="$PROJECT_DIR$/solvers/ccg_benders_decomposition.py" />
+        <option value="$PROJECT_DIR$/pytess/test_case.py" />
+        <option value="$PROJECT_DIR$/solvers/benders_decomposition.py" />
+        <option value="$PROJECT_DIR$/pytess/pytess_main_4.py" />
+        <option value="$PROJECT_DIR$/pytess/optimization_model_toolbox.py" />
+        <option value="$PROJECT_DIR$/solvers/benders_solvers.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py" />
+        <option value="$PROJECT_DIR$/unit_commitment/unit_commitment_sparse.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/branch_optimal_power_flow.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_network_reconfiguration.py" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/distribution_networks_with_multiple_microgrids.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/distribution_network_reconfiguration.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_constrained_cplex.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex_sparse.py" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/distribution_network_reconfiguration.py" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/__init__.py" />
+        <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/dynamic_network_reconfiguration_with_microgrids.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/dual_decomposition_opf.py" />
       </list>
     </option>
   </component>
@@ -318,12 +281,18 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="solvers" type="462c0819:PsiDirectoryNode" />
+              <item name="direct_current_networks" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
+              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
+              <item name="unit_commitment" type="462c0819:PsiDirectoryNode" />
+              <item name="distributed_unit_commitment" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -343,131 +312,23 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="com.intellij.database.dataSource.DataSourceTemplate" value="MySQL" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/distribution_system_optimization" />
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/transportation_systems" />
       <recent name="$PROJECT_DIR$/direct_current_networks" />
       <recent name="$PROJECT_DIR$/hybrid_AC_DC_networks" />
-      <recent name="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
-      <recent name="$PROJECT_DIR$/distribution_system_optimization/test_cases" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/direct_current_networks" />
+      <recent name="$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration" />
       <recent name="$PROJECT_DIR$/distribution_system_optimization/data_format" />
       <recent name="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
       <recent name="$PROJECT_DIR$/solvers" />
     </key>
-  </component>
-  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
-    <UpdatedFiles>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Updated from server" />
-        <option name="myStatusName" value="Changed on server" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="CHANGED_ON_SERVER" />
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Updated" />
-          <option name="myStatusName" value="Changed" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="UPDATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/solvers/benders_solvers.py</PATH>
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Created" />
-          <option name="myStatusName" value="Created" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="CREATED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Deleted" />
-          <option name="myStatusName" value="Deleted" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="true" />
-          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Restored" />
-          <option name="myStatusName" value="Will be restored" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="RESTORED" />
-        </FILE-GROUP>
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Modified" />
-        <option name="myStatusName" value="Modified" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MODIFIED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Skipped" />
-        <option name="myStatusName" value="Skipped" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="SKIPPED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with conflicts" />
-        <option name="myStatusName" value="Will be merged with conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_CONFLICTS" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with tree conflicts" />
-        <option name="myStatusName" value="Merged with tree conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with property conflicts" />
-        <option name="myStatusName" value="Will be merged with property conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged" />
-        <option name="myStatusName" value="Will be merged" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Not in repository" />
-        <option name="myStatusName" value="Not in repository" />
-        <option name="mySupportsDeletion" value="true" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="UNKNOWN" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Locally added" />
-        <option name="myStatusName" value="Locally added" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="LOCALLY_ADDED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Locally removed" />
-        <option name="myStatusName" value="Locally removed" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="LOCALLY_REMOVED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Switched" />
-        <option name="myStatusName" value="Switched" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="SWITCHED" />
-      </FILE-GROUP>
-    </UpdatedFiles>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -481,7 +342,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ccg_benders_decomposition">
+  <component name="RunManager" selected="Python.micro_grid_park_distributed">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -525,7 +386,83 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
     </configuration>
-    <configuration name="benders_decomposition" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="distributed_opf_branch_power" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="distribution_network_reconfiguration (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/hybrid_AC_DC_networks" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/distribution_network_reconfiguration.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="distribution_network_reconfiguration" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/distribution_system_optimization" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distribution_system_optimization/distribution_network_reconfiguration.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="micro_grid_park_distributed" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/direct_current_networks/micro_grid_park_distributed.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="mixed_integer_quadratic_solver_cplex" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -538,83 +475,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/benders_decomposition.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="benders_solvers" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/benders_solvers.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="ccg_benders_decomposition" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/solvers" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/ccg_benders_decomposition.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="tess_uc" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/transportation_systems" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/tess_uc.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="two_stage_stochastic_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_commitment/wind_hydro" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -720,19 +581,19 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <list>
-      <item itemvalue="Python.two_stage_stochastic_unit_commitment" />
-      <item itemvalue="Python.benders_decomposition" />
-      <item itemvalue="Python.tess_uc" />
-      <item itemvalue="Python.benders_solvers" />
-      <item itemvalue="Python.ccg_benders_decomposition" />
+      <item itemvalue="Python.distribution_network_reconfiguration" />
+      <item itemvalue="Python.distribution_network_reconfiguration (1)" />
+      <item itemvalue="Python.mixed_integer_quadratic_solver_cplex" />
+      <item itemvalue="Python.distributed_opf_branch_power" />
+      <item itemvalue="Python.micro_grid_park_distributed" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.ccg_benders_decomposition" />
-        <item itemvalue="Python.benders_decomposition" />
-        <item itemvalue="Python.benders_solvers" />
-        <item itemvalue="Python.tess_uc" />
-        <item itemvalue="Python.two_stage_stochastic_unit_commitment" />
+        <item itemvalue="Python.micro_grid_park_distributed" />
+        <item itemvalue="Python.distribution_network_reconfiguration" />
+        <item itemvalue="Python.distributed_opf_branch_power" />
+        <item itemvalue="Python.distribution_network_reconfiguration (1)" />
+        <item itemvalue="Python.mixed_integer_quadratic_solver_cplex" />
       </list>
     </recent_temporary>
   </component>
@@ -746,132 +607,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00096" summary="add test cases for unit commitment and microgirds">
-      <created>1532655750880</created>
-      <option name="number" value="00096" />
-      <option name="presentableId" value="LOCAL-00096" />
-      <option name="project" value="LOCAL" />
-      <updated>1532655750880</updated>
-    </task>
-    <task id="LOCAL-00097" summary="bi-objective optimization between excepted operation cost and CVaR">
-      <created>1532680447924</created>
-      <option name="number" value="00097" />
-      <option name="presentableId" value="LOCAL-00097" />
-      <option name="project" value="LOCAL" />
-      <updated>1532680447924</updated>
-    </task>
-    <task id="LOCAL-00098" summary="using AUGMECON method to solve bi-objective optimization">
-      <created>1532703186253</created>
-      <option name="number" value="00098" />
-      <option name="presentableId" value="LOCAL-00098" />
-      <option name="project" value="LOCAL" />
-      <updated>1532703186255</updated>
-    </task>
-    <task id="LOCAL-00099" summary="update sequence of figures">
-      <created>1532744443624</created>
-      <option name="number" value="00099" />
-      <option name="presentableId" value="LOCAL-00099" />
-      <option name="project" value="LOCAL" />
-      <updated>1532744443625</updated>
-    </task>
-    <task id="LOCAL-00100" summary="remove bugs in network reconfiguration problem">
-      <created>1532750582265</created>
-      <option name="number" value="00100" />
-      <option name="presentableId" value="LOCAL-00100" />
-      <option name="project" value="LOCAL" />
-      <updated>1532750582265</updated>
-    </task>
-    <task id="LOCAL-00101" summary="First version of the centralized model">
-      <created>1532764323337</created>
-      <option name="number" value="00101" />
-      <option name="presentableId" value="LOCAL-00101" />
-      <option name="project" value="LOCAL" />
-      <updated>1532764323337</updated>
-    </task>
-    <task id="LOCAL-00102" summary="add verification codes">
-      <created>1532769695400</created>
-      <option name="number" value="00102" />
-      <option name="presentableId" value="LOCAL-00102" />
-      <option name="project" value="LOCAL" />
-      <updated>1532769695400</updated>
-    </task>
-    <task id="LOCAL-00103" summary="first round verification">
-      <created>1532781710957</created>
-      <option name="number" value="00103" />
-      <option name="presentableId" value="LOCAL-00103" />
-      <option name="project" value="LOCAL" />
-      <updated>1532781710957</updated>
-    </task>
-    <task id="LOCAL-00104" summary="add some kinds od distributed algorithm">
-      <created>1532784887017</created>
-      <option name="number" value="00104" />
-      <option name="presentableId" value="LOCAL-00104" />
-      <option name="project" value="LOCAL" />
-      <updated>1532784887018</updated>
-    </task>
-    <task id="LOCAL-00105" summary="add distributed solvers">
-      <created>1532926973974</created>
-      <option name="number" value="00105" />
-      <option name="presentableId" value="LOCAL-00105" />
-      <option name="project" value="LOCAL" />
-      <updated>1532926973975</updated>
-    </task>
-    <task id="LOCAL-00106" summary="upgrade profile cases">
-      <created>1533276879230</created>
-      <option name="number" value="00106" />
-      <option name="presentableId" value="LOCAL-00106" />
-      <option name="project" value="LOCAL" />
-      <updated>1533276879231</updated>
-    </task>
-    <task id="LOCAL-00107" summary="add ieee-24 test system">
-      <created>1534577886638</created>
-      <option name="number" value="00107" />
-      <option name="presentableId" value="LOCAL-00107" />
-      <option name="project" value="LOCAL" />
-      <updated>1534577886639</updated>
-    </task>
-    <task id="LOCAL-00108" summary="update ieee-24 test system">
-      <created>1534579035091</created>
-      <option name="number" value="00108" />
-      <option name="presentableId" value="LOCAL-00108" />
-      <option name="project" value="LOCAL" />
-      <updated>1534579035092</updated>
-    </task>
-    <task id="LOCAL-00109" summary="update the cost matrix in ieee-24 test system">
-      <created>1534579992144</created>
-      <option name="number" value="00109" />
-      <option name="presentableId" value="LOCAL-00109" />
-      <option name="project" value="LOCAL" />
-      <updated>1534579992144</updated>
-    </task>
-    <task id="LOCAL-00110" summary="verify the added case 24 test systems">
-      <created>1534580511863</created>
-      <option name="number" value="00110" />
-      <option name="presentableId" value="LOCAL-00110" />
-      <option name="project" value="LOCAL" />
-      <updated>1534580511863</updated>
-    </task>
-    <task id="LOCAL-00111" summary="update data format for unit commitment">
-      <created>1534597497829</created>
-      <option name="number" value="00111" />
-      <option name="presentableId" value="LOCAL-00111" />
-      <option name="project" value="LOCAL" />
-      <updated>1534597497830</updated>
-    </task>
-    <task id="LOCAL-00112" summary="the first version of network constrained unit commitment">
-      <created>1534603595186</created>
-      <option name="number" value="00112" />
-      <option name="presentableId" value="LOCAL-00112" />
-      <option name="project" value="LOCAL" />
-      <updated>1534603595186</updated>
-    </task>
-    <task id="LOCAL-00113" summary="parameter adjustment">
-      <created>1534606927379</created>
-      <option name="number" value="00113" />
-      <option name="presentableId" value="LOCAL-00113" />
-      <option name="project" value="LOCAL" />
-      <updated>1534606927379</updated>
     </task>
     <task id="LOCAL-00114" summary="update mixed integer quadratic programming settings">
       <created>1534815313525</created>
@@ -1090,7 +825,133 @@
       <option name="project" value="LOCAL" />
       <updated>1542543250624</updated>
     </task>
-    <option name="localTasksCounter" value="145" />
+    <task id="LOCAL-00145" summary="update solver packages">
+      <created>1542703394845</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
+      <option name="project" value="LOCAL" />
+      <updated>1542703394846</updated>
+    </task>
+    <task id="LOCAL-00146" summary="add tess for distribution network restoration">
+      <created>1542783094509</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
+      <option name="project" value="LOCAL" />
+      <updated>1542783094509</updated>
+    </task>
+    <task id="LOCAL-00147" summary="errors in KCL for reactive power">
+      <created>1542938680453</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
+      <option name="project" value="LOCAL" />
+      <updated>1542938680454</updated>
+    </task>
+    <task id="LOCAL-00148" summary="converged two stage stochastic unit commitment problem">
+      <created>1542974161540</created>
+      <option name="number" value="00148" />
+      <option name="presentableId" value="LOCAL-00148" />
+      <option name="project" value="LOCAL" />
+      <updated>1542974161540</updated>
+    </task>
+    <task id="LOCAL-00149" summary="modified solver for benders decomposition solvers">
+      <created>1542974227976</created>
+      <option name="number" value="00149" />
+      <option name="presentableId" value="LOCAL-00149" />
+      <option name="project" value="LOCAL" />
+      <updated>1542974227977</updated>
+    </task>
+    <task id="LOCAL-00150" summary="add cplex solve with sparse matrix">
+      <created>1542982978865</created>
+      <option name="number" value="00150" />
+      <option name="presentableId" value="LOCAL-00150" />
+      <option name="project" value="LOCAL" />
+      <updated>1542982978866</updated>
+    </task>
+    <task id="LOCAL-00151" summary="add unit commitment with sparse matrix">
+      <created>1542983033356</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
+      <option name="project" value="LOCAL" />
+      <updated>1542983033356</updated>
+    </task>
+    <task id="LOCAL-00152" summary="modify the milp (CPLEX) with sparse coefficient matrix">
+      <created>1542984140908</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
+      <option name="project" value="LOCAL" />
+      <updated>1542984140908</updated>
+    </task>
+    <task id="LOCAL-00153" summary="update distribution network models">
+      <created>1543386294581</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
+      <option name="project" value="LOCAL" />
+      <updated>1543386294582</updated>
+    </task>
+    <task id="LOCAL-00154" summary="update static optimal power flow for hybrid AC DC network">
+      <created>1543392370544</created>
+      <option name="number" value="00154" />
+      <option name="presentableId" value="LOCAL-00154" />
+      <option name="project" value="LOCAL" />
+      <updated>1543392370544</updated>
+    </task>
+    <task id="LOCAL-00155" summary="update gurobi linear solver">
+      <created>1543413336464</created>
+      <option name="number" value="00155" />
+      <option name="presentableId" value="LOCAL-00155" />
+      <option name="project" value="LOCAL" />
+      <updated>1543413336464</updated>
+    </task>
+    <task id="LOCAL-00156" summary="add distribution network reconfiguration function with Gurobi">
+      <created>1543421103485</created>
+      <option name="number" value="00156" />
+      <option name="presentableId" value="LOCAL-00156" />
+      <option name="project" value="LOCAL" />
+      <updated>1543421103485</updated>
+    </task>
+    <task id="LOCAL-00157" summary="add dynamic network reconfiguration for distribution networks">
+      <created>1543509579298</created>
+      <option name="number" value="00157" />
+      <option name="presentableId" value="LOCAL-00157" />
+      <option name="project" value="LOCAL" />
+      <updated>1543509579299</updated>
+    </task>
+    <task id="LOCAL-00158" summary="update comments on distribution network reconfiguration">
+      <created>1543555938617</created>
+      <option name="number" value="00158" />
+      <option name="presentableId" value="LOCAL-00158" />
+      <option name="project" value="LOCAL" />
+      <updated>1543555938618</updated>
+    </task>
+    <task id="LOCAL-00159" summary="add miqcp solver">
+      <created>1543559547201</created>
+      <option name="number" value="00159" />
+      <option name="presentableId" value="LOCAL-00159" />
+      <option name="project" value="LOCAL" />
+      <updated>1543559547202</updated>
+    </task>
+    <task id="LOCAL-00160" summary="solve two stage stochastic network reconfiguration using cplex">
+      <created>1543559599238</created>
+      <option name="number" value="00160" />
+      <option name="presentableId" value="LOCAL-00160" />
+      <option name="project" value="LOCAL" />
+      <updated>1543559599238</updated>
+    </task>
+    <task id="LOCAL-00161" summary="update dynamic network restoration model">
+      <created>1543576594000</created>
+      <option name="number" value="00161" />
+      <option name="presentableId" value="LOCAL-00161" />
+      <option name="project" value="LOCAL" />
+      <updated>1543576594001</updated>
+    </task>
+    <task id="LOCAL-00162" summary="add network reconfiguration modules for hybrid AC/DC networks">
+      <created>1543576945503</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
+      <option name="project" value="LOCAL" />
+      <updated>1543576945503</updated>
+    </task>
+    <option name="localTasksCounter" value="163" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1107,21 +968,21 @@
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5078684" side_tool="true" weight="0.3490909" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50858366" side_tool="true" weight="0.39636365" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.3272727" />
+      <window_info anchor="bottom" id="Python Console" order="7" weight="0.3272727" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" visible="true" weight="0.32" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49570817" weight="0.32780084" />
-      <window_info anchor="bottom" id="Python Console" order="7" weight="0.32780084" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32918397" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.36552218" />
+      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32848486" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4939759" visible="true" weight="0.2539342" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.32761088" />
       <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
-      <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" weight="0.39636365" />
-      <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
+      <window_info id="Structure" order="1" sideWeight="0.5060241" side_tool="true" weight="0.37553647" />
+      <window_info id="Favorites" order="2" sideWeight="0.5060241" side_tool="true" weight="0.37553647" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4914163" weight="0.2642424" />
+      <window_info anchor="bottom" id="Concurrent Activities Diagram" order="8" weight="0.32969698" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -1130,33 +991,33 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info active="true" anchor="bottom" id="Database Console" order="8" visible="true" weight="0.3272727" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
-      <window_info anchor="bottom" id="Concurrent Activities Diagram" order="8" weight="0.32969698" />
+      <window_info anchor="right" id="Coverage" order="3" side_tool="true" />
     </layout>
     <layout-to-restore>
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Concurrent Activities Diagram" order="13" weight="0.32969698" />
+      <window_info active="true" anchor="bottom" id="Database Console" order="14" visible="true" weight="0.3272727" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.2911302" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4963899" visible="true" weight="0.37052932" />
       <window_info id="Structure" order="1" sideWeight="0.50090414" side_tool="true" weight="0.32331902" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49570817" weight="0.32848486" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49499285" weight="0.3090909" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49570817" weight="0.32780084" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49356222" weight="0.32" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.3272727" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
-      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32848486" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49356222" visible="true" weight="0.3987879" />
       <window_info anchor="right" x="0" y="0" width="310" height="700" id="Documentation" order="6" side_tool="true" weight="0.3297568" />
-      <window_info anchor="right" id="Database" order="4" weight="0.3297568" />
-      <window_info anchor="right" id="Coverage" order="5" side_tool="true" />
-      <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.50500715" side_tool="true" weight="0.3090909" />
+      <window_info anchor="right" id="Database" order="4" weight="0.32761088" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49928468" weight="0.32918397" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49213162" visible="true" weight="0.39636365" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" weight="0.5629471" />
-      <window_info anchor="bottom" id="Database Console" order="14" weight="0.32848486" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49928468" weight="0.32969698" />
-      <window_info anchor="bottom" id="Concurrent Activities Diagram" order="13" weight="0.32969698" />
+      <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.5078684" side_tool="true" weight="0.3490909" />
+      <window_info anchor="right" id="Coverage" order="5" side_tool="true" />
       <window_info id="Favorites" order="2" sideWeight="0.50361013" side_tool="true" weight="0.4155937" />
     </layout-to-restore>
   </component>
@@ -1167,24 +1028,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="formulate the second stage problem" />
-    <MESSAGE value="first version of two stage unit commitment" />
-    <MESSAGE value="some bugs in the seond stage optimization, the boundary information" />
-    <MESSAGE value="add hybrid AC DC microgrid modelling and simulation platform" />
-    <MESSAGE value="Add traffic power network systems modelling" />
-    <MESSAGE value="Update the price unit commitment" />
-    <MESSAGE value="Update the unit commitment data format of IEEE-118 systems" />
-    <MESSAGE value="Update unit commitment of IEEE-118 systems with line flow limitations" />
-    <MESSAGE value="verified the IEEE-118 UC problem" />
-    <MESSAGE value="verify the IEEE-118 electric power systems with TESSs" />
-    <MESSAGE value="update cplex solvers using nonzeros function of numpy" />
-    <MESSAGE value="add test case with virtual nodes" />
-    <MESSAGE value="update case6 test systems" />
-    <MESSAGE value="update case6 test systems(the end status)" />
-    <MESSAGE value="update data structure using sparse matrix" />
-    <MESSAGE value="update gurobi solver input" />
-    <MESSAGE value="update unit commitment models" />
-    <MESSAGE value="rename some variable names" />
     <MESSAGE value="add gas flow and optimal gas flow package" />
     <MESSAGE value="continue works" />
     <MESSAGE value="add gas network models and optimal gas flow problem" />
@@ -1192,112 +1035,43 @@
     <MESSAGE value="update cplex solvers in the rows and colms" />
     <MESSAGE value="update unit commitment problems with wind farms" />
     <MESSAGE value="first version of two-stage stochastic optimization" />
-    <option name="LAST_COMMIT_MESSAGE" value="first version of two-stage stochastic optimization" />
+    <MESSAGE value="update solver packages" />
+    <MESSAGE value="add tess for distribution network restoration" />
+    <MESSAGE value="errors in KCL for reactive power" />
+    <MESSAGE value="converged two stage stochastic unit commitment problem" />
+    <MESSAGE value="modified solver for benders decomposition solvers" />
+    <MESSAGE value="add cplex solve with sparse matrix" />
+    <MESSAGE value="add unit commitment with sparse matrix" />
+    <MESSAGE value="modify the milp (CPLEX) with sparse coefficient matrix" />
+    <MESSAGE value="update distribution network models" />
+    <MESSAGE value="update static optimal power flow for hybrid AC DC network" />
+    <MESSAGE value="update gurobi linear solver" />
+    <MESSAGE value="add distribution network reconfiguration function with Gurobi" />
+    <MESSAGE value="add dynamic network reconfiguration for distribution networks" />
+    <MESSAGE value="update comments on distribution network reconfiguration" />
+    <MESSAGE value="add miqcp solver" />
+    <MESSAGE value="solve two stage stochastic network reconfiguration using cplex" />
+    <MESSAGE value="update dynamic network restoration model" />
+    <MESSAGE value="add network reconfiguration modules for hybrid AC/DC networks" />
+    <option name="LAST_COMMIT_MESSAGE" value="add network reconfiguration modules for hybrid AC/DC networks" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solvers/TSN_test_system.py</url>
-          <line>84</line>
-          <option name="timeStamp" value="2" />
+          <url>file://$PROJECT_DIR$/pytess/pytess_main_4.py</url>
+          <line>95</line>
+          <option name="timeStamp" value="419" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solvers/TSN_test_system.py</url>
-          <line>77</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_aggregration.py</url>
-          <line>731</line>
-          <option name="timeStamp" value="131" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/transportation_systems/optimal_deposit_problem.py</url>
-          <line>132</line>
-          <option name="timeStamp" value="151" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_deterministic.py</url>
-          <line>677</line>
-          <option name="timeStamp" value="152" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_deterministic.py</url>
-          <line>690</line>
-          <option name="timeStamp" value="153" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py</url>
-          <line>356</line>
-          <option name="timeStamp" value="176" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py</url>
-          <line>298</line>
-          <option name="timeStamp" value="179" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_power_park.py</url>
-          <line>750</line>
-          <option name="timeStamp" value="253" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/distributed_unit_commitment/micro_grid_park_distributed.py</url>
-          <line>753</line>
-          <option name="timeStamp" value="258" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/energy_hub/bidding_strategy/three_stage_bidding_CVaR.py</url>
-          <line>562</line>
-          <option name="timeStamp" value="276" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/ramp_unit_commitment/network_constrained_unit_commitment.py</url>
-          <line>387</line>
-          <option name="timeStamp" value="278" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/transportation_systems/traffic_power_unit_commitment.py</url>
-          <line>629</line>
-          <option name="timeStamp" value="281" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py</url>
-          <line>576</line>
-          <option name="timeStamp" value="286" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py</url>
-          <line>404</line>
-          <option name="timeStamp" value="300" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py</url>
-          <line>861</line>
-          <option name="timeStamp" value="308" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py</url>
-          <line>822</line>
-          <option name="timeStamp" value="338" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py</url>
-          <line>352</line>
-          <option name="timeStamp" value="346" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../microgrid_energy_management_system/real_time_operation/main.py</url>
-          <line>35</line>
-          <option name="timeStamp" value="347" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py</url>
-          <line>191</line>
-          <option name="timeStamp" value="401" />
+          <url>file://$PROJECT_DIR$/unit_commitment/unit_commitment_sparse.py</url>
+          <line>570</line>
+          <option name="timeStamp" value="445" />
         </line-breakpoint>
       </breakpoints>
+      <breakpoints-dialog>
+        <breakpoints-dialog />
+      </breakpoints-dialog>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -1305,11 +1079,66 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="402" />
+      <option name="time" value="494" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>xx = sol[0]
+Alpha = xx[0:nl]
+Beta_f = xx[nl:2 * nl]
+Beta_t = xx[2 * nl:3 * nl]
+Pij = zeros((nl, T))
+Qij = zeros((nl, T))
+Iij = zeros((nl, T))
+Vi = zeros((nb, T))
+Pg = zeros((ng, T))
+Qg = zeros((ng, T))
+for i in range(T):
+    Pij[:, i] = xx[3 * nl + i * nx:3 * nl + i * nx + nl]
+    Qij[:, i] = xx[3 * nl + i * nx + nl:3 * nl + i * nx + 2 * nl]
+    Iij[:, i] = xx[3 * nl + i * nx + 2 * nl:3 * nl + i * nx + 3 * nl]
+    Vi[:, i] = xx[3 * nl + i * nx + 3 * nl:3 * nl + i * nx + 3 * nl + nb]
+    Pg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb:3 * nl + i * nx + 3 * nl + nb + ng]
+    Qg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb + ng:3 * nl + i * nx + 3 * nl + nb + 2 * ng]
+primal_residual = zeros((nl, T))
+for t in range(T):
+    for i in range(nl):
+        primal_residual[i, t] = Pij[i, t] * Pij[i, t] + Qij[i, t] * Qij[i, t] - Iij[i, t] * Vi[int(f[i]), t]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>Alpha = xx[0:nl]
+Beta_f = xx[nl:2 * nl]
+Beta_t = xx[2 * nl:3 * nl]
+Pij = zeros((nl, T))
+Qij = zeros((nl, T))
+Iij = zeros((nl, T))
+Vi = zeros((nb, T))
+Pg = zeros((ng, T))
+Qg = zeros((ng, T))
+for i in range(T):
+    Pij[:, i] = xx[3 * nl + i * nx:3 * nl + i * nx + nl]
+    Qij[:, i] = xx[3 * nl + i * nx + nl:3 * nl + i * nx + 2 * nl]
+    Iij[:, i] = xx[3 * nl + i * nx + 2 * nl:3 * nl + i * nx + 3 * nl]
+    Vi[:, i] = xx[3 * nl + i * nx + 3 * nl:3 * nl + i * nx + 3 * nl + nb]
+    Pg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb:3 * nl + i * nx + 3 * nl + nb + ng]
+    Qg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb + ng:3 * nl + i * nx + 3 * nl + nb + 2 * ng]
+primal_residual = zeros((nl, T))
+for t in range(T):
+    for i in range(nl):
+        primal_residual[i, t] = Pij[i, t] * Pij[i, t] + Qij[i, t] * Qij[i, t] - Iij[i, t] * Vi[int(f[i]), t]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>hstack(
+                [Ct - Cf, zeros((nb, nl)), -diag(Ct * Branch_R) * Ct, zeros((nb, nb)), Cg, zeros((nb, ng + 3 * nl))])</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>rows_A = zeros(0)
 cols_A = zeros(0)
@@ -1382,341 +1211,56 @@ row_index = row_index[row_index_temp]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>for i in range(nev):
-    tsn_ev[:, i] = sol[nx + i * NX_traffic:nx + i * NX_traffic + nl_traffic]
-    ich_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 0 * n_stops:nx+i * NX_traffic + nl_traffic + 1 * n_stops]
-    pdc_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 1 * n_stops:nx+i * NX_traffic + nl_traffic + 2 * n_stops]
-    pch_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 2 * n_stops:nx+i * NX_traffic + nl_traffic + 3 * n_stops]
-    rs_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 3 * n_stops:nx+i * NX_traffic + nl_traffic + 4 * n_stops]
-    ru_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 4 * n_stops:nx+i * NX_traffic + nl_traffic + 5 * n_stops]
-    rd_ev[:,i]=sol[nx+i * NX_traffic + nl_traffic + 5 * n_stops:nx+i * NX_traffic + nl_traffic + 6 * n_stops]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>c_dso = cx
-c_dso = c_dso + model_distribution_network[&quot;Ax2y&quot;].transpose().dot(lam) + ru * (
-    (model_distribution_network[&quot;Ax2y&quot;].transpose().dot(Ay2x)).dot(yy)).transpose()
-obj_dso_linear = 0
-for i in range(nx):
-    obj_dso_linear += c_dso[0][i] * x[i]  # only need to update this
-obj_dso = obj_dso_linear + obj_dso_quadratic
-model_dso.setObjective(obj_dso)
-model_dso.optimize()
-xx = []
-for v in model_dso.getVars():
-    xx.append(v.x)
-xx = array(xx).reshape((nx, 1))  # convert the list to array
-# Calculate the real-objective function
-obj_dso_real = 0
-for i in range(nx):
-    obj_dso_real += cx[i] * xx[i]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>#### Update the x part
-c_dso = cx
-c_dso = c_dso + model_distribution_network[&quot;Ax2y&quot;].transpose().dot(lam) + ru * (
-    (model_distribution_network[&quot;Ax2y&quot;].transpose().dot(Ay2x)).dot(yy)).transpose()
-obj_dso_linear = 0
-for i in range(nx):
-    obj_dso_linear += c_dso[0][i] * x[i]  # only need to update this
-obj_dso = obj_dso_linear + obj_dso_quadratic
-model_dso.setObjective(obj_dso)
-xx = []
-for v in model_dso.getVars():
-    xx.append(v.x)
-xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>x_first_stage = array(sol_first_stage[&quot;x&quot;][0:self.nx_first_stage]).reshape(self.nx_first_stage, 1)</expression-string>
+        <expression-string>Qc[0][2]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>sol_first_stage[&quot;x&quot;][0:self.nx_first_stage]</expression-string>
+        <expression-string>Qc[0][1]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>zeros((model_first_stage[&quot;Aeq&quot;].shape[0], self.N))</expression-string>
+        <expression-string>Qc[0][0]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>x = prob.solution.get_values()</expression-string>
+        <expression-string>max(sol[&quot;residual&quot;][7])</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>prob.solve()</expression-string>
+        <expression-string>max(sol[&quot;residual&quot;][6])</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>prob.objective.set_sense(prob.objective.sense.maximize)</expression-string>
+        <expression-string>max(sol[&quot;residual&quot;][5])</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>prob.linear_constraints.set_coefficients(zip(rows, cols, vals))</expression-string>
+        <expression-string>max(sol[&quot;residual&quot;][3])</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>vals = vals + vals_A</expression-string>
+        <expression-string>max(sol[&quot;residual&quot;][2])</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>Aeq.format == 'lil'</expression-string>
+        <expression-string>max(sol[&quot;residual&quot;][1])</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="das://1e610b01-e166-4d0f-9da1-9aa79a4844f9/schema/weather_station/table/issdata">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment_improved.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="34" selection-start-line="17" selection-start-column="34" selection-end-line="17" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" selection-start-line="11" selection-end-line="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_network_models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../MG-OS/configuration/config.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="35" column="4" lean-forward="true" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../MG-OS/log/db.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../MG-OS/log/SYSTEM.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="57" selection-start-line="25" selection-start-column="57" selection-end-line="25" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://7c78702a-5d41-42f2-a890-19e18c286317/schema/module2/table/pv_status">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://df246f80-8e02-41d8-be63-1373207c29da/schema/module2/table/battery_status" />
-    <entry file="das://7c78702a-5d41-42f2-a890-19e18c286317/schema/module2/table/bic_status">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://df246f80-8e02-41d8-be63-1373207c29da/schema/module2/table/pv_status" />
-    <entry file="das://df246f80-8e02-41d8-be63-1373207c29da/schema/module2/table/bic_status" />
-    <entry file="das://df246f80-8e02-41d8-be63-1373207c29da/schema/module2/table/rm_status" />
-    <entry file="das://7c78702a-5d41-42f2-a890-19e18c286317/schema/module2/table/battery_status">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="841" column="33" selection-start-line="841" selection-start-column="33" selection-end-line="841" selection-end-column="33" />
-          <folding>
-            <element signature="e#150#223#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" selection-start-line="8" selection-end-line="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../universal_ems/local_ems.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="30" column="83" selection-start-line="30" selection-start-column="83" selection-end-line="30" selection-end-column="83" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/codecs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="147">
-          <caret line="308" selection-start-line="308" selection-end-line="308" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://a57ddaee-5736-499d-8307-02143cbe0b8a/schema/local_ems/table/short_term_operation">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/real_time_operation/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="33" column="54" lean-forward="true" selection-start-line="33" selection-start-column="54" selection-end-line="33" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/database_management/database_management.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="59">
-          <caret line="4" column="35" lean-forward="true" selection-start-line="4" selection-start-column="35" selection-end-line="4" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/modelling/database/database_format.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="37" lean-forward="true" selection-start-line="9" selection-start-column="37" selection-end-line="9" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/database_management/database_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="18" lean-forward="true" selection-start-line="13" selection-start-column="18" selection-end-line="13" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_database.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="40" column="32" selection-start-line="40" selection-start-column="20" selection-end-line="40" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://b1118311-3890-4da9-9c4c-b4c5d1113d91/schema/history_data/table/one_minute_data">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/configuration/configuration_time_line.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="66" lean-forward="true" selection-start-line="7" selection-start-column="66" selection-end-line="7" selection-end-column="66" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="das://b1118311-3890-4da9-9c4c-b4c5d1113d91/schema/history_data/table/hourly_data">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Dropbox/Books/Lessons/Power Flow Analysis/Gauss-Sidel.m" />
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/local_ems.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
-          <caret line="26" column="52" selection-start-line="26" selection-start-column="52" selection-end-line="26" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="27" column="30" selection-start-line="27" selection-start-column="30" selection-end-line="27" selection-end-column="30" />
-          <folding>
-            <element signature="e#252#331#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../microgrid_energy_management_system/real_time_operation/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="22" selection-start-line="22" selection-end-line="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/Pug.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="6" lean-forward="true" selection-start-line="21" selection-start-column="6" selection-end-line="21" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/price_first_stage.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="34" lean-forward="true" selection-start-line="13" selection-start-column="34" selection-end-line="13" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/energy_hub/bidding_strategy/pDA.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="26" lean-forward="true" selection-start-line="5" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gas_networks/test_cases/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" selection-start-line="8" selection-end-line="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/test_cases/case6.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="34" selection-start-line="23" selection-start-column="34" selection-end-line="23" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="1067" selection-start-line="1067" selection-end-line="1067" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
@@ -1724,34 +1268,10 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/ccg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2820">
-          <caret line="188" lean-forward="true" selection-start-line="188" selection-end-line="188" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="15" column="56" lean-forward="true" selection-start-line="15" selection-start-column="56" selection-end-line="15" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/interval_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-6704">
           <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15375">
-          <caret line="1031" column="52" selection-start-line="1031" selection-start-column="52" selection-end-line="1031" selection-end-column="52" />
-          <folding>
-            <element signature="e#192#238#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1783,52 +1303,330 @@ xx = array(xx).reshape((nx, 1))  # convert the list to array</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/tess_uc.py">
+    <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="6" column="3" selection-start-line="6" selection-start-column="3" selection-end-line="6" selection-end-column="3" />
-          <folding>
-            <element signature="e#212#224#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="2310">
+          <caret line="154" column="72" lean-forward="true" selection-start-line="154" selection-start-column="72" selection-end-line="154" selection-end-column="72" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/benders_solvers.py">
+    <entry file="file://$PROJECT_DIR$/transportation_systems/tess_uc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="169" lean-forward="true" selection-start-line="169" selection-end-line="169" />
-          <folding>
-            <element signature="e#50#84#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="165">
+          <caret line="11" column="24" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8487">
+          <caret line="1029" lean-forward="true" selection-start-line="1029" selection-end-line="1029" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="13410">
+          <caret line="899" column="38" selection-start-line="899" selection-start-column="38" selection-end-line="899" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pytess/test_case.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="137">
+          <caret line="358" column="48" selection-start-line="358" selection-start-column="48" selection-end-line="358" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/ccg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1729">
+          <caret line="188" lean-forward="true" selection-start-line="188" selection-end-line="188" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/solvers/benders_decomposition.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="229">
-          <caret line="290" lean-forward="true" selection-start-line="290" selection-end-line="290" />
+        <state relative-caret-position="3885">
+          <caret line="259" lean-forward="true" selection-start-line="259" selection-end-line="259" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pytess/define_class.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="745">
+          <caret line="689" column="43" selection-start-line="689" selection-start-column="43" selection-end-line="689" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pytess/pytess_main_4.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="584">
+          <caret line="95" selection-start-line="95" selection-end-line="95" />
           <folding>
-            <element signature="e#1185#1271#0" expanded="true" />
+            <element signature="e#334#498#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_distributed.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="37" lean-forward="true" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
+        <state relative-caret-position="-3596">
+          <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_battery_energy_storage_system.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="466">
+          <caret line="576" column="51" lean-forward="true" selection-start-line="11" selection-end-line="576" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="28" column="21" selection-start-line="28" selection-start-column="21" selection-end-line="28" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_transmission_networks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="274" lean-forward="true" selection-end-line="301" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/security_constrained_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1269">
+          <caret line="17" column="67" selection-start-line="17" selection-start-column="67" selection-end-line="17" selection-end-column="67" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_robust.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="565">
+          <caret line="349" column="8" lean-forward="true" selection-start-line="349" selection-start-column="8" selection-end-line="350" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/benders_solvers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-404">
+          <caret line="138" column="49" lean-forward="true" selection-start-line="138" selection-start-column="49" selection-end-line="138" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_contingency.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5470" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_basic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1020">
+          <caret line="70" column="50" lean-forward="true" selection-start-line="70" selection-start-column="50" selection-end-line="70" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/unit_commitment_sparse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4981">
+          <caret line="552" column="21" lean-forward="true" selection-start-line="552" selection-start-column="21" selection-end-line="552" selection-end-column="21" />
           <folding>
-            <element signature="e#1229#1315#0" expanded="true" />
+            <element signature="e#64#144#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_programming.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2595">
+          <caret line="174" column="47" lean-forward="true" selection-start-line="174" selection-start-column="47" selection-end-line="174" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/hybrid_AC_DC_network_reconfiguration.py" />
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/test_cases/case33.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-303" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_MGs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3277">
+          <caret line="603" column="36" lean-forward="true" selection-start-line="603" selection-start-column="36" selection-end-line="603" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/data_format/case_converters.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_cplex.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="172" column="52" lean-forward="true" selection-start-line="172" selection-start-column="52" selection-end-line="172" selection-end-column="52" />
+        <state relative-caret-position="225">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/distribution_networks_with_multiple_microgrids.py" />
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows/optimal_power_flow_hybrid_AC_DC_networks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="261">
+          <caret line="446" column="20" lean-forward="true" selection-start-line="446" selection-start-column="20" selection-end-line="446" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_solvers_gurobi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="96" selection-start-line="96" selection-end-line="101" selection-end-column="79" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/network_reconfiguration.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1665">
+          <caret line="121" column="23" selection-start-line="121" selection-start-column="23" selection-end-line="121" selection-end-column="23" />
+          <folding>
+            <element signature="e#106#168#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="132" column="27" lean-forward="true" selection-start-line="132" selection-start-column="27" selection-end-line="132" selection-end-column="27" />
           <folding>
             <element signature="e#50#97#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pytess/optimization_model_toolbox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="418">
+          <caret line="40" column="51" selection-start-line="40" selection-start-column="51" selection-end-line="40" selection-end-column="51" />
+          <folding>
+            <element signature="e#309#327#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/unit_commitment/two_stage_unit_commitment_stochastic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="244">
+          <caret line="694" selection-start-line="694" selection-end-line="696" selection-end-column="49" />
+          <folding>
+            <element signature="e#192#279#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex_sparse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1626">
+          <caret line="140" column="32" lean-forward="true" selection-start-line="140" selection-start-column="32" selection-end-line="140" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_constrained_cplex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2400">
+          <caret line="160" lean-forward="true" selection-start-line="160" selection-end-line="160" />
+          <folding>
+            <element signature="e#50#97#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/distribution_network_reconfiguration.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2400">
+          <caret line="160" column="36" lean-forward="true" selection-end-line="259" />
+          <folding>
+            <element signature="e#95#157#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/dual_decomposition_opf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-420">
+          <caret line="10" column="26" selection-start-line="10" selection-start-column="26" selection-end-line="10" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/active_distribution_network.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/branch_optimal_power_flow.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="33" selection-start-line="8" selection-start-column="33" selection-end-line="8" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/distribution_network_reconfiguration.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3855">
+          <caret line="257" column="36" lean-forward="true" selection-start-line="257" selection-start-column="36" selection-end-line="257" selection-end-column="36" />
+          <folding>
+            <element signature="e#172#194#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/micro_grids/hybrid_AC_DC_microgrids.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="750">
+          <caret line="50" column="23" lean-forward="true" selection-start-line="50" selection-start-column="23" selection-end-line="50" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/direct_current_networks/micro_grid_park_distributed.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="10965">
+          <caret line="731" lean-forward="true" selection-start-line="731" selection-end-line="731" />
+          <folding>
+            <element signature="e#63#130#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2867">
+          <caret line="12" column="88" lean-forward="true" selection-start-line="12" selection-start-column="88" selection-end-line="12" selection-end-column="88" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/dynamic_network_reconfiguration_with_microgrids.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
+          <folding>
+            <element signature="e#95#157#0" expanded="true" />
           </folding>
         </state>
       </provider>

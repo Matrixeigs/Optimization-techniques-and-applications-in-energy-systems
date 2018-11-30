@@ -7,7 +7,7 @@ References:
     [2]
 """
 
-from Two_stage_stochastic_optimization.power_flow_modelling import case33
+from distribution_system_optimization.test_cases import case33
 from pypower import runopf
 from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate, where
@@ -116,14 +116,18 @@ def run(mpc):
 
         elif len(area[i]["Cbranch"]) == 0:  # This bus is the lead node
 
-            model.addConstr(lhs=Pij[area[i]["Abranch"][0][0]] - Iij[area[i]["Abranch"][0][0]] * Branch_R[area[i]["Abranch"][0][0]] +
-                    Pi[i],sense=GRB.EQUAL, rhs=0)
+            model.addConstr(
+                lhs=Pij[area[i]["Abranch"][0][0]] - Iij[area[i]["Abranch"][0][0]] * Branch_R[area[i]["Abranch"][0][0]] +
+                    Pi[i], sense=GRB.EQUAL, rhs=0)
 
-            model.addConstr(lhs=Qij[area[i]["Abranch"][0][0]] - Iij[area[i]["Abranch"][0][0]] * Branch_X[area[i]["Abranch"][0][0]] +
-                    Qi[i],sense=GRB.EQUAL, rhs=0)
+            model.addConstr(
+                lhs=Qij[area[i]["Abranch"][0][0]] - Iij[area[i]["Abranch"][0][0]] * Branch_X[area[i]["Abranch"][0][0]] +
+                    Qi[i], sense=GRB.EQUAL, rhs=0)
 
-            model.addConstr(lhs=Vi[int(area[i]["Ai"][0])] - Vi[i] - 2 * Branch_R[area[i]["Abranch"][0][0]] * Pij[area[i]["Abranch"][0][0]] - 2 * Branch_X[area[i]["Abranch"][0][0]] * Qij[area[i]["Abranch"][0][0]] +
-                                Iij[area[i]["Abranch"][0][0]] * (Branch_R[area[i]["Abranch"][0][0]] ** 2 + Branch_X[area[i]["Abranch"][0][0]] ** 2),sense=GRB.EQUAL, rhs=0)
+            model.addConstr(lhs=Vi[int(area[i]["Ai"][0])] - Vi[i] - 2 * Branch_R[area[i]["Abranch"][0][0]] * Pij[
+                area[i]["Abranch"][0][0]] - 2 * Branch_X[area[i]["Abranch"][0][0]] * Qij[area[i]["Abranch"][0][0]] +
+                                Iij[area[i]["Abranch"][0][0]] * (Branch_R[area[i]["Abranch"][0][0]] ** 2 + Branch_X[
+                area[i]["Abranch"][0][0]] ** 2), sense=GRB.EQUAL, rhs=0)
 
             model.addConstr(
                 Pij[area[i]["Abranch"][0][0]] * Pij[area[i]["Abranch"][0][0]] + Qij[area[i]["Abranch"][0][0]] * Qij[
@@ -134,26 +138,33 @@ def run(mpc):
             expr = 0
             for j in range(len(area[i]["Cbranch"][0])):
                 expr += Pij[area[i]["Cbranch"][0][j]]
-            model.addConstr( lhs=
-                Pij[area[i]["Abranch"][0][0]] - Iij[area[i]["Abranch"][0][0]] * Branch_R[area[i]["Abranch"][0][0]] +
-                    Pi[i] - expr,sense=GRB.EQUAL, rhs=0)
+            model.addConstr(lhs=
+                            Pij[area[i]["Abranch"][0][0]] - Iij[area[i]["Abranch"][0][0]] * Branch_R[
+                                area[i]["Abranch"][0][0]] +
+                            Pi[i] - expr, sense=GRB.EQUAL, rhs=0)
 
             expr = 0
             for j in range(len(area[i]["Cbranch"][0])):
                 expr += Qij[area[i]["Cbranch"][0][j]]
 
-            model.addConstr(Qij[area[i]["Abranch"][0][0]] - Iij[area[i]["Abranch"][0][0]] * Branch_X[area[i]["Abranch"][0][0]] +
-                    Qi[i] - expr,sense=GRB.EQUAL, rhs=0)
-
-            model.addConstr(lhs=Vi[int(area[i]["Ai"][0])] - Vi[i] - 2 * Branch_R[area[i]["Abranch"][0][0]] * Pij[area[i]["Abranch"][0][0]] - 2 * Branch_X[area[i]["Abranch"][0][0]] * Qij[area[i]["Abranch"][0][0]] +
-                                Iij[area[i]["Abranch"][0][0]] * (Branch_R[area[i]["Abranch"][0][0]] ** 2 + Branch_X[area[i]["Abranch"][0][0]] ** 2),sense=GRB.EQUAL, rhs=0)
             model.addConstr(
-                Pij[area[i]["Abranch"][0][0]] * Pij[area[i]["Abranch"][0][0]] + Qij[area[i]["Abranch"][0][0]] * Qij[area[i]["Abranch"][0][0]] <= Vi[int(area[i]["Ai"][0])] *
+                Qij[area[i]["Abranch"][0][0]] - Iij[area[i]["Abranch"][0][0]] * Branch_X[area[i]["Abranch"][0][0]] +
+                Qi[i] - expr, sense=GRB.EQUAL, rhs=0)
+
+            model.addConstr(lhs=Vi[int(area[i]["Ai"][0])] - Vi[i] - 2 * Branch_R[area[i]["Abranch"][0][0]] * Pij[
+                area[i]["Abranch"][0][0]] - 2 * Branch_X[area[i]["Abranch"][0][0]] * Qij[area[i]["Abranch"][0][0]] +
+                                Iij[area[i]["Abranch"][0][0]] * (Branch_R[area[i]["Abranch"][0][0]] ** 2 + Branch_X[
+                area[i]["Abranch"][0][0]] ** 2), sense=GRB.EQUAL, rhs=0)
+            model.addConstr(
+                Pij[area[i]["Abranch"][0][0]] * Pij[area[i]["Abranch"][0][0]] + Qij[area[i]["Abranch"][0][0]] * Qij[
+                    area[i]["Abranch"][0][0]] <= Vi[int(area[i]["Ai"][0])] *
                 Iij[area[i]["Abranch"][0][0]])
     obj = 0
     for i in range(ng):
-        model.addConstr(lhs=Pg[i] - Pi[int(gen[i, GEN_BUS])] ,sense=GRB.EQUAL, rhs= bus[int(gen[i, GEN_BUS]), PD] / baseMVA)
-        model.addConstr(lhs= Qg[i] - Qi[int(gen[i, GEN_BUS])], sense=GRB.EQUAL, rhs= bus[int(gen[i, GEN_BUS]), QD] / baseMVA)
+        model.addConstr(lhs=Pg[i] - Pi[int(gen[i, GEN_BUS])], sense=GRB.EQUAL,
+                        rhs=bus[int(gen[i, GEN_BUS]), PD] / baseMVA)
+        model.addConstr(lhs=Qg[i] - Qi[int(gen[i, GEN_BUS])], sense=GRB.EQUAL,
+                        rhs=bus[int(gen[i, GEN_BUS]), QD] / baseMVA)
         obj += gencost[i, 4] * Pg[i] * Pg[i] * baseMVA * baseMVA + gencost[i, 5] * Pg[i] * baseMVA + gencost[i, 6]
 
     model.setObjective(obj)
@@ -187,7 +198,6 @@ def run(mpc):
 
     obj = obj.getValue()
 
-
     primal_residual = []
 
     for i in range(nl):
@@ -213,7 +223,8 @@ def ancestor_children_generation(branch_f, branch_t, index):
         temp = {}
         temp["Index"] = i
         if i in branch_t:
-            temp["Ai"] = branch_f[where(branch_t == i)] # For each bus, there exits only one ancestor bus, as one connected tree
+            temp["Ai"] = branch_f[
+                where(branch_t == i)]  # For each bus, there exits only one ancestor bus, as one connected tree
             temp["Abranch"] = where(branch_t == i)
         else:
             temp["Ai"] = []
@@ -228,9 +239,8 @@ def ancestor_children_generation(branch_f, branch_t, index):
 
     return Area
 
+
 # def sub_problem_operation():
-
-
 
 
 if __name__ == "__main__":
