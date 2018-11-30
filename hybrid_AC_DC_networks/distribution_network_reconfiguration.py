@@ -1,5 +1,7 @@
 """
-Distribution network reconfiguration considering stochastic disturbance of loads and generators
+Dynamic distribution network reconfiguration
+1) Dynamic refers to multiple periods
+2)
 """
 
 from distribution_system_optimization.test_cases import case33
@@ -222,11 +224,14 @@ class NetworkReconfiguration():
                                 x[3 * nl + t * nx + i + 2 * nl] * x[3 * nl + t * nx + f[i] + 3 * nl])
 
         obj = 0
+        # for t in range(T):
+        #     for i in range(ng):
+        #         obj += gencost[i, 4] * x[3 * nl + t * nx + i + 3 * nl + nb] * \
+        #                x[3 * nl + t * nx + i + 3 * nl + nb] * baseMVA * baseMVA + \
+        #                gencost[i, 5] * x[3 * nl + t * nx + i + 3 * nl + nb] * baseMVA + gencost[i, 6]
         for t in range(T):
             for i in range(ng):
-                obj += gencost[i, 4] * x[3 * nl + t * nx + i + 3 * nl + nb] * \
-                       x[3 * nl + t * nx + i + 3 * nl + nb] * baseMVA * baseMVA + \
-                       gencost[i, 5] * x[3 * nl + t * nx + i + 3 * nl + nb] * baseMVA + gencost[i, 6]
+                obj += gencost[i, 5] * x[3 * nl + t * nx + i + 3 * nl + nb] * baseMVA + gencost[i, 6]
 
         model.setObjective(obj)
         model.Params.OutputFlag = 1
@@ -292,4 +297,4 @@ if __name__ == "__main__":
 
     sol = network_reconfiguration.main(case=mpc, profile=profile.tolist())
 
-    print(max(sol["residual"]))
+    print(max(sol["residual"][0]))
