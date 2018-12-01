@@ -88,6 +88,7 @@ class NetworkReconfiguration():
             lx = concatenate([lx, model_microgrids[i]["lb"]])
             ux = concatenate([ux, model_microgrids[i]["ub"]])
             c = concatenate([c, model_microgrids[i]["c"]])
+            q = concatenate([q, model_microgrids[i]["q"]])
             vtypes += model_microgrids[i]["vtypes"]
             beq = concatenate([beq, model_microgrids[i]["beq"]])
             b = concatenate([b, model_microgrids[i]["b"]])
@@ -100,18 +101,19 @@ class NetworkReconfiguration():
         Ay2x = zeros((2 * nmg * T, int(nVariables_index[-1] - nVariables_index[0])))
         for i in range(T):
             for j in range(nmg):
-                Ay2x[i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * micro_grid[i]["NX"] +
-                     micro_grid[i]["PG"]] = -1
-                Ay2x[nmg * T + i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * micro_grid[i]["NX"] +
-                     micro_grid[i]["QG"]] = -1
+                Ay2x[i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * model_microgrids[j]["NX"] +
+                     model_microgrids[j]["PG"]] = -1
+                Ay2x[nmg * T + i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * model_microgrids[j][
+                    "NX"] + model_microgrids[j]["QG"]] = -1
 
         Aeq_temp = concatenate([model_distribution_networks["Ax2y"], Ay2x], axis=1)
-        beq_temp = zeros(nmg * T)
+        beq_temp = zeros(2 * nmg * T)
 
         Aeq = concatenate([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
 
         # Solve the problem
+        sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, Qc=Qc, vtypes=vtypes, xmin=lx, xmax=ux)
 
         # Check the solutions, including microgrids and distribution networks
 
@@ -229,7 +231,7 @@ class NetworkReconfiguration():
             Aeq_p[i * nb:(i + 1) * nb, 3 * nl + i * nx:3 * nl + (i + 1) * nx] = hstack([Ct - Cf, zeros((nb, nl)),
                                                                                         -diag(Ct * Branch_R) * Ct,
                                                                                         zeros((nb, nb)), Cg,
-                                                                                        zeros((nb, ng)), Cmg,
+                                                                                        zeros((nb, ng)), -Cmg,
                                                                                         zeros((nb, nmg))]).toarray()
             beq_p[i * nb:(i + 1) * nb] = profile[i] * bus[:, PD] / baseMVA
 
@@ -242,7 +244,7 @@ class NetworkReconfiguration():
                                                                                         zeros((nb, nb)),
                                                                                         zeros((nb, ng)), Cg,
                                                                                         zeros((nb, nmg)),
-                                                                                        Cmg]).toarray()
+                                                                                        -Cmg]).toarray()
             beq_q[i * nb:(i + 1) * nb] = profile[i] * bus[:, QD] / baseMVA
 
         Aeq = vstack([Aeq_f, Aeq_alpha, Aeq_span, Aeq_p, Aeq_q]).toarray()
@@ -406,6 +408,7 @@ class NetworkReconfiguration():
         lx = zeros(nx)
         ux = zeros(nx)
         c = zeros(nx)
+        q = zeros(nx)
         vtypes = ["c"] * nx
         for i in range(T):
             ## 1.1) lower boundary
@@ -499,8 +502,8 @@ class NetworkReconfiguration():
                 beq_temp[i] = micro_grid["ESS"]["E0"]
             else:
                 Aeq_temp[i, (i - 1) * NX_MG + EESS] = -1
-        Aeq = concatenate([Aeq, Aeq_temp])
-        beq = concatenate([beq, beq_temp])
+        # Aeq = concatenate([Aeq, Aeq_temp])
+        # beq = concatenate([beq, beq_temp])
         # 3) Formualte inequal constraints
         # 3.1) Pg+Rg<=Ig*Pgmax
         A = zeros((T, nx))
@@ -624,6 +627,7 @@ class NetworkReconfiguration():
         b = concatenate([b, b_temp])
 
         model_micro_grid = {"c": c,
+                            "q": q,
                             "lb": lx,
                             "ub": ux,
                             "vtypes": vtypes,
@@ -679,7 +683,7 @@ if __name__ == "__main__":
     micro_grid_1["MG"]["QMAX"] = 500
     micro_grid_1["MG"]["QMIN"] = -500
     micro_grid_1["PD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"]
-    micro_grid_1["QD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"] * 0.2
+    micro_grid_1["QD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"] * 0
     micro_grid_1["PD"]["DC"] = Profile[0] * micro_grid_1["PD"]["DC_MAX"]
     # micro_grid_1["MG"]["PMIN"] = 0
     # micro_grid_1["MG"]["PMAX"] = 0
@@ -709,7 +713,7 @@ if __name__ == "__main__":
     micro_grid_2["MG"]["QMAX"] = 500
     micro_grid_2["MG"]["QMIN"] = -500
     micro_grid_2["PD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"]
-    micro_grid_2["QD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"] * 0.2
+    micro_grid_2["QD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"] * 0
     micro_grid_2["PD"]["DC"] = Profile[1] * micro_grid_2["PD"]["DC_MAX"]
     # micro_grid_2["MG"]["PMIN"] = 0
     # micro_grid_2["MG"]["PMAX"] = 0
@@ -739,7 +743,7 @@ if __name__ == "__main__":
     micro_grid_3["MG"]["QMAX"] = 1000
     micro_grid_3["MG"]["QMIN"] = -1000
     micro_grid_3["PD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"]
-    micro_grid_3["QD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"] * 0.2
+    micro_grid_3["QD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"] * 0
     micro_grid_3["PD"]["DC"] = Profile[2] * micro_grid_3["PD"]["DC_MAX"]
     case_micro_grids = [micro_grid_1, micro_grid_2, micro_grid_3]
 
