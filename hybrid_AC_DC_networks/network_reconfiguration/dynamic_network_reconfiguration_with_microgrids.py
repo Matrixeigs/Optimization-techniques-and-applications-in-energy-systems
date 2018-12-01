@@ -458,8 +458,8 @@ class NetworkReconfiguration():
             Pg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb:3 * nl + i * nx + 3 * nl + nb + ng]
             Qg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb + ng:3 * nl + i * nx + 3 * nl + nb + 2 * ng]
             Pmg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb + 2 * ng:3 * nl + i * nx + 3 * nl + nb + 2 * ng + nmg]
-            Qmg[:, i] = xx[
-                        3 * nl + i * nx + 3 * nl + nb + 2 * ng + nmg:3 * nl + i * nx + 3 * nl + nb + 2 * ng + 2 * nmg]
+            Qmg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb + 2 * ng + nmg:
+                           3 * nl + i * nx + 3 * nl + nb + 2 * ng + 2 * nmg]
 
         primal_residual = zeros((nl, T))
         for t in range(T):
@@ -742,7 +742,7 @@ if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81])
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
 
     # Microgrid information
     Profile = array([
@@ -823,8 +823,8 @@ if __name__ == "__main__":
     micro_grid_3["ESS"]["EMIN"] = 10
     micro_grid_3["ESS"]["EMAX"] = 50
     micro_grid_3["BIC"]["PMAX"] = 50
-    micro_grid_3["BIC"]["QMAX"] = 50
-    micro_grid_3["BIC"]["SMAX"] = 50
+    micro_grid_3["BIC"]["QMAX"] = 100
+    micro_grid_3["BIC"]["SMAX"] = 100
     micro_grid_3["PD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"]
     micro_grid_3["QD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"] * 0.2
     micro_grid_3["PD"]["DC"] = Profile[2] * micro_grid_3["PD"]["DC_MAX"]

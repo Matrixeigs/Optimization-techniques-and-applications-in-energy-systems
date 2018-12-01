@@ -52,7 +52,7 @@ def pytess(solver='cplex'):
     # Time step
     dsnet.delta_t = 1
     # Time window
-    n_timewindow_set = 12
+    n_timewindow_set = 2
     n_timewindow_effect = 1
 
     dsnet.init_load()
@@ -84,6 +84,8 @@ def pytess(solver='cplex'):
     # model_x.write('tess_model_1.mps')
 
     print(model_x.solution.get_objective_value())
+    x = model_x.solution.get_values()# The solutions
+
 
     # All power values are given in the consumer system, therefore p_kw is
     # positive if the external grid is absorbing

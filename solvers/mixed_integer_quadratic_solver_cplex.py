@@ -2,7 +2,7 @@
 Mixed-integer programming using the CPLEX
 """
 import cplex  # import the cplex solver package
-from numpy import ones, nonzero, concatenate
+from numpy import ones, nonzero, concatenate, zeros
 from cplex.exceptions import CplexError
 
 
