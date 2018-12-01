@@ -19,11 +19,7 @@ from pypower.ext2int import ext2int
 from unit_commitment.distributed_unit_commitment.idx_unit_commitment import ICH, IG, IUG, IBIC_AC2DC, \
     PBIC_AC2DC, PG, PESS_DC, PMG, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, NX, EESS
 
-from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
 from copy import deepcopy
-
-from matplotlib import pyplot
-
 
 class UnitCommitmentPowerPark():
     """
