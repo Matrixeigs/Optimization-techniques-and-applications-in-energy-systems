@@ -142,67 +142,7 @@ class DynamicOptimalPowerFlow():
         sol_distribution_network = self.solution_check_distribution_network(xx[0:nVariables_distribution_network])
         # 4.2) Scheduling plan of each MG
         # a) Energy storage system group
-        Pess_dc = zeros((nmg, T))
-        Pess_ch = zeros((nmg, T))
-        Ress = zeros((nmg, T))
-        Eess = zeros((nmg, T))
-        # b) Diesel generator group
-        Pg = zeros((nmg, T))
-        Qg = zeros((nmg, T))
-        Rg = zeros((nmg, T))
-        # c) Utility grid group
-        Pug = zeros((nmg, T))
-        Qug = zeros((nmg, T))
-        Rug = zeros((nmg, T))
-        # d) Bi-directional converter group
-        Pbic_a2d = zeros((nmg, T))
-        Pbic_d2a = zeros((nmg, T))
-        Qbic = zeros((nmg, T))
-        for i in range(T):
-            for j in range(nmg):
-                Pess_dc[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PESS_DC]
-                Pess_ch[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PESS_CH]
-                Ress[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RESS]
-                Eess[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + EESS]
-
-                Pg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PG]
-                Qg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QG]
-                Rg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RG]
-
-                Pug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PUG]
-                Qug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QUG]
-                Rug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RUG]
-
-                Pbic_a2d[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_AC2DC]
-                Pbic_d2a[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_DC2AC]
-                Qbic[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QBIC]
-        # e) voilation of bi-directional power flows
-        vol_bic = zeros((nmg, T))
-        vol_ess = zeros((nmg, T))
-        for i in range(T):
-            for j in range(nmg):
-                vol_ess[j, i] = Pess_dc[j, i] * Pess_ch[j, i]
-                vol_bic[j, i] = Pbic_a2d[j, i] * Pbic_d2a[j, i]
-
-        sol_microgrids = {
-            "PESS_DC": Pess_dc,
-            "PESS_CH": Pess_ch,
-            "RESS": Ress,
-            "EESS": Eess,
-            "PG": Pg,
-            "QG": Qg,
-            "RG": Rg,
-            "PUG": Pug,
-            "QUG": Qug,
-            "RUG": Rug,
-            "PBIC_AC2DC": Pbic_a2d,
-            "PBIC_DC2AC": Pbic_d2a,
-            "QBIC": Qbic,
-            "VOL_BIC": vol_bic,
-            "VOL_ESS": vol_ess,
-
-        }
-
+        sol_microgrids = self.solution_check_microgrids(xx=xx, nVariables_index=nVariables_index)
         return sol_distribution_network, sol_microgrids
 
     def problem_formualtion_distribution_networks(self, case, profile, micro_grids):
@@ -589,6 +529,70 @@ class DynamicOptimalPowerFlow():
 
         return model_micro_grid
 
+    def solution_check_microgrids(self, xx, nVariables_index):
+        T = self.T
+        nmg = self.nmg
+
+        Pess_dc = zeros((nmg, T))
+        Pess_ch = zeros((nmg, T))
+        Ress = zeros((nmg, T))
+        Eess = zeros((nmg, T))
+        # b) Diesel generator group
+        Pg = zeros((nmg, T))
+        Qg = zeros((nmg, T))
+        Rg = zeros((nmg, T))
+        # c) Utility grid group
+        Pug = zeros((nmg, T))
+        Qug = zeros((nmg, T))
+        Rug = zeros((nmg, T))
+        # d) Bi-directional converter group
+        Pbic_a2d = zeros((nmg, T))
+        Pbic_d2a = zeros((nmg, T))
+        Qbic = zeros((nmg, T))
+        for i in range(T):
+            for j in range(nmg):
+                Pess_dc[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PESS_DC]
+                Pess_ch[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PESS_CH]
+                Ress[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RESS]
+                Eess[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + EESS]
+
+                Pg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PG]
+                Qg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QG]
+                Rg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RG]
+
+                Pug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PUG]
+                Qug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QUG]
+                Rug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RUG]
+
+                Pbic_a2d[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_AC2DC]
+                Pbic_d2a[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_DC2AC]
+                Qbic[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QBIC]
+        # e) voilation of bi-directional power flows
+        vol_bic = zeros((nmg, T))
+        vol_ess = zeros((nmg, T))
+        for i in range(T):
+            for j in range(nmg):
+                vol_ess[j, i] = Pess_dc[j, i] * Pess_ch[j, i]
+                vol_bic[j, i] = Pbic_a2d[j, i] * Pbic_d2a[j, i]
+
+        sol_microgrids = {"PESS_DC": Pess_dc,
+                          "PESS_CH": Pess_ch,
+                          "RESS": Ress,
+                          "EESS": Eess,
+                          "PG": Pg,
+                          "QG": Qg,
+                          "RG": Rg,
+                          "PUG": Pug,
+                          "QUG": Qug,
+                          "RUG": Rug,
+                          "PBIC_AC2DC": Pbic_a2d,
+                          "PBIC_DC2AC": Pbic_d2a,
+                          "QBIC": Qbic,
+                          "VOL_BIC": vol_bic,
+                          "VOL_ESS": vol_ess, }
+
+        return sol_microgrids
+
 
 if __name__ == "__main__":
     # Distribution network information
@@ -685,6 +689,7 @@ if __name__ == "__main__":
 
     dynamic_optimal_power_flow = DynamicOptimalPowerFlow()
 
-    sol = dynamic_optimal_power_flow.main(case=mpc, profile=load_profile.tolist(), microgrids=case_micro_grids)
+    (sol_dso, sol_mgs) = dynamic_optimal_power_flow.main(case=mpc, profile=load_profile.tolist(),
+                                                         microgrids=case_micro_grids)
 
-    print(max(sol["residual"][0]))
+    print(max(sol_dso["residual"][0]))
