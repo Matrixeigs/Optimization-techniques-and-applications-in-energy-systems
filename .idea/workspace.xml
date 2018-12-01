@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="">
+    <list default="true" id="1e62a147-2297-4195-a991-ff46b3ae82a2" name="Default" comment="update framework fo">
+      <change afterPath="$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids_and_tess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids.py" beforeDir="false" afterPath="$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/transportation_systems/windfarm.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_systems/windfarm.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,7 +19,7 @@
     <SUITE FILE_PATH="coverage/Optimization$local_ems.coverage" NAME="local_ems Coverage Results" MODIFIED="1539655483351" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../microgrid_energy_management_system" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment_robust.coverage" NAME="two_stage_unit_commitment_robust Coverage Results" MODIFIED="1531709677297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment_improved.coverage" NAME="transportation_power_unit_commitment_improved Coverage Results" MODIFIED="1537330498908" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
-    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1539242951800" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
+    <SUITE FILE_PATH="coverage/Optimization$transportation_power_unit_commitment.coverage" NAME="transportation_power_unit_commitment Coverage Results" MODIFIED="1543682352957" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/transportation_systems" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_jointed_chance_constained_programming.coverage" NAME="two_stage_jointed_chance_constained_programming Coverage Results" MODIFIED="1529422831373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub" />
     <SUITE FILE_PATH="coverage/Optimization$optimal_power_flow_hybrid_AC_DC_MGs.coverage" NAME="optimal_power_flow_hybrid_AC_DC_MGs Coverage Results" MODIFIED="1543391941992" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_AC_DC_networks/optimal_power_flows" />
     <SUITE FILE_PATH="coverage/Optimization$test.coverage" NAME="test Coverage Results" MODIFIED="1534581154663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
@@ -28,6 +28,7 @@
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_basic.coverage" NAME="unit_commitment_basic Coverage Results" MODIFIED="1542983445181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
     <SUITE FILE_PATH="coverage/Optimization$scenario_reduction.coverage" NAME="scenario_reduction Coverage Results" MODIFIED="1529947033164" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_transmission_networks.coverage" NAME="unit_commitment_transmission_networks Coverage Results" MODIFIED="1542980494453" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
+    <SUITE FILE_PATH="coverage/Optimization$dynamic_optimal_power_flow_with_multiple_microgrids_and_tess.coverage" NAME="dynamic_optimal_power_flow_with_multiple_microgrids_and_tess Coverage Results" MODIFIED="1543682666344" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1528180668792" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_unit_commitment.coverage" NAME="two_stage_unit_commitment Coverage Results" MODIFIED="1528904746232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment/wind_hydro" />
     <SUITE FILE_PATH="coverage/Optimization$two_stage_bidding_primal_dual_cuts.coverage" NAME="two_stage_bidding_primal_dual_cuts Coverage Results" MODIFIED="1529423920631" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
@@ -65,7 +66,7 @@
     <SUITE FILE_PATH="coverage/Optimization$distributed_opf_branch_power.coverage" NAME="distributed_opf_branch_power Coverage Results" MODIFIED="1543577700498" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
     <SUITE FILE_PATH="coverage/Optimization$bi_objective_opt.coverage" NAME="bi_objective_opt Coverage Results" MODIFIED="1532705877896" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/energy_hub/bidding_strategy" />
     <SUITE FILE_PATH="coverage/Optimization$unit_commitment_contigency.coverage" NAME="unit_commitment_contigency Coverage Results" MODIFIED="1536386799807" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_commitment" />
-    <SUITE FILE_PATH="coverage/Optimization$dynamic_optimal_power_flow_with_multiple_microgrids.coverage" NAME="dynamic_optimal_power_flow_with_multiple_microgrids Coverage Results" MODIFIED="1543666827524" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
+    <SUITE FILE_PATH="coverage/Optimization$dynamic_optimal_power_flow_with_multiple_microgrids.coverage" NAME="dynamic_optimal_power_flow_with_multiple_microgrids Coverage Results" MODIFIED="1543674328664" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/distribution_system_optimization" />
     <SUITE FILE_PATH="coverage/Optimization$TSN_test_system.coverage" NAME="TSN_test_system Coverage Results" MODIFIED="1529141246377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$ccg.coverage" NAME="ccg Coverage Results" MODIFIED="1542518531294" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
     <SUITE FILE_PATH="coverage/Optimization$benders_decomposition.coverage" NAME="benders_decomposition Coverage Results" MODIFIED="1542787704469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/solvers" />
@@ -145,13 +146,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="dynamic_optimal_power_flow_with_multiple_microgrids.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids.py">
+      <file leaf-file-name="dynamic_optimal_power_flow_with_multiple_microgrids_and_tess.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids_and_tess.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="11314">
-              <caret line="669" column="37" lean-forward="true" selection-start-line="669" selection-start-column="37" selection-end-line="669" selection-end-column="37" />
+            <state relative-caret-position="7535">
+              <caret line="554" lean-forward="true" selection-start-line="554" selection-end-line="554" />
               <folding>
-                <element signature="e#71#133#0" expanded="true" />
+                <element signature="e#61#123#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="case3.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-9">
+              <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+              <folding>
+                <element signature="e#92#115#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="transportation_power_unit_commitment.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="114">
+              <caret line="679" column="59" lean-forward="true" selection-start-line="679" selection-start-column="59" selection-end-line="679" selection-end-column="59" />
+              <folding>
+                <element signature="e#150#223#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -185,7 +210,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/micro_grids/hybrid_AC_DC_microgrids.py" />
         <option value="$PROJECT_DIR$/test/test_read_write.py" />
         <option value="$PROJECT_DIR$/unit_commitment/modelling_using_Gurobi/__init__.py" />
         <option value="$PROJECT_DIR$/unit_commitment/modelling_using_Gurobi/network_constrained_unit_commitment.py" />
@@ -230,12 +254,13 @@
         <option value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/dual_decomposition_opf.py" />
         <option value="$PROJECT_DIR$/direct_current_networks/micro_power_park.py" />
         <option value="$PROJECT_DIR$/micro_grids/test_cases/cases_unit_commitment.py" />
-        <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/data_format/idx_mpp.py" />
         <option value="$PROJECT_DIR$/hybrid_AC_DC_networks/network_reconfiguration/dynamic_network_reconfiguration_with_microgrids.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/data_format/idx_opf.py" />
         <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_constrained_cplex.py" />
         <option value="$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids.py" />
+        <option value="$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids_and_tess.py" />
+        <option value="$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py" />
       </list>
     </option>
   </component>
@@ -245,9 +270,9 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
+  <component name="ProjectFrameBounds">
     <option name="width" value="1440" />
-    <option name="height" value="900" />
+    <option name="height" value="820" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -272,13 +297,7 @@
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
               <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="hybrid_AC_DC_networks" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Optimization" type="462c0819:PsiDirectoryNode" />
-              <item name="hybrid_AC_DC_networks" type="462c0819:PsiDirectoryNode" />
-              <item name="network_reconfiguration" type="462c0819:PsiDirectoryNode" />
+              <item name="transportation_systems" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Optimization" type="b2602c69:ProjectViewProjectNode" />
@@ -333,7 +352,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.dynamic_network_reconfiguration_with_microgrids">
+  <component name="RunManager" selected="Python.dynamic_optimal_power_flow_with_multiple_microgrids_and_tess">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -376,25 +395,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
-    </configuration>
-    <configuration name="distributed_opf_branch_power" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Optimization" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distribution_system_optimization/optimal_power_flow/distributed_opf_branch_power.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
     </configuration>
     <configuration name="distribution_network_reconfiguration" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
@@ -453,7 +453,7 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="micro_grid_park_distributed" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="dynamic_optimal_power_flow_with_multiple_microgrids_and_tess" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Optimization" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -461,12 +461,31 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_commitment/distributed_unit_commitment" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/distribution_system_optimization" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/direct_current_networks/micro_grid_park_distributed.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids_and_tess.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="transportation_power_unit_commitment" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Optimization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/transportation_systems" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -573,18 +592,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.distribution_network_reconfiguration" />
-      <item itemvalue="Python.distributed_opf_branch_power" />
-      <item itemvalue="Python.micro_grid_park_distributed" />
       <item itemvalue="Python.dynamic_network_reconfiguration_with_microgrids" />
       <item itemvalue="Python.dynamic_optimal_power_flow_with_multiple_microgrids" />
+      <item itemvalue="Python.transportation_power_unit_commitment" />
+      <item itemvalue="Python.dynamic_optimal_power_flow_with_multiple_microgrids_and_tess" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.dynamic_optimal_power_flow_with_multiple_microgrids_and_tess" />
+        <item itemvalue="Python.transportation_power_unit_commitment" />
+        <item itemvalue="Python.dynamic_optimal_power_flow_with_multiple_microgrids" />
         <item itemvalue="Python.dynamic_network_reconfiguration_with_microgrids" />
         <item itemvalue="Python.distribution_network_reconfiguration" />
-        <item itemvalue="Python.dynamic_optimal_power_flow_with_multiple_microgrids" />
-        <item itemvalue="Python.micro_grid_park_distributed" />
-        <item itemvalue="Python.distributed_opf_branch_power" />
       </list>
     </recent_temporary>
   </component>
@@ -598,34 +617,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508128497249</updated>
-    </task>
-    <task id="LOCAL-00126" summary="verified the IEEE-118 UC problem">
-      <created>1536408216873</created>
-      <option name="number" value="00126" />
-      <option name="presentableId" value="LOCAL-00126" />
-      <option name="project" value="LOCAL" />
-      <updated>1536408216873</updated>
-    </task>
-    <task id="LOCAL-00127" summary="verify the IEEE-118 electric power systems with TESSs">
-      <created>1536413178847</created>
-      <option name="number" value="00127" />
-      <option name="presentableId" value="LOCAL-00127" />
-      <option name="project" value="LOCAL" />
-      <updated>1536413178847</updated>
-    </task>
-    <task id="LOCAL-00128" summary="update cplex solvers using nonzeros function of numpy">
-      <created>1536456634576</created>
-      <option name="number" value="00128" />
-      <option name="presentableId" value="LOCAL-00128" />
-      <option name="project" value="LOCAL" />
-      <updated>1536456634576</updated>
-    </task>
-    <task id="LOCAL-00129" summary="update cplex solvers using nonzeros function of numpy">
-      <created>1536456700010</created>
-      <option name="number" value="00129" />
-      <option name="presentableId" value="LOCAL-00129" />
-      <option name="project" value="LOCAL" />
-      <updated>1536456700010</updated>
     </task>
     <task id="LOCAL-00130" summary="add test case with virtual nodes">
       <created>1536474638467</created>
@@ -942,7 +933,35 @@
       <option name="project" value="LOCAL" />
       <updated>1543667159570</updated>
     </task>
-    <option name="localTasksCounter" value="175" />
+    <task id="LOCAL-00175" summary="update names in dynamic optimal power flow">
+      <created>1543667414089</created>
+      <option name="number" value="00175" />
+      <option name="presentableId" value="LOCAL-00175" />
+      <option name="project" value="LOCAL" />
+      <updated>1543667414089</updated>
+    </task>
+    <task id="LOCAL-00176" summary="update result check in dynamic optimal power flow">
+      <created>1543667718564</created>
+      <option name="number" value="00176" />
+      <option name="presentableId" value="LOCAL-00176" />
+      <option name="project" value="LOCAL" />
+      <updated>1543667718564</updated>
+    </task>
+    <task id="LOCAL-00177" summary="update class framework">
+      <created>1543668046538</created>
+      <option name="number" value="00177" />
+      <option name="presentableId" value="LOCAL-00177" />
+      <option name="project" value="LOCAL" />
+      <updated>1543668046538</updated>
+    </task>
+    <task id="LOCAL-00178" summary="remove redundancy for dynamic opf">
+      <created>1543674322694</created>
+      <option name="number" value="00178" />
+      <option name="presentableId" value="LOCAL-00178" />
+      <option name="project" value="LOCAL" />
+      <updated>1543674322694</updated>
+    </task>
+    <option name="localTasksCounter" value="179" />
     <servers />
   </component>
   <component name="TodoView">
@@ -955,24 +974,24 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <frame x="0" y="0" width="1440" height="820" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.4985694" weight="0.32969698" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50858366" side_tool="true" visible="true" weight="0.32" />
+      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.4985694" weight="0.32918397" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.51216024" side_tool="true" weight="0.35408023" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49499285" weight="0.3272727" />
-      <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.49499285" weight="0.3272727" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4914163" visible="true" weight="0.32" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49499285" weight="0.3264177" />
+      <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.49499285" weight="0.3264177" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4914163" weight="0.36514524" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49928468" weight="0.32848486" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4939759" visible="true" weight="0.2539342" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4939759" visible="true" weight="0.32188842" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" weight="0.32761088" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32848486" />
       <window_info anchor="right" id="SciView" order="3" weight="0.36552218" />
       <window_info id="Structure" order="1" sideWeight="0.5060241" side_tool="true" weight="0.37553647" />
       <window_info id="Favorites" order="2" sideWeight="0.5060241" side_tool="true" weight="0.37553647" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.48855507" weight="0.3551515" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.48783976" visible="true" weight="0.35408023" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="8" weight="0.32969698" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1019,10 +1038,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add cplex solve with sparse matrix" />
-    <MESSAGE value="add unit commitment with sparse matrix" />
-    <MESSAGE value="modify the milp (CPLEX) with sparse coefficient matrix" />
-    <MESSAGE value="update distribution network models" />
     <MESSAGE value="update static optimal power flow for hybrid AC DC network" />
     <MESSAGE value="update gurobi linear solver" />
     <MESSAGE value="add distribution network reconfiguration function with Gurobi" />
@@ -1044,7 +1059,11 @@
     <MESSAGE value="add dynamic optimal power flow with multiple hybrid AC DC microgrids" />
     <MESSAGE value="update miqcp solution solers" />
     <MESSAGE value="update comments on the dynamic optimal power flow models" />
-    <option name="LAST_COMMIT_MESSAGE" value="update comments on the dynamic optimal power flow models" />
+    <MESSAGE value="update names in dynamic optimal power flow" />
+    <MESSAGE value="update result check in dynamic optimal power flow" />
+    <MESSAGE value="update class framework" />
+    <MESSAGE value="remove redundancy for dynamic opf" />
+    <option name="LAST_COMMIT_MESSAGE" value="remove redundancy for dynamic opf" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1059,6 +1078,16 @@
           <line>570</line>
           <option name="timeStamp" value="445" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids_and_tess.py</url>
+          <line>158</line>
+          <option name="timeStamp" value="531" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py</url>
+          <line>274</line>
+          <option name="timeStamp" value="535" />
+        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
@@ -1070,7 +1099,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="526" />
+      <option name="time" value="541" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -1193,6 +1222,16 @@ row_index = row_index[row_index_temp]</expression-string>
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
+        <expression-string>ev</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>find(connection_matrix[:, 3])</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>prob.solve()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
@@ -1227,47 +1266,9 @@ row_index = row_index[row_index_temp]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>Qc[0][2]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>Qc[0][1]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="das://1e610b01-e166-4d0f-9da1-9aa79a4844f9/schema/weather_station/table/issdata">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/ccg_benders_decomposition.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2310">
-          <caret line="154" column="72" lean-forward="true" selection-start-line="154" selection-start-column="72" selection-end-line="154" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transportation_systems/tess_uc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="24" selection-start-line="11" selection-start-column="24" selection-end-line="11" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_stochastic_unit_commitment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8487">
-          <caret line="1029" lean-forward="true" selection-start-line="1029" selection-end-line="1029" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/unit_commitment/wind_hydro/two_stage_robust_unit_commitment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="13410">
@@ -1520,13 +1521,6 @@ row_index = row_index[row_index_temp]</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="47">
-          <caret line="4" column="51" selection-start-line="4" selection-start-column="51" selection-end-line="4" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/test_cases/case33.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -1600,10 +1594,54 @@ row_index = row_index[row_index_temp]</expression-string>
     </entry>
     <entry file="file://$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="11314">
-          <caret line="669" column="37" lean-forward="true" selection-start-line="669" selection-start-column="37" selection-end-line="669" selection-end-column="37" />
+        <state relative-caret-position="195">
+          <caret line="13" column="46" lean-forward="true" selection-start-line="13" selection-start-column="46" selection-end-line="13" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/scipy/sparse/coo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="271" selection-start-line="271" selection-end-line="271" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/test_cases/case3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-9">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
           <folding>
-            <element signature="e#71#133#0" expanded="true" />
+            <element signature="e#92#115#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/solvers/mixed_integer_quadratic_solver_cplex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="35">
+          <caret line="143" column="33" lean-forward="true" selection-start-line="143" selection-start-column="33" selection-end-line="143" selection-end-column="33" />
+          <folding>
+            <element signature="e#50#97#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/distribution_system_optimization/dynamic_optimal_power_flow_with_multiple_microgrids_and_tess.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7535">
+          <caret line="554" lean-forward="true" selection-start-line="554" selection-end-line="554" />
+          <folding>
+            <element signature="e#61#123#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transportation_systems/transportation_power_unit_commitment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="679" column="59" lean-forward="true" selection-start-line="679" selection-start-column="59" selection-end-line="679" selection-end-column="59" />
+          <folding>
+            <element signature="e#150#223#0" expanded="true" />
           </folding>
         </state>
       </provider>
