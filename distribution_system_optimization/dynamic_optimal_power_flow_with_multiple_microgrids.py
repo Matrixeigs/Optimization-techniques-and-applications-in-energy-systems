@@ -176,6 +176,13 @@ class DynamicOptimalPowerFlow():
                 Pbic_a2d[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_AC2DC]
                 Pbic_d2a[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_DC2AC]
                 Qbic[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QBIC]
+        # e) voilation of bi-directional power flows
+        vol_bic = zeros((nmg, T))
+        vol_ess = zeros((nmg, T))
+        for i in range(T):
+            for j in range(nmg):
+                vol_ess[j, i] = Pess_dc[j, i] * Pess_ch[j, i]
+                vol_bic[j, i] = Pbic_a2d[j, i] * Pbic_d2a[j, i]
 
         sol_microgrids = {
             "PESS_DC": Pess_dc,
@@ -191,6 +198,9 @@ class DynamicOptimalPowerFlow():
             "PBIC_AC2DC": Pbic_a2d,
             "PBIC_DC2AC": Pbic_d2a,
             "QBIC": Qbic,
+            "VOL_BIC": vol_bic,
+            "VOL_ESS": vol_ess,
+
         }
 
         return sol_distribution_network, sol_microgrids
