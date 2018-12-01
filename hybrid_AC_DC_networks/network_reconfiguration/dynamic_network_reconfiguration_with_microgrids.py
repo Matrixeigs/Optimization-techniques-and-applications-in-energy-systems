@@ -19,6 +19,10 @@ from pypower.ext2int import ext2int
 
 from solvers.mixed_integer_quadratic_constrained_cplex import mixed_integer_quadratic_constrained_programming as miqcp
 from copy import deepcopy
+from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as milp
+
+from distribution_system_optimization.data_format.idx_mpp import ICH, IG, IUG, IBIC_AC2DC, \
+    PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, EESS, NX_MG, QBIC, QUG, QG
 
 
 class NetworkReconfiguration():
@@ -33,18 +37,23 @@ class NetworkReconfiguration():
         :param micrgrids: dictionary for microgrids
         :return: network reconfiguration, distribution network status, and microgrid status
         """
+
         T = len(profile)
         self.T = T
 
         nmg = len(microgrids)
         self.nmg = nmg
 
+        # 1) Formulate the constraints for each system
+        # 1.1) Distribution networks
         model_distribution_networks = self.problem_formualtion_distribution_networks(case=case, profile=profile,
                                                                                      micro_grids=microgrids)
+        # 1.2) Microgrids
         model_microgrids = {}
         for i in range(nmg):
             model_microgrids[i] = self.problem_formulation_microgrid(micro_grid=microgrids[i])
 
+        # 2) System level modelling
         nVariables_distribution_network = len(model_distribution_networks["c"])
         neq_distribution_network = model_distribution_networks["Aeq"].shape[0]
         nineq_distribution_network = model_distribution_networks["A"].shape[0]
@@ -101,10 +110,8 @@ class NetworkReconfiguration():
         Ay2x = zeros((2 * nmg * T, int(nVariables_index[-1] - nVariables_index[0])))
         for i in range(T):
             for j in range(nmg):
-                Ay2x[i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * model_microgrids[j]["NX"] +
-                     model_microgrids[j]["PG"]] = -1
-                Ay2x[nmg * T + i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * model_microgrids[j][
-                    "NX"] + model_microgrids[j]["QG"]] = -1
+                Ay2x[i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * NX_MG + PUG] = -1
+                Ay2x[nmg * T + i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * NX_MG + QUG] = -1
 
         Aeq_temp = concatenate([model_distribution_networks["Ax2y"], Ay2x], axis=1)
         beq_temp = zeros(2 * nmg * T)
@@ -112,10 +119,81 @@ class NetworkReconfiguration():
         Aeq = concatenate([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
 
-        # Solve the problem
-        sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, Qc=Qc, vtypes=vtypes, xmin=lx, xmax=ux)
+        # 3) Solve the problem
+        (xx, obj, success) = miqcp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, Qc=Qc, vtypes=vtypes, xmin=lx, xmax=ux)
 
-        # Check the solutions, including microgrids and distribution networks
+        # 4) Check the solutions, including microgrids and distribution networks
+        # 4.1) Scheduling plan of distribution networks
+        sol_distribution_network = self.solution_check_distribution_network(xx[0:nVariables_distribution_network])
+        # 4.2) Scheduling plan of each MG
+        # a) Energy storage system group
+        Ich = zeros((nmg, T))
+        Pess_dc = zeros((nmg, T))
+        Pess_ch = zeros((nmg, T))
+        Ress = zeros((nmg, T))
+        Eess = zeros((nmg, T))
+        # b) Diesel generator group
+        Ig = zeros((nmg, T))
+        Pg = zeros((nmg, T))
+        Qg = zeros((nmg, T))
+        Rg = zeros((nmg, T))
+        # c) Utility grid group
+        Iug = zeros((nmg, T))
+        Pug = zeros((nmg, T))
+        Qug = zeros((nmg, T))
+        Rug = zeros((nmg, T))
+        # d) Bi-directional converter group
+        Ibic = zeros((nmg, T))
+        Pbic_a2d = zeros((nmg, T))
+        Pbic_d2a = zeros((nmg, T))
+        Qbic = zeros((nmg, T))
+        for i in range(T):
+            for j in range(nmg):
+                Ich[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + ICH]
+                Pess_dc[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PESS_DC]
+                Pess_ch[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PESS_CH]
+                Ress[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RESS]
+                Eess[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + EESS]
+
+                Ig[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + IG]
+                Pg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PG]
+                Qg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QG]
+                Rg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RG]
+
+                Iug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + IUG]
+                Pug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PUG]
+                Qug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QUG]
+                Rug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RUG]
+
+                Ibic[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + IBIC_AC2DC]
+                Pbic_a2d[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_AC2DC]
+                Pbic_d2a[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_DC2AC]
+                Qbic[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QBIC]
+
+        sol_microgrids = {
+            "ICH": Ich,
+            "PESS_DC": Pess_dc,
+            "PESS_CH": Pess_ch,
+            "RESS": Ress,
+            "EESS": Eess,
+            "IG": Ig,
+            "PG": Pg,
+            "QG": Qg,
+            "RG": Rg,
+            "IUG": Iug,
+            "PUG": Pug,
+            "QUG": Qug,
+            "RUG": Rug,
+            "IBIC": Ibic,
+            "PBIC_AC2DC": Pbic_a2d,
+            "PBIC_DC2AC": Pbic_d2a,
+            "QBIC": Qbic,
+        }
+
+        print(sol_microgrids["QUG"] - sol_distribution_network["Qmg"] * 100)
+        print(sol_microgrids["PUG"] - sol_distribution_network["Pmg"] * 100)
+
+        return sol_distribution_network, sol_microgrids
 
     def problem_formualtion_distribution_networks(self, case, profile, micro_grids):
         T = self.T
@@ -128,6 +206,9 @@ class NetworkReconfiguration():
         nl = shape(mpc['branch'])[0]  ## number of branches
         ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
         nmg = self.nmg
+        self.nl = nl
+        self.nb = nb
+        self.ng = ng
 
         m = zeros(nmg)  ## list of integration index
         Pmg_l = zeros(nmg)  ## list of lower boundary
@@ -136,14 +217,15 @@ class NetworkReconfiguration():
         Qmg_u = zeros(nmg)  ## list of upper boundary
         for i in range(nmg):
             m[i] = micro_grids[i]["BUS"]
-            Pmg_l[i] = micro_grids[i]["MG"]["PMIN"] / baseMVA
-            Pmg_u[i] = micro_grids[i]["MG"]["PMAX"] / baseMVA
-            Qmg_l[i] = micro_grids[i]["MG"]["QMIN"] / baseMVA
-            Qmg_u[i] = micro_grids[i]["MG"]["QMAX"] / baseMVA
+            Pmg_l[i] = micro_grids[i]["UG"]["PMIN"] / baseMVA
+            Pmg_u[i] = micro_grids[i]["UG"]["PMAX"] / baseMVA
+            Qmg_l[i] = micro_grids[i]["UG"]["QMIN"] / baseMVA
+            Qmg_u[i] = micro_grids[i]["UG"]["QMAX"] / baseMVA
 
         f = branch[:, F_BUS]  ## list of "from" buses
         t = branch[:, T_BUS]  ## list of "to" buses
         i = range(nl)  ## double set of row indices
+        self.f = f
         # Connection matrix
         Cf = sparse((ones(nl), (i, f)), (nl, nb))
         Ct = sparse((ones(nl), (i, t)), (nl, nb))
@@ -193,6 +275,7 @@ class NetworkReconfiguration():
         Beta_f_l[Root_line] = 0
 
         nx = int(3 * nl + nb + 2 * ng + 2 * nmg)
+        self.nx = nx
         lx = concatenate(
             [Alpha_l, Beta_f_l, Beta_t_l, tile(concatenate([Pij_l, Qij_l, Iij_l, Vm_l, Pg_l, Qg_l, Pmg_l, Qmg_l]), T)])
         ux = concatenate(
@@ -352,6 +435,8 @@ class NetworkReconfiguration():
         ng = self.ng
         T = self.T
         nx = self.nx
+        nmg = self.nmg
+        f = self.f
 
         Alpha = xx[0:nl]
         Beta_f = xx[nl:2 * nl]
@@ -363,6 +448,8 @@ class NetworkReconfiguration():
         Vi = zeros((nb, T))
         Pg = zeros((ng, T))
         Qg = zeros((ng, T))
+        Pmg = zeros((nmg, T))
+        Qmg = zeros((nmg, T))
         for i in range(T):
             Pij[:, i] = xx[3 * nl + i * nx:3 * nl + i * nx + nl]
             Qij[:, i] = xx[3 * nl + i * nx + nl:3 * nl + i * nx + 2 * nl]
@@ -370,6 +457,9 @@ class NetworkReconfiguration():
             Vi[:, i] = xx[3 * nl + i * nx + 3 * nl:3 * nl + i * nx + 3 * nl + nb]
             Pg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb:3 * nl + i * nx + 3 * nl + nb + ng]
             Qg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb + ng:3 * nl + i * nx + 3 * nl + nb + 2 * ng]
+            Pmg[:, i] = xx[3 * nl + i * nx + 3 * nl + nb + 2 * ng:3 * nl + i * nx + 3 * nl + nb + 2 * ng + nmg]
+            Qmg[:, i] = xx[
+                        3 * nl + i * nx + 3 * nl + nb + 2 * ng + nmg:3 * nl + i * nx + 3 * nl + nb + 2 * ng + 2 * nmg]
 
         primal_residual = zeros((nl, T))
         for t in range(T):
@@ -382,6 +472,8 @@ class NetworkReconfiguration():
                "Vi": Vi,
                "Pg": Pg,
                "Qg": Qg,
+               "Pmg": Pmg,
+               "Qmg": Qmg,
                "Alpha": Alpha,
                "Beta_f": Beta_f,
                "Beta_t": Beta_t,
@@ -395,8 +487,6 @@ class NetworkReconfiguration():
         :param micro_grid:
         :return:
         """
-        from distribution_system_optimization.data_format.idx_mpp import ICH, IG, IUG, IBIC_AC2DC, \
-            PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, RUG, RESS, RG, EESS, NX_MG, QBIC, QUG, QG
 
         try:
             T = self.T
@@ -458,6 +548,10 @@ class NetworkReconfiguration():
             vtypes[i * NX_MG + IUG] = "b"
             vtypes[i * NX_MG + IBIC_AC2DC] = "b"
             vtypes[i * NX_MG + ICH] = "b"
+            if i == T:
+                lx[i * NX_MG + EESS] = micro_grid["ESS"]["E0"]
+                ux[i * NX_MG + EESS] = micro_grid["ESS"]["E0"]
+
         # 2) Formulate the equal constraints
         # 2.1) Power balance equation
         # a) AC bus equation
@@ -502,8 +596,8 @@ class NetworkReconfiguration():
                 beq_temp[i] = micro_grid["ESS"]["E0"]
             else:
                 Aeq_temp[i, (i - 1) * NX_MG + EESS] = -1
-        # Aeq = concatenate([Aeq, Aeq_temp])
-        # beq = concatenate([beq, beq_temp])
+        Aeq = concatenate([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
         # 3) Formualte inequal constraints
         # 3.1) Pg+Rg<=Ig*Pgmax
         A = zeros((T, nx))
@@ -625,6 +719,7 @@ class NetworkReconfiguration():
             A_temp[i, i * NX_MG + QUG] = -1
         A = concatenate([A, A_temp])
         b = concatenate([b, b_temp])
+        # sol = milp(c, q=q, Aeq=Aeq, beq=beq, A=A, b=b, vtypes=vtypes, xmin=lx, xmax=ux)
 
         model_micro_grid = {"c": c,
                             "q": q,
@@ -647,7 +742,7 @@ if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
+         0.81])
 
     # Microgrid information
     Profile = array([
@@ -660,90 +755,78 @@ if __name__ == "__main__":
     ])
     micro_grid_1 = deepcopy(micro_grid)
     micro_grid_1["BUS"] = 2
-    micro_grid_1["PD"]["AC_MAX"] = 100
-    micro_grid_1["PD"]["DC_MAX"] = 100
-    micro_grid_1["UG"]["PMIN"] = -100
-    micro_grid_1["UG"]["PMAX"] = 100
-    micro_grid_1["UG"]["QMIN"] = -100
-    micro_grid_1["UG"]["QMAX"] = 100
+    micro_grid_1["PD"]["AC_MAX"] = 10
+    micro_grid_1["PD"]["DC_MAX"] = 10
+    micro_grid_1["UG"]["PMIN"] = -500
+    micro_grid_1["UG"]["PMAX"] = 500
+    micro_grid_1["UG"]["QMIN"] = -500
+    micro_grid_1["UG"]["QMAX"] = 500
     micro_grid_1["DG"]["PMAX"] = 100
     micro_grid_1["DG"]["QMAX"] = 100
     micro_grid_1["DG"]["QMIN"] = -100
     micro_grid_1["DG"]["COST_A"] = 0.015
-    micro_grid_1["ESS"]["PDC_MAX"] = 100
-    micro_grid_1["ESS"]["PCH_MAX"] = 100
+    micro_grid_1["ESS"]["PDC_MAX"] = 50
+    micro_grid_1["ESS"]["PCH_MAX"] = 50
     micro_grid_1["ESS"]["E0"] = 50
     micro_grid_1["ESS"]["EMIN"] = 10
     micro_grid_1["ESS"]["EMAX"] = 100
     micro_grid_1["BIC"]["PMAX"] = 100
     micro_grid_1["BIC"]["QMAX"] = 100
     micro_grid_1["BIC"]["SMAX"] = 100
-    micro_grid_1["MG"]["PMAX"] = 500
-    micro_grid_1["MG"]["PMIN"] = -500
-    micro_grid_1["MG"]["QMAX"] = 500
-    micro_grid_1["MG"]["QMIN"] = -500
     micro_grid_1["PD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"]
-    micro_grid_1["QD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"] * 0
+    micro_grid_1["QD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"] * 0.2
     micro_grid_1["PD"]["DC"] = Profile[0] * micro_grid_1["PD"]["DC_MAX"]
     # micro_grid_1["MG"]["PMIN"] = 0
     # micro_grid_1["MG"]["PMAX"] = 0
 
     micro_grid_2 = deepcopy(micro_grid)
     micro_grid_2["BUS"] = 4
-    micro_grid_2["PD"]["AC_MAX"] = 500
-    micro_grid_2["PD"]["DC_MAX"] = 500
+    micro_grid_2["PD"]["AC_MAX"] = 50
+    micro_grid_2["PD"]["DC_MAX"] = 50
     micro_grid_2["UG"]["PMIN"] = -500
-    micro_grid_2["UG"]["PMAX"] = 1000
+    micro_grid_2["UG"]["PMAX"] = 500
     micro_grid_1["UG"]["QMIN"] = -500
-    micro_grid_1["UG"]["QMAX"] = 1000
-    micro_grid_2["DG"]["PMAX"] = 500
-    micro_grid_1["DG"]["QMAX"] = 500
-    micro_grid_1["DG"]["QMIN"] = -500
+    micro_grid_1["UG"]["QMAX"] = 500
+    micro_grid_2["DG"]["PMAX"] = 50
+    micro_grid_1["DG"]["QMAX"] = 50
+    micro_grid_1["DG"]["QMIN"] = -50
     micro_grid_2["DG"]["COST_A"] = 0.01
-    micro_grid_2["ESS"]["PDC_MAX"] = 500
-    micro_grid_2["ESS"]["PCH_MAX"] = 500
-    micro_grid_2["ESS"]["E0"] = 200
-    micro_grid_2["ESS"]["EMIN"] = 100
-    micro_grid_2["ESS"]["EMAX"] = 500
-    micro_grid_2["BIC"]["PMAX"] = 500
-    micro_grid_2["BIC"]["QMAX"] = 500
-    micro_grid_2["BIC"]["SMAX"] = 500
-    micro_grid_2["MG"]["PMAX"] = 500
-    micro_grid_2["MG"]["PMIN"] = -500
-    micro_grid_2["MG"]["QMAX"] = 500
-    micro_grid_2["MG"]["QMIN"] = -500
+    micro_grid_2["ESS"]["PDC_MAX"] = 50
+    micro_grid_2["ESS"]["PCH_MAX"] = 50
+    micro_grid_2["ESS"]["E0"] = 15
+    micro_grid_2["ESS"]["EMIN"] = 10
+    micro_grid_2["ESS"]["EMAX"] = 50
+    micro_grid_2["BIC"]["PMAX"] = 100
+    micro_grid_2["BIC"]["QMAX"] = 100
+    micro_grid_2["BIC"]["SMAX"] = 100
     micro_grid_2["PD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"]
-    micro_grid_2["QD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"] * 0
+    micro_grid_2["QD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"] * 0.2
     micro_grid_2["PD"]["DC"] = Profile[1] * micro_grid_2["PD"]["DC_MAX"]
     # micro_grid_2["MG"]["PMIN"] = 0
     # micro_grid_2["MG"]["PMAX"] = 0
 
     micro_grid_3 = deepcopy(micro_grid)
     micro_grid_3["BUS"] = 10
-    micro_grid_3["PD"]["AC_MAX"] = 500
-    micro_grid_3["PD"]["DC_MAX"] = 500
-    micro_grid_3["UG"]["PMIN"] = -1000
-    micro_grid_3["UG"]["PMAX"] = 1000
-    micro_grid_3["UG"]["QMIN"] = -1000
-    micro_grid_3["UG"]["QMAX"] = 1000
-    micro_grid_3["DG"]["PMAX"] = 500
-    micro_grid_3["DG"]["QMAX"] = 500
-    micro_grid_3["DG"]["QMIN"] = -500
+    micro_grid_3["PD"]["AC_MAX"] = 50
+    micro_grid_3["PD"]["DC_MAX"] = 50
+    micro_grid_3["UG"]["PMIN"] = -500
+    micro_grid_3["UG"]["PMAX"] = 500
+    micro_grid_3["UG"]["QMIN"] = -500
+    micro_grid_3["UG"]["QMAX"] = 500
+    micro_grid_3["DG"]["PMAX"] = 50
+    micro_grid_3["DG"]["QMAX"] = 50
+    micro_grid_3["DG"]["QMIN"] = -50
     micro_grid_3["DG"]["COST_A"] = 0.01
-    micro_grid_3["ESS"]["PDC_MAX"] = 500
-    micro_grid_3["ESS"]["PCH_MAX"] = 500
-    micro_grid_3["ESS"]["E0"] = 200
-    micro_grid_3["ESS"]["EMIN"] = 100
-    micro_grid_3["ESS"]["EMAX"] = 500
-    micro_grid_3["BIC"]["PMAX"] = 1000
-    micro_grid_3["BIC"]["QMAX"] = 1000
-    micro_grid_3["BIC"]["SMAX"] = 1000
-    micro_grid_3["MG"]["PMAX"] = 1000
-    micro_grid_3["MG"]["PMIN"] = -1000
-    micro_grid_3["MG"]["QMAX"] = 1000
-    micro_grid_3["MG"]["QMIN"] = -1000
+    micro_grid_3["ESS"]["PDC_MAX"] = 50
+    micro_grid_3["ESS"]["PCH_MAX"] = 50
+    micro_grid_3["ESS"]["E0"] = 20
+    micro_grid_3["ESS"]["EMIN"] = 10
+    micro_grid_3["ESS"]["EMAX"] = 50
+    micro_grid_3["BIC"]["PMAX"] = 50
+    micro_grid_3["BIC"]["QMAX"] = 50
+    micro_grid_3["BIC"]["SMAX"] = 50
     micro_grid_3["PD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"]
-    micro_grid_3["QD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"] * 0
+    micro_grid_3["QD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"] * 0.2
     micro_grid_3["PD"]["DC"] = Profile[2] * micro_grid_3["PD"]["DC_MAX"]
     case_micro_grids = [micro_grid_1, micro_grid_2, micro_grid_3]
 
