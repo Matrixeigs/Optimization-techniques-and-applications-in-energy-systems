@@ -1,6 +1,5 @@
 """
-Dynamic distribution network reconfiguration with microgrids
-
+Dynamic optimal power flow with multiple microgrids
 """
 
 from distribution_system_optimization.test_cases import case33
