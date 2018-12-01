@@ -24,7 +24,7 @@ from distribution_system_optimization.data_format.idx_opf import PBIC_AC2DC, PG,
     RESS, RG, EESS, NX_MG, QBIC, QUG, QG
 
 
-class NetworkReconfiguration():
+class DynamicOptimalPowerFlow():
     def __init__(self):
         self.name = "Dynamic optimal power flow"
 
@@ -673,8 +673,8 @@ if __name__ == "__main__":
     micro_grid_3["PD"]["DC"] = Profile[2] * micro_grid_3["PD"]["DC_MAX"]
     case_micro_grids = [micro_grid_1, micro_grid_2, micro_grid_3]
 
-    network_reconfiguration = NetworkReconfiguration()
+    dynamic_optimal_power_flow = DynamicOptimalPowerFlow()
 
-    sol = network_reconfiguration.main(case=mpc, profile=load_profile.tolist(), microgrids=case_micro_grids)
+    sol = dynamic_optimal_power_flow.main(case=mpc, profile=load_profile.tolist(), microgrids=case_micro_grids)
 
     print(max(sol["residual"][0]))
