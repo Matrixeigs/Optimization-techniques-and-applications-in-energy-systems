@@ -5,14 +5,13 @@ Dynamic optimal power flow with multiple microgrids
 from distribution_system_optimization.test_cases import case33
 from micro_grids.test_cases.cases_unit_commitment import micro_grid
 
-from scipy import zeros, shape, ones, diag, concatenate, eye
+from scipy import zeros, shape, ones, diag, concatenate
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack
-from numpy import flatnonzero as find
 from numpy import array, tile
 
-from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_STATUS, RATE_A
-from pypower.idx_bus import BUS_TYPE, REF, PD, VMAX, VMIN, QD
+from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, RATE_A
+from pypower.idx_bus import PD, VMAX, VMIN, QD
 from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
 from pypower.ext2int import ext2int
 
@@ -201,16 +200,6 @@ class DynamicOptimalPowerFlow():
         Vm_u = bus[:, VMAX] ** 2
         Pg_u = 2 * gen[:, PMAX] / baseMVA
         Qg_u = 2 * gen[:, QMAX] / baseMVA
-        bigM = max(Vm_u)
-        # For the spanning tree constraints
-        Root_node = find(bus[:, BUS_TYPE] == REF)
-        Root_line = find(branch[:, F_BUS] == Root_node)
-
-        Span_f = zeros((nb, nl))
-        Span_t = zeros((nb, nl))
-        for i in range(nb):
-            Span_f[i, find(branch[:, F_BUS] == i)] = 1
-            Span_t[i, find(branch[:, T_BUS] == i)] = 1
 
         nx = int(3 * nl + nb + 2 * ng + 2 * nmg)
         self.nx = nx
