@@ -36,7 +36,6 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         nqc = 0
 
     # Fulfilling the missing information
-    if vtypes == None: vtypes = ["c"] * nx
     if beq is None or len(beq) == 0: beq = -cplex.infinity * ones(neq)
     if b is None or len(b) == 0: b = cplex.infinity * ones(nineq)
     if xmin is None or len(xmin) == 0: xmin = -cplex.infinity * ones(nx)
@@ -97,17 +96,19 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         prob = cplex.Cplex()
 
         # 1) Variables Announcement
-        varnames = ["x" + str(j) for j in range(nx)]
-        var_types = [prob.variables.type.continuous] * nx
+        if vtypes == None:
+            prob.variables.add(obj=c, lb=xmin, ub=xmax)
+        else:
+            var_types = [prob.variables.type.continuous] * nx
 
-        for i in range(nx):
-            if vtypes[i] == "b" or vtypes[i] == "B":
-                var_types[i] = prob.variables.type.binary
+            for i in range(nx):
+                if vtypes[i] == "b" or vtypes[i] == "B":
+                    var_types[i] = prob.variables.type.binary
 
-            elif vtypes[i] == "d" or vtypes[i] == "D":
-                var_types[i] = prob.variables.type.integer
+                elif vtypes[i] == "d" or vtypes[i] == "D":
+                    var_types[i] = prob.variables.type.integer
+            prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types)
 
-        prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
         # 2) Linear constraints
         rhs = beq + b
         sense = ['E'] * neq + ["L"] * nineq
@@ -127,8 +128,8 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
             [rows_A, cols_A] = nonzero(A)
             vals_A = A[rows_A, cols_A]
 
-        rows = concatenate((rows, neq + rows_A)).tolist()
-        cols = concatenate((cols, cols_A)).tolist()
+        rows = concatenate((rows, neq + rows_A)).astype('int').tolist()
+        cols = concatenate((cols, cols_A)).astype('int').tolist()
         vals = concatenate((vals, vals_A)).tolist()
 
         if len(rows) != 0:
@@ -141,10 +142,10 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
                 prob.quadratic_constraints.add(quad_expr=cplex.SparseTriple(Qc[i][0], Qc[i][1], Qc[i][2]))
 
         # 4) Objective values
-        qmat = [0] * nx
-        for i in range(nx):
-            qmat[i] = [[i], [q[i]]]
-        prob.objective.set_quadratic(qmat)
+        # qmat = [0] * nx
+        # for i in range(nx):
+        #     qmat[i] = [[i], [q[i]]]
+        # prob.objective.set_quadratic(qmat)
 
         if objsense is not None:
             if objsense == "max":
@@ -157,7 +158,7 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         # prob.set_warning_stream(None)
         # prob.set_results_stream(None)
 
-        prob.parameters.preprocessing.presolve = 0
+        # prob.parameters.preprocessing.presolve = 0
 
         prob.solve()
 
