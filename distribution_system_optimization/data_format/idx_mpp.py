@@ -12,8 +12,8 @@ RUG = 7
 # Bi-directional convertor set
 IBIC_AC2DC = 8
 PBIC_AC2DC = 9
-QBIC = 10
-PBIC_DC2AC = 11
+PBIC_DC2AC = 10
+QBIC = 11
 # Energy storage system set
 ICH = 12
 PESS_CH = 13
