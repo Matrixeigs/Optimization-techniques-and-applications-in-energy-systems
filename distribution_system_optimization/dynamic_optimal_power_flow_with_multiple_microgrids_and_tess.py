@@ -66,6 +66,7 @@ class DynamicOptimalPowerFlowTess():
             model_tess[i] = self.problem_formulation_tess(tess=tess[i], traffic_networks=traffic_networks)
 
         # 2) System level modelling
+        # 2.1) Merge the model between distribution networks and microgrdis
         nVariables_distribution_network = len(model_distribution_networks["c"])
         if model_distribution_networks["Aeq"] is not None:
             neq_distribution_network = model_distribution_networks["Aeq"].shape[0]
@@ -146,9 +147,70 @@ class DynamicOptimalPowerFlowTess():
 
         Aeq = concatenate([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
+        # 2.2) Merge the model between distribution networks and transportation networks
+        NX_traffic = self.NX_traffic
 
+        nVariables_index_tess = zeros(nev + 1)
+        neq_index_tess = zeros(nev + 1)
+        nineq_index_tess = zeros(nev + 1)
+        nVariables_index_tess[0] = nVariables_index[-1]
+        neq_index_tess[0] = Aeq.shape[0]
+        nineq_index_tess[0] = A.shape[0]
+
+        for i in range(nev):
+            nVariables_index_tess[i + 1] = nVariables_index_tess[i] + len(model_tess[i]["c"])
+            neq_index_tess[i + 1] = neq_index_tess[i] + model_tess[i]["Aeq"].shape[0]
+            nineq_index_tess[i + 1] = nineq_index_tess[i] + model_tess[i]["A"].shape[0]
+            nVariables += len(model_tess[i]["c"])
+            neq += int(model_tess[i]["Aeq"].shape[0])
+            nineq += int(model_tess[i]["A"].shape[0])
+
+            c = concatenate([c, model_tess[i]["c"]])
+            q = concatenate([c, model_tess[i]["q"]])
+            lx = concatenate([lx, model_tess[i]["lb"]])
+            ux = concatenate([ux, model_tess[i]["ub"]])
+            vtypes += model_tess[i]["vtypes"]
+            beq = concatenate([beq, model_tess[i]["beq"]])
+            b = concatenate([b, model_tess[i]["b"]])
+
+        A_full = zeros((int(nineq_index_tess[-1]), int(nVariables_index_tess[-1])))
+        Aeq_full = zeros((int(neq_index_tess[-1]), int(nVariables_index_tess[-1])))
+
+        if Aeq is not None:
+            Aeq_full[0:int(neq_index_tess[0]), 0:int(nVariables_index_tess[0])] = Aeq
+        if A is not None:
+            A_full[0:int(nineq_index_tess[0]), 0:int(nVariables_index_tess[0])] = A
+
+        for i in range(nev):
+            Aeq_full[int(neq_index_tess[i]):int(neq_index_tess[i + 1]),
+            int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["Aeq"]
+
+            A_full[int(nineq_index_tess[i]):int(nineq_index_tess[i + 1]),
+            int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["A"]
+
+        # Coupling constraints between distribution networks and tess
+        Az2x = zeros((2 * nb_traffic * T, int(nVariables_index_tess[-1] - nVariables_index_tess[0])))
+        n_stops = self.n_stops
+        NX_status = self.nl_traffic
+
+        for i in range(nev):
+            Az2x[0:n_stops, i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + 2 * n_stops] = \
+                -eye(n_stops)  # Discharging
+            Az2x[0:n_stops, i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 3 * n_stops] = \
+                eye(n_stops)  # Charging
+            Az2x[n_stops:2 * n_stops, i * NX_traffic + NX_status + 3 * n_stops:i * NX_traffic + NX_status + 4 * n_stops] \
+                = -eye(n_stops)  # Spinning reserve
+
+        Aeq_temp = concatenate(
+            [model_distribution_networks["Ax2z"], zeros((2 * n_stops, int(nVariables_index[-1] - nVariables_index[0]))),
+             Az2x], axis=1)
+        beq_temp = zeros(2 * nb_traffic * T)
+
+        Aeq = concatenate([Aeq_full, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+        A = A_full
         # 3) Solve the problem
-        (xx, obj, success) = miqcp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, Qc=Qc, xmin=lx, xmax=ux)
+        (xx, obj, success) = miqcp(c, q, Aeq=Aeq, beq=beq, vtypes=vtypes, A=A, b=b, Qc=Qc, xmin=lx, xmax=ux)
 
         # 4) Check the solutions, including microgrids and distribution networks
         # 4.1) Scheduling plan of distribution networks
@@ -156,7 +218,10 @@ class DynamicOptimalPowerFlowTess():
         # 4.2) Scheduling plan of each MG
         # a) Energy storage system group
         sol_microgrids = self.solution_check_microgrids(xx=xx, nVariables_index=nVariables_index)
-        return sol_distribution_network, sol_microgrids
+
+        sol_tess = self.solution_check_tess(sol=xx[int(nVariables_index_tess[0]):int(nVariables_index_tess[-1])])
+
+        return sol_distribution_network, sol_microgrids, sol_tess
 
     def problem_formualtion_distribution_networks(self, case, profile, micro_grids, tess, traffic_networks):
         T = self.T
@@ -688,12 +753,12 @@ class DynamicOptimalPowerFlowTess():
         # special attention should be paid here, as the original index has been modified!
         connection_matrix[:, F_BUS] += 1
         connection_matrix[:, T_BUS] += 1
-        for i in range(nb_traffic):
-            temp = zeros((1, 4))
-            temp[0, 1] = i + 1
-            connection_matrix = concatenate([connection_matrix, temp])
+        # From matrix
+        temp = zeros((nb_traffic, 4))
+        for i in range(nb_traffic): temp[i, 1] = i + 1
+        connection_matrix = concatenate([temp, connection_matrix])
 
-        # Delete the out of range lines
+        # To matrix
         for i in range(nb_traffic):
             temp = zeros((1, 4))
             temp[0, 0] = nb_traffic * (T - 1) + i + 1
@@ -705,6 +770,8 @@ class DynamicOptimalPowerFlowTess():
         # Status transition matrix
         nl_traffic = connection_matrix.shape[0]
         nb_traffic_electric = sum((traffic_networks["bus"][:, 2]) >= 0)
+        # 0 represents that, the bus is not within the power networks
+
         status_matrix = zeros((T, nl_traffic))
         for i in range(T):
             for j in range(nl_traffic):
@@ -729,8 +796,8 @@ class DynamicOptimalPowerFlowTess():
 
         NX_traffic = nl_traffic + 4 * n_stops  # Status transition, charging status, charging rate, discharging rate, spinning reserve
         NX_status = nl_traffic
-        lx = zeros((NX_traffic, 1))
-        ux = ones((NX_traffic, 1))
+        lx = zeros(NX_traffic)
+        ux = ones(NX_traffic)
 
         self.NX_traffic = NX_traffic
         self.nl_traffic = nl_traffic
@@ -741,10 +808,10 @@ class DynamicOptimalPowerFlowTess():
         ux[NX_status + 2 * n_stops:NX_status + 3 * n_stops] = tess["PCMAX"]
         ux[NX_status + 3 * n_stops:NX_status + 4 * n_stops] = tess["PCMAX"] + tess["PDMAX"]
         # The initial location and stop location
-        lx[find(connection_matrix[:, F_BUS] == 0), 0] = tess["initial"]
-        ux[find(connection_matrix[:, F_BUS] == 0), 0] = tess["initial"]
-        lx[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1), 0] = tess["end"]
-        ux[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1), 0] = tess["end"]
+        lx[find(connection_matrix[:, F_BUS] == 0)] = tess["initial"]
+        ux[find(connection_matrix[:, F_BUS] == 0)] = tess["initial"]
+        lx[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = tess["end"]
+        ux[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = tess["end"]
 
         vtypes = ["b"] * NX_status + ["b"] * n_stops + ["c"] * 3 * n_stops
 
@@ -767,7 +834,7 @@ class DynamicOptimalPowerFlowTess():
         power_limit = sparse((ones(n_stops), (index_operation, index_stops)), (n_stops, NX_status))
         # This mapping matrix plays an important role in the connection between the power network and traffic network
         ## 1) Stopping status
-        A = zeros((3 * n_stops, NX_traffic))  # Charging, discharging status,RBS,rbu,rbd
+        A = zeros((3 * n_stops, NX_traffic))  # Charging, discharging status,RBS
         # Discharging
         A[0:n_stops, 0: NX_status] = -power_limit.toarray() * tess["PDMAX"]
         A[0:n_stops, NX_status + n_stops: NX_status + 2 * n_stops] = eye(n_stops)
@@ -838,18 +905,56 @@ class DynamicOptimalPowerFlowTess():
 
         # sol = milp(zeros(NX_traffic), q=zeros(NX_traffic), Aeq=Aeq, beq=beq, A=A, b=b, xmin=lx, xmax=ux)
 
-        model_micro_grid = {"c": zeros(NX_traffic),
-                            "q": zeros(NX_traffic),
-                            "lb": lx,
-                            "ub": ux,
-                            "vtypes": vtypes,
-                            "A": A,
-                            "b": b,
-                            "Aeq": Aeq,
-                            "beq": beq,
-                            "NX": NX_traffic, }
+        model_tess = {"c": zeros(NX_traffic),
+                      "q": zeros(NX_traffic),
+                      "lb": lx,
+                      "ub": ux,
+                      "vtypes": vtypes,
+                      "A": A,
+                      "b": b,
+                      "Aeq": Aeq,
+                      "beq": beq,
+                      "NX": NX_traffic, }
 
-        return model_micro_grid
+        return model_tess
+
+    def solution_check_tess(self, sol):
+        """
+        :param sol: solutions for tess
+        :return: decoupled solutions for tess
+        """
+
+        NX_traffic = self.NX_traffic
+        nl_traffic = self.nl_traffic
+        n_stops = self.n_stops
+        nev = self.nev
+        T = self.T
+
+        tsn_ev = zeros((nl_traffic, nev))
+        ich_ev = zeros((n_stops, nev))
+        pdc_ev = zeros((n_stops, nev))
+        pch_ev = zeros((n_stops, nev))
+        rs_ev = zeros((n_stops, nev))
+
+        for i in range(nev):
+            for j in range(nl_traffic):
+                tsn_ev[j, i] = sol[i * NX_traffic + j]
+            for j in range(n_stops):
+                ich_ev[j, i] = sol[i * NX_traffic + nl_traffic + 0 * n_stops + j]
+            for j in range(n_stops):
+                pdc_ev[j, i] = sol[i * NX_traffic + nl_traffic + 1 * n_stops + j]
+            for j in range(n_stops):
+                pch_ev[j, i] = sol[i * NX_traffic + nl_traffic + 2 * n_stops + j]
+            for j in range(n_stops):
+                rs_ev[j, i] = sol[i * NX_traffic + nl_traffic + 3 * n_stops + j]
+
+        sol_tess = {"Tsn_ev": tsn_ev,
+                    "Ich": ich_ev,
+                    "Pdc": pdc_ev,
+                    "Pch": pch_ev,
+                    "Rs": rs_ev, }
+
+        return sol_tess
 
 
 if __name__ == "__main__":
@@ -970,8 +1075,8 @@ if __name__ == "__main__":
                "EMIN": 100,
                "COST_OP": 0.01,
                })
-    ev.append({"initial": array([1, 0, 0, 0, 0, 0]),
-               "end": array([0, 0, 1, 0, 0, 0]),
+    ev.append({"initial": array([1, 0, 0]),
+               "end": array([0, 0, 1]),
                "PCMAX": 100,
                "PDMAX": 100,
                "EFF_CH": 0.9,
@@ -984,8 +1089,8 @@ if __name__ == "__main__":
 
     dynamic_optimal_power_flow = DynamicOptimalPowerFlowTess()
 
-    (sol_dso, sol_mgs) = dynamic_optimal_power_flow.main(case=mpc, profile=load_profile.tolist(),
-                                                         microgrids=case_micro_grids, tess=ev,
-                                                         traffic_networks=traffic_networks)
+    (sol_dso, sol_mgs, sol_tess) = dynamic_optimal_power_flow.main(case=mpc, profile=load_profile.tolist(),
+                                                                   microgrids=case_micro_grids, tess=ev,
+                                                                   traffic_networks=traffic_networks)
 
     print(max(sol_dso["residual"][0]))
