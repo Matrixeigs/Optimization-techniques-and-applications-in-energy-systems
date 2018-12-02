@@ -962,7 +962,7 @@ if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41])*2
 
     # Microgrid information
     Profile = array([
@@ -1064,10 +1064,11 @@ if __name__ == "__main__":
                "EMIN": 50,
                "COST_OP": 0.01,
                })
+    """
     ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
+               "end": array([0, 1, 0]),
+               "PCMAX": 1000,
+               "PDMAX": 1000,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
                "E0": 100,
@@ -1119,6 +1120,7 @@ if __name__ == "__main__":
                "EMIN": 50,
                "COST_OP": 0.01,
                })
+    """
 
     dynamic_optimal_power_flow = DynamicOptimalPowerFlowTess()
 
