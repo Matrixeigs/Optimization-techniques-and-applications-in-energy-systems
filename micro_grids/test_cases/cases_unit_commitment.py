@@ -53,10 +53,13 @@ PD = {"AC": AC_PD / max(AC_PD),
       "DC": DC_PD / max(DC_PD),
       "DC_MAX": 5}
 
+QD = {"AC": AC_PD / max(AC_PD),
+      "AC_MAX": 5, }
+
 micro_grid = {"DG": DG,
               "UG": UG,
               "BIC": BIC,
               "ESS": ESS,
               "PD": PD,
-              "QD": PD,
+              "QD": QD,
               "MG": MG}
