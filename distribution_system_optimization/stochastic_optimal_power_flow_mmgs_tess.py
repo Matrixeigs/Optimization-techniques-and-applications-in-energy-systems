@@ -132,11 +132,11 @@ class StochasticDynamicOptimalPowerFlowTess():
         cess = zeros(nmg)
 
         for i in range(nmg):
-            Pess_ch_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]
-            Pess_dc_u[i] = micro_grids[i]["ESS"]["PDC_MAX"] + micro_grids[i]["ESS"]["PCH_MAX"]
-            Ress_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]
-            Eess_l[i] = micro_grids[i]["ESS"]["EMIN"]
-            Eess_u[i] = micro_grids[i]["ESS"]["EMAX"]
+            Pess_ch_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]/ 1000 / baseMVA
+            Pess_dc_u[i] = (micro_grids[i]["ESS"]["PDC_MAX"] + micro_grids[i]["ESS"]["PCH_MAX"])/ 1000 / baseMVA
+            Ress_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]/ 1000 / baseMVA
+            Eess_l[i] = micro_grids[i]["ESS"]["EMIN"]/ 1000 / baseMVA
+            Eess_u[i] = micro_grids[i]["ESS"]["EMAX"]/ 1000 / baseMVA
 
         NX_first_stage = ng * 2 + nmg * 2 + nmg * 4
         nx_first_stage = (ng * 2 + nmg * 2 + nmg * 4) * T
@@ -212,7 +212,7 @@ class StochasticDynamicOptimalPowerFlowTess():
                 Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = -micro_grids[j]["ESS"]["EFF_CH"]
                 Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1 / micro_grids[j]["ESS"]["EFF_DC"]
                 if i == 0:
-                    beq[i * nmg + j] = micro_grids[j]["ESS"]["E0"]
+                    beq[i * nmg + j] = micro_grids[j]["ESS"]["E0"]/ 1000 / baseMVA
                 else:
                     Aeq[i * nmg + j, (i - 1) * NX_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = -1
 
