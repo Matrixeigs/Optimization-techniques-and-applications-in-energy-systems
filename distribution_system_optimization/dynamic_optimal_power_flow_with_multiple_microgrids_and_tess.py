@@ -367,16 +367,16 @@ class DynamicOptimalPowerFlowTess():
         Ax2y = zeros((2 * nmg * T, NX))  # connection matrix with the microgrids
         for i in range(T):
             for j in range(nmg):
-                Ax2y[i * nmg + j, i * nx + 3 * nl + nb + 2 * ng + j] = baseMVA  # Active power
+                Ax2y[i * nmg + j, i * nx + 3 * nl + nb + 2 * ng + j] = 1000 * baseMVA  # Active power
                 Ax2y[nmg * T + i * nmg + j,
-                     i * nx + 3 * nl + nb + 2 * ng + nmg + j] = baseMVA  # Reactive power
+                     i * nx + 3 * nl + nb + 2 * ng + nmg + j] = 1000 * baseMVA  # Reactive power
 
         Ax2z = zeros((2 * nb_traffic * T, NX))  # connection matrix with the tess
         for i in range(T):
             for j in range(nb_traffic):
-                Ax2z[i * nb_traffic + j, i * nx + 3 * nl + nb + 2 * ng + 2 * nmg + j] = baseMVA  # Active power
+                Ax2z[i * nb_traffic + j, i * nx + 3 * nl + nb + 2 * ng + 2 * nmg + j] = 1000 * baseMVA  # Active power
                 Ax2z[nb_traffic * T + i * nb_traffic + j,
-                     i * nx + 3 * nl + nb + 2 * ng + 2 * nmg + nb_traffic + j] = baseMVA  # Spinning reserve
+                     i * nx + 3 * nl + nb + 2 * ng + 2 * nmg + nb_traffic + j] = 1000 * baseMVA  # Spinning reserve
 
         # sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
 
@@ -962,7 +962,7 @@ if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81, 0.59, 0.35, 0.14, 0.17, 0.41])*2
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41]) * 2
 
     # Microgrid information
     Profile = array([
