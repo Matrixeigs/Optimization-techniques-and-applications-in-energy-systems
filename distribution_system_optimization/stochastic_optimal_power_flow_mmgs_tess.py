@@ -93,7 +93,8 @@ class StochasticDynamicOptimalPowerFlowTess():
         mpc = ext2int(power_networks)
         baseMVA, bus, gen, branch, gencost = mpc["baseMVA"], mpc["bus"], mpc["gen"], mpc["branch"], mpc["gencost"]
         ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
-
+        nb = shape(mpc["bus"])[0]
+        self.nb = nb
         # Boundary for DGs within distribution networks
         Pg_l = gen[:, PMIN] / baseMVA
         Rg_l = gen[:, PMIN] / baseMVA
@@ -121,90 +122,102 @@ class StochasticDynamicOptimalPowerFlowTess():
         Pess_dc_l = zeros(nmg)
         Eess_l = zeros(nmg)
         Ress_l = zeros(nmg)
+        Iess_l = zeros(nmg)
 
         Pess_ch_u = zeros(nmg)
         Pess_dc_u = zeros(nmg)
         Eess_u = zeros(nmg)
         Ress_u = zeros(nmg)
+        Iess_u = ones(nmg)
+
         cess_ch = zeros(nmg)
         cess_dc = zeros(nmg)
         cess_r = zeros(nmg)
         cess = zeros(nmg)
+        cess_i = zeros(nmg)
 
         for i in range(nmg):
-            Pess_ch_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]/ 1000 / baseMVA
-            Pess_dc_u[i] = (micro_grids[i]["ESS"]["PDC_MAX"] + micro_grids[i]["ESS"]["PCH_MAX"])/ 1000 / baseMVA
-            Ress_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]/ 1000 / baseMVA
-            Eess_l[i] = micro_grids[i]["ESS"]["EMIN"]/ 1000 / baseMVA
-            Eess_u[i] = micro_grids[i]["ESS"]["EMAX"]/ 1000 / baseMVA
+            Pess_ch_u[i] = micro_grids[i]["ESS"]["PCH_MAX"] / 1000 / baseMVA
+            Pess_dc_u[i] = (micro_grids[i]["ESS"]["PDC_MAX"] + micro_grids[i]["ESS"]["PCH_MAX"]) / 1000 / baseMVA
+            Ress_u[i] = micro_grids[i]["ESS"]["PCH_MAX"] / 1000 / baseMVA
+            Eess_l[i] = micro_grids[i]["ESS"]["EMIN"] / 1000 / baseMVA
+            Eess_u[i] = micro_grids[i]["ESS"]["EMAX"] / 1000 / baseMVA
 
-        NX_first_stage = ng * 2 + nmg * 2 + nmg * 4
-        nx_first_stage = (ng * 2 + nmg * 2 + nmg * 4) * T
+        NX_first_stage = ng * 2 + nmg * 2 + nmg * 5
+        nVariables_first_stage = NX_first_stage * T
         # Formulate the boundaries
-        lx = concatenate([tile(concatenate([Pg_l, Rg_l, Pg_mg_l, Rg_mg_l, Pess_ch_l, Pess_dc_l, Eess_l, Ress_l]), T)])
-        ux = concatenate([tile(concatenate([Pg_u, Rg_u, Pg_mg_u, Rg_mg_u, Pess_ch_u, Pess_dc_u, Eess_u, Ress_u]), T)])
+        lx = concatenate(
+            [tile(concatenate([Pg_l, Rg_l, Pg_mg_l, Rg_mg_l, Pess_ch_l, Pess_dc_l, Eess_l, Ress_l, Iess_l]), T)])
+        ux = concatenate(
+            [tile(concatenate([Pg_u, Rg_u, Pg_mg_u, Rg_mg_u, Pess_ch_u, Pess_dc_u, Eess_u, Ress_u, Iess_u]), T)])
         # Objective value
-        c = concatenate([tile(concatenate([cg, cr, cg_mg, cr_mg, cess_ch, cess_dc, cess, cess_r]), T)])
+        c = concatenate([tile(concatenate([cg, cr, cg_mg, cr_mg, cess_ch, cess_dc, cess, cess_r, cess_i]), T)])
         # Variable types
-        vtypes = ["c"] * nx_first_stage
+        vtypes = (["c"] * (ng * 2 + nmg * 2 + nmg * 4) + ["b"] * nmg) * T
 
         ## Constraint sets
         # 1) Pg+Rg<=Pgu
-        A = zeros((ng, nx_first_stage))
-        b = zeros(ng)
-        for i in range(ng):
-            A[i, i] = 1
-            A[i, ng + i] = 1
-            b[i] = Pg_u[i]
+        A = zeros((ng * T, nVariables_first_stage))
+        b = zeros(ng * T)
+        for i in range(T):
+            for j in range(ng):
+                A[i * ng + j, i * NX_first_stage + j] = 1
+                A[i * ng + j, i * NX_first_stage + ng + j] = 1
+                b[i * ng + j] = Pg_u[j]
         # 2) Pg-Rg>=Pgl
-        A_temp = zeros((ng, nx_first_stage))
-        b_temp = zeros(ng)
-        for i in range(ng):
-            A_temp[i, i] = -1
-            A_temp[i, ng + i] = 1
-            b_temp[i] = -Pg_l[i]
+        A_temp = zeros((ng * T, nVariables_first_stage))
+        b_temp = zeros(ng * T)
+        for i in range(i):
+            for j in range(ng):
+                A_temp[i * ng + j, i * NX_first_stage + j] = -1
+                A_temp[i * ng + j, i * NX_first_stage + ng + j] = 1
+                b_temp[i * ng + j] = -Pg_l[j]
         A = concatenate([A, A_temp])
         b = concatenate([b, b_temp])
         # 3) Pg_mg+Rg_mg<=Pg_mg_u
-        A_temp = zeros((nmg, nx_first_stage))
-        b_temp = zeros(nmg)
-        for i in range(nmg):
-            A_temp[i, ng * 2 + i] = 1
-            A_temp[i, ng * 2 + nmg + i] = 1
-            b_temp[i] = Pg_mg_u[i]
+        A_temp = zeros((nmg * T, nVariables_first_stage))
+        b_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + j] = 1
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg + j] = 1
+                b_temp[i * nmg + j] = Pg_mg_u[j]
         A = concatenate([A, A_temp])
         b = concatenate([b, b_temp])
         # 4) Pg_mg-Rg_mg<=Pg_mg_l
-        A_temp = zeros((nmg, nx_first_stage))
-        b_temp = zeros(nmg)
-        for i in range(nmg):
-            A_temp[i, ng * 2 + i] = -1
-            A_temp[i, ng * 2 + nmg + i] = 1
-            b_temp[i] = Pg_mg_l[i]
+        A_temp = zeros((nmg * T, nVariables_first_stage))
+        b_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + j] = -1
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg + j] = 1
+                b_temp[i * nmg + j] = Pg_mg_l[j]
         A = concatenate([A, A_temp])
         b = concatenate([b, b_temp])
         # 5) Pess_dc-Pess_ch+Ress<=Pess_dc_max
-        A_temp = zeros((nmg, nx_first_stage))
-        b_temp = zeros(nmg)
-        for i in range(nmg):
-            A_temp[i, ng * 2 + nmg * 2 + i] = -1
-            A_temp[i, ng * 2 + nmg * 2 + nmg + i] = 1
-            A_temp[i, ng * 2 + nmg * 2 + nmg * 2 + i] = 1
-            b_temp[i] = Pess_dc_u[i]
+        A_temp = zeros((nmg * T, nVariables_first_stage))
+        b_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = -1
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg * 2 + j] = 1
+                b_temp[i * nmg + j] = Pess_dc_u[j]
         A = concatenate([A, A_temp])
         b = concatenate([b, b_temp])
         # 6) Pess_ch-Pess_dc+Ress<=Pess_ch_max
-        A_temp = zeros((nmg, nx_first_stage))
-        b_temp = zeros(nmg)
-        for i in range(nmg):
-            A_temp[i, ng * 2 + nmg * 2 + i] = 1
-            A_temp[i, ng * 2 + nmg * 2 + nmg + i] = -1
-            A_temp[i, ng * 2 + nmg * 2 + nmg * 2 + i] = 1
-            b_temp[i] = Pess_ch_u[i]
+        A_temp = zeros((nmg * T, nVariables_first_stage))
+        b_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                A_temp[i * nmg + j, ng * 2 + nmg * 2 + i] = 1
+                A_temp[i * nmg + j, ng * 2 + nmg * 2 + nmg + i] = -1
+                A_temp[i * nmg + j, ng * 2 + nmg * 2 + nmg * 2 + i] = 1
+                b_temp[i * nmg + j] = Pess_ch_u[j]
         A = concatenate([A, A_temp])
         b = concatenate([b, b_temp])
         # 7) Energy storage balance equation
-        Aeq = zeros((T * nmg, nx_first_stage))
+        Aeq = zeros((T * nmg, nVariables_first_stage))
         beq = zeros(T * nmg)
         for i in range(T):
             for j in range(nmg):
@@ -212,17 +225,82 @@ class StochasticDynamicOptimalPowerFlowTess():
                 Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = -micro_grids[j]["ESS"]["EFF_CH"]
                 Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1 / micro_grids[j]["ESS"]["EFF_DC"]
                 if i == 0:
-                    beq[i * nmg + j] = micro_grids[j]["ESS"]["E0"]/ 1000 / baseMVA
+                    beq[i * nmg + j] = micro_grids[j]["ESS"]["E0"] / 1000 / baseMVA
                 else:
                     Aeq[i * nmg + j, (i - 1) * NX_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = -1
+        # 8) Pess_ch<=I*Pess_ch_max
+        A_temp = zeros((nmg * T, nVariables_first_stage))
+        b_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = 1
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg * 4 + j] = -Pess_ch_u[j]
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 9) Pess_dc<=(1-I)*Pess_dc_max
+        A_temp = zeros((nmg * T, nVariables_first_stage))
+        b_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1
+                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg * 4 + j] = Pess_dc_u[j]
+                b_temp[i * nmg + j] = Pess_dc_u[j]
+        A = concatenate([A, A_temp])
+        b = concatenate([b, b_temp])
+
+        # 2) Transportation energy storage systems problem
+        model_tess = {}
+        for i in range(nev):
+            model_tess[i] = self.problem_formulation_tess(tess=tess[i], traffic_networks=traffic_networks)
+        # 3) Merge the DGs, ESSs and TESSs
+        nVariables = nVariables_first_stage
+        neq = Aeq.shape[0]
+        nineq = A.shape[0]
+
+        nVariables_index_tess = zeros(nev + 1)
+        neq_index_tess = zeros(nev + 1)
+        nineq_index_tess = zeros(nev + 1)
+        nVariables_index_tess[0] = nVariables_first_stage
+        neq_index_tess[0] = neq
+        nineq_index_tess[0] = nineq
+
+        for i in range(nev):
+            nVariables_index_tess[i + 1] = nVariables_index_tess[i] + len(model_tess[i]["c"])
+            neq_index_tess[i + 1] = neq_index_tess[i] + model_tess[i]["Aeq"].shape[0]
+            nineq_index_tess[i + 1] = nineq_index_tess[i] + model_tess[i]["A"].shape[0]
+            nVariables += len(model_tess[i]["c"])
+            neq += int(model_tess[i]["Aeq"].shape[0])
+            nineq += int(model_tess[i]["A"].shape[0])
+
+            c = concatenate([c, model_tess[i]["c"]])
+            lx = concatenate([lx, model_tess[i]["lb"]])
+            ux = concatenate([ux, model_tess[i]["ub"]])
+            vtypes += model_tess[i]["vtypes"]
+            beq = concatenate([beq, model_tess[i]["beq"]])
+            b = concatenate([b, model_tess[i]["b"]])
+
+        A_full = zeros((int(nineq_index_tess[-1]), int(nVariables_index_tess[-1])))
+        Aeq_full = zeros((int(neq_index_tess[-1]), int(nVariables_index_tess[-1])))
+
+        if Aeq is not None:
+            Aeq_full[0:int(neq_index_tess[0]), 0:int(nVariables_index_tess[0])] = Aeq
+        if A is not None:
+            A_full[0:int(nineq_index_tess[0]), 0:int(nVariables_index_tess[0])] = A
+
+        for i in range(nev):
+            Aeq_full[int(neq_index_tess[i]):int(neq_index_tess[i + 1]),
+            int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["Aeq"]
+
+            A_full[int(nineq_index_tess[i]):int(nineq_index_tess[i + 1]),
+            int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["A"]
 
         model_first_stage = {"c": c,
                              "lb": lx,
                              "ub": ux,
                              "vtypes": vtypes,
-                             "A": A,
+                             "A": A_full,
                              "b": b,
-                             "Aeq": Aeq,
+                             "Aeq": Aeq_full,
                              "beq": beq, }
 
         return model_first_stage
@@ -407,70 +485,6 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_micro_grid
 
-    def solution_check_microgrids(self, xx, nVariables_index):
-        T = self.T
-        nmg = self.nmg
-
-        Pess_dc = zeros((nmg, T))
-        Pess_ch = zeros((nmg, T))
-        Ress = zeros((nmg, T))
-        Eess = zeros((nmg, T))
-        # b) Diesel generator group
-        Pg = zeros((nmg, T))
-        Qg = zeros((nmg, T))
-        Rg = zeros((nmg, T))
-        # c) Utility grid group
-        Pug = zeros((nmg, T))
-        Qug = zeros((nmg, T))
-        Rug = zeros((nmg, T))
-        # d) Bi-directional converter group
-        Pbic_a2d = zeros((nmg, T))
-        Pbic_d2a = zeros((nmg, T))
-        Qbic = zeros((nmg, T))
-        for i in range(T):
-            for j in range(nmg):
-                Pess_dc[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PESS_DC]
-                Pess_ch[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PESS_CH]
-                Ress[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RESS]
-                Eess[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + EESS]
-
-                Pg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PG]
-                Qg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QG]
-                Rg[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RG]
-
-                Pug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PUG]
-                Qug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QUG]
-                Rug[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + RUG]
-
-                Pbic_a2d[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_AC2DC]
-                Pbic_d2a[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + PBIC_DC2AC]
-                Qbic[j, i] = xx[int(nVariables_index[j]) + i * NX_MG + QBIC]
-        # e) voilation of bi-directional power flows
-        vol_bic = zeros((nmg, T))
-        vol_ess = zeros((nmg, T))
-        for i in range(T):
-            for j in range(nmg):
-                vol_ess[j, i] = Pess_dc[j, i] * Pess_ch[j, i]
-                vol_bic[j, i] = Pbic_a2d[j, i] * Pbic_d2a[j, i]
-
-        sol_microgrids = {"PESS_DC": Pess_dc,
-                          "PESS_CH": Pess_ch,
-                          "RESS": Ress,
-                          "EESS": Eess,
-                          "PG": Pg,
-                          "QG": Qg,
-                          "RG": Rg,
-                          "PUG": Pug,
-                          "QUG": Qug,
-                          "RUG": Rug,
-                          "PBIC_AC2DC": Pbic_a2d,
-                          "PBIC_DC2AC": Pbic_d2a,
-                          "QBIC": Qbic,
-                          "VOL_BIC": vol_bic,
-                          "VOL_ESS": vol_ess, }
-
-        return sol_microgrids
-
     def problem_formulation_tess(self, tess, traffic_networks):
         """
         Problem formulation for transportation energy storage scheduling, including vehicle routine problem and etc.
@@ -484,7 +498,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         nl_traffic = traffic_networks["branch"].shape[0]
 
-        # Formulate the connection matrix between the transportaion networks and power networks
+        # Formulate the connection matrix between the transportation networks and power networks
         connection_matrix = zeros(((2 * nl_traffic + nb_traffic) * T, 4))
         weight = zeros(((2 * nl_traffic + nb_traffic) * T, 1))
         for i in range(T):
@@ -608,18 +622,16 @@ class StochasticDynamicOptimalPowerFlowTess():
         power_limit = sparse((ones(n_stops), (index_operation, index_stops)), (n_stops, NX_status))
         # This mapping matrix plays an important role in the connection between the power network and traffic network
         ## 1) Stopping status
-        A = zeros((3 * n_stops, NX_traffic))  # Charging, discharging status,RBS
+        A = zeros((3 * n_stops, NX_traffic))  # Charging, discharging status, RBS
         # Discharging
         A[0:n_stops, 0: NX_status] = -power_limit.toarray() * tess["PDMAX"]
         A[0:n_stops, NX_status + n_stops: NX_status + 2 * n_stops] = eye(n_stops)
         # Charging
         A[n_stops:n_stops * 2, 0: NX_status] = -power_limit.toarray() * tess["PCMAX"]
-
         A[n_stops:n_stops * 2, NX_status + 2 * n_stops:NX_status + 3 * n_stops] = eye(n_stops)
         # spinning reserve
         A[n_stops * 2: n_stops * 3, 0: NX_status] = -power_limit.toarray() * (tess["PCMAX"] + tess["PDMAX"])
         A[n_stops * 2:n_stops * 3, NX_status + 3 * n_stops:NX_status + 4 * n_stops] = eye(n_stops)
-
         b = zeros(3 * n_stops)
 
         ## 2) Operating status
@@ -643,9 +655,10 @@ class StochasticDynamicOptimalPowerFlowTess():
         Areserve[0: n_stops, NX_status + n_stops * 2:NX_status + n_stops * 3] = -eye(n_stops)
         Areserve[0: n_stops, NX_status + n_stops * 3:NX_status + n_stops * 4] = eye(n_stops)
         breserve[0: n_stops] = ones(n_stops) * tess["PDMAX"]
-        # 2) Pc-Pdc<=Pc_max
-        Areserve[n_stops:n_stops * 2, NX_status + n_stops: NX_status + n_stops * 2] = -eye(n_stops)
+        # 2) Pc-Pdc+Rbs<=Pc_max
+        Areserve[n_stops:n_stops * 2, NX_status + n_stops: NX_status + n_stops * 2] = - eye(n_stops)
         Areserve[n_stops:n_stops * 2, NX_status + n_stops * 2:NX_status + n_stops * 3] = eye(n_stops)
+        Areserve[n_stops:n_stops * 2, NX_status + n_stops * 3:NX_status + n_stops * 4] = eye(n_stops)
         breserve[n_stops:n_stops * 2] = ones(n_stops) * tess["PCMAX"]
 
         A = concatenate([A, Areserve])
