@@ -3,6 +3,7 @@ Stochastic optimal power flow with multiple microgrids and mobile energy storage
 @author: Zhao Tianyang
 @e-mail: zhaoty@ntu.edu.sg
 @date: 4 Jan 2019
+The matrix is stored using lil_matrix
 """
 
 from distribution_system_optimization.test_cases import case33
@@ -11,7 +12,7 @@ from transportation_systems.test_cases import case3, TIME, LOCATION
 
 from scipy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
-from scipy.sparse import hstack, vstack
+from scipy.sparse import hstack, vstack, lil_matrix
 from numpy import flatnonzero as find
 from numpy import array, tile, arange, random
 
@@ -64,8 +65,11 @@ class StochasticDynamicOptimalPowerFlowTess():
         sol_first_stage = milp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
                                A=model_first_stage["A"], b=model_first_stage["b"], vtypes=model_first_stage["vtypes"],
                                xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
-        # 2) Formualte the second stage optimization problem
-
+        # 2) Formulate the second stage optimization problem
+        model_second_stage = self.second_stage_problem_formualtion(power_networks=case,
+                                                                   micro_grids=micro_grids_second_stage[0],
+                                                                   tess=tess, traffic_networks=traffic_networks,
+                                                                   profile=profile_second_second[0])
         # 3) Obtain the results for first-stage and second stage optimization problems
 
         # 4) Verify the first-stage and second stage optization problem
@@ -305,7 +309,175 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_first_stage
 
-        # The decision variables include the output of generators within MGs, ESSs and TESSs scheduling
+    def second_stage_problem_formualtion(self, power_networks, micro_grids, tess, traffic_networks, profile):
+        """
+        Second-stage problem formulation, the decision variables includes DGs within power networks, DGs within MGs, EESs within MGs and TESSs and other systems' information
+        :param power_networks:
+        :param micro_grids:
+        :param tess:
+        :param traffic_networks:
+        :return: The second stage problems as list, including coupling constraints, and other constraint set
+        """
+        T = self.T  # Time slots
+        nmg = self.nmg  # Number of mgs
+        nev = self.nev  # Number of tess
+
+        mpc = ext2int(power_networks)
+        baseMVA, bus, gen, branch, gencost = mpc["baseMVA"], mpc["bus"], mpc["gen"], mpc["branch"], mpc["gencost"]
+
+        nb = shape(mpc['bus'])[0]  ## number of buses
+        nl = shape(mpc['branch'])[0]  ## number of branches
+        ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
+        nmg = self.nmg
+        nev = self.nev
+        nb_traffic = self.nb_traffic
+
+        self.nl = nl
+        self.nb = nb
+        self.ng = ng
+
+        m = zeros(nmg)  ## list of integration index
+        Pmg_l = zeros(nmg)  ## list of lower boundary
+        Pmg_u = zeros(nmg)  ## list of upper boundary
+        Qmg_l = zeros(nmg)  ## list of lower boundary
+        Qmg_u = zeros(nmg)  ## list of upper boundary
+        for i in range(nmg):
+            m[i] = micro_grids[i]["BUS"]
+            Pmg_l[i] = micro_grids[i]["UG"]["PMIN"] / 1000 / baseMVA
+            Pmg_u[i] = micro_grids[i]["UG"]["PMAX"] / 1000 / baseMVA
+            Qmg_l[i] = micro_grids[i]["UG"]["QMIN"] / 1000 / baseMVA
+            Qmg_u[i] = micro_grids[i]["UG"]["QMAX"] / 1000 / baseMVA
+
+        n = traffic_networks["bus"][:, -1]  ## list of integration index
+        Pev_l = zeros(nb_traffic)  ## lower boundary for energy exchange
+        Pev_u = zeros(nb_traffic)  ## upper boundary for energy exchange
+        Rev_l = zeros(nb_traffic)  ## lower boundary for spinning reserve
+        Rev_u = zeros(nb_traffic)  ## upper boundary for spinning reserve
+        for i in range(nb_traffic):
+            for j in range(nev):
+                Pev_l[i] = Pev_l[i] - tess[j]["PCMAX"] / 1000 / baseMVA
+                Pev_u[i] = Pev_u[i] + tess[j]["PDMAX"] / 1000 / baseMVA
+                Rev_l[i] = 0
+                Rev_u[i] = Rev_u[i] + (tess[j]["PCMAX"] + tess[j]["PDMAX"]) / 1000 / baseMVA
+
+        f = branch[:, F_BUS]  ## list of "from" buses
+        t = branch[:, T_BUS]  ## list of "to" buses
+        i = range(nl)  ## double set of row indices
+        self.f = f  ## record from bus for each branch
+
+        # Connection matrix
+        Cf = sparse((ones(nl), (i, f)), (nl, nb))
+        Ct = sparse((ones(nl), (i, t)), (nl, nb))
+        Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
+        Cmg = sparse((ones(nmg), (m, range(nmg))), (nb, nmg))
+        Cev = sparse((ones(nb_traffic), (n, range(nb_traffic))), (nb, nb_traffic))
+
+        Branch_R = branch[:, BR_R]
+        Branch_X = branch[:, BR_X]
+        Cf = Cf.T
+        Ct = Ct.T
+        # Obtain the boundary information
+        Slmax = branch[:, RATE_A] / baseMVA
+
+        Pij_l = -Slmax
+        Qij_l = -Slmax
+        Iij_l = zeros(nl)
+        Vm_l = bus[:, VMIN] ** 2
+        Pg_l = gen[:, PMIN] / baseMVA
+        Qg_l = gen[:, QMIN] / baseMVA
+
+        Pij_u = Slmax
+        Qij_u = Slmax
+        Iij_u = Slmax
+        Vm_u = bus[:, VMAX] ** 2
+        Pg_u = 2 * gen[:, PMAX] / baseMVA
+        Qg_u = 2 * gen[:, QMAX] / baseMVA
+
+        nx = int(3 * nl + nb + 2 * ng + 2 * nmg + 2 * nb_traffic)
+        self.nx = nx  # Number of decision variable within each time slot
+
+        lx = concatenate([tile(concatenate([Pij_l, Qij_l, Iij_l, Vm_l, Pg_l, Qg_l, Pmg_l, Qmg_l, Pev_l, Rev_l]), T)])
+        ux = concatenate([tile(concatenate([Pij_u, Qij_u, Iij_u, Vm_u, Pg_u, Qg_u, Pmg_u, Qmg_u, Pev_u, Rev_u]), T)])
+
+        vtypes = ["c"] * nx * T
+        NX = nx * T  # Number of total decision variables
+
+        # Add system level constraints
+        # 1) Active power balance
+        Aeq_p = zeros((nb * T, NX))
+        beq_p = zeros(nb * T)
+        for i in range(T):
+            Aeq_p[i * nb:(i + 1) * nb, i * nx: (i + 1) * nx] = hstack([Ct - Cf, zeros((nb, nl)),
+                                                                       -diag(Ct * Branch_R) * Ct,
+                                                                       zeros((nb, nb)), Cg,
+                                                                       zeros((nb, ng)), -Cmg,
+                                                                       zeros((nb, nmg)), Cev,
+                                                                       zeros((nb, nb_traffic))]).toarray()
+
+            beq_p[i * nb:(i + 1) * nb] = profile[i] * bus[:, PD] / baseMVA
+
+        # 2) Reactive power balance
+        Aeq_q = zeros((nb * T, NX))
+        beq_q = zeros(nb * T)
+        for i in range(T):
+            Aeq_q[i * nb:(i + 1) * nb, i * nx: (i + 1) * nx] = hstack([zeros((nb, nl)), Ct - Cf,
+                                                                       -diag(Ct * Branch_X) * Ct,
+                                                                       zeros((nb, nb)),
+                                                                       zeros((nb, ng)), Cg,
+                                                                       zeros((nb, nmg)),
+                                                                       -Cmg, zeros((nb, 2 * nb_traffic))]).toarray()
+            beq_q[i * nb:(i + 1) * nb] = profile[i] * bus[:, QD] / baseMVA
+        # 3) KVL equation
+        Aeq_kvl = zeros((nl * T, NX))
+        beq_kvl = zeros(nl * T)
+
+        for i in range(T):
+            Aeq_kvl[i * nl:(i + 1) * nl, i * nx: i * nx + nl] = -2 * diag(Branch_R)
+            Aeq_kvl[i * nl:(i + 1) * nl, i * nx + nl: i * nx + 2 * nl] = -2 * diag(Branch_X)
+            Aeq_kvl[i * nl:(i + 1) * nl, i * nx + 2 * nl: i * nx + 3 * nl] = diag(Branch_R ** 2) + diag(Branch_X ** 2)
+            Aeq_kvl[i * nl:(i + 1) * nl, i * nx + 3 * nl:i * nx + 3 * nl + nb] = (Cf.T - Ct.T).toarray()
+
+        Aeq = vstack([Aeq_p, Aeq_q, Aeq_kvl]).toarray()
+        beq = concatenate([beq_p, beq_q, beq_kvl])
+
+        # 4) Pij**2+Qij**2<=Vi*Iij
+        Qc = dict()
+        for t in range(T):
+            for i in range(nl):
+                Qc[t * nl + i] = [[int(t * nx + i), int(t * nx + i + nl),
+                                   int(t * nx + i + 2 * nl), int(t * nx + f[i] + 3 * nl)],
+                                  [int(t * nx + i), int(t * nx + i + nl),
+                                   int(t * nx + f[i] + 3 * nl), int(t * nx + i + 2 * nl)],
+                                  [1, 1, -1 / 2, -1 / 2]]
+
+        c = zeros(NX)
+        q = zeros(NX)
+        c0 = 0
+        for t in range(T):
+            for i in range(ng):
+                c[t * nx + i + 3 * nl + nb] = gencost[i, 5] * baseMVA
+                q[t * nx + i + 3 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
+                c0 += gencost[i, 6]
+
+        # The boundary information
+
+        sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
+
+        model_second_stage = {"c": c,
+                              "q": q,
+                              "lb": lx,
+                              "ub": ux,
+                              "vtypes": vtypes,
+                              "A": None,
+                              "b": None,
+                              "Aeq": Aeq,
+                              "beq": beq,
+                              "Qc": Qc,
+                              "c0": c0,
+                              "Ax2y": Ax2y,
+                              "Ax2z": Ax2z}
+
+        return model_second_stage
 
     def problem_formulation_microgrid(self, micro_grid):
         """
