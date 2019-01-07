@@ -247,10 +247,10 @@ class DynamicOptimalPowerFlowTess():
         Qmg_u = zeros(nmg)  ## list of upper boundary
         for i in range(nmg):
             m[i] = micro_grids[i]["BUS"]
-            Pmg_l[i] = micro_grids[i]["UG"]["PMIN"] / baseMVA
-            Pmg_u[i] = micro_grids[i]["UG"]["PMAX"] / baseMVA
-            Qmg_l[i] = micro_grids[i]["UG"]["QMIN"] / baseMVA
-            Qmg_u[i] = micro_grids[i]["UG"]["QMAX"] / baseMVA
+            Pmg_l[i] = micro_grids[i]["UG"]["PMIN"] / 1000 / baseMVA
+            Pmg_u[i] = micro_grids[i]["UG"]["PMAX"] / 1000 / baseMVA
+            Qmg_l[i] = micro_grids[i]["UG"]["QMIN"] / 1000 / baseMVA
+            Qmg_u[i] = micro_grids[i]["UG"]["QMAX"] / 1000 / baseMVA
 
         n = traffic_networks["bus"][:, -1]  ## list of integration index
         Pev_l = zeros(nb_traffic)  ## lower boundary for energy exchange
@@ -259,10 +259,10 @@ class DynamicOptimalPowerFlowTess():
         Rev_u = zeros(nb_traffic)  ## upper boundary for spinning reserve
         for i in range(nb_traffic):
             for j in range(nev):
-                Pev_l[i] = Pev_l[i] - tess[j]["PCMAX"] / baseMVA
-                Pev_u[i] = Pev_u[i] + tess[j]["PDMAX"] / baseMVA
+                Pev_l[i] = Pev_l[i] - tess[j]["PCMAX"] / 1000 / baseMVA
+                Pev_u[i] = Pev_u[i] + tess[j]["PDMAX"] / 1000 / baseMVA
                 Rev_l[i] = 0
-                Rev_u[i] = Rev_u[i] + (tess[j]["PCMAX"] + tess[j]["PDMAX"]) / baseMVA
+                Rev_u[i] = Rev_u[i] + (tess[j]["PCMAX"] + tess[j]["PDMAX"]) / 1000 / baseMVA
 
         f = branch[:, F_BUS]  ## list of "from" buses
         t = branch[:, T_BUS]  ## list of "to" buses
@@ -975,8 +975,8 @@ if __name__ == "__main__":
     ])
     micro_grid_1 = deepcopy(micro_grid)
     micro_grid_1["BUS"] = 2
-    micro_grid_1["PD"]["AC_MAX"] = 10
-    micro_grid_1["PD"]["DC_MAX"] = 10
+    micro_grid_1["PD"]["AC_MAX"] = 50
+    micro_grid_1["PD"]["DC_MAX"] = 50
     micro_grid_1["UG"]["PMIN"] = -500
     micro_grid_1["UG"]["PMAX"] = 500
     micro_grid_1["UG"]["QMIN"] = -500
