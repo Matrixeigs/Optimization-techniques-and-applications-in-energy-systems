@@ -17,7 +17,7 @@ from numpy import flatnonzero as find
 from numpy import array, tile, arange, random
 
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, RATE_A
-from pypower.idx_bus import BUS_TYPE, REF, PD, VMAX, VMIN, QD
+from pypower.idx_bus import PD, VMAX, VMIN, QD
 from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
 from pypower.ext2int import ext2int
 
@@ -26,8 +26,8 @@ from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming
 
 from copy import deepcopy
 
-from distribution_system_optimization.data_format.idx_opf import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, RUG, \
-    RESS, RG, EESS, NX_MG, QBIC, QUG, QG
+from distribution_system_optimization.data_format.idx_MG import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, \
+    PMESS, EESS, NX_MG, QBIC, QUG, QG
 
 
 class StochasticDynamicOptimalPowerFlowTess():
@@ -62,14 +62,14 @@ class StochasticDynamicOptimalPowerFlowTess():
         # 1) Formulate the first stage optimization problem
         model_first_stage = self.first_stage_problem_formualtion(power_networks=case, micro_grids=micro_grids,
                                                                  tess=tess, traffic_networks=traffic_networks)
-        sol_first_stage = milp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
-                               A=model_first_stage["A"], b=model_first_stage["b"], vtypes=model_first_stage["vtypes"],
-                               xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
+        # sol_first_stage = milp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
+        #                        A=model_first_stage["A"], b=model_first_stage["b"], vtypes=model_first_stage["vtypes"],
+        #                        xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
         # 2) Formulate the second stage optimization problem
         model_second_stage = self.second_stage_problem_formualtion(power_networks=case,
                                                                    micro_grids=micro_grids_second_stage[0],
                                                                    tess=tess, traffic_networks=traffic_networks,
-                                                                   profile=profile_second_second[0])
+                                                                   profile=profile_second_second[0, :])
         # 3) Obtain the results for first-stage and second stage optimization problems
 
         # 4) Verify the first-stage and second stage optization problem
@@ -79,7 +79,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         # 4) Formulate the second stage problem, under different scenarios
 
         # return sol_distribution_network, sol_microgrids, sol_tess
-        return sol_first_stage
+        return model_first_stage
 
     def first_stage_problem_formualtion(self, power_networks, micro_grids, tess, traffic_networks):
         """
@@ -318,9 +318,8 @@ class StochasticDynamicOptimalPowerFlowTess():
         :param traffic_networks:
         :return: The second stage problems as list, including coupling constraints, and other constraint set
         """
+        # I) Formulate the problem for distribution systems operator
         T = self.T  # Time slots
-        nmg = self.nmg  # Number of mgs
-        nev = self.nev  # Number of tess
 
         mpc = ext2int(power_networks)
         baseMVA, bus, gen, branch, gencost = mpc["baseMVA"], mpc["bus"], mpc["gen"], mpc["branch"], mpc["gencost"]
@@ -330,7 +329,6 @@ class StochasticDynamicOptimalPowerFlowTess():
         ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
         nmg = self.nmg
         nev = self.nev
-        nb_traffic = self.nb_traffic
 
         self.nl = nl
         self.nb = nb
@@ -348,18 +346,6 @@ class StochasticDynamicOptimalPowerFlowTess():
             Qmg_l[i] = micro_grids[i]["UG"]["QMIN"] / 1000 / baseMVA
             Qmg_u[i] = micro_grids[i]["UG"]["QMAX"] / 1000 / baseMVA
 
-        n = traffic_networks["bus"][:, -1]  ## list of integration index
-        Pev_l = zeros(nb_traffic)  ## lower boundary for energy exchange
-        Pev_u = zeros(nb_traffic)  ## upper boundary for energy exchange
-        Rev_l = zeros(nb_traffic)  ## lower boundary for spinning reserve
-        Rev_u = zeros(nb_traffic)  ## upper boundary for spinning reserve
-        for i in range(nb_traffic):
-            for j in range(nev):
-                Pev_l[i] = Pev_l[i] - tess[j]["PCMAX"] / 1000 / baseMVA
-                Pev_u[i] = Pev_u[i] + tess[j]["PDMAX"] / 1000 / baseMVA
-                Rev_l[i] = 0
-                Rev_u[i] = Rev_u[i] + (tess[j]["PCMAX"] + tess[j]["PDMAX"]) / 1000 / baseMVA
-
         f = branch[:, F_BUS]  ## list of "from" buses
         t = branch[:, T_BUS]  ## list of "to" buses
         i = range(nl)  ## double set of row indices
@@ -370,7 +356,6 @@ class StochasticDynamicOptimalPowerFlowTess():
         Ct = sparse((ones(nl), (i, t)), (nl, nb))
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
         Cmg = sparse((ones(nmg), (m, range(nmg))), (nb, nmg))
-        Cev = sparse((ones(nb_traffic), (n, range(nb_traffic))), (nb, nb_traffic))
 
         Branch_R = branch[:, BR_R]
         Branch_X = branch[:, BR_X]
@@ -393,42 +378,40 @@ class StochasticDynamicOptimalPowerFlowTess():
         Pg_u = 2 * gen[:, PMAX] / baseMVA
         Qg_u = 2 * gen[:, QMAX] / baseMVA
 
-        nx = int(3 * nl + nb + 2 * ng + 2 * nmg + 2 * nb_traffic)
+        nx = int(3 * nl + nb + 2 * ng + 2 * nmg)
         self.nx = nx  # Number of decision variable within each time slot
 
-        lx = concatenate([tile(concatenate([Pij_l, Qij_l, Iij_l, Vm_l, Pg_l, Qg_l, Pmg_l, Qmg_l, Pev_l, Rev_l]), T)])
-        ux = concatenate([tile(concatenate([Pij_u, Qij_u, Iij_u, Vm_u, Pg_u, Qg_u, Pmg_u, Qmg_u, Pev_u, Rev_u]), T)])
+        lx = concatenate([tile(concatenate([Pij_l, Qij_l, Iij_l, Vm_l, Pg_l, Qg_l, Pmg_l, Qmg_l]), T)])
+        ux = concatenate([tile(concatenate([Pij_u, Qij_u, Iij_u, Vm_u, Pg_u, Qg_u, Pmg_u, Qmg_u]), T)])
 
         vtypes = ["c"] * nx * T
-        NX = nx * T  # Number of total decision variables
+        nVariables_distribution_network = nx * T  # Number of total decision variables
 
         # Add system level constraints
         # 1) Active power balance
-        Aeq_p = zeros((nb * T, NX))
+        Aeq_p = zeros((nb * T, nVariables_distribution_network))
         beq_p = zeros(nb * T)
         for i in range(T):
             Aeq_p[i * nb:(i + 1) * nb, i * nx: (i + 1) * nx] = hstack([Ct - Cf, zeros((nb, nl)),
                                                                        -diag(Ct * Branch_R) * Ct,
                                                                        zeros((nb, nb)), Cg,
                                                                        zeros((nb, ng)), -Cmg,
-                                                                       zeros((nb, nmg)), Cev,
-                                                                       zeros((nb, nb_traffic))]).toarray()
+                                                                       zeros((nb, nmg))]).toarray()
 
             beq_p[i * nb:(i + 1) * nb] = profile[i] * bus[:, PD] / baseMVA
 
         # 2) Reactive power balance
-        Aeq_q = zeros((nb * T, NX))
+        Aeq_q = zeros((nb * T, nVariables_distribution_network))
         beq_q = zeros(nb * T)
         for i in range(T):
             Aeq_q[i * nb:(i + 1) * nb, i * nx: (i + 1) * nx] = hstack([zeros((nb, nl)), Ct - Cf,
                                                                        -diag(Ct * Branch_X) * Ct,
                                                                        zeros((nb, nb)),
                                                                        zeros((nb, ng)), Cg,
-                                                                       zeros((nb, nmg)),
-                                                                       -Cmg, zeros((nb, 2 * nb_traffic))]).toarray()
+                                                                       zeros((nb, nmg)), -Cmg]).toarray()
             beq_q[i * nb:(i + 1) * nb] = profile[i] * bus[:, QD] / baseMVA
         # 3) KVL equation
-        Aeq_kvl = zeros((nl * T, NX))
+        Aeq_kvl = zeros((nl * T, nVariables_distribution_network))
         beq_kvl = zeros(nl * T)
 
         for i in range(T):
@@ -450,18 +433,77 @@ class StochasticDynamicOptimalPowerFlowTess():
                                    int(t * nx + f[i] + 3 * nl), int(t * nx + i + 2 * nl)],
                                   [1, 1, -1 / 2, -1 / 2]]
 
-        c = zeros(NX)
-        q = zeros(NX)
+        c = zeros(nVariables_distribution_network)
+        q = zeros(nVariables_distribution_network)
         c0 = 0
         for t in range(T):
             for i in range(ng):
                 c[t * nx + i + 3 * nl + nb] = gencost[i, 5] * baseMVA
                 q[t * nx + i + 3 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
                 c0 += gencost[i, 6]
+        # Coupling constraints between the distribution systems and micro_grids
+        Ax2y = zeros((2 * nmg * T, nVariables_distribution_network))  # connection matrix with the microgrids
+        for i in range(T):
+            for j in range(nmg):
+                Ax2y[i * nmg + j, i * nx + 3 * nl + nb + 2 * ng + j] = 1000 * baseMVA  # Active power
+                Ax2y[nmg * T + i * nmg + j,
+                     i * nx + 3 * nl + nb + 2 * ng + nmg + j] = 1000 * baseMVA  # Reactive power
 
-        # The boundary information
+        # II) Formulate the problem for microgrids
+        model_microgrids = {}
+        for i in range(nmg):
+            model_microgrids[i] = self.problem_formulation_microgrid(micro_grid=micro_grids[i], tess=tess)
+        # II.A) Combine the distribution system operation problem and microgrid systems
+        if Aeq is not None:
+            neq_distribution_network = Aeq.shape[0]
+        else:
+            neq_distribution_network = 0
 
-        sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
+        nineq_distribution_network = 0
+
+        nVariables = int(nVariables_distribution_network)
+        neq = int(neq_distribution_network)
+
+        nVariables_index = zeros(nmg + 1)
+        neq_index = zeros(nmg + 1)
+        nineq_index = zeros(nmg + 1)
+
+        nVariables_index[0] = int(nVariables_distribution_network)
+        neq_index[0] = int(neq_distribution_network)
+        nineq_index[0] = int(nineq_distribution_network)
+        for i in range(nmg):
+            nVariables_index[i + 1] = nVariables_index[i] + len(model_microgrids[i]["c"])
+            neq_index[i + 1] = neq_index[i] + model_microgrids[i]["Aeq"].shape[0]
+            nVariables += len(model_microgrids[i]["c"])
+            neq += int(model_microgrids[i]["Aeq"].shape[0])
+
+        Aeq_full = zeros((int(neq_index[-1]), int(nVariables_index[-1])))
+
+        Aeq_full[0:neq_distribution_network, 0:nVariables_distribution_network] = Aeq
+        for i in range(nmg):
+            lx = concatenate([lx, model_microgrids[i]["lb"]])
+            ux = concatenate([ux, model_microgrids[i]["ub"]])
+            c = concatenate([c, model_microgrids[i]["c"]])
+            q = concatenate([q, model_microgrids[i]["q"]])
+            vtypes += model_microgrids[i]["vtypes"]
+            beq = concatenate([beq, model_microgrids[i]["beq"]])
+            Aeq_full[int(neq_index[i]):int(neq_index[i + 1]), int(nVariables_index[i]):int(nVariables_index[i + 1])] = \
+                model_microgrids[i]["Aeq"]
+
+        # Add coupling constraints, between the microgrids and distribution networks
+        Ay2x = zeros((2 * nmg * T, int(nVariables_index[-1] - nVariables_index[0])))
+        for i in range(T):
+            for j in range(nmg):
+                Ay2x[i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * NX_MG + PUG] = -1
+                Ay2x[nmg * T + i * nmg + j, int(nVariables_index[j] - nVariables_index[0]) + i * NX_MG + QUG] = -1
+
+        Aeq_temp = concatenate([Ax2y, Ay2x], axis=1)
+        beq_temp = zeros(2 * nmg * T)
+
+        Aeq_full = concatenate([Aeq_full, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+
+        sol = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
 
         model_second_stage = {"c": c,
                               "q": q,
@@ -473,13 +515,11 @@ class StochasticDynamicOptimalPowerFlowTess():
                               "Aeq": Aeq,
                               "beq": beq,
                               "Qc": Qc,
-                              "c0": c0,
-                              "Ax2y": Ax2y,
-                              "Ax2z": Ax2z}
+                              "c0": c0}
 
         return model_second_stage
 
-    def problem_formulation_microgrid(self, micro_grid):
+    def problem_formulation_microgrid(self, micro_grid, tess):
         """
         Unit commitment problem formulation of single micro_grid
         :param micro_grid:
@@ -490,6 +530,13 @@ class StochasticDynamicOptimalPowerFlowTess():
             T = self.T
         except:
             T = 24
+        nev = self.nev
+
+        Pmess_l = 0
+        Pmess_u = 0
+        for i in range(nev):
+            Pmess_l -= tess[i]["PCMAX"]
+            Pmess_u += tess[i]["PDMAX"]
 
         ## 1) boundary information and objective function
         nx = NX_MG * T
@@ -502,37 +549,29 @@ class StochasticDynamicOptimalPowerFlowTess():
             ## 1.1) lower boundary
             lx[i * NX_MG + PG] = 0
             lx[i * NX_MG + QG] = micro_grid["DG"]["QMIN"]
-            lx[i * NX_MG + RG] = 0
             lx[i * NX_MG + PUG] = 0
             lx[i * NX_MG + QUG] = micro_grid["UG"]["QMIN"]
-            lx[i * NX_MG + RUG] = 0
             lx[i * NX_MG + PBIC_DC2AC] = 0
             lx[i * NX_MG + PBIC_AC2DC] = 0
             lx[i * NX_MG + QBIC] = -micro_grid["BIC"]["SMAX"]
             lx[i * NX_MG + PESS_CH] = 0
             lx[i * NX_MG + PESS_DC] = 0
-            lx[i * NX_MG + RESS] = 0
             lx[i * NX_MG + EESS] = micro_grid["ESS"]["EMIN"]
-
+            lx[i * NX_MG + PMESS] = Pmess_l
             ## 1.2) upper boundary
             ux[i * NX_MG + PG] = micro_grid["DG"]["PMAX"]
             ux[i * NX_MG + QG] = micro_grid["DG"]["QMAX"]
-            ux[i * NX_MG + RG] = micro_grid["DG"]["PMAX"]
             ux[i * NX_MG + PUG] = micro_grid["UG"]["PMAX"]
             ux[i * NX_MG + QUG] = micro_grid["UG"]["QMAX"]
-            ux[i * NX_MG + RUG] = micro_grid["UG"]["PMAX"]
             ux[i * NX_MG + PBIC_DC2AC] = micro_grid["BIC"]["PMAX"]
             ux[i * NX_MG + PBIC_AC2DC] = micro_grid["BIC"]["PMAX"]
             ux[i * NX_MG + QBIC] = micro_grid["BIC"]["SMAX"]
             ux[i * NX_MG + PESS_CH] = micro_grid["ESS"]["PCH_MAX"]
             ux[i * NX_MG + PESS_DC] = micro_grid["ESS"]["PDC_MAX"]
-            ux[i * NX_MG + RESS] = micro_grid["ESS"]["PCH_MAX"] + micro_grid["ESS"]["PDC_MAX"]
             ux[i * NX_MG + EESS] = micro_grid["ESS"]["EMAX"]
-
+            ux[i * NX_MG + PMESS] = Pmess_u
             ## 1.3) Objective functions
             c[i * NX_MG + PG] = micro_grid["DG"]["COST_A"]
-            # c[i * NX_MG + PUG] = micro_grid["UG"]["COST"][i]
-
             ## 1.4) Upper and lower boundary information
             if i == T:
                 lx[i * NX_MG + EESS] = micro_grid["ESS"]["E0"]
@@ -557,6 +596,7 @@ class StochasticDynamicOptimalPowerFlowTess():
             Aeq_temp[i, i * NX_MG + PBIC_DC2AC] = -1
             Aeq_temp[i, i * NX_MG + PESS_CH] = -1
             Aeq_temp[i, i * NX_MG + PESS_DC] = 1
+            Aeq_temp[i, i * NX_MG + PMESS] = 1  # The power injection from mobile energy storage systems
             beq_temp[i] = micro_grid["PD"]["DC"][i]
         Aeq = concatenate([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
@@ -584,76 +624,21 @@ class StochasticDynamicOptimalPowerFlowTess():
                 Aeq_temp[i, (i - 1) * NX_MG + EESS] = -1
         Aeq = concatenate([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
-        # 3) Formualte inequal constraints
-        # 3.1) Pg+Rg<=Ig*Pgmax
-        A = zeros((T, nx))
-        b = zeros(T)
-        for i in range(T):
-            A[i, i * NX_MG + PG] = 1
-            A[i, i * NX_MG + RG] = 1
-            b[i] = micro_grid["DG"]["PMAX"]
-        # 3.2) Pg-Rg>=Ig*Pgmin
-        A_temp = zeros((T, nx))
-        b_temp = zeros(T)
-        for i in range(T):
-            A_temp[i, i * NX_MG + RG] = 1
-            A_temp[i, i * NX_MG + PG] = -1
-            b_temp[i] = -micro_grid["DG"]["PMIN"]
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
-        # 3.3) Pess_dc-Pess_ch+Ress<=Pess_dc_max
-        A_temp = zeros((T, nx))
-        b_temp = zeros(T)
-        for i in range(T):
-            A_temp[i, i * NX_MG + PESS_DC] = 1
-            A_temp[i, i * NX_MG + PESS_CH] = -1
-            A_temp[i, i * NX_MG + RESS] = 1
-            b_temp[i] = micro_grid["ESS"]["PDC_MAX"]
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
-        # 3.4) Pess_ch-Pess_dc+Ress<=Pess_ch_max
-        A_temp = zeros((T, nx))
-        b_temp = zeros(T)
-        for i in range(T):
-            A_temp[i, i * NX_MG + PESS_CH] = 1
-            A_temp[i, i * NX_MG + PESS_DC] = -1
-            A_temp[i, i * NX_MG + RESS] = 1
-            b_temp[i] = micro_grid["ESS"]["PCH_MAX"]
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
-        # 3.5) Pug+Rug<=Iug*Pugmax
-        A_temp = zeros((T, nx))
-        b_temp = zeros(T)
-        for i in range(T):
-            A_temp[i, i * NX_MG + PUG] = 1
-            A_temp[i, i * NX_MG + RUG] = 1
-            b_temp[i] = micro_grid["UG"]["PMAX"]
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
-        # 3.6) Pug-Rug>=Iug*Pugmin
-        A_temp = zeros((T, nx))
-        b_temp = zeros(T)
-        for i in range(T):
-            A_temp[i, i * NX_MG + RUG] = 1
-            A_temp[i, i * NX_MG + PUG] = -1
-            b_temp[i] = -micro_grid["DG"]["PMIN"]
-        A = concatenate([A, A_temp])
-        b = concatenate([b, b_temp])
+        # 3) Formualte inequality constraints
+        # There is no inequality constraint.
 
-        # sol = milp(c, q=q, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lx, xmax=ux)
+        # sol = milp(c, Aeq=Aeq, beq=beq, A=None, b=None, xmin=lx, xmax=ux)
 
         model_micro_grid = {"c": c,
                             "q": q,
                             "lb": lx,
                             "ub": ux,
                             "vtypes": vtypes,
-                            "A": A,
-                            "b": b,
+                            "A": None,
+                            "b": None,
                             "Aeq": Aeq,
-                            "beq": beq,
-                            "NX": NX_MG,
-                            "PG": PG,
-                            "QG": QG}
+                            "beq": beq
+                            }
 
         return model_micro_grid
 
@@ -926,7 +911,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         microgrids_second_stage = [0] * Ns
         for i in range(Ns):
             for j in range(T):
-                profile_second_stage[i, :] = profile[j] * (0.9 + 0.1 * random.random())
+                profile_second_stage[i, j] = profile[j] * (0.9 + 0.1 * random.random())
 
         for i in range(Ns):
             microgrids_second_stage[i] = deepcopy(microgrids)
@@ -981,9 +966,9 @@ if __name__ == "__main__":
     micro_grid_1["ESS"]["E0"] = 50
     micro_grid_1["ESS"]["EMIN"] = 10
     micro_grid_1["ESS"]["EMAX"] = 100
-    micro_grid_1["BIC"]["PMAX"] = 100
-    micro_grid_1["BIC"]["QMAX"] = 100
-    micro_grid_1["BIC"]["SMAX"] = 100
+    micro_grid_1["BIC"]["PMAX"] = 200
+    micro_grid_1["BIC"]["QMAX"] = 200
+    micro_grid_1["BIC"]["SMAX"] = 200
     micro_grid_1["PD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"]
     micro_grid_1["QD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"] * 0.2
     micro_grid_1["PD"]["DC"] = Profile[0] * micro_grid_1["PD"]["DC_MAX"]
@@ -1007,9 +992,9 @@ if __name__ == "__main__":
     micro_grid_2["ESS"]["E0"] = 15
     micro_grid_2["ESS"]["EMIN"] = 10
     micro_grid_2["ESS"]["EMAX"] = 50
-    micro_grid_2["BIC"]["PMAX"] = 100
-    micro_grid_2["BIC"]["QMAX"] = 100
-    micro_grid_2["BIC"]["SMAX"] = 100
+    micro_grid_2["BIC"]["PMAX"] = 200
+    micro_grid_2["BIC"]["QMAX"] = 200
+    micro_grid_2["BIC"]["SMAX"] = 200
     micro_grid_2["PD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"]
     micro_grid_2["QD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"] * 0.2
     micro_grid_2["PD"]["DC"] = Profile[1] * micro_grid_2["PD"]["DC_MAX"]
@@ -1034,8 +1019,8 @@ if __name__ == "__main__":
     micro_grid_3["ESS"]["EMIN"] = 10
     micro_grid_3["ESS"]["EMAX"] = 50
     micro_grid_3["BIC"]["PMAX"] = 50
-    micro_grid_3["BIC"]["QMAX"] = 100
-    micro_grid_3["BIC"]["SMAX"] = 100
+    micro_grid_3["BIC"]["QMAX"] = 200
+    micro_grid_3["BIC"]["SMAX"] = 200
     micro_grid_3["PD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"]
     micro_grid_3["QD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"] * 0.2
     micro_grid_3["PD"]["DC"] = Profile[2] * micro_grid_3["PD"]["DC_MAX"]
