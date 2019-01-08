@@ -432,6 +432,7 @@ class StochasticDynamicOptimalPowerFlowTess():
                                   [int(t * nx + i), int(t * nx + i + nl),
                                    int(t * nx + f[i] + 3 * nl), int(t * nx + i + 2 * nl)],
                                   [1, 1, -1 / 2, -1 / 2]]
+        # 5) Pg**2+Qg**2<Sg**2
 
         c = zeros(nVariables_distribution_network)
         q = zeros(nVariables_distribution_network)
@@ -502,8 +503,11 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         Aeq_full = concatenate([Aeq_full, Aeq_temp])
         beq = concatenate([beq, beq_temp])
-
-        sol = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
+        # Formulate the optimization problem for tess in the second stage optimization
+        model_tess = {}
+        for i in range(nev):
+            model_tess[i] = self.problem_formulation_tess_second_stage(tess=tess[i])
+        # sol = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
 
         model_second_stage = {"c": c,
                               "q": q,
@@ -739,7 +743,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         assert n_stops == nb_traffic_electric * T, "The number of bus stop is not right!"
 
-        NX_traffic = nl_traffic + 4 * n_stops  # Status transition, charging status, charging rate, discharging rate, spinning reserve
+        NX_traffic = nl_traffic + 4 * n_stops  # Status transition, discharging status, charging rate, discharging rate, spinning reserve
         NX_status = nl_traffic
         lx = zeros(NX_traffic)
         ux = ones(NX_traffic)
@@ -747,6 +751,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         self.NX_traffic = NX_traffic
         self.nl_traffic = nl_traffic
         self.n_stops = n_stops
+        self.nb_traffic_electric = nb_traffic_electric
 
         ux[NX_status + 0 * n_stops:NX_status + 1 * n_stops] = 1
         ux[NX_status + 1 * n_stops:NX_status + 2 * n_stops] = tess["PDMAX"]
@@ -859,6 +864,57 @@ class StochasticDynamicOptimalPowerFlowTess():
                       "Aeq": Aeq,
                       "beq": beq,
                       "NX": NX_traffic, }
+
+        return model_tess
+
+    def problem_formulation_tess_second_stage(self, tess):
+        """
+        Problem formulation for transportation energy storage scheduling, including vehicle routine problem and etc.
+        :param tess: specific tess information
+        :param traffic_network: transportation network information
+        :return:
+        """
+        T = self.T
+        n_stops = self.n_stops  # Number of stops in
+
+        nx = 2 * n_stops + T  # Status transition, charging status, charging rate, discharging rate, spinning reserve
+        lx = zeros(nx)
+        ux = zeros(nx)
+        nb_traffic_electric = self.nb_traffic_electric
+
+        lx[n_stops * 2:nx] = tess["EMIN"]
+
+        ux[n_stops * 0:n_stops * 1] = tess["PDMAX"]
+        ux[n_stops * 1:n_stops * 2] = tess["PCMAX"]
+        ux[n_stops * 2:nx] = tess["EMAX"]
+
+        vtypes = ["c"] * nx
+        # The energy status dynamics
+        Aeq = zeros((T, nx))
+        beq = zeros(T)
+
+        for t in range(T):
+            Aeq[t, n_stops * 2 + t] = 1
+            Aeq[t, n_stops + nb_traffic_electric * t:n_stops + nb_traffic_electric * (t + 1)] = -tess["EFF_CH"]
+            Aeq[t, nb_traffic_electric * t:nb_traffic_electric * (t + 1)] = 1 / tess["EFF_DC"]
+            if t == 0:
+                beq[t] = tess["E0"]
+            else:
+                Aeq[t, n_stops * 2 + t - 1] = -1
+
+        c = concatenate((ones(n_stops * 2) * tess["COST_OP"], zeros(T)))
+        # sol = milp(c, Aeq=Aeq, beq=beq, A=None, b=None, xmin=lx, xmax=ux)
+
+        model_tess = {"c": c,
+                      "q": zeros(nx),
+                      "lb": lx,
+                      "ub": ux,
+                      "vtypes": vtypes,
+                      "A": None,
+                      "b": None,
+                      "Aeq": Aeq,
+                      "beq": beq,
+                      "NX": nx, }
 
         return model_tess
 
