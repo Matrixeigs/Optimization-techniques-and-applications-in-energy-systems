@@ -460,18 +460,13 @@ class StochasticDynamicOptimalPowerFlowTess():
         else:
             neq_distribution_network = 0
 
-        nineq_distribution_network = 0
-
         nVariables = int(nVariables_distribution_network)
         neq = int(neq_distribution_network)
 
         nVariables_index = zeros(nmg + 1)
         neq_index = zeros(nmg + 1)
-        nineq_index = zeros(nmg + 1)
-
         nVariables_index[0] = int(nVariables_distribution_network)
         neq_index[0] = int(neq_distribution_network)
-        nineq_index[0] = int(nineq_distribution_network)
         for i in range(nmg):
             nVariables_index[i + 1] = nVariables_index[i] + len(model_microgrids[i]["c"])
             neq_index[i + 1] = neq_index[i] + model_microgrids[i]["Aeq"].shape[0]
@@ -503,11 +498,33 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         Aeq_full = concatenate([Aeq_full, Aeq_temp])
         beq = concatenate([beq, beq_temp])
-        # Formulate the optimization problem for tess in the second stage optimization
+        # III) Formulate the optimization problem for tess in the second stage optimization
         model_tess = {}
         for i in range(nev):
             model_tess[i] = self.problem_formulation_tess_second_stage(tess=tess[i])
-        # sol = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
+        # III.1) Merge the models of mirogrids and distribution
+        # Formulate the index
+        nVariables_index_temp = zeros(1 + nev)
+        neq_index_temp = zeros(1 + nev)
+        nVariables_index_temp[0] = int(Aeq_full.shape[1])
+        neq_index_temp[0] = int(Aeq_full.shape[0])
+        for i in range(nev):
+            nVariables_index_temp[i + 1] = nVariables_index_temp[i] + len(model_tess[i]["c"])
+            neq_index_temp[i + 1] = neq_index_temp[i] + model_tess[i]["Aeq"].shape[0]
+
+        Aeq = zeros((int(neq_index_temp[-1]), int(nVariables_index_temp[-1])))
+        Aeq[0:int(neq_index_temp[0]), 0:int(nVariables_index_temp[0])] = Aeq_full
+        for i in range(nev):
+            lx = concatenate([lx, model_tess[i]["lb"]])
+            ux = concatenate([ux, model_tess[i]["ub"]])
+            c = concatenate([c, model_tess[i]["c"]])
+            q = concatenate([q, model_tess[i]["q"]])
+            vtypes += model_tess[i]["vtypes"]
+            beq = concatenate([beq, model_tess[i]["beq"]])
+            Aeq[int(neq_index_temp[i]):int(neq_index_temp[i + 1]),
+            int(nVariables_index_temp[i]):int(nVariables_index_temp[i + 1])] = model_tess[i]["Aeq"]
+
+        sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
 
         model_second_stage = {"c": c,
                               "q": q,
