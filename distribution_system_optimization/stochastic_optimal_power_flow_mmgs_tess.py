@@ -504,16 +504,16 @@ class StochasticDynamicOptimalPowerFlowTess():
             model_tess[i] = self.problem_formulation_tess_second_stage(tess=tess[i])
         # III.1) Merge the models of mirogrids and distribution
         # Formulate the index
-        nVariables_index_temp = zeros(1 + nev)
+        nVariables_index_ev = zeros(1 + nev)
         neq_index_temp = zeros(1 + nev)
-        nVariables_index_temp[0] = int(Aeq_full.shape[1])
+        nVariables_index_ev[0] = int(Aeq_full.shape[1])
         neq_index_temp[0] = int(Aeq_full.shape[0])
         for i in range(nev):
-            nVariables_index_temp[i + 1] = nVariables_index_temp[i] + len(model_tess[i]["c"])
+            nVariables_index_ev[i + 1] = nVariables_index_ev[i] + len(model_tess[i]["c"])
             neq_index_temp[i + 1] = neq_index_temp[i] + model_tess[i]["Aeq"].shape[0]
 
-        Aeq = zeros((int(neq_index_temp[-1]), int(nVariables_index_temp[-1])))
-        Aeq[0:int(neq_index_temp[0]), 0:int(nVariables_index_temp[0])] = Aeq_full
+        Aeq = zeros((int(neq_index_temp[-1]), int(nVariables_index_ev[-1])))
+        Aeq[0:int(neq_index_temp[0]), 0:int(nVariables_index_ev[0])] = Aeq_full
         for i in range(nev):
             lx = concatenate([lx, model_tess[i]["lb"]])
             ux = concatenate([ux, model_tess[i]["ub"]])
@@ -522,8 +522,18 @@ class StochasticDynamicOptimalPowerFlowTess():
             vtypes += model_tess[i]["vtypes"]
             beq = concatenate([beq, model_tess[i]["beq"]])
             Aeq[int(neq_index_temp[i]):int(neq_index_temp[i + 1]),
-            int(nVariables_index_temp[i]):int(nVariables_index_temp[i + 1])] = model_tess[i]["Aeq"]
-
+            int(nVariables_index_ev[i]):int(nVariables_index_ev[i + 1])] = model_tess[i]["Aeq"]
+        # III.2) Coupling constraints between the microgrids and mobile energy storage systems
+        # Additional equal constraints, nmg*T
+        Aeq_temp = zeros((nmg * T, int(nVariables_index_ev[-1])))
+        beq_temp = zeros(nmg * T)
+        for i in range(nmg):
+            for t in range(T):
+                Aeq_temp[i * T + t, int(nVariables_index[i]) + t * NX_MG + PMESS] = 1  # TESSs injections to the MGs
+                for j in range(nev):
+                    Aeq_temp[i * T + t, int(nVariables_index_ev[j]) + t * self.nb_traffic_electric + j] = -1  # Sort by order
+        Aeq = concatenate((Aeq, Aeq_temp))
+        beq = concatenate((beq, beq_temp))
         sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
 
         model_second_stage = {"c": c,
@@ -1113,7 +1123,6 @@ if __name__ == "__main__":
                "EMIN": 50,
                "COST_OP": 0.01,
                })
-    """
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
                "PCMAX": 1000,
@@ -1125,6 +1134,7 @@ if __name__ == "__main__":
                "EMIN": 50,
                "COST_OP": 0.01,
                })
+    """
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
                "PCMAX": 200,
