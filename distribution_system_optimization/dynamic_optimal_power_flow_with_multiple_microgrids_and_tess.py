@@ -166,7 +166,7 @@ class DynamicOptimalPowerFlowTess():
             nineq += int(model_tess[i]["A"].shape[0])
 
             c = concatenate([c, model_tess[i]["c"]])
-            q = concatenate([c, model_tess[i]["q"]])
+            q = concatenate([q, model_tess[i]["q"]])
             lx = concatenate([lx, model_tess[i]["lb"]])
             ux = concatenate([ux, model_tess[i]["ub"]])
             vtypes += model_tess[i]["vtypes"]
