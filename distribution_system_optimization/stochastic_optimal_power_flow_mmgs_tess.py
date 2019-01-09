@@ -57,7 +57,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         self.nb_traffic = nb_traffic
         # Formulate the second stage scenarios
         (profile_second_second, micro_grids_second_stage) = self.scenario_generation(profile=profile,
-                                                                                     microgrids=micro_grids)
+                                                                                     microgrids=micro_grids, Ns=Ns)
 
         # 1) Formulate the first stage optimization problem
         model_first_stage = self.first_stage_problem_formualtion(power_networks=case, micro_grids=micro_grids,
@@ -71,7 +71,8 @@ class StochasticDynamicOptimalPowerFlowTess():
             model_second_stage[i] = self.second_stage_problem_formualtion(power_networks=case,
                                                                           micro_grids=micro_grids_second_stage[i],
                                                                           tess=tess, traffic_networks=traffic_networks,
-                                                                          profile=profile_second_second[i, :], index=i)
+                                                                          profile=profile_second_second[i, :], index=i,
+                                                                          weight=1 / Ns)
         # 3) Merge the first-stage problem and second stage problem
         lb = model_first_stage["lb"]
         ub = model_first_stage["ub"]
@@ -119,7 +120,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         Aeq_full = zeros((int(neq_index[-1]), int(nVariables_index[-1])))
         Aeq_full[0:int(neq_index[0]), 0:int(nVariables_index[0])] = model_first_stage["Aeq"]
-        for i in range(nev):
+        for i in range(Ns):
             Aeq_full[int(neq_index[i]):int(neq_index[i + 1]),
             int(nVariables_index[i]):int(nVariables_index[i + 1])] = model_second_stage[i]["Aeq"]
             Qc.update(model_second_stage[i]["Qc"])
@@ -376,7 +377,8 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_first_stage
 
-    def second_stage_problem_formualtion(self, power_networks, micro_grids, tess, traffic_networks, profile, index=0):
+    def second_stage_problem_formualtion(self, power_networks, micro_grids, tess, traffic_networks, profile, index=0,
+                                         weight=1):
         """
         Second-stage problem formulation, the decision variables includes DGs within power networks, DGs within MGs, EESs within MGs and TESSs and other systems' information
         :param power_networks:
@@ -734,8 +736,8 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         # sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
 
-        model_second_stage = {"c": c,
-                              "q": q,
+        model_second_stage = {"c": c * weight,
+                              "q": q * weight,
                               "lb": lx,
                               "ub": ux,
                               "vtypes": vtypes,
@@ -1370,7 +1372,7 @@ if __name__ == "__main__":
                "COST_OP": 0.01,
                })
     ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
+               "end": array([0, 0, 1]),weight
                "PCMAX": 200,
                "PDMAX": 200,
                "EFF_CH": 0.9,
@@ -1386,6 +1388,6 @@ if __name__ == "__main__":
 
     (sol_dso, sol_mgs, sol_tess) = stochastic_dynamic_optimal_power_flow.main(case=mpc, profile=load_profile.tolist(),
                                                                               micro_grids=case_micro_grids, tess=ev,
-                                                                              traffic_networks=traffic_networks)
+                                                                              traffic_networks=traffic_networks, Ns=5)
 
     print(max(sol_dso["residual"][0]))
