@@ -34,7 +34,7 @@ class StochasticDynamicOptimalPowerFlowTess():
     def __init__(self):
         self.name = "Stochastic optimal power flow with tess"
 
-    def main(self, case, micro_grids, profile, tess, traffic_networks):
+    def main(self, case, micro_grids, profile, tess, traffic_networks, Ns=2):
         """
         Main entrance for network reconfiguration problems
         :param case: electric network information
@@ -66,11 +66,76 @@ class StochasticDynamicOptimalPowerFlowTess():
         #                        A=model_first_stage["A"], b=model_first_stage["b"], vtypes=model_first_stage["vtypes"],
         #                        xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
         # 2) Formulate the second stage optimization problem
-        model_second_stage = self.second_stage_problem_formualtion(power_networks=case,
-                                                                   micro_grids=micro_grids_second_stage[0],
-                                                                   tess=tess, traffic_networks=traffic_networks,
-                                                                   profile=profile_second_second[0, :])
+        model_second_stage = {}
+        for i in range(Ns):
+            model_second_stage[i] = self.second_stage_problem_formualtion(power_networks=case,
+                                                                          micro_grids=micro_grids_second_stage[i],
+                                                                          tess=tess, traffic_networks=traffic_networks,
+                                                                          profile=profile_second_second[i, :], index=i)
+        # 3) Merge the first-stage problem and second stage problem
+        lb = model_first_stage["lb"]
+        ub = model_first_stage["ub"]
+        vtypes = model_first_stage["vtypes"]
+        c = model_first_stage["c"]
+        Qc = dict()
+
+        if model_first_stage["Aeq"] is not None:
+            neq = model_first_stage["Aeq"].shape[0]
+        else:
+            neq = 0
+
+        if model_first_stage["A"] is not None:
+            nineq = model_first_stage["A"].shape[0]
+        else:
+            nineq = 0
+        nVariablesFirstStage = self.nVariablesFirstStage
+        nVariablesSecondStage = self.nVariablesSecondStage
+        q = zeros(nVariablesFirstStage)
+
+        nVariables_index = zeros(Ns + 1)
+        neq_index = zeros(Ns + 1)
+        nineq_index = zeros(Ns + 1)
+        neq_index[0] = neq
+        nineq_index[0] = nineq
+        nVariables_index[0] = nVariablesFirstStage
+        beq = model_first_stage["beq"]
+        for i in range(Ns):
+            if model_second_stage[i]["Aeq"] is not None:
+                neq_index[i + 1] = neq_index[i] + model_second_stage[i]["Aeq"].shape[0]
+            else:
+                neq_index[i + 1] = neq_index[i]
+            if model_second_stage[i]["Ts"] is not None:
+                nineq_index[i + 1] = nineq_index[i] + model_second_stage[i]["Ts"].shape[0]
+            else:
+                nineq_index[i + 1] = nineq_index[i]
+            nVariables_index[i + 1] = nVariables_index[i] + nVariablesSecondStage
+
+            c = concatenate([c, model_second_stage[i]["c"]])
+            q = concatenate([q, model_second_stage[i]["q"]])
+            lb = concatenate([lb, model_second_stage[i]["lb"]])
+            ub = concatenate([ub, model_second_stage[i]["ub"]])
+            vtypes += model_second_stage[i]["vtypes"]
+            beq = concatenate([beq, model_second_stage[i]["beq"]])
+
+        Aeq_full = zeros((int(neq_index[-1]), int(nVariables_index[-1])))
+        Aeq_full[0:int(neq_index[0]), 0:int(nVariables_index[0])] = model_first_stage["Aeq"]
+        for i in range(nev):
+            Aeq_full[int(neq_index[i]):int(neq_index[i + 1]),
+            int(nVariables_index[i]):int(nVariables_index[i + 1])] = model_second_stage[i]["Aeq"]
+            Qc.update(model_second_stage[i]["Qc"])
+
+        A_full = zeros((int(nineq_index[-1]), int(nVariables_index[-1])))
+        b = model_first_stage["b"]
+        A_full[0:int(nineq_index[0]), 0:int(nVariables_index[0])] = model_first_stage["A"]
+        for i in range(Ns):
+            A_full[int(nineq_index[i]):int(nineq_index[i + 1]), 0:int(nVariables_index[0])] = model_second_stage[i][
+                "Ts"]
+            A_full[int(nineq_index[i]):int(nineq_index[i + 1]),
+            int(nVariables_index[i]):int(nVariables_index[i + 1])] = model_second_stage[i]["Ws"]
+            b = concatenate([b, model_second_stage[i]["hs"]])
+
         # 3) Obtain the results for first-stage and second stage optimization problems
+        sol = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=A_full, b=b, Qc=Qc, xmin=lb, xmax=ub, vtypes=vtypes)
 
         # 4) Verify the first-stage and second stage optization problem
 
@@ -116,10 +181,10 @@ class StochasticDynamicOptimalPowerFlowTess():
         cr_mg = zeros(nmg)
 
         for i in range(nmg):
-            Pg_mg_l[i] = micro_grids[i]["DG"]["PMIN"] / 1000 / baseMVA
-            Pg_mg_u[i] = micro_grids[i]["DG"]["PMAX"] / 1000 / baseMVA
-            Rg_mg_u[i] = micro_grids[i]["DG"]["PMAX"] / 1000 / baseMVA
-            cg_mg[i] = micro_grids[i]["DG"]["COST_B"] * 1000 / baseMVA
+            Pg_mg_l[i] = micro_grids[i]["DG"]["PMIN"]
+            Pg_mg_u[i] = micro_grids[i]["DG"]["PMAX"]
+            Rg_mg_u[i] = micro_grids[i]["DG"]["PMAX"]
+            cg_mg[i] = micro_grids[i]["DG"]["COST_B"]
 
         # Boundary for ESSs within MGs
         Pess_ch_l = zeros(nmg)
@@ -141,11 +206,11 @@ class StochasticDynamicOptimalPowerFlowTess():
         cess_i = zeros(nmg)
 
         for i in range(nmg):
-            Pess_ch_u[i] = micro_grids[i]["ESS"]["PCH_MAX"] / 1000 / baseMVA
-            Pess_dc_u[i] = (micro_grids[i]["ESS"]["PDC_MAX"] + micro_grids[i]["ESS"]["PCH_MAX"]) / 1000 / baseMVA
-            Ress_u[i] = micro_grids[i]["ESS"]["PCH_MAX"] / 1000 / baseMVA
-            Eess_l[i] = micro_grids[i]["ESS"]["EMIN"] / 1000 / baseMVA
-            Eess_u[i] = micro_grids[i]["ESS"]["EMAX"] / 1000 / baseMVA
+            Pess_ch_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]
+            Pess_dc_u[i] = micro_grids[i]["ESS"]["PDC_MAX"] + micro_grids[i]["ESS"]["PCH_MAX"]
+            Ress_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]
+            Eess_l[i] = micro_grids[i]["ESS"]["EMIN"]
+            Eess_u[i] = micro_grids[i]["ESS"]["EMAX"]
 
         NX_first_stage = ng * 2 + nmg * 2 + nmg * 5
         nVariables_first_stage = NX_first_stage * T
@@ -229,7 +294,7 @@ class StochasticDynamicOptimalPowerFlowTess():
                 Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = -micro_grids[j]["ESS"]["EFF_CH"]
                 Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1 / micro_grids[j]["ESS"]["EFF_DC"]
                 if i == 0:
-                    beq[i * nmg + j] = micro_grids[j]["ESS"]["E0"] / 1000 / baseMVA
+                    beq[i * nmg + j] = micro_grids[j]["ESS"]["E0"]
                 else:
                     Aeq[i * nmg + j, (i - 1) * NX_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = -1
         # 8) Pess_ch<=I*Pess_ch_max
@@ -298,6 +363,8 @@ class StochasticDynamicOptimalPowerFlowTess():
             A_full[int(nineq_index_tess[i]):int(nineq_index_tess[i + 1]),
             int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["A"]
 
+        self.nVariablesFirstStage = len(vtypes)  # The number of first stage decision variables
+        self.NX_first_stage = NX_first_stage
         model_first_stage = {"c": c,
                              "lb": lx,
                              "ub": ux,
@@ -309,7 +376,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_first_stage
 
-    def second_stage_problem_formualtion(self, power_networks, micro_grids, tess, traffic_networks, profile):
+    def second_stage_problem_formualtion(self, power_networks, micro_grids, tess, traffic_networks, profile, index=0):
         """
         Second-stage problem formulation, the decision variables includes DGs within power networks, DGs within MGs, EESs within MGs and TESSs and other systems' information
         :param power_networks:
@@ -379,7 +446,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         Qg_u = 2 * gen[:, QMAX] / baseMVA
 
         nx = int(3 * nl + nb + 2 * ng + 2 * nmg)
-        self.nx = nx  # Number of decision variable within each time slot
+        self.NX_second_stage = nx  # Number of decision variable within each time slot
 
         lx = concatenate([tile(concatenate([Pij_l, Qij_l, Iij_l, Vm_l, Pg_l, Qg_l, Pmg_l, Qmg_l]), T)])
         ux = concatenate([tile(concatenate([Pij_u, Qij_u, Iij_u, Vm_u, Pg_u, Qg_u, Pmg_u, Qmg_u]), T)])
@@ -422,16 +489,6 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         Aeq = vstack([Aeq_p, Aeq_q, Aeq_kvl]).toarray()
         beq = concatenate([beq_p, beq_q, beq_kvl])
-
-        # 4) Pij**2+Qij**2<=Vi*Iij
-        Qc = dict()
-        for t in range(T):
-            for i in range(nl):
-                Qc[t * nl + i] = [[int(t * nx + i), int(t * nx + i + nl),
-                                   int(t * nx + i + 2 * nl), int(t * nx + f[i] + 3 * nl)],
-                                  [int(t * nx + i), int(t * nx + i + nl),
-                                   int(t * nx + f[i] + 3 * nl), int(t * nx + i + 2 * nl)],
-                                  [1, 1, -1 / 2, -1 / 2]]
         # 5) Pg**2+Qg**2<Sg**2
 
         c = zeros(nVariables_distribution_network)
@@ -531,10 +588,151 @@ class StochasticDynamicOptimalPowerFlowTess():
             for t in range(T):
                 Aeq_temp[i * T + t, int(nVariables_index[i]) + t * NX_MG + PMESS] = 1  # TESSs injections to the MGs
                 for j in range(nev):
-                    Aeq_temp[i * T + t, int(nVariables_index_ev[j]) + t * self.nb_traffic_electric + j] = -1  # Sort by order
+                    Aeq_temp[
+                        i * T + t, int(nVariables_index_ev[j]) + t * self.nb_traffic_electric + j] = -1  # Sort by order
         Aeq = concatenate((Aeq, Aeq_temp))
         beq = concatenate((beq, beq_temp))
-        sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
+        nVariables_second_stage = int(nVariables_index_ev[-1])
+        nVariables_first_stage = self.nVariablesFirstStage
+        self.nVariablesSecondStage = nVariables_second_stage
+        # 4) Pij**2+Qij**2<=Vi*Iij
+        Qc = dict()
+        for t in range(T):
+            for i in range(nl):
+                Qc[T * nl * index + t * nl + i] = [
+                    [int(nVariables_first_stage + index * nVariables_second_stage + t * nx + i),
+                     int(nVariables_first_stage + index * nVariables_second_stage + t * nx + i + nl),
+                     int(nVariables_first_stage + index * nVariables_second_stage + t * nx + i + 2 * nl),
+                     int(nVariables_first_stage + index * nVariables_second_stage + t * nx + f[i] + 3 * nl)],
+                    [int(nVariables_first_stage + index * nVariables_second_stage + t * nx + i),
+                     int(nVariables_first_stage + index * nVariables_second_stage + t * nx + i + nl),
+                     int(nVariables_first_stage + index * nVariables_second_stage + t * nx + f[i] + 3 * nl),
+                     int(nVariables_first_stage + index * nVariables_second_stage + t * nx + i + 2 * nl)],
+                    [1, 1, -1 / 2, -1 / 2]]
+
+        ## IV. Coupling constraints between the first stage and second stage decision variables
+        # pg, pg_mg, pess_mg, pess_tess
+        # Ts*x+Ws*ys<=hs
+        ## IV) Formulate the coupling constraints between the first-stage and second-stage problems
+        # 1) -Pg -Rg + pg <= 0
+        NX_first_stage = self.NX_first_stage
+        Ts = zeros((ng * T, nVariables_first_stage))
+        Ws = zeros((ng * T, nVariables_second_stage))
+        hs = zeros(ng * T)
+        for i in range(T):
+            for j in range(ng):
+                Ts[i * ng + j, i * NX_first_stage + j] = -1
+                Ts[i * ng + j, i * NX_first_stage + ng + j] = -1
+                Ws[i * ng + j, i * nx + 3 * nl + nb + j] = 1
+        # 2) Pg-Rg - pg <= 0
+        Ts_temp = zeros((ng * T, nVariables_first_stage))
+        Ws_temp = zeros((ng * T, nVariables_second_stage))
+        hs_temp = zeros(ng * T)
+        for i in range(T):
+            for j in range(ng):
+                Ts_temp[i * ng + j, i * NX_first_stage + j] = 1
+                Ts_temp[i * ng + j, i * NX_first_stage + ng + j] = -1
+                Ws_temp[i * ng + j, i * nx + 3 * nl + nb + j] = -1
+        Ts = concatenate((Ts, Ts_temp))
+        Ws = concatenate((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 3) -Pg_mg - Rg_mg + pg_mg <= 0
+        Ts_temp = zeros((nmg * T, nVariables_first_stage))
+        Ws_temp = zeros((nmg * T, nVariables_second_stage))
+        hs_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + j] = -1
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg + j] = -1
+                Ws_temp[i * nmg + j, int(nVariables_index[j]) + i * NX_MG + PG] = 1
+        Ts = concatenate((Ts, Ts_temp))
+        Ws = concatenate((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 4) Pg_mg - Rg_mg - pg_mg <= 0
+        Ts_temp = zeros((nmg * T, nVariables_first_stage))
+        Ws_temp = zeros((nmg * T, nVariables_second_stage))
+        hs_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + j] = 1
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg + j] = -1
+                Ws_temp[i * nmg + j, int(nVariables_index[j]) + i * NX_MG + PG] = -1
+        Ts = concatenate((Ts, Ts_temp))
+        Ws = concatenate((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 5) pess_dc - pess_ch <= Pess_dc - Pess_ch + Ress
+        Ts_temp = zeros((nmg * T, nVariables_first_stage))
+        Ws_temp = zeros((nmg * T, nVariables_second_stage))
+        hs_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = 1  # Charging
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 3 + j] = -1  # Dis-charging
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 5 + j] = -1  # Reserve
+                Ws_temp[i * nmg + j, int(nVariables_index[j]) + i * NX_MG + PESS_CH] = -1
+                Ws_temp[i * nmg + j, int(nVariables_index[j]) + i * NX_MG + PESS_DC] = 1
+        Ts = concatenate((Ts, Ts_temp))
+        Ws = concatenate((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 6) pess_ch - pess_dc <= Pess_ch - Pess_dc + Ress
+        Ts_temp = zeros((nmg * T, nVariables_first_stage))
+        Ws_temp = zeros((nmg * T, nVariables_second_stage))
+        hs_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = -1  # Charging
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 3 + j] = 1  # Dis-charging
+                Ts_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 5 + j] = -1  # Reserve
+                Ws_temp[i * nmg + j, int(nVariables_index[j]) + i * NX_MG + PESS_CH] = 1
+                Ws_temp[i * nmg + j, int(nVariables_index[j]) + i * NX_MG + PESS_DC] = -1
+        Ts = concatenate((Ts, Ts_temp))
+        Ws = concatenate((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 7) ptss_ch - ptss_dc <= Ptss_ch - Ptss_dc + Rtss
+        NX_traffic = self.NX_traffic
+        Ts_temp = zeros((nmg * T * nev, nVariables_first_stage))
+        Ws_temp = zeros((nmg * T * nev, nVariables_second_stage))
+        hs_temp = zeros(nmg * T * nev)
+        for i in range(nev):
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            NX_first_stage * T + NX_traffic * i + nmg * T:NX_first_stage * T + NX_traffic * i + nmg * T * 2] = eye(
+                nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            NX_first_stage * T + NX_traffic * i + nmg * T * 2:NX_first_stage * T + NX_traffic * i + nmg * T * 3] = -eye(
+                nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            NX_first_stage * T + NX_traffic * i + nmg * T * 3:NX_first_stage * T + NX_traffic * i + nmg * T * 4] = -eye(
+                nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T,
+            int(nVariables_index_ev[i]) + nmg * T * 0:int(nVariables_index_ev[i]) + nmg * T * 1] = -eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T,
+            int(nVariables_index_ev[i]) + nmg * T * 1:int(nVariables_index_ev[i]) + nmg * T * 2] = eye(nmg * T)
+        Ts = concatenate((Ts, Ts_temp))
+        Ws = concatenate((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 8) ptss_dc - ptss_ch <= Ptss_dc - Ptss_ch + Rtss
+        Ts_temp = zeros((nmg * T * nev, nVariables_first_stage))
+        Ws_temp = zeros((nmg * T * nev, nVariables_second_stage))
+        hs_temp = zeros(nmg * T * nev)
+        for i in range(nev):
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            NX_first_stage * T + NX_traffic * i + nmg * T:NX_first_stage * T + NX_traffic * i + nmg * T * 2] = -eye(
+                nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            NX_first_stage * T + NX_traffic * i + nmg * T * 2:NX_first_stage * T + NX_traffic * i + nmg * T * 3] = eye(
+                nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            NX_first_stage * T + NX_traffic * i + nmg * T * 3:NX_first_stage * T + NX_traffic * i + nmg * T * 4] = -eye(
+                nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T,
+            int(nVariables_index_ev[i]) + nmg * T * 0:int(nVariables_index_ev[i]) + nmg * T * 1] = eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T,
+            int(nVariables_index_ev[i]) + nmg * T * 1:int(nVariables_index_ev[i]) + nmg * T * 2] = -eye(nmg * T)
+        Ts = concatenate((Ts, Ts_temp))
+        Ws = concatenate((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+
+        # sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
 
         model_second_stage = {"c": c,
                               "q": q,
@@ -546,7 +744,10 @@ class StochasticDynamicOptimalPowerFlowTess():
                               "Aeq": Aeq,
                               "beq": beq,
                               "Qc": Qc,
-                              "c0": c0}
+                              "c0": c0,
+                              "Ts": Ts,
+                              "Ws": Ws,
+                              "hs": hs}
 
         return model_second_stage
 
