@@ -129,8 +129,9 @@ class StochasticDynamicOptimalPowerFlowTess():
         b = model_first_stage["b"]
         A_full[0:int(nineq_index[0]), 0:int(nVariables_index[0])] = model_first_stage["A"]
         for i in range(Ns):
-            A_full[int(nineq_index[i]):int(nineq_index[i + 1]), 0:int(nVariables_index[0])] = model_second_stage[i][
-                "Ts"]
+            A_full[int(nineq_index[i]):int(nineq_index[i + 1]),
+            0:int(nVariables_index[0])] = model_second_stage[i]["Ts"]
+
             A_full[int(nineq_index[i]):int(nineq_index[i + 1]),
             int(nVariables_index[i]):int(nVariables_index[i + 1])] = model_second_stage[i]["Ws"]
             b = concatenate([b, model_second_stage[i]["hs"]])
@@ -793,19 +794,20 @@ class StochasticDynamicOptimalPowerFlowTess():
         hs = concatenate((hs, hs_temp))
         # 7) ptss_ch - ptss_dc <= Ptss_ch - Ptss_dc + Rtss
         NX_traffic = self.NX_traffic
+        nl_traffic = self.nl_traffic
         Ts_temp = zeros((nmg * T * nev, nVariables_first_stage))
         Ws_temp = zeros((nmg * T * nev, nVariables_second_stage))
         hs_temp = zeros(nmg * T * nev)
         for i in range(nev):
             Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            NX_first_stage * T + NX_traffic * i + nmg * T:NX_first_stage * T + NX_traffic * i + nmg * T * 2] = eye(
-                nmg * T)
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T:
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 2] = eye(nmg * T)
             Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            NX_first_stage * T + NX_traffic * i + nmg * T * 2:NX_first_stage * T + NX_traffic * i + nmg * T * 3] = -eye(
-                nmg * T)
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 2:
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 3] = -eye(nmg * T)
             Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            NX_first_stage * T + NX_traffic * i + nmg * T * 3:NX_first_stage * T + NX_traffic * i + nmg * T * 4] = -eye(
-                nmg * T)
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 3:
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 4] = -eye(nmg * T)
             Ws_temp[i * nmg * T:(i + 1) * nmg * T,
             int(nVariables_index_ev[i]) + nmg * T * 0:int(nVariables_index_ev[i]) + nmg * T * 1] = -eye(nmg * T)
             Ws_temp[i * nmg * T:(i + 1) * nmg * T,
@@ -819,14 +821,14 @@ class StochasticDynamicOptimalPowerFlowTess():
         hs_temp = zeros(nmg * T * nev)
         for i in range(nev):
             Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            NX_first_stage * T + NX_traffic * i + nmg * T:NX_first_stage * T + NX_traffic * i + nmg * T * 2] = -eye(
-                nmg * T)
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T:
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 2] = -eye(nmg * T)
             Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            NX_first_stage * T + NX_traffic * i + nmg * T * 2:NX_first_stage * T + NX_traffic * i + nmg * T * 3] = eye(
-                nmg * T)
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 2:
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 3] = eye(nmg * T)
             Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            NX_first_stage * T + NX_traffic * i + nmg * T * 3:NX_first_stage * T + NX_traffic * i + nmg * T * 4] = -eye(
-                nmg * T)
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 3:
+            NX_first_stage * T + NX_traffic * i + nl_traffic + nmg * T * 4] = -eye(nmg * T)
             Ws_temp[i * nmg * T:(i + 1) * nmg * T,
             int(nVariables_index_ev[i]) + nmg * T * 0:int(nVariables_index_ev[i]) + nmg * T * 1] = eye(nmg * T)
             Ws_temp[i * nmg * T:(i + 1) * nmg * T,
@@ -1406,8 +1408,8 @@ if __name__ == "__main__":
     ])
     micro_grid_1 = deepcopy(micro_grid)
     micro_grid_1["BUS"] = 2
-    micro_grid_1["PD"]["AC_MAX"] = 10
-    micro_grid_1["PD"]["DC_MAX"] = 10
+    micro_grid_1["PD"]["AC_MAX"] = 100
+    micro_grid_1["PD"]["DC_MAX"] = 100
     micro_grid_1["UG"]["PMIN"] = -500
     micro_grid_1["UG"]["PMAX"] = 500
     micro_grid_1["UG"]["QMIN"] = -500
@@ -1432,15 +1434,15 @@ if __name__ == "__main__":
 
     micro_grid_2 = deepcopy(micro_grid)
     micro_grid_2["BUS"] = 4
-    micro_grid_2["PD"]["AC_MAX"] = 50
-    micro_grid_2["PD"]["DC_MAX"] = 50
+    micro_grid_2["PD"]["AC_MAX"] = 100
+    micro_grid_2["PD"]["DC_MAX"] = 100
     micro_grid_2["UG"]["PMIN"] = -500
     micro_grid_2["UG"]["PMAX"] = 500
     micro_grid_1["UG"]["QMIN"] = -500
     micro_grid_1["UG"]["QMAX"] = 500
-    micro_grid_2["DG"]["PMAX"] = 50
-    micro_grid_1["DG"]["QMAX"] = 50
-    micro_grid_1["DG"]["QMIN"] = -50
+    micro_grid_2["DG"]["PMAX"] = 100
+    micro_grid_1["DG"]["QMAX"] = 100
+    micro_grid_1["DG"]["QMIN"] = -100
     micro_grid_2["DG"]["COST_A"] = 0.01
     micro_grid_2["ESS"]["PDC_MAX"] = 50
     micro_grid_2["ESS"]["PCH_MAX"] = 50
@@ -1458,15 +1460,15 @@ if __name__ == "__main__":
 
     micro_grid_3 = deepcopy(micro_grid)
     micro_grid_3["BUS"] = 10
-    micro_grid_3["PD"]["AC_MAX"] = 50
-    micro_grid_3["PD"]["DC_MAX"] = 50
+    micro_grid_3["PD"]["AC_MAX"] = 100
+    micro_grid_3["PD"]["DC_MAX"] = 100
     micro_grid_3["UG"]["PMIN"] = -500
     micro_grid_3["UG"]["PMAX"] = 500
     micro_grid_3["UG"]["QMIN"] = -500
     micro_grid_3["UG"]["QMAX"] = 500
-    micro_grid_3["DG"]["PMAX"] = 50
-    micro_grid_3["DG"]["QMAX"] = 50
-    micro_grid_3["DG"]["QMIN"] = -50
+    micro_grid_3["DG"]["PMAX"] = 100
+    micro_grid_3["DG"]["QMAX"] = 100
+    micro_grid_3["DG"]["QMIN"] = -100
     micro_grid_3["DG"]["COST_A"] = 0.01
     micro_grid_3["ESS"]["PDC_MAX"] = 50
     micro_grid_3["ESS"]["PCH_MAX"] = 50
@@ -1486,14 +1488,14 @@ if __name__ == "__main__":
     traffic_networks = case3.transportation_network()  # Default transportation networks
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
+               "PCMAX": 1000,
+               "PDMAX": 1000,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.01,
+               "COST_OP": 0.001,
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
@@ -1504,9 +1506,8 @@ if __name__ == "__main__":
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.01,
+               "COST_OP": 0.001,
                })
-    """
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
                "PCMAX": 200,
@@ -1518,6 +1519,7 @@ if __name__ == "__main__":
                "EMIN": 50,
                "COST_OP": 0.01,
                })
+    """
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
                "PCMAX": 200,
