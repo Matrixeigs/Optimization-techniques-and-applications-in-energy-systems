@@ -1270,19 +1270,20 @@ class StochasticDynamicOptimalPowerFlowTess():
         benergy = zeros(2 * T)
         for j in range(T):
             # minimal energy
-            Aenergy[j, nl_traffic + n_stops: nl_traffic + n_stops + (j + 1) * nb_traffic_electric] = 1 / tess["EFF_DC"]
-            Aenergy[j, nl_traffic + 2 * n_stops: nl_traffic + 2 * n_stops + (j + 1) * nb_traffic_electric] = \
-                -tess["EFF_CH"]
+            Aenergy[j, nl_traffic + n_stops:
+                       nl_traffic + n_stops + (j + 1) * nb_traffic_electric] = 1 / tess["EFF_DC"]
+            Aenergy[j, nl_traffic + 2 * n_stops:
+                       nl_traffic + 2 * n_stops + (j + 1) * nb_traffic_electric] = -tess["EFF_CH"]
             # Aenergy[j, NX_status + 3 * n_stops + (j + 1) * nb_traffic_electric - 1] = 0.5
             if j != (T - 1):
                 benergy[j] = tess["E0"] - tess["EMIN"]
             else:
                 benergy[j] = 0
             # maximal energy
-            Aenergy[T + j, nl_traffic + n_stops: nl_traffic + n_stops + (j + 1) * nb_traffic_electric] = \
-                -1 / tess["EFF_DC"]
-            Aenergy[T + j, nl_traffic + 2 * n_stops: i * NX_traffic + nl_traffic + 2 * n_stops +
-                                                     (j + 1) * nb_traffic_electric] = tess["EFF_CH"]
+            Aenergy[T + j, nl_traffic + n_stops:
+                           nl_traffic + n_stops + (j + 1) * nb_traffic_electric] = -1 / tess["EFF_DC"]
+            Aenergy[T + j, nl_traffic + 2 * n_stops:
+                           nl_traffic + 2 * n_stops + (j + 1) * nb_traffic_electric] = tess["EFF_CH"]
             if j != (T - 1):
                 benergy[T + j] = tess["EMAX"] - tess["E0"]
             else:
@@ -1375,11 +1376,11 @@ class StochasticDynamicOptimalPowerFlowTess():
             for k in range(nmg):
                 for j in range(T):
                     microgrids_second_stage[i][k]["PD"]["AC"][j] = microgrids_second_stage[i][k]["PD"]["AC"][j] * (
-                            0.9 + 0.3 * random.random())
+                            1 + 0.8 * random.random())
                     microgrids_second_stage[i][k]["QD"]["AC"][j] = microgrids_second_stage[i][k]["QD"]["AC"][j] * (
-                            0.9 + 0.3 * random.random())
+                            1 + 0.8 * random.random())
                     microgrids_second_stage[i][k]["PD"]["DC"][j] = microgrids_second_stage[i][k]["PD"]["DC"][j] * (
-                            0.9 + 0.3 * random.random())
+                            1 + 0.8 * random.random())
 
         return profile_second_stage, microgrids_second_stage
 
@@ -1422,7 +1423,7 @@ if __name__ == "__main__":
     micro_grid_1["ESS"]["PCH_MAX"] = 50
     micro_grid_1["ESS"]["E0"] = 50
     micro_grid_1["ESS"]["EMIN"] = 10
-    micro_grid_1["ESS"]["EMAX"] = 100
+    micro_grid_1["ESS"]["EMAX"] = 50
     micro_grid_1["BIC"]["PMAX"] = 200
     micro_grid_1["BIC"]["QMAX"] = 200
     micro_grid_1["BIC"]["SMAX"] = 200
@@ -1475,7 +1476,7 @@ if __name__ == "__main__":
     micro_grid_3["ESS"]["E0"] = 20
     micro_grid_3["ESS"]["EMIN"] = 10
     micro_grid_3["ESS"]["EMAX"] = 50
-    micro_grid_3["BIC"]["PMAX"] = 50
+    micro_grid_3["BIC"]["PMAX"] = 200
     micro_grid_3["BIC"]["QMAX"] = 200
     micro_grid_3["BIC"]["SMAX"] = 200
     micro_grid_3["PD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"]
@@ -1488,8 +1489,8 @@ if __name__ == "__main__":
     traffic_networks = case3.transportation_network()  # Default transportation networks
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
-               "PCMAX": 1000,
-               "PDMAX": 1000,
+               "PCMAX": 200,
+               "PDMAX": 200,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
                "E0": 100,
@@ -1499,8 +1500,8 @@ if __name__ == "__main__":
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
-               "PCMAX": 1000,
-               "PDMAX": 1000,
+               "PCMAX": 200,
+               "PDMAX": 200,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
                "E0": 100,
@@ -1508,6 +1509,7 @@ if __name__ == "__main__":
                "EMIN": 50,
                "COST_OP": 0.001,
                })
+    """
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
                "PCMAX": 200,
@@ -1519,7 +1521,6 @@ if __name__ == "__main__":
                "EMIN": 50,
                "COST_OP": 0.01,
                })
-    """
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
                "PCMAX": 200,
