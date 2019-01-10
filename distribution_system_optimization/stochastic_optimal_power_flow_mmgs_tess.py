@@ -144,11 +144,12 @@ class StochasticDynamicOptimalPowerFlowTess():
         for i in range(Ns):
             sol_second_stage[i] = sol[int(nVariables_index[i]):int(nVariables_index[i + 1])]
         # 4) Verify the first-stage and second stage optization problem
+        # 4.1) First-stage solution
         sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage)
-        # 1.1) Distribution networks
-
-        # 4) Formulate the second stage problem, under different scenarios
-
+        # 4.2) Second-stage solution
+        sol_second_stage_checked = {}
+        for i in range(Ns):
+            sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
         # return sol_distribution_network, sol_microgrids, sol_tess
         return model_first_stage
 
@@ -825,6 +826,52 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_second_stage
 
+    def second_stage_solution_validation(self, sol):
+
+        T = self.T
+        nb = self.nb
+        ng = self.ng
+        nl = self.nl
+        nmg = self.nmg
+        nev = self.nev
+        f = self.f
+
+        # Solutions for distribution networks
+        distribution_system_solution = {}
+        NX_second_stage = self.NX_second_stage
+        distribution_system_solution["Pij"] = zeros((nl, T))
+        distribution_system_solution["Qij"] = zeros((nl, T))
+        distribution_system_solution["Iij"] = zeros((nl, T))
+        distribution_system_solution["Vi"] = zeros((nb, T))
+        distribution_system_solution["Pg"] = zeros((ng, T))
+        distribution_system_solution["Qg"] = zeros((ng, T))
+        distribution_system_solution["Pmg"] = zeros((nmg, T))
+        distribution_system_solution["Qmg"] = zeros((nmg, T))
+        distribution_system_solution["gap"] = zeros((nl, T))
+        for i in range(T):
+            distribution_system_solution["Pij"][:, i] = sol[NX_second_stage * i:NX_second_stage * i + nl]
+            distribution_system_solution["Qij"][:, i] = sol[NX_second_stage * i + nl:NX_second_stage * i + nl * 2]
+            distribution_system_solution["Iij"][:, i] = sol[NX_second_stage * i + nl * 2:NX_second_stage * i + nl * 3]
+            distribution_system_solution["Vi"][:, i] = \
+                sol[NX_second_stage * i + nl * 3:NX_second_stage * i + nl * 3 + nb]
+            distribution_system_solution["Pg"][:, i] = \
+                sol[NX_second_stage * i + nl * 3 + nb:NX_second_stage * i + nl * 3 + nb + ng]
+            distribution_system_solution["Qg"][:, i] = \
+                sol[NX_second_stage * i + nl * 3 + nb + ng:NX_second_stage * i + nl * 3 + nb + ng * 2]
+            distribution_system_solution["Pmg"][:, i] = \
+                sol[NX_second_stage * i + nl * 3 + nb + ng * 2:NX_second_stage * i + nl * 3 + nb + ng * 2 + nmg]
+            distribution_system_solution["Qmg"][:, i] = \
+                sol[
+                NX_second_stage * i + nl * 3 + nb + ng * 2 + nmg:NX_second_stage * i + nl * 3 + nb + ng * 2 + nmg * 2]
+            for j in range(nl):
+                distribution_system_solution["gap"][j, i] = distribution_system_solution["Pij"][j, i] ** 2 + \
+                                                            distribution_system_solution["Qij"][j, i] ** 2 - \
+                                                            distribution_system_solution["Iij"][j, i] * \
+                                                            distribution_system_solution["Vi"][int(f[j]), i]
+        return distribution_system_solution
+
+        # Solutions for the microgrids
+
     def problem_formulation_microgrid(self, micro_grid, tess):
         """
         Unit commitment problem formulation of single micro_grid
@@ -1159,7 +1206,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         A = concatenate([A, Aenergy])
         b = concatenate([b, benergy])
-        c = concatenate([connection_matrix[:,TIME],zeros(n_stops*4)])
+        c = concatenate([connection_matrix[:, TIME], zeros(n_stops * 4)])
         # sol = milp(zeros(NX_traffic), q=zeros(NX_traffic), Aeq=Aeq, beq=beq, A=A, b=b, xmin=lx, xmax=ux)
 
         model_tess = {"c": c,
@@ -1226,44 +1273,6 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_tess
 
-    def solution_check_tess(self, sol):
-        """
-        :param sol: solutions for tess
-        :return: decoupled solutions for tess
-        """
-
-        NX_traffic = self.NX_traffic
-        nl_traffic = self.nl_traffic
-        n_stops = self.n_stops
-        nev = self.nev
-        T = self.T
-
-        tsn_ev = zeros((nl_traffic, nev))
-        ich_ev = zeros((n_stops, nev))
-        pdc_ev = zeros((n_stops, nev))
-        pch_ev = zeros((n_stops, nev))
-        rs_ev = zeros((n_stops, nev))
-
-        for i in range(nev):
-            for j in range(nl_traffic):
-                tsn_ev[j, i] = sol[i * NX_traffic + j]
-            for j in range(n_stops):
-                ich_ev[j, i] = sol[i * NX_traffic + nl_traffic + 0 * n_stops + j]
-            for j in range(n_stops):
-                pdc_ev[j, i] = sol[i * NX_traffic + nl_traffic + 1 * n_stops + j]
-            for j in range(n_stops):
-                pch_ev[j, i] = sol[i * NX_traffic + nl_traffic + 2 * n_stops + j]
-            for j in range(n_stops):
-                rs_ev[j, i] = sol[i * NX_traffic + nl_traffic + 3 * n_stops + j]
-
-        sol_tess = {"Tsn_ev": tsn_ev,
-                    "Ich": ich_ev,
-                    "Pdc": pdc_ev,
-                    "Pch": pch_ev,
-                    "Rs": rs_ev, }
-
-        return sol_tess
-
     def scenario_generation(self, microgrids, profile, Ns=2):
         """
         Scenario generation function for the second-stage scheduling
@@ -1275,18 +1284,18 @@ class StochasticDynamicOptimalPowerFlowTess():
         microgrids_second_stage = [0] * Ns
         for i in range(Ns):
             for j in range(T):
-                profile_second_stage[i, j] = profile[j] * (0.9 + 0.1 * random.random())
+                profile_second_stage[i, j] = profile[j] * (0.9 + 0.3 * random.random())
 
         for i in range(Ns):
             microgrids_second_stage[i] = deepcopy(microgrids)
             for k in range(nmg):
                 for j in range(T):
                     microgrids_second_stage[i][k]["PD"]["AC"][j] = microgrids_second_stage[i][k]["PD"]["AC"][j] * (
-                            0.9 + 0.1 * random.random())
+                            0.9 + 0.3 * random.random())
                     microgrids_second_stage[i][k]["QD"]["AC"][j] = microgrids_second_stage[i][k]["QD"]["AC"][j] * (
-                            0.9 + 0.1 * random.random())
+                            0.9 + 0.3 * random.random())
                     microgrids_second_stage[i][k]["PD"]["DC"][j] = microgrids_second_stage[i][k]["PD"]["DC"][j] * (
-                            0.9 + 0.1 * random.random())
+                            0.9 + 0.3 * random.random())
 
         return profile_second_stage, microgrids_second_stage
 
