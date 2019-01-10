@@ -827,7 +827,10 @@ class StochasticDynamicOptimalPowerFlowTess():
         return model_second_stage
 
     def second_stage_solution_validation(self, sol):
-
+        """
+        :param sol: The second stage solution under specific scenario
+        :return: for each value
+        """
         T = self.T
         nb = self.nb
         ng = self.ng
@@ -868,9 +871,56 @@ class StochasticDynamicOptimalPowerFlowTess():
                                                             distribution_system_solution["Qij"][j, i] ** 2 - \
                                                             distribution_system_solution["Iij"][j, i] * \
                                                             distribution_system_solution["Vi"][int(f[j]), i]
-        return distribution_system_solution
-
         # Solutions for the microgrids
+        micro_grid_solution = {}
+        micro_grid_solution["Pg"] = zeros((nmg, T))
+        micro_grid_solution["Qg"] = zeros((nmg, T))
+        micro_grid_solution["Pmg"] = zeros((nmg, T))
+        micro_grid_solution["Qmg"] = zeros((nmg, T))
+        micro_grid_solution["Pbic_ac2dc"] = zeros((nmg, T))
+        micro_grid_solution["Pbic_dc2ac"] = zeros((nmg, T))
+        micro_grid_solution["Qbic"] = zeros((nmg, T))
+        micro_grid_solution["Pess_ch"] = zeros((nmg, T))
+        micro_grid_solution["Pess_dc"] = zeros((nmg, T))
+        micro_grid_solution["Eess"] = zeros((nmg, T))
+        micro_grid_solution["Pmess"] = zeros((nmg, T))
+        for i in range(nmg):
+            for t in range(T):
+                micro_grid_solution["Pg"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + PG]
+                micro_grid_solution["Qg"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + QG]
+                micro_grid_solution["Pmg"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + PUG]
+                micro_grid_solution["Qmg"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + QUG]
+                micro_grid_solution["Pbic_ac2dc"][i, t] = \
+                    sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + PBIC_AC2DC]
+                micro_grid_solution["Pbic_dc2ac"][i, t] = \
+                    sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + PBIC_DC2AC]
+                micro_grid_solution["Qbic"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + QBIC]
+                micro_grid_solution["Pess_ch"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + PESS_CH]
+                micro_grid_solution["Pess_dc"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + PESS_DC]
+                micro_grid_solution["Eess"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + EESS]
+                micro_grid_solution["Pmess"][i, t] = sol[NX_second_stage * T + NX_MG * T * i + NX_MG * t + PMESS]
+        # Solutions for the mess
+        n_stops = self.n_stops
+        tess_solution = {}
+        tess_solution["Pmss_dc"] = zeros((nev, nmg * T))
+        tess_solution["Pmss_ch"] = zeros((nev, nmg * T))
+        tess_solution["Eess"] = zeros((nev, T))
+        for i in range(nev):
+            tess_solution["Pmss_dc"][i, :] = sol[NX_second_stage * T + NX_MG * T * nmg + (
+                    2 * n_stops + T) * i:NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + n_stops]
+            tess_solution["Pmss_ch"][i, :] = sol[NX_second_stage * T + NX_MG * T * nmg + (
+                    2 * n_stops + T) * i + n_stops:NX_second_stage * T + NX_MG * T * nmg + (
+                        2 * n_stops + T) * i + n_stops * 2]
+            tess_solution["Eess"][i, :] = sol[NX_second_stage * T + NX_MG * T * nmg + (
+                    2 * n_stops + T) * i + n_stops * 2:NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * (
+                        i + 1)]
+
+        second_stage_solution = {}
+        second_stage_solution["DS"] = distribution_system_solution
+        second_stage_solution["MG"] = micro_grid_solution
+        second_stage_solution["MESS"] = tess_solution
+
+        return second_stage_solution
 
     def problem_formulation_microgrid(self, micro_grid, tess):
         """
