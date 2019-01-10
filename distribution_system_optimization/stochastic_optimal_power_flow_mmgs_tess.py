@@ -3,7 +3,7 @@ Stochastic optimal power flow with multiple microgrids and mobile energy storage
 @author: Zhao Tianyang
 @e-mail: zhaoty@ntu.edu.sg
 @date: 4 Jan 2019
-The matrix is stored using lil_matrix
+The data is stored using lil_matrix
 """
 
 from distribution_system_optimization.test_cases import case33
@@ -150,6 +150,23 @@ class StochasticDynamicOptimalPowerFlowTess():
         sol_second_stage_checked = {}
         for i in range(Ns):
             sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
+        # 4.3) Cross validation of the first-stage and second-stage decision variables
+        tess_check = {}
+        for i in range(Ns):
+            tess_temp = {}
+            for j in range(nev):
+                tess_temp[j] = sol_second_stage_checked[i]["MESS"][j]["Pmess_dc"] - \
+                               sol_second_stage_checked[i]["MESS"][j]["Pmess_ch"] - \
+                               sol_first_stage["MESS"][j]["Pmess_dc"] + \
+                               sol_first_stage["MESS"][j]["Pmess_ch"] - \
+                               sol_first_stage["MESS"][j]["Rmess"]
+                tess_temp[j + nev] = sol_second_stage_checked[i]["MESS"][j]["Pmess_ch"] - \
+                                     sol_second_stage_checked[i]["MESS"][j]["Pmess_dc"] - \
+                                     sol_first_stage["MESS"][j]["Pmess_ch"] + \
+                                     sol_first_stage["MESS"][j]["Pmess_dc"] - \
+                                     sol_first_stage["MESS"][j]["Rmess"]
+            tess_check[i] = tess_temp
+
         # return sol_distribution_network, sol_microgrids, sol_tess
         return model_first_stage
 
@@ -434,21 +451,32 @@ class StochasticDynamicOptimalPowerFlowTess():
                                            (self.connection_matrix[t, T_BUS] - 1) % nmg))
 
             ev_temp["Idc"] = zeros((nb_traffic_electric, T))
-            ev_temp["Discharging"] = zeros((nb_traffic_electric, T))
-            ev_temp["Charging"] = zeros((nb_traffic_electric, T))
-            ev_temp["Reserve"] = zeros((nb_traffic_electric, T))
+            ev_temp["Pmess_dc"] = zeros((nb_traffic_electric, T))
+            ev_temp["Pmess_ch"] = zeros((nb_traffic_electric, T))
+            ev_temp["Rmess"] = zeros((nb_traffic_electric, T))
             for t in range(T):
                 for k in range(nb_traffic_electric):
                     ev_temp["Idc"][k, t] = sol[
                         NX_first_stage * T + NX_traffic * i + nl_traffic + nb_traffic_electric * t + k]
-                    ev_temp["Discharging"][k, t] = sol[
+                    ev_temp["Pmess_dc"][k, t] = sol[
                         NX_first_stage * T + NX_traffic * i + nl_traffic + n_stops + nb_traffic_electric * t + k]
-                    ev_temp["Charging"][k, t] = sol[
+                    ev_temp["Pmess_ch"][k, t] = sol[
                         NX_first_stage * T + NX_traffic * i + nl_traffic + n_stops * 2 + nb_traffic_electric * t + k]
-                    ev_temp["Reserve"][k, t] = sol[
+                    ev_temp["Rmess"][k, t] = sol[
                         NX_first_stage * T + NX_traffic * i + nl_traffic + n_stops * 3 + nb_traffic_electric * t + k]
             sol_ev[i] = ev_temp
-        return
+
+        sol_first_stage = {"Pg": Pg,
+                           "Rg": Rg,
+                           "Pg_mg": Pg_mg,
+                           "Pess_ch": Pess_ch,
+                           "Pess_dc": Pess_dc,
+                           "Ress": Ress,
+                           "Eess": Eess,
+                           "Iess": Iess,
+                           "MESS": sol_ev,
+                           }
+        return sol_first_stage
 
     def second_stage_problem_formualtion(self, power_networks, micro_grids, tess, traffic_networks, profile, index=0,
                                          weight=1):
@@ -902,18 +930,22 @@ class StochasticDynamicOptimalPowerFlowTess():
         # Solutions for the mess
         n_stops = self.n_stops
         tess_solution = {}
-        tess_solution["Pmss_dc"] = zeros((nev, nmg * T))
-        tess_solution["Pmss_ch"] = zeros((nev, nmg * T))
-        tess_solution["Eess"] = zeros((nev, T))
+
         for i in range(nev):
-            tess_solution["Pmss_dc"][i, :] = sol[NX_second_stage * T + NX_MG * T * nmg + (
-                    2 * n_stops + T) * i:NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + n_stops]
-            tess_solution["Pmss_ch"][i, :] = sol[NX_second_stage * T + NX_MG * T * nmg + (
-                    2 * n_stops + T) * i + n_stops:NX_second_stage * T + NX_MG * T * nmg + (
-                        2 * n_stops + T) * i + n_stops * 2]
-            tess_solution["Eess"][i, :] = sol[NX_second_stage * T + NX_MG * T * nmg + (
-                    2 * n_stops + T) * i + n_stops * 2:NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * (
-                        i + 1)]
+            tess_temp = {}
+            tess_temp["Pmess_dc"] = zeros((nmg, T))
+            tess_temp["Pmess_ch"] = zeros((nmg, T))
+            tess_temp["Emess"] = zeros((1, T))
+            for t in range(T):
+                tess_temp["Pmess_dc"][:, t] = \
+                    sol[NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + nmg * t:
+                        NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + nmg * (t + 1)]
+                tess_temp["Pmess_ch"][:, t] = \
+                    sol[NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + n_stops + nmg * t:
+                        NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + n_stops + nmg * (t + 1)]
+                tess_temp["Emess"][:, t] = \
+                    sol[NX_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + n_stops * 2 + t]
+            tess_solution[i] = tess_temp
 
         second_stage_solution = {}
         second_stage_solution["DS"] = distribution_system_solution
