@@ -21,6 +21,9 @@ tra: traffic
 i,j,k: index
 t: time index
 T: time periods
+tns:traffic networks
+pns:power networks
+
 """
 
 from distribution_system_optimization.test_cases import case33
@@ -51,7 +54,7 @@ class StochasticDynamicOptimalPowerFlowTess():
     def __init__(self):
         self.name = "Stochastic optimal power flow with tess"
 
-    def main(self, Case, Micro_grids, Profile, Mess, Traffic_networks, Ns=2):
+    def main(self, power_networks, micro_grids, profile, mess, traffic_networks, ns=2):
         """
         Main entrance for network reconfiguration problems
         :param case: electric network information
@@ -60,40 +63,39 @@ class StochasticDynamicOptimalPowerFlowTess():
         :param tess: dictionary for tess
         :return: network reconfiguration, distribution network status, and microgrid status
         """
-        # Time spans
-        T = len(Profile)
+        T = len(profile)  # Time spans
         self.T = T
-        # Number of microgrids
-        nmg = len(Micro_grids)
+        nmg = len(micro_grids)  # Number of microgrids
         self.nmg = nmg
-        # Number of mobile energy storage systems
-        nmes = len(Mess)
+        nmes = len(mess)  # Number of mobile energy storage systems
         self.nmes = nmes
-        # Number of buses in the transportation networks
-        nb_traffic = traffic_networks["bus"].shape[0]
-        self.nb_traffic = nb_traffic
+        nb_tra = traffic_networks["bus"].shape[0]  # Number of buses in the transportation networks
+        self.nb_tra = nb_tra
+        assert nb_tra == nmg, "The microgrids within the transportation networks are not synchronized!"
         # Formulate the second stage scenarios
-        (Profile_second_second, Micro_grids_second_stage) = self.scenario_generation(profile=Profile,
-                                                                                     microgrids=Micro_grids, Ns=Ns)
+        (profile_second_second, mgs_second_stage) = self.scenario_generation(profile=profile,
+                                                                             micro_grids=micro_grids, ns=ns)
 
         # 1) Formulate the first stage optimization problem
-        model_first_stage = self.first_stage_problem_formualtion(power_networks=Case, micro_grids=Micro_grids,
-                                                                 mess=Mess, traffic_networks=Traffic_networks)
+        model_first_stage = self.first_stage_problem_formualtion(pns=power_networks, mgs=micro_grids, mess=mess,
+                                                                 tns=traffic_networks)
+        sol_first_stage = milp(model_first_stage["c"], Aeq=model_first_stage["Aeq"], beq=model_first_stage["beq"],
+                               A=model_first_stage["A"], b=model_first_stage["b"], vtypes=model_first_stage["vtypes"],
+                               xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
         # 2) Formulate the second stage optimization problem
         model_second_stage = {}
-        for i in range(Ns):
-            model_second_stage[i] = self.second_stage_problem_formualtion(power_networks=Case,
-                                                                          micro_grids=Micro_grids_second_stage[i],
-                                                                          mess=Mess, traffic_networks=Traffic_networks,
-                                                                          profile=Profile_second_second[i, :], index=i,
-                                                                          weight=1 / Ns)
+        for i in range(ns):
+            model_second_stage[i] = self.second_stage_problem_formualtion(power_networks=power_networks,
+                                                                          micro_grids=mgs_second_stage[i],
+                                                                          mess=mess, traffic_networks=traffic_networks,
+                                                                          profile=profile_second_second[i, :], index=i,
+                                                                          weight=1 / ns)
         # 3) Merge the first-stage problem and second stage problem
         lb = model_first_stage["lb"]
         ub = model_first_stage["ub"]
         vtypes = model_first_stage["vtypes"]
         c = model_first_stage["c"]
         Qc = dict()
-
         if model_first_stage["Aeq"] is not None:
             neq = model_first_stage["Aeq"].shape[0]
         else:
@@ -107,14 +109,14 @@ class StochasticDynamicOptimalPowerFlowTess():
         nVariablesSecondStage = self.nVariablesSecondStage
         q = zeros(nVariablesFirstStage)
 
-        nVariables_index = zeros(Ns + 1)
-        neq_index = zeros(Ns + 1)
-        nineq_index = zeros(Ns + 1)
+        nVariables_index = zeros(ns + 1)
+        neq_index = zeros(ns + 1)
+        nineq_index = zeros(ns + 1)
         neq_index[0] = neq
         nineq_index[0] = nineq
         nVariables_index[0] = nVariablesFirstStage
         beq = model_first_stage["beq"]
-        for i in range(Ns):
+        for i in range(ns):
             if model_second_stage[i]["Aeq"] is not None:
                 neq_index[i + 1] = neq_index[i] + model_second_stage[i]["Aeq"].shape[0]
             else:
@@ -134,7 +136,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         Aeq_full = zeros((int(neq_index[-1]), int(nVariables_index[-1])))
         Aeq_full[0:int(neq_index[0]), 0:int(nVariables_index[0])] = model_first_stage["Aeq"]
-        for i in range(Ns):
+        for i in range(ns):
             Aeq_full[int(neq_index[i]):int(neq_index[i + 1]),
             int(nVariables_index[i]):int(nVariables_index[i + 1])] = model_second_stage[i]["Aeq"]
             Qc.update(model_second_stage[i]["Qc"])
@@ -142,7 +144,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         A_full = zeros((int(nineq_index[-1]), int(nVariables_index[-1])))
         b = model_first_stage["b"]
         A_full[0:int(nineq_index[0]), 0:int(nVariables_index[0])] = model_first_stage["A"]
-        for i in range(Ns):
+        for i in range(ns):
             A_full[int(nineq_index[i]):int(nineq_index[i + 1]),
             0:int(nVariables_index[0])] = model_second_stage[i]["Ts"]
 
@@ -156,18 +158,18 @@ class StochasticDynamicOptimalPowerFlowTess():
         # 3.2) decouple the solution into multiple subsystems
         sol_first_stage = sol[0:nVariablesFirstStage]
         sol_second_stage = {}
-        for i in range(Ns):
+        for i in range(ns):
             sol_second_stage[i] = sol[int(nVariables_index[i]):int(nVariables_index[i + 1])]
         # 4) Verify the first-stage and second stage optization problem
         # 4.1) First-stage solution
         sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage)
         # 4.2) Second-stage solution
         sol_second_stage_checked = {}
-        for i in range(Ns):
+        for i in range(ns):
             sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
         # 4.3) Cross validation of the first-stage and second-stage decision variables
         tess_check = {}
-        for i in range(Ns):
+        for i in range(ns):
             tess_temp = {}
             for j in range(nmes):
                 tess_temp[j] = sol_second_stage_checked[i]["MESS"][j]["Pmess_dc"] - \
@@ -185,228 +187,218 @@ class StochasticDynamicOptimalPowerFlowTess():
         # return sol_distribution_network, sol_microgrids, sol_tess
         return sol_first_stage, sol_second_stage_checked
 
-    def first_stage_problem_formualtion(self, power_networks, micro_grids, mess, traffic_networks):
+    def first_stage_problem_formualtion(self, pns, mgs, mess, tns):
         """
-        Problem formulation for the first stage optimization
+        Problem formulation for the first stage optimization,
+        Decision variables include, DGs within power networks, DGs within MGs, EESs within MGs and TESSs
         :param power_networks: Parameters for the power networks
         :param micro_grids: Parameters for the microgrids
         :param tess: Parameters for the mobile energy storage systems
         :param traffic_networks: Parameters for the transportation networks
-        :return:
+        :return: Formulated first-stage problem
         """
         T = self.T  # Time slots
         nmg = self.nmg  # Number of mgs
         nmes = self.nmes  # Number of tess
-        # Decision variables include, DGs within power networks, DGs within MGs, EESs within MGs and TESSs
-        mpc = ext2int(power_networks)
+
+        mpc = ext2int(pns)
         baseMVA, bus, gen, branch, gencost = mpc["baseMVA"], mpc["bus"], mpc["gen"], mpc["branch"], mpc["gencost"]
         ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
         nb = shape(mpc["bus"])[0]
         self.nb = nb
-        # Boundary for DGs within distribution networks
-        Pg_l = gen[:, PMIN] / baseMVA
-        Rg_l = gen[:, PMIN] / baseMVA
-        Pg_u = gen[:, PMAX] / baseMVA
-        Rg_u = gen[:, PMAX] / baseMVA
+
+        pg_l = gen[:, PMIN] / baseMVA  # Boundary for DGs within distribution networks
+        rg_l = gen[:, PMIN] / baseMVA
+        pg_u = gen[:, PMAX] / baseMVA
+        rg_u = gen[:, PMAX] / baseMVA
         cg = gencost[:, 5] * baseMVA
         cr = zeros(ng)
 
-        # Boundary for DGs within MGs
-        Pg_mg_l = zeros(nmg)
-        Rg_mg_l = zeros(nmg)
-        Pg_mg_u = zeros(nmg)
-        Rg_mg_u = zeros(nmg)
+        pg_mg_l = zeros(nmg)  # Boundary for DGs within MGs
+        rg_mg_l = zeros(nmg)
+        pg_mg_u = zeros(nmg)
+        rg_mg_u = zeros(nmg)
         cg_mg = zeros(nmg)
         cr_mg = zeros(nmg)
+        for i in range(nmg):
+            pg_mg_l[i] = mgs[i]["DG"]["PMIN"]
+            pg_mg_u[i] = mgs[i]["DG"]["PMAX"]
+            rg_mg_u[i] = mgs[i]["DG"]["PMAX"]
+            cg_mg[i] = mgs[i]["DG"]["COST_B"]
+
+        pes_ch_l = zeros(nmg)  # Lower boundary for ESSs within MGs
+        pes_dc_l = zeros(nmg)
+        ees_l = zeros(nmg)
+        res_l = zeros(nmg)
+        ies_l = zeros(nmg)
+
+        pes_ch_u = zeros(nmg)  # Upper boundary for ESSs within MGs
+        pes_dc_u = zeros(nmg)
+        ees_u = zeros(nmg)
+        res_u = zeros(nmg)
+        ies_u = ones(nmg)
+
+        ces_ch = zeros(nmg)  # Cost boundary for ESSs within MGs
+        ces_dc = zeros(nmg)
+        ces_r = zeros(nmg)
+        ces = zeros(nmg)
+        ces_i = zeros(nmg)
 
         for i in range(nmg):
-            Pg_mg_l[i] = micro_grids[i]["DG"]["PMIN"]
-            Pg_mg_u[i] = micro_grids[i]["DG"]["PMAX"]
-            Rg_mg_u[i] = micro_grids[i]["DG"]["PMAX"]
-            cg_mg[i] = micro_grids[i]["DG"]["COST_B"]
+            pes_ch_u[i] = mgs[i]["ESS"]["PCH_MAX"]
+            pes_dc_u[i] = mgs[i]["ESS"]["PDC_MAX"] + mgs[i]["ESS"]["PCH_MAX"]
+            res_u[i] = mgs[i]["ESS"]["PCH_MAX"]
+            ees_l[i] = mgs[i]["ESS"]["EMIN"]
+            ees_u[i] = mgs[i]["ESS"]["EMAX"]
 
-        # Boundary for ESSs within MGs
-        Pess_ch_l = zeros(nmg)
-        Pess_dc_l = zeros(nmg)
-        Eess_l = zeros(nmg)
-        Ress_l = zeros(nmg)
-        Iess_l = zeros(nmg)
-
-        Pess_ch_u = zeros(nmg)
-        Pess_dc_u = zeros(nmg)
-        Eess_u = zeros(nmg)
-        Ress_u = zeros(nmg)
-        Iess_u = ones(nmg)
-
-        cess_ch = zeros(nmg)
-        cess_dc = zeros(nmg)
-        cess_r = zeros(nmg)
-        cess = zeros(nmg)
-        cess_i = zeros(nmg)
-
-        for i in range(nmg):
-            Pess_ch_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]
-            Pess_dc_u[i] = micro_grids[i]["ESS"]["PDC_MAX"] + micro_grids[i]["ESS"]["PCH_MAX"]
-            Ress_u[i] = micro_grids[i]["ESS"]["PCH_MAX"]
-            Eess_l[i] = micro_grids[i]["ESS"]["EMIN"]
-            Eess_u[i] = micro_grids[i]["ESS"]["EMAX"]
-
-        NX_first_stage = ng * 2 + nmg * 2 + nmg * 5
-        nVariables_first_stage = NX_first_stage * T
+        _nv_first_stage = ng * 2 + nmg * 2 + nmg * 5
+        nv_first_stage = _nv_first_stage * T
         # Formulate the boundaries
-        lx = concatenate(
-            [tile(concatenate([Pg_l, Rg_l, Pg_mg_l, Rg_mg_l, Pess_ch_l, Pess_dc_l, Ress_l, Eess_l, Iess_l]), T)])
-        ux = concatenate(
-            [tile(concatenate([Pg_u, Rg_u, Pg_mg_u, Rg_mg_u, Pess_ch_u, Pess_dc_u, Ress_u, Eess_u, Iess_u]), T)])
+        lb = concatenate(
+            [tile(concatenate([pg_l, rg_l, pg_mg_l, rg_mg_l, pes_ch_l, pes_dc_l, res_l, ees_l, ies_l]), T)])
+        ub = concatenate(
+            [tile(concatenate([pg_u, rg_u, pg_mg_u, rg_mg_u, pes_ch_u, pes_dc_u, res_u, ees_u, ies_u]), T)])
         # Objective value
-        c = concatenate([tile(concatenate([cg, cr, cg_mg, cr_mg, cess_ch, cess_dc, cess, cess_r, cess_i]), T)])
+        c = concatenate([tile(concatenate([cg, cr, cg_mg, cr_mg, ces_ch, ces_dc, ces, ces_r, ces_i]), T)])
         # Variable types
         vtypes = (["c"] * (ng * 2 + nmg * 2 + nmg * 4) + ["b"] * nmg) * T
-
         ## Constraint sets
         # 1) Pg+Rg<=Pgu
-        A = zeros((ng * T, nVariables_first_stage))
+        A = lil_matrix((ng * T, nv_first_stage))
         b = zeros(ng * T)
-        for i in range(T):
+        for t in range(T):
             for j in range(ng):
-                A[i * ng + j, i * NX_first_stage + j] = 1
-                A[i * ng + j, i * NX_first_stage + ng + j] = 1
-                b[i * ng + j] = Pg_u[j]
+                A[t * ng + j, t * _nv_first_stage + j] = 1
+                A[t * ng + j, t * _nv_first_stage + ng + j] = 1
+                b[t * ng + j] = pg_u[j]
         # 2) Pg-Rg>=Pgl
-        A_temp = zeros((ng * T, nVariables_first_stage))
+        A_temp = lil_matrix((ng * T, nv_first_stage))
         b_temp = zeros(ng * T)
-        for i in range(i):
+        for t in range(T):
             for j in range(ng):
-                A_temp[i * ng + j, i * NX_first_stage + j] = -1
-                A_temp[i * ng + j, i * NX_first_stage + ng + j] = 1
-                b_temp[i * ng + j] = -Pg_l[j]
-        A = concatenate([A, A_temp])
+                A_temp[t * ng + j, t * _nv_first_stage + j] = -1
+                A_temp[t * ng + j, t * _nv_first_stage + ng + j] = 1
+                b_temp[t * ng + j] = -pg_l[j]
+        A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # 3) Pg_mg+Rg_mg<=Pg_mg_u
-        A_temp = zeros((nmg * T, nVariables_first_stage))
+        A_temp = lil_matrix((nmg * T, nv_first_stage))
         b_temp = zeros(nmg * T)
-        for i in range(T):
+        for t in range(T):
             for j in range(nmg):
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + j] = 1
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg + j] = 1
-                b_temp[i * nmg + j] = Pg_mg_u[j]
-        A = concatenate([A, A_temp])
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg + j] = 1
+                b_temp[t * nmg + j] = pg_mg_u[j]
+        A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # 4) Pg_mg-Rg_mg<=Pg_mg_l
-        A_temp = zeros((nmg * T, nVariables_first_stage))
+        A_temp = lil_matrix((nmg * T, nv_first_stage))
         b_temp = zeros(nmg * T)
-        for i in range(T):
+        for t in range(T):
             for j in range(nmg):
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + j] = -1
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg + j] = 1
-                b_temp[i * nmg + j] = Pg_mg_l[j]
-        A = concatenate([A, A_temp])
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + j] = -1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg + j] = 1
+                b_temp[t * nmg + j] = pg_mg_l[j]
+        A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # 5) Pess_dc-Pess_ch+Ress<=Pess_dc_max
-        A_temp = zeros((nmg * T, nVariables_first_stage))
+        A_temp = lil_matrix((nmg * T, nv_first_stage))
         b_temp = zeros(nmg * T)
-        for i in range(T):
+        for t in range(T):
             for j in range(nmg):
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = -1
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg * 2 + j] = 1
-                b_temp[i * nmg + j] = Pess_dc_u[j]
-        A = concatenate([A, A_temp])
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + j] = -1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 2 + j] = 1
+                b_temp[t * nmg + j] = pes_dc_u[j]
+        A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # 6) Pess_ch-Pess_dc+Ress<=Pess_ch_max
-        A_temp = zeros((nmg * T, nVariables_first_stage))
+        A_temp = lil_matrix((nmg * T, nv_first_stage))
         b_temp = zeros(nmg * T)
-        for i in range(T):
+        for t in range(T):
             for j in range(nmg):
-                A_temp[i * nmg + j, ng * 2 + nmg * 2 + i] = 1
-                A_temp[i * nmg + j, ng * 2 + nmg * 2 + nmg + i] = -1
-                A_temp[i * nmg + j, ng * 2 + nmg * 2 + nmg * 2 + i] = 1
-                b_temp[i * nmg + j] = Pess_ch_u[j]
-        A = concatenate([A, A_temp])
+                A_temp[t * nmg + j, ng * 2 + nmg * 2 + t] = 1
+                A_temp[t * nmg + j, ng * 2 + nmg * 2 + nmg + t] = -1
+                A_temp[t * nmg + j, ng * 2 + nmg * 2 + nmg * 2 + t] = 1
+                b_temp[t * nmg + j] = pes_ch_u[j]
+        A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # 7) Energy storage balance equation
-        Aeq = zeros((T * nmg, nVariables_first_stage))
+        Aeq = lil_matrix((T * nmg, nv_first_stage))
         beq = zeros(T * nmg)
-        for i in range(T):
+        for t in range(T):
             for j in range(nmg):
-                Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = 1
-                Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = -micro_grids[j]["ESS"]["EFF_CH"]
-                Aeq[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1 / micro_grids[j]["ESS"]["EFF_DC"]
-                if i == 0:
-                    beq[i * nmg + j] = micro_grids[j]["ESS"]["E0"]
+                Aeq[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = 1
+                Aeq[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + j] = -mgs[j]["ESS"]["EFF_CH"]
+                Aeq[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1 / mgs[j]["ESS"]["EFF_DC"]
+                if t == 0:
+                    beq[i * nmg + j] = mgs[j]["ESS"]["E0"]
                 else:
-                    Aeq[i * nmg + j, (i - 1) * NX_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = -1
+                    Aeq[i * nmg + j, (i - 1) * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = -1
         # 8) Pess_ch<=I*Pess_ch_max
-        A_temp = zeros((nmg * T, nVariables_first_stage))
+        A_temp = lil_matrix((nmg * T, nv_first_stage))
         b_temp = zeros(nmg * T)
-        for i in range(T):
+        for t in range(T):
             for j in range(nmg):
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + j] = 1
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg * 4 + j] = -Pess_ch_u[j]
-        A = concatenate([A, A_temp])
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 4 + j] = -pes_ch_u[j]
+        A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # 9) Pess_dc<=(1-I)*Pess_dc_max
-        A_temp = zeros((nmg * T, nVariables_first_stage))
+        A_temp = lil_matrix((nmg * T, nv_first_stage))
         b_temp = zeros(nmg * T)
-        for i in range(T):
+        for t in range(T):
             for j in range(nmg):
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1
-                A_temp[i * nmg + j, i * NX_first_stage + ng * 2 + nmg * 2 + nmg * 4 + j] = Pess_dc_u[j]
-                b_temp[i * nmg + j] = Pess_dc_u[j]
-        A = concatenate([A, A_temp])
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 4 + j] = pes_dc_u[j]
+                b_temp[t * nmg + j] = pes_dc_u[j]
+        A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
 
         # 2) Transportation energy storage systems problem
-        model_tess = {}
+        model_mess = {}
         for i in range(nmes):
-            model_tess[i] = self.problem_formulation_tess(mess=mess[i], traffic_networks=traffic_networks)
+            model_mess[i] = self.problem_formulation_tess(mess=mess[i], tns=tns)
         # 3) Merge the DGs, ESSs and TESSs
-        nVariables = nVariables_first_stage
         neq = Aeq.shape[0]
         nineq = A.shape[0]
 
-        nVariables_index_tess = zeros(nmes + 1)
-        neq_index_tess = zeros(nmes + 1)
-        nineq_index_tess = zeros(nmes + 1)
-        nVariables_index_tess[0] = nVariables_first_stage
-        neq_index_tess[0] = neq
-        nineq_index_tess[0] = nineq
+        nV_index = zeros(nmes + 1).astype(int)
+        neq_index = zeros(nmes + 1).astype(int)
+        nineq_index = zeros(nmes + 1).astype(int)
+        nV_index[0] = nv_first_stage
+        neq_index[0] = neq
+        nineq_index[0] = nineq
 
         for i in range(nmes):
-            nVariables_index_tess[i + 1] = nVariables_index_tess[i] + len(model_tess[i]["c"])
-            neq_index_tess[i + 1] = neq_index_tess[i] + model_tess[i]["Aeq"].shape[0]
-            nineq_index_tess[i + 1] = nineq_index_tess[i] + model_tess[i]["A"].shape[0]
-            nVariables += len(model_tess[i]["c"])
-            neq += int(model_tess[i]["Aeq"].shape[0])
-            nineq += int(model_tess[i]["A"].shape[0])
+            nV_index[i + 1] = nV_index[i] + len(model_mess[i]["c"])
+            neq_index[i + 1] = neq_index[i] + model_mess[i]["Aeq"].shape[0]
+            nineq_index[i + 1] = nineq_index[i] + model_mess[i]["A"].shape[0]
+            neq += model_mess[i]["Aeq"].shape[0]
+            nineq += model_mess[i]["A"].shape[0]
+            # Merge the objective function, boundaries, types and rhs
+            c = concatenate([c, model_mess[i]["c"]])
+            lb = concatenate([lb, model_mess[i]["lb"]])
+            ub = concatenate([ub, model_mess[i]["ub"]])
+            vtypes += model_mess[i]["vtypes"]
+            beq = concatenate([beq, model_mess[i]["beq"]])
+            b = concatenate([b, model_mess[i]["b"]])
 
-            c = concatenate([c, model_tess[i]["c"]])
-            lx = concatenate([lx, model_tess[i]["lb"]])
-            ux = concatenate([ux, model_tess[i]["ub"]])
-            vtypes += model_tess[i]["vtypes"]
-            beq = concatenate([beq, model_tess[i]["beq"]])
-            b = concatenate([b, model_tess[i]["b"]])
+        A_full = lil_matrix((nineq_index[-1], nV_index[-1]))
+        Aeq_full = lil_matrix((neq_index[-1], nV_index[-1]))
 
-        A_full = zeros((int(nineq_index_tess[-1]), int(nVariables_index_tess[-1])))
-        Aeq_full = zeros((int(neq_index_tess[-1]), int(nVariables_index_tess[-1])))
-
-        if Aeq is not None:
-            Aeq_full[0:int(neq_index_tess[0]), 0:int(nVariables_index_tess[0])] = Aeq
-        if A is not None:
-            A_full[0:int(nineq_index_tess[0]), 0:int(nVariables_index_tess[0])] = A
+        if Aeq is not None: Aeq_full[0:int(neq_index[0]), 0:int(nV_index[0])] = Aeq
+        if A is not None: A_full[0:int(nineq_index[0]), 0:int(nV_index[0])] = A
 
         for i in range(nmes):
-            Aeq_full[int(neq_index_tess[i]):int(neq_index_tess[i + 1]),
-            int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["Aeq"]
+            Aeq_full[neq_index[i]:neq_index[i + 1], nV_index[i]:nV_index[i + 1]] = model_mess[i]["Aeq"]
+            A_full[nineq_index[i]:nineq_index[i + 1], nV_index[i]:nV_index[i + 1]] = model_mess[i]["A"]
 
-            A_full[int(nineq_index_tess[i]):int(nineq_index_tess[i + 1]),
-            int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["A"]
-
-        self.nVariablesFirstStage = len(vtypes)  # The number of first stage decision variables
-        self.NX_first_stage = NX_first_stage
+        self.nv_first_stage = nv_first_stage  # The number of first stage decision variables
+        self._nv_first_stage = _nv_first_stage
         model_first_stage = {"c": c,
-                             "lb": lx,
-                             "ub": ux,
+                             "lb": lb,
+                             "ub": ub,
                              "vtypes": vtypes,
                              "A": A_full,
                              "b": b,
@@ -419,10 +411,6 @@ class StochasticDynamicOptimalPowerFlowTess():
         """
         Validation of the first-stage solution
         :param sol: The first stage solution
-        :param power_networks:
-        :param micro_grids:
-        :param tess:
-        :param traffic_networks:
         :return: the first stage solution
         """
         T = self.T
@@ -1093,56 +1081,56 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_micro_grid
 
-    def problem_formulation_tess(self, mess, traffic_networks):
+    def problem_formulation_tess(self, mess, tns):
         """
         Problem formulation for transportation energy storage scheduling, including vehicle routine problem and etc.
         :param tess: specific tess information
         :param traffic_network: transportation network information
         :return:
         """
-        nb_traffic = self.nb_traffic
+        nb_tra = self.nb_tra
         T = self.T
         nb = self.nb
 
-        nl_traffic = traffic_networks["branch"].shape[0]
+        nl_traffic = tns["branch"].shape[0]
 
         # Formulate the connection matrix between the transportation networks and power networks
-        connection_matrix = zeros(((2 * nl_traffic + nb_traffic) * T, 4))
-        weight = zeros((2 * nl_traffic + nb_traffic) * T)
+        connection_matrix = zeros(((2 * nl_traffic + nb_tra) * T, 4))
+        weight = zeros((2 * nl_traffic + nb_tra) * T)
         for i in range(T):
             for j in range(nl_traffic):
                 # Add from matrix
-                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j, F_BUS] = traffic_networks["branch"][j, F_BUS] + \
-                                                                                  i * nb_traffic
-                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j, T_BUS] = traffic_networks["branch"][j, T_BUS] + \
-                                                                                  traffic_networks["branch"][j, TIME] * \
-                                                                                  nb_traffic + i * nb_traffic
-                weight[i * (2 * nl_traffic + nb_traffic) + j] = 1
-                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j, TIME] = traffic_networks["branch"][j, TIME]
+                connection_matrix[i * (2 * nl_traffic + nb_tra) + j, F_BUS] = tns["branch"][j, F_BUS] + \
+                                                                              i * nb_tra
+                connection_matrix[i * (2 * nl_traffic + nb_tra) + j, T_BUS] = tns["branch"][j, T_BUS] + \
+                                                                              tns["branch"][j, TIME] * \
+                                                                              nb_tra + i * nb_tra
+                weight[i * (2 * nl_traffic + nb_tra) + j] = 1
+                connection_matrix[i * (2 * nl_traffic + nb_tra) + j, TIME] = tns["branch"][j, TIME]
 
             for j in range(nl_traffic):
                 # Add to matrix
-                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic, F_BUS] = \
-                    traffic_networks["branch"][j, T_BUS] + i * nb_traffic
-                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic, T_BUS] = \
-                    traffic_networks["branch"][j, F_BUS] + traffic_networks["branch"][j, TIME] * nb_traffic + \
-                    i * nb_traffic
-                weight[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic] = 1
-                connection_matrix[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic, TIME] = \
-                    traffic_networks["branch"][j, TIME]
+                connection_matrix[i * (2 * nl_traffic + nb_tra) + j + nl_traffic, F_BUS] = \
+                    tns["branch"][j, T_BUS] + i * nb_tra
+                connection_matrix[i * (2 * nl_traffic + nb_tra) + j + nl_traffic, T_BUS] = \
+                    tns["branch"][j, F_BUS] + tns["branch"][j, TIME] * nb_tra + \
+                    i * nb_tra
+                weight[i * (2 * nl_traffic + nb_tra) + j + nl_traffic] = 1
+                connection_matrix[i * (2 * nl_traffic + nb_tra) + j + nl_traffic, TIME] = \
+                    tns["branch"][j, TIME]
 
-            for j in range(nb_traffic):
-                connection_matrix[i * (2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, F_BUS] = \
-                    j + i * nb_traffic  # This time slot
-                connection_matrix[i * (2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, T_BUS] = \
-                    j + (i + 1) * nb_traffic  # The next time slot
+            for j in range(nb_tra):
+                connection_matrix[i * (2 * nl_traffic + nb_tra) + 2 * nl_traffic + j, F_BUS] = \
+                    j + i * nb_tra  # This time slot
+                connection_matrix[i * (2 * nl_traffic + nb_tra) + 2 * nl_traffic + j, T_BUS] = \
+                    j + (i + 1) * nb_tra  # The next time slot
 
-                if traffic_networks["bus"][j, LOCATION] >= 0:
-                    connection_matrix[i * (2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, 3] = \
-                        traffic_networks["bus"][j, LOCATION] + i * nb  # Location information
+                if tns["bus"][j, LOCATION] >= 0:
+                    connection_matrix[i * (2 * nl_traffic + nb_tra) + 2 * nl_traffic + j, 3] = \
+                        tns["bus"][j, LOCATION] + i * nb  # Location information
 
         # Delete the out of range lines
-        index = find(connection_matrix[:, T_BUS] < T * nb_traffic)
+        index = find(connection_matrix[:, T_BUS] < T * nb_tra)
         connection_matrix = connection_matrix[index, :]
         weight = weight[index]
 
@@ -1151,44 +1139,44 @@ class StochasticDynamicOptimalPowerFlowTess():
         connection_matrix[:, F_BUS] += 1
         connection_matrix[:, T_BUS] += 1
         # From matrix
-        temp = zeros((nb_traffic, 4))
-        weight_temp = zeros(nb_traffic)
-        for i in range(nb_traffic):
+        temp = zeros((nb_tra, 4))
+        weight_temp = zeros(nb_tra)
+        for i in range(nb_tra):
             temp[i, 1] = i + 1
         connection_matrix = concatenate([temp, connection_matrix])
         weight = concatenate([weight_temp, weight])
 
         # To matrix
-        for i in range(nb_traffic):
+        for i in range(nb_tra):
             temp = zeros((1, 4))
-            temp[0, 0] = nb_traffic * (T - 1) + i + 1
-            temp[0, 1] = nb_traffic * T + 1
-            if traffic_networks["bus"][i, LOCATION] >= 0:
-                temp[0, 3] = traffic_networks["bus"][i, LOCATION] + (T - 1) * nb
+            temp[0, 0] = nb_tra * (T - 1) + i + 1
+            temp[0, 1] = nb_tra * T + 1
+            if tns["bus"][i, LOCATION] >= 0:
+                temp[0, 3] = tns["bus"][i, LOCATION] + (T - 1) * nb
             connection_matrix = concatenate([connection_matrix, temp])
             weight_temp = zeros(1)
             weight = concatenate([weight, weight_temp])
 
         # Status transition matrix
         nl_traffic = connection_matrix.shape[0]
-        nb_traffic_electric = sum((traffic_networks["bus"][:, 2]) >= 0)
+        nb_traffic_electric = sum((tns["bus"][:, 2]) >= 0)
         # 0 represents that, the bus is not within the power networks
 
         status_matrix = zeros((T, nl_traffic))
         for i in range(T):
             for j in range(nl_traffic):
-                if connection_matrix[j, F_BUS] >= i * nb_traffic + 1 and \
-                        connection_matrix[j, F_BUS] < (i + 1) * nb_traffic + 1:
+                if connection_matrix[j, F_BUS] >= i * nb_tra + 1 and \
+                        connection_matrix[j, F_BUS] < (i + 1) * nb_tra + 1:
                     status_matrix[i, j] = 1
 
-                if connection_matrix[j, F_BUS] <= i * nb_traffic + 1 and \
-                        connection_matrix[j, T_BUS] > (i + 1) * nb_traffic + 1:
+                if connection_matrix[j, F_BUS] <= i * nb_tra + 1 and \
+                        connection_matrix[j, T_BUS] > (i + 1) * nb_tra + 1:
                     status_matrix[i, j] = 1
         # Update connection matrix
-        connection_matrix_f = zeros((T * nb_traffic + 2, nl_traffic))
-        connection_matrix_t = zeros((T * nb_traffic + 2, nl_traffic))
+        connection_matrix_f = zeros((T * nb_tra + 2, nl_traffic))
+        connection_matrix_t = zeros((T * nb_tra + 2, nl_traffic))
 
-        for i in range(T * nb_traffic + 2):
+        for i in range(T * nb_tra + 2):
             connection_matrix_f[i, find(connection_matrix[:, F_BUS] == i)] = 1
             connection_matrix_t[i, find(connection_matrix[:, T_BUS] == i)] = 1
 
@@ -1213,13 +1201,13 @@ class StochasticDynamicOptimalPowerFlowTess():
         # The initial location and stop location
         lx[find(connection_matrix[:, F_BUS] == 0)] = mess["initial"]
         ux[find(connection_matrix[:, F_BUS] == 0)] = mess["initial"]
-        lx[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = mess["end"]
-        ux[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = mess["end"]
+        lx[find(connection_matrix[:, T_BUS] == T * nb_tra + 1)] = mess["end"]
+        ux[find(connection_matrix[:, T_BUS] == T * nb_tra + 1)] = mess["end"]
 
         vtypes = ["b"] * nl_traffic + ["b"] * n_stops + ["c"] * 3 * n_stops
 
         Aeq = connection_matrix_f - connection_matrix_t
-        beq = zeros(T * nb_traffic + 2)
+        beq = zeros(T * nb_tra + 2)
         beq[0] = 1
         beq[-1] = -1
         # statue constraints
@@ -1372,21 +1360,21 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_tess
 
-    def scenario_generation(self, microgrids, profile, Ns=2):
+    def scenario_generation(self, micro_grids, profile, ns=2):
         """
         Scenario generation function for the second-stage scheduling
         :return:
         """
         T = self.T
         nmg = self.nmg
-        profile_second_stage = zeros((Ns, T))
-        microgrids_second_stage = [0] * Ns
-        for i in range(Ns):
+        profile_second_stage = zeros((ns, T))
+        microgrids_second_stage = [0] * ns
+        for i in range(ns):
             for j in range(T):
                 profile_second_stage[i, j] = profile[j] * (0.9 + 0.3 * random.random())
 
-        for i in range(Ns):
-            microgrids_second_stage[i] = deepcopy(microgrids)
+        for i in range(ns):
+            microgrids_second_stage[i] = deepcopy(micro_grids)
             for k in range(nmg):
                 for j in range(T):
                     microgrids_second_stage[i][k]["PD"]["AC"][j] = microgrids_second_stage[i][k]["PD"]["AC"][j] * (
@@ -1572,8 +1560,9 @@ if __name__ == "__main__":
 
     stochastic_dynamic_optimal_power_flow = StochasticDynamicOptimalPowerFlowTess()
 
-    (sol_dso, sol_mgs, sol_tess) = stochastic_dynamic_optimal_power_flow.main(Case=mpc, Profile=load_profile.tolist(),
-                                                                              Micro_grids=case_micro_grids, Mess=ev,
-                                                                              Traffic_networks=traffic_networks, Ns=2)
+    (sol_dso, sol_mgs, sol_tess) = stochastic_dynamic_optimal_power_flow.main(power_networks=mpc,
+                                                                              profile=load_profile.tolist(),
+                                                                              micro_grids=case_micro_grids, mess=ev,
+                                                                              traffic_networks=traffic_networks, ns=2)
 
     print(max(sol_dso["residual"][0]))
