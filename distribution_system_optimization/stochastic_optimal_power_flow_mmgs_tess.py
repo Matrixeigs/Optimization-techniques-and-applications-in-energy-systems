@@ -3,7 +3,7 @@ Stochastic optimal power flow with multiple microgrids and mobile energy storage
 @author: Zhao Tianyang
 @e-mail: zhaoty@ntu.edu.sg
 @date: 4 Jan 2019
-The data is stored using lil_matrix
+Draft version
 """
 
 from distribution_system_optimization.test_cases import case33
@@ -169,7 +169,7 @@ class StochasticDynamicOptimalPowerFlowTess():
             tess_check[i] = tess_temp
 
         # return sol_distribution_network, sol_microgrids, sol_tess
-        return model_first_stage
+        return sol_first_stage, sol_second_stage_checked
 
     def first_stage_problem_formualtion(self, power_networks, micro_grids, tess, traffic_networks):
         """
