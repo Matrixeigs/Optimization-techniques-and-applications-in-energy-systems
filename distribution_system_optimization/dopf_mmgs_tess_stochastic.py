@@ -445,8 +445,13 @@ class StochasticDynamicOptimalPowerFlowTess():
             ev_temp["VRP"] = []
             for t in range(nl_traffic):
                 if sol[_nv_first_stage * T + nv_tra * i + t] > 0:  # obtain the solution for vrp
-                    ev_temp["VRP"].append(((self.connection_matrix[t, F_BUS] - 1) % nmg,
-                                           (self.connection_matrix[t, T_BUS] - 1) % nmg))
+                    if self.connection_matrix[t, TIME] > 0:
+                        for j in range(int(self.connection_matrix[t, TIME])):
+                            ev_temp["VRP"].append(((self.connection_matrix[t, F_BUS] - 1) % nmg,
+                                                   (self.connection_matrix[t, T_BUS] - 1) % nmg))
+                    else:
+                        ev_temp["VRP"].append(((self.connection_matrix[t, F_BUS] - 1) % nmg,
+                                               (self.connection_matrix[t, T_BUS] - 1) % nmg))
 
             ev_temp["Idc"] = zeros((nb_tra_ele, T))
             ev_temp["Pmess_dc"] = zeros((nb_tra_ele, T))
@@ -1535,9 +1540,11 @@ if __name__ == "__main__":
 
     stochastic_dynamic_optimal_power_flow = StochasticDynamicOptimalPowerFlowTess()
 
-    (sol_dso, sol_mgs, sol_tess) = stochastic_dynamic_optimal_power_flow.main(power_networks=mpc,
-                                                                              profile=load_profile.tolist(),
-                                                                              micro_grids=case_micro_grids, mess=ev,
-                                                                              traffic_networks=traffic_networks, ns=2)
+    (sol_first_stgae, sol_second_stage) = stochastic_dynamic_optimal_power_flow.main(power_networks=mpc,
+                                                                                     profile=load_profile.tolist(),
+                                                                                     micro_grids=case_micro_grids,
+                                                                                     mess=ev,
+                                                                                     traffic_networks=traffic_networks,
+                                                                                     ns=2)
 
-    print(max(sol_dso["residual"][0]))
+    print(sol_second_stage[0]['DS']['gap'].max())
