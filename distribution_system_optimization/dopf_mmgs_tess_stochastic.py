@@ -164,7 +164,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         sol_second_stage_checked = {}
         db_management = DataBaseManagement()
         db_management.create_table(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng)
-        db_management.create_table(table_name="micro_grids")
+        db_management.create_table(table_name="micro_grids", nmg=self.nmg)
         for i in range(ns):
             sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
         for i in range(ns):
@@ -191,6 +191,16 @@ class StochasticDynamicOptimalPowerFlowTess():
                                                  pess_dc=sol_second_stage_checked[i]["MG"]["pess_dc"][j, t],
                                                  eess=sol_second_stage_checked[i]["MG"]["eess"][j, t],
                                                  pmess=sol_second_stage_checked[i]["MG"]["pmess"][j, t])
+        for i in range(ns):
+            for j in range(nmes):
+                for t in range(T):
+                    db_management.insert_data_mess(table_name="mobile_energy_storage_systems", scenario=i, time=t,
+                                                   mess=j, nmg=self.nmg,
+                                                   pess_dc=
+                                                   sol_second_stage_checked[i]["MESS"][j]["pmess_dc"][:, t].tolist(),
+                                                   pess_ch=
+                                                   sol_second_stage_checked[i]["MESS"][j]["pmess_ch"][:, t].tolist(),
+                                                   eess=sol_second_stage_checked[i]["MESS"][j]["emess"][0,t])
         # 4.3) Cross validation of the first-stage and second-stage decision variables
         tess_check = {}
         for i in range(ns):
@@ -1036,7 +1046,7 @@ class StochasticDynamicOptimalPowerFlowTess():
             c[t * NX_MG + PESS_DC] = mg["ESS"]["COST_OP"]
             # c[t * NX_MG + PBIC_AC2DC] = mg["ESS"]["COST_OP"]
             # c[t * NX_MG + PBIC_DC2AC] = mg["ESS"]["COST_OP"]
-            c[t * NX_MG + PUG] = mg["DG"]["COST_A"]
+            # c[t * NX_MG + PUG] = mg["DG"]["COST_A"]
             # c[t * NX_MG + PMESS] = 0.001
             ## 1.4) Upper and lower boundary information
             if t == T - 1:
@@ -1579,6 +1589,6 @@ if __name__ == "__main__":
                                                                                      micro_grids=case_micro_grids,
                                                                                      mess=ev,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=2)
+                                                                                     ns=1)
 
     print(sol_second_stage[0]['DS']['gap'].max())
