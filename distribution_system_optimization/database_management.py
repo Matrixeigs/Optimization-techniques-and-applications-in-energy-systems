@@ -35,7 +35,7 @@ class DataBaseManagement():
         cursor.execute(sql + table_name)
         if table_name == "distribution_networks":
             sql_start = """CREATE TABLE distribution_networks ("""
-            sql = 'SCENARIO  INT primary key,\n TIME INT NOT NULL,\n '
+            sql = 'SCENARIO  INT,\n TIME INT NOT NULL,\n '
             for i in range(nl):
                 sql += "PIJ{0} FLOAT,\n ".format(i)
             for i in range(nl):
@@ -51,6 +51,7 @@ class DataBaseManagement():
             sql += "QG{0} FLOAT\n ".format(ng - 1)
             sql_start_end = """)"""
             cursor.execute(sql_start + sql + sql_start_end)
+        cursor.close()
 
     def insert_data(self, table_name, nl=32, nb=33, ng=6, scenario=0, time=0, pij=0, qij=0, lij=0, vi=0, pg=0, qg=0):
         """
@@ -96,3 +97,4 @@ class DataBaseManagement():
 
         cursor.execute(sql_start + sql)
         self.db.commit()
+        cursor.close()
