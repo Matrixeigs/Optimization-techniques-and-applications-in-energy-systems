@@ -49,6 +49,8 @@ from copy import deepcopy
 from distribution_system_optimization.data_format.idx_MG import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, \
     PMESS, EESS, NX_MG, QBIC, QUG, QG
 
+from distribution_system_optimization.database_management import DataBaseManagement
+
 
 class StochasticDynamicOptimalPowerFlowTess():
     def __init__(self):
@@ -160,8 +162,19 @@ class StochasticDynamicOptimalPowerFlowTess():
         sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage)
         # 4.2) Second-stage solution
         sol_second_stage_checked = {}
+        db_management = DataBaseManagement()
+        db_management.create_table(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng)
         for i in range(ns):
             sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
+        for i in range(ns):
+            for t in range(T):
+                db_management.insert_data(table_name="distribution_networks", scenario=i, time=t,
+                                          pij=sol_second_stage_checked[i]["DS"]["Pij"][:, t].tolist(),
+                                          qij=sol_second_stage_checked[i]["DS"]["Pij"][:, t].tolist(),
+                                          lij=sol_second_stage_checked[i]["DS"]["Iij"][:, t].tolist(),
+                                          vi=sol_second_stage_checked[i]["DS"]["Vi"][:, t].tolist(),
+                                          pg=sol_second_stage_checked[i]["DS"]["Pg"][:, t].tolist(),
+                                          qg=sol_second_stage_checked[i]["DS"]["Qg"][:, t].tolist(),)
         # 4.3) Cross validation of the first-stage and second-stage decision variables
         tess_check = {}
         for i in range(ns):
