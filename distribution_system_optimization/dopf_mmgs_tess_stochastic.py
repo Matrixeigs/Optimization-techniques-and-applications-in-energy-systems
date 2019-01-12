@@ -1392,18 +1392,18 @@ class StochasticDynamicOptimalPowerFlowTess():
         microgrids_second_stage = [0] * ns
         for i in range(ns):
             for j in range(T):
-                profile_second_stage[i, j] = profile[j] * (1 + 0. * random.random())
+                profile_second_stage[i, j] = profile[j] * (1 + 0.5 * random.random())
 
         for i in range(ns):
             microgrids_second_stage[i] = deepcopy(micro_grids)
             for k in range(nmg):
                 for j in range(T):
                     microgrids_second_stage[i][k]["PD"]["AC"][j] = microgrids_second_stage[i][k]["PD"]["AC"][j] * (
-                            1 + 0. * random.random())
+                            1 + 0.8 * random.random())
                     microgrids_second_stage[i][k]["QD"]["AC"][j] = microgrids_second_stage[i][k]["QD"]["AC"][j] * (
-                            1 + 0. * random.random())
+                            1 + 0.8 * random.random())
                     microgrids_second_stage[i][k]["PD"]["DC"][j] = microgrids_second_stage[i][k]["PD"]["DC"][j] * (
-                            1 + 0. * random.random())
+                            1 + 0.8 * random.random())
 
         return profile_second_stage, microgrids_second_stage
 
@@ -1589,6 +1589,6 @@ if __name__ == "__main__":
                                                                                      micro_grids=case_micro_grids,
                                                                                      mess=ev,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=1)
+                                                                                     ns=5)
 
     print(sol_second_stage[0]['DS']['gap'].max())
