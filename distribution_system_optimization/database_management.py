@@ -21,7 +21,7 @@ class DataBaseManagement():
         """
         self.db = pymysql.connect(host, user, password, db)
 
-    def create_table(self, table_name, nl=32, nb=33, ng=6):
+    def create_table(self, table_name, nl=32, nb=33, ng=6, nmg=3):
         """
         Creat table name
         :param table_name:
@@ -58,8 +58,13 @@ class DataBaseManagement():
             sql += 'PESS_DC  FLOAT,\n EESS FLOAT,\n PMESS FLOAT'
             sql_start_end = """)"""
         else:
-            sql_start = """CREATE TABLE mobile_energy_storage system("""
-            sql = 'SCENARIO  INT,\n TIME INT NOT NULL\n '
+            sql_start = """CREATE TABLE mobile_energy_storage_systems ("""
+            sql = 'SCENARIO  INT,\n MESS INT,\n TIME INT,\n'
+            for i in range(nmg):
+                sql += "PDC_MG{0} FLOAT,\n ".format(i)
+            for i in range(nmg):
+                sql += "PCH_MG{0} FLOAT,\n ".format(i)
+            sql += "EESS FLOAT\n "
             sql_start_end = """)"""
 
         cursor.execute(sql_start + sql + sql_start_end)
@@ -144,11 +149,42 @@ class DataBaseManagement():
         self.db.commit()
         cursor.close()
 
+    def insert_data_mess(self, table_name, scenario=0, time=0, mess=0, pess_ch=[0, 0, 0], pess_dc=[0, 0, 0], eess=0,
+                         nmg=3):
+        """
+        insert mobile energy storage systems data
+        :param table_name:
+        :param scenario:
+        :param time:
+        :param mess:
+        :param pess_ch:
+        :param pess_dc:
+        :param eess:
+        :param nmg:
+        :return:
+        """
+        cursor = self.db.cursor()
+        sql_start = "INSERT INTO " + table_name + " ("
+        sql = "SCENARIO,MESS,TIME,"
+        value = "{0},{1},{2},".format(scenario, mess, time)
+        for i in range(nmg):
+            sql += "PDC_MG{0},".format(i)
+            value += "{0},".format(pess_dc[i])
+        for i in range(nmg):
+            sql += "PCH_MG{0},".format(i)
+            value += "{0},".format(pess_ch[i])
+        sql += "EESS"
+        value += "{0}".format(eess)
+        sql += ") VALUES (" + value + ")"
+        cursor.execute(sql_start + sql)
+        self.db.commit()
+        cursor.close()
+
     # def insert_data_mess(self, table_name, nl=32, nb=33, ng=6, scenario=0, time=0, pij=0, qij=0, lij=0, vi=0, pg=0,
     #                      qg=0):
 
 
 if __name__ == "__main__":
     db_management = DataBaseManagement()
-    db_management.create_table(table_name="micro_grids")
-    db_management.insert_data_mg(table_name="micro_grids")
+    db_management.create_table(table_name="mobile_energy_storage_systems")
+    db_management.insert_data_mess(table_name="mobile_energy_storage_systems")
