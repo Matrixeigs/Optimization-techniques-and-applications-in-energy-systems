@@ -106,21 +106,19 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
             vals = zeros(0)
 
             if neq != 0:
-                rows = Aeq.row
-                cols = Aeq.col
-                vals = Aeq.data.tolist()
+                (rows,cols) = Aeq.nonzero()
+                vals = Aeq[rows,cols].toarray()[0]
 
             rows_A = zeros(0)
             cols_A = zeros(0)
             vals_A = zeros(0)
             if nineq != 0:
-                rows_A = A.row
-                cols_A = A.col
-                vals_A = A.data.tolist()
+                (rows_A,cols_A) = A.nonzero()
+                vals_A = A[rows_A, cols_A].toarray()[0]
 
             rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
             cols = concatenate((cols, cols_A)).astype(int).tolist()
-            vals = vals+vals_A
+            vals = concatenate([vals,vals_A])
 
         except:
             rows = zeros(0)

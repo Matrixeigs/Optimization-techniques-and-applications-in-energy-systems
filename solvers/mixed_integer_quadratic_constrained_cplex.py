@@ -113,24 +113,44 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         rhs = beq + b
         sense = ['E'] * neq + ["L"] * nineq
 
-        rows = zeros(0)
-        cols = zeros(0)
-        vals = zeros(0)
+        try:
+            rows = zeros(0)
+            cols = zeros(0)
+            vals = zeros(0)
 
-        if neq != 0:
-            [rows, cols] = nonzero(Aeq)
-            vals = Aeq[rows, cols]
+            if neq != 0:
+                (rows, cols) = Aeq.nonzero()
+                vals = Aeq[rows, cols].toarray()[0]
 
-        rows_A = zeros(0)
-        cols_A = zeros(0)
-        vals_A = zeros(0)
-        if nineq != 0:
-            [rows_A, cols_A] = nonzero(A)
-            vals_A = A[rows_A, cols_A]
+            rows_A = zeros(0)
+            cols_A = zeros(0)
+            vals_A = zeros(0)
+            if nineq != 0:
+                (rows_A, cols_A) = A.nonzero()
+                vals_A = A[rows_A, cols_A].toarray()[0]
 
-        rows = concatenate((rows, neq + rows_A)).astype('int').tolist()
-        cols = concatenate((cols, cols_A)).astype('int').tolist()
-        vals = concatenate((vals, vals_A)).tolist()
+            rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
+            cols = concatenate((cols, cols_A)).astype(int).tolist()
+            vals = concatenate([vals, vals_A])
+
+        except:
+            rows = zeros(0)
+            cols = zeros(0)
+            vals = zeros(0)
+            if neq != 0:
+                [rows, cols] = nonzero(Aeq)
+                vals = Aeq[rows, cols]
+
+            rows_A = zeros(0)
+            cols_A = zeros(0)
+            vals_A = zeros(0)
+            if nineq != 0:
+                [rows_A, cols_A] = nonzero(A)
+                vals_A = A[rows_A, cols_A]
+
+            rows = concatenate((rows, neq + rows_A)).astype(int).tolist()
+            cols = concatenate((cols, cols_A)).astype(int).tolist()
+            vals = concatenate((vals, vals_A)).tolist()
 
         if len(rows) != 0:
             prob.linear_constraints.add(rhs=rhs,
@@ -142,10 +162,10 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
                 prob.quadratic_constraints.add(quad_expr=cplex.SparseTriple(Qc[i][0], Qc[i][1], Qc[i][2]))
 
         # 4) Objective values
-        # qmat = [0] * nx
-        # for i in range(nx):
-        #     qmat[i] = [[i], [q[i]]]
-        # prob.objective.set_quadratic(qmat)
+        qmat = [0] * nx
+        for i in range(nx):
+            qmat[i] = [[i], [q[i]]]
+        prob.objective.set_quadratic(qmat)
 
         if objsense is not None:
             if objsense == "max":
@@ -157,8 +177,10 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         # prob.set_error_stream(None)
         # prob.set_warning_stream(None)
         # prob.set_results_stream(None)
-
-        # prob.parameters.preprocessing.presolve = 0
+        prob.timelimit = 100
+        prob.parameters.preprocessing.presolve = 0
+        prob.parameters.timelimit = 100
+        prob.parameters.dettimelimit = 100
 
         prob.solve()
 
