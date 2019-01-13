@@ -57,7 +57,7 @@ class DataBaseManagement():
             sql += 'PBIC_AC2DC DECIMAL(7,4),\n PBIC_DC2AC DECIMAL(7,4),\n QBIC DECIMAL(7,4),\n PESS_CH DECIMAL(7,4),\n '
             sql += 'PESS_DC  DECIMAL(7,4),\n EESS DECIMAL(7,4),\n PMESS DECIMAL(7,4)'
             sql_start_end = """)"""
-        else:
+        elif table_name == "mobile_energy_storage_systems":
             sql_start = """CREATE TABLE mobile_energy_storage_systems ("""
             sql = 'SCENARIO  INT,\n MESS INT,\n TIME INT,\n'
             for i in range(nmg):
@@ -65,6 +65,17 @@ class DataBaseManagement():
             for i in range(nmg):
                 sql += "PCH_MG{0} DECIMAL(7,4),\n ".format(i)
             sql += "EESS DECIMAL(7,4)\n "
+            sql_start_end = """)"""
+        else:
+            sql_start = """CREATE TABLE scenarios ("""
+            sql = 'SCENARIO  INT,\n WEIGHT DECIMAL(7,4),\n TIME INT,\n'
+            for i in range(nb):
+                sql += "PD{0} DECIMAL(7,4),\n ".format(i)
+            for i in range(nmg):
+                sql += "PD_AC{0} DECIMAL(7,4),\n ".format(i)
+            for i in range(nmg - 1):
+                sql += "PD_DC{0} DECIMAL(7,4),\n ".format(i)
+            sql += "PD_DC{0} DECIMAL(7,4)\n".format(nmg - 1)
             sql_start_end = """)"""
 
         cursor.execute(sql_start + sql + sql_start_end)
@@ -180,11 +191,32 @@ class DataBaseManagement():
         self.db.commit()
         cursor.close()
 
-    # def insert_data_mess(self, table_name, nl=32, nb=33, ng=6, scenario=0, time=0, pij=0, qij=0, lij=0, vi=0, pg=0,
-    #                      qg=0):
+    def insert_data_scenario(self, table_name, scenario=0, weight=0, time=0, nb=1, nmg=2, pd=[0,0], pd_ac=[0,0], pd_dc=[0,0]):
+        cursor = self.db.cursor()
+        sql_start = "INSERT INTO " + table_name + " ("
+        sql = "SCENARIO,WEIGHT,TIME,"
+        value = "{0},{1},{2},".format(scenario, weight, time)
+        for i in range(nb):
+            sql += "PD{0},".format(i)
+            value += "{0},".format(pd[i])
+        for i in range(nmg):
+            sql += "PD_AC{0},".format(i)
+            value += "{0},".format(pd_ac[i])
+        for i in range(nmg-1):
+            sql += "PD_DC{0},".format(i)
+            value += "{0},".format(pd_dc[i])
+        if nmg>1:
+            sql += "PD_DC{0}".format(nmg - 1)
+            value += "{0}".format(pd_dc[nmg - 1])
+
+        sql += ") VALUES (" + value + ")"
+        cursor.execute(sql_start + sql)
+        self.db.commit()
+        cursor.close()
+
 
 
 if __name__ == "__main__":
     db_management = DataBaseManagement()
-    db_management.create_table(table_name="mobile_energy_storage_systems")
-    db_management.insert_data_mess(table_name="mobile_energy_storage_systems")
+    db_management.create_table(table_name="scenarios")
+    db_management.insert_data_scenario(table_name="scenarios")
