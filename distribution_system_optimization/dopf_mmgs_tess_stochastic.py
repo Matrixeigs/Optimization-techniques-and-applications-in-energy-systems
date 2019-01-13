@@ -50,13 +50,14 @@ from distribution_system_optimization.data_format.idx_MG import PBIC_AC2DC, PG, 
     PMESS, EESS, NX_MG, QBIC, QUG, QG
 
 from distribution_system_optimization.database_management import DataBaseManagement
+from solvers.scenario_reduction import ScenarioReduction
 
 
 class StochasticDynamicOptimalPowerFlowTess():
     def __init__(self):
         self.name = "Stochastic optimal power flow with tess"
 
-    def main(self, power_networks, micro_grids, profile, mess, traffic_networks, ns=2):
+    def main(self, power_networks, micro_grids, profile, mess, traffic_networks, ns=100):
         """
         Main entrance for network reconfiguration problems
         :param case: electric network information
@@ -74,9 +75,6 @@ class StochasticDynamicOptimalPowerFlowTess():
         nb_tra = traffic_networks["bus"].shape[0]  # Number of buses in the transportation networks
         self.nb_tra = nb_tra
         assert nb_tra == nmg, "The microgrids within the transportation networks are not synchronized!"
-        # Formulate the second stage scenarios
-        (profile_second_stage, mgs_second_stage) = self.scenario_generation(profile=profile, micro_grids=micro_grids,
-                                                                            ns=ns)
 
         # 1) Formulate the first stage optimization problem
         model_first_stage = self.first_stage_problem_formualtion(pns=power_networks, mgs=micro_grids, mess=mess,
@@ -85,12 +83,18 @@ class StochasticDynamicOptimalPowerFlowTess():
         #                        A=model_first_stage["A"], b=model_first_stage["b"], vtypes=model_first_stage["vtypes"],
         #                        xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
         # 2) Formulate the second stage optimization problem
+        # Formulate the second stage scenarios
+        (ds_second_stage, mgs_second_stage, weight) = self.scenario_generation_reduction(profile=profile,
+                                                                                         micro_grids=micro_grids, ns=ns,
+                                                                                         pns=power_networks,
+                                                                                         ns_reduced=round(0.9 * ns))
+        ns -= round(0.9 * ns)
         model_second_stage = {}
         for i in range(ns):
             model_second_stage[i] = self.second_stage_problem_formualtion(pns=power_networks, mgs=mgs_second_stage[i],
                                                                           mess=mess, tns=traffic_networks,
-                                                                          profile=profile_second_stage[i, :], index=i,
-                                                                          weight=1 / ns)
+                                                                          profile=ds_second_stage[i, :], index=i,
+                                                                          weight=weight[i])
         # 3) Merge the first-stage problem and second stage problem
         lb = model_first_stage["lb"]
         ub = model_first_stage["ub"]
@@ -153,7 +157,8 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         # 3) Obtain the results for first-stage and second stage optimization problems
         # 3.1) Obtain the integrated solution
-        (sol, obj, success) = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=A_full, b=b, Qc=Qc, rc=rc, xmin=lb, xmax=ub, vtypes=vtypes)
+        (sol, obj, success) = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=A_full, b=b, Qc=Qc, rc=rc, xmin=lb, xmax=ub,
+                                    vtypes=vtypes)
         # 3.2) decouple the solution into multiple subsystems
         sol_first_stage = sol[0:nv_second_stage]
         sol_second_stage = {}
@@ -612,7 +617,7 @@ class StochasticDynamicOptimalPowerFlowTess():
                         zeros((nb, ng)), -Cmg,
                         zeros((nb, nmg))])
 
-            beq_p[i * nb:(i + 1) * nb] = profile[i] * bus[:, PD] / baseMVA
+            beq_p[i * nb:(i + 1) * nb] = profile[i * nb:(i + 1) * nb] / baseMVA
 
         # 2) Reactive power balance
         Aeq_q = lil_matrix((nb * T, nv_ds))
@@ -624,7 +629,9 @@ class StochasticDynamicOptimalPowerFlowTess():
                         zeros((nb, nb)),
                         zeros((nb, ng)), Cg,
                         zeros((nb, nmg)), -Cmg])
-            beq_q[i * nb:(i + 1) * nb] = profile[i] * bus[:, QD] / baseMVA
+            for j in range(nb):
+                if bus[j, PD] > 0:
+                    beq_q[i * nb:(i + 1) * nb] = profile[i * nb + j] / bus[j, PD] * bus[j, QD] / baseMVA
         # 3) KVL equation
         Aeq_kvl = lil_matrix((nl * T, nv_ds))
         beq_kvl = zeros(nl * T)
@@ -1407,37 +1414,66 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_tess
 
-    def scenario_generation(self, micro_grids, profile, ns=2):
+    def scenario_generation_reduction(self, micro_grids, profile, pns, update=0, ns=2, ns_reduced=2, std=0.03,
+                                      interval=0.05):
         """
         Scenario generation function for the second-stage scheduling
+        Stochastic variables include 1) loads in distribution networks, active loads for 2) AC bus and 3)DC bus.
+        The assumption is that, the
+        1) loads in distribution networks follow normal distribution nb*T
+        2) loads for AC bus and DC bus follow uniform distribution nmg*T*4
         :return:
         """
         T = self.T
         nmg = self.nmg
-        profile_second_stage = zeros((ns, T))
-        microgrids_second_stage = [0] * ns
+        nb = self.nb
+        # 1) scenario generation
+        bus_load = zeros((ns, nb * T))
+        mg_load = zeros((ns, nmg * T * 2))
+        weight = ones(ns) / ns
         for i in range(ns):
-            for j in range(T):
-                profile_second_stage[i, j] = profile[j] * (1 + 0.5 * random.random())
+            for t in range(T):
+                for j in range(nb):
+                    bus_load[i, t * nb + j] = pns["bus"][j, PD] * (1 + random.normal(0, std)) * profile[t]
+                for j in range(nmg):
+                    mg_load[i, t * nmg + j] = micro_grids[j]["PD"]["AC"][t] * (1 + random.uniform(-interval, interval))
+                    mg_load[i, nmg * T + t * nmg + j] = micro_grids[j]["PD"]["DC"][t] * \
+                                                        (1 + random.uniform(-interval, interval))
 
-        for i in range(ns):
+        # 2) scenario reduction
+        scenario_reduction = ScenarioReduction()
+        (scenario_reduced, weight_reduced) = scenario_reduction.run(scenario=concatenate([bus_load, mg_load], axis=1),
+                                                                    weight=weight, n_reduced=ns_reduced, power=2)
+        # 3) Store the data into database
+        db_management = DataBaseManagement()
+        db_management.create_table("scenarios", nb=nb, nmg=nmg)
+        for i in range(ns - ns_reduced):
+            for t in range(T):
+                db_management.insert_data_scenario("scenarios", scenario=i, weight=weight_reduced[i], time=t, nb=nb,
+                                                   pd=scenario_reduced[i, t * nb:(t + 1) * nb].tolist(), nmg=nmg,
+                                                   pd_ac=scenario_reduced[i, nb * T + t * nmg:
+                                                                             nb * T + (t + 1) * nmg].tolist(),
+                                                   pd_dc=scenario_reduced[i, nb * T + nmg * T + t * nmg:
+                                                                             nb * T + nmg * T + (t + 1) * nmg].tolist())
+        # 4) return value
+        ds_load_profile = scenario_reduced[:, 0:nb * T]
+        mgs_load_profile = scenario_reduced[:, nb * T:]
+
+        # profile_second_stage = zeros((ns, T))
+        microgrids_second_stage = [0] * (ns - ns_reduced)
+        # for i in range(ns):
+        #     for j in range(T):
+        #         profile_second_stage[i, j] = profile[j] * (1 + 0.5 * random.random())
+        #
+        for i in range(ns - ns_reduced):
             microgrids_second_stage[i] = deepcopy(micro_grids)
-            for k in range(nmg):
-                for j in range(T):
-                    microgrids_second_stage[i][k]["PD"]["AC"][j] = microgrids_second_stage[i][k]["PD"]["AC"][j] * (
-                            1 + 0.8 * random.random())
-                    microgrids_second_stage[i][k]["QD"]["AC"][j] = microgrids_second_stage[i][k]["QD"]["AC"][j] * (
-                            1 + 0.8 * random.random())
-                    microgrids_second_stage[i][k]["PD"]["DC"][j] = microgrids_second_stage[i][k]["PD"]["DC"][j] * (
-                            1 + 0.8 * random.random())
+            for j in range(nmg):
+                for t in range(T):
+                    microgrids_second_stage[i][j]["PD"]["AC"][t] = mgs_load_profile[i, t * nmg + j]
+                    microgrids_second_stage[i][j]["QD"]["AC"][t] = mgs_load_profile[i, t * nmg + j] * 0.2
+                    microgrids_second_stage[i][j]["PD"]["DC"][t] = mgs_load_profile[i, T * nmg + t * nmg + j]
 
-        return profile_second_stage, microgrids_second_stage
-
-    def scenario_redunction(self):
-        """
-        Scenario generation function for the second-stage scheduling
-        :return:
-        """
+        return ds_load_profile, microgrids_second_stage, weight_reduced
 
 
 if __name__ == "__main__":
@@ -1610,11 +1646,10 @@ if __name__ == "__main__":
 
     stochastic_dynamic_optimal_power_flow = StochasticDynamicOptimalPowerFlowTess()
 
-    (sol_first_stgae, sol_second_stage) = stochastic_dynamic_optimal_power_flow.main(power_networks=mpc,
+    (sol_first_stgae, sol_second_stage) = stochastic_dynamic_optimal_power_flow.main(power_networks=mpc, mess=ev,
                                                                                      profile=load_profile.tolist(),
                                                                                      micro_grids=case_micro_grids,
-                                                                                     mess=ev,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=1)
+                                                                                     ns=100)
 
     print(sol_second_stage[0]['DS']['gap'].max())
