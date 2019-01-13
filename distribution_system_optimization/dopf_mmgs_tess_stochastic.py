@@ -203,7 +203,7 @@ class StochasticDynamicOptimalPowerFlowTess():
                                                    sol_second_stage_checked[i]["MESS"][j]["pmess_dc"][:, t].tolist(),
                                                    pess_ch=
                                                    sol_second_stage_checked[i]["MESS"][j]["pmess_ch"][:, t].tolist(),
-                                                   eess=sol_second_stage_checked[i]["MESS"][j]["emess"][0,t])
+                                                   eess=sol_second_stage_checked[i]["MESS"][j]["emess"][0, t])
         # 4.3) Cross validation of the first-stage and second-stage decision variables
         tess_check = {}
         for i in range(ns):
@@ -1353,6 +1353,8 @@ class StochasticDynamicOptimalPowerFlowTess():
         ub[n_stops * 0:n_stops * 1] = mess["PDMAX"]
         ub[n_stops * 1:n_stops * 2] = mess["PCMAX"]
         ub[n_stops * 2:nv] = mess["EMAX"]
+        lb[-1] = mess["E0"]  # energy storage systems end status
+        ub[-1] = mess["E0"]  # energy storage systems end status
 
         vtypes = ["c"] * nv
         # The energy status dynamics
