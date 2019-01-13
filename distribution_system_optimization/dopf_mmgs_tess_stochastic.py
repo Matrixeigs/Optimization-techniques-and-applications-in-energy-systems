@@ -742,9 +742,9 @@ class StochasticDynamicOptimalPowerFlowTess():
             for t in range(T):
                 Aeq_temp[i * T + t, nv_index[i] + t * NX_MG + PMESS] = 1  # TESSs injections to the MGs
                 for j in range(nmes):
-                    Aeq_temp[i * T + t, nv_index_ev[j] + t * self.nb_tra_ele + j] = -1  # Sort by order
+                    Aeq_temp[i * T + t, nv_index_ev[j] + t * self.nb_tra_ele + i] = -1  # Discharging
                     Aeq_temp[i * T + t,
-                             nv_index_ev[j] + self.nb_tra_ele * T + t * self.nb_tra_ele + j] = 1  # Sort by order
+                             nv_index_ev[j] + self.nb_tra_ele * T + t * self.nb_tra_ele + i] = 1  # Sort by order
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate((beq, beq_temp))
         nv_second_stage = nv_index_ev[-1]
@@ -1650,6 +1650,6 @@ if __name__ == "__main__":
                                                                                      profile=load_profile.tolist(),
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=100)
+                                                                                     ns=200)
 
     print(sol_second_stage[0]['DS']['gap'].max())
