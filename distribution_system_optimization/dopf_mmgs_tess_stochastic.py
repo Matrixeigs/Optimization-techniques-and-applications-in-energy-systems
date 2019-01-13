@@ -162,9 +162,12 @@ class StochasticDynamicOptimalPowerFlowTess():
         sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage)
         # 4.2) Second-stage solution
         sol_second_stage_checked = {}
+
         db_management = DataBaseManagement()
         db_management.create_table(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng)
         db_management.create_table(table_name="micro_grids", nmg=self.nmg)
+        db_management.create_table(table_name="mobile_energy_storage_systems", nmg=self.nmg)
+
         for i in range(ns):
             sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
         for i in range(ns):
@@ -1522,7 +1525,7 @@ if __name__ == "__main__":
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.001,
+               "COST_OP": 0.01,
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
@@ -1533,7 +1536,7 @@ if __name__ == "__main__":
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.001,
+               "COST_OP": 0.01,
                })
     """
     ev.append({"initial": array([1, 0, 0]),
@@ -1589,6 +1592,6 @@ if __name__ == "__main__":
                                                                                      micro_grids=case_micro_grids,
                                                                                      mess=ev,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=5)
+                                                                                     ns=50)
 
     print(sol_second_stage[0]['DS']['gap'].max())
