@@ -37,34 +37,34 @@ class DataBaseManagement():
             sql_start = """CREATE TABLE distribution_networks ("""
             sql = 'SCENARIO  INT,\n TIME INT NOT NULL,\n '
             for i in range(nl):
-                sql += "PIJ{0} FLOAT,\n ".format(i)
+                sql += "PIJ{0} DECIMAL(8,6),\n ".format(i)
             for i in range(nl):
-                sql += "QIJ{0} FLOAT,\n ".format(i)
+                sql += "QIJ{0} DECIMAL(8,6),\n ".format(i)
             for i in range(nl):
-                sql += "IIJ{0} FLOAT,\n ".format(i)
+                sql += "IIJ{0} DECIMAL(8,6),\n ".format(i)
             for i in range(nb):
-                sql += "V{0} FLOAT,\n ".format(i)
+                sql += "V{0} DECIMAL(8,6),\n ".format(i)
             for i in range(ng):
-                sql += "PG{0} FLOAT,\n ".format(i)
+                sql += "PG{0} DECIMAL(8,6),\n ".format(i)
             for i in range(ng - 1):
-                sql += "QG{0} FLOAT,\n ".format(i)
-            sql += "QG{0} FLOAT\n ".format(ng - 1)
+                sql += "QG{0} DECIMAL(8,6),\n ".format(i)
+            sql += "QG{0} DECIMAL(8,6)\n ".format(ng - 1)
             sql_start_end = """)"""
         elif table_name == "micro_grids":
             sql_start = """CREATE TABLE micro_grids ("""
             sql = 'SCENARIO  INT,\n MG INT,\n TIME INT,\n '
-            sql += 'PG FLOAT,\n QG FLOAT,\n PUG FLOAT,\n QUG FLOAT,\n '
-            sql += 'PBIC_AC2DC FLOAT,\n PBIC_DC2AC FLOAT,\n QBIC FLOAT,\n PESS_CH FLOAT,\n '
-            sql += 'PESS_DC  FLOAT,\n EESS FLOAT,\n PMESS FLOAT'
+            sql += 'PG DECIMAL(7,4),\n QG DECIMAL(7,4),\n PUG DECIMAL(7,4),\n QUG DECIMAL(7,4),\n '
+            sql += 'PBIC_AC2DC DECIMAL(7,4),\n PBIC_DC2AC DECIMAL(7,4),\n QBIC DECIMAL(7,4),\n PESS_CH DECIMAL(7,4),\n '
+            sql += 'PESS_DC  DECIMAL(7,4),\n EESS DECIMAL(7,4),\n PMESS DECIMAL(7,4)'
             sql_start_end = """)"""
         else:
             sql_start = """CREATE TABLE mobile_energy_storage_systems ("""
             sql = 'SCENARIO  INT,\n MESS INT,\n TIME INT,\n'
             for i in range(nmg):
-                sql += "PDC_MG{0} FLOAT,\n ".format(i)
+                sql += "PDC_MG{0} DECIMAL(7,4),\n ".format(i)
             for i in range(nmg):
-                sql += "PCH_MG{0} FLOAT,\n ".format(i)
-            sql += "EESS FLOAT\n "
+                sql += "PCH_MG{0} DECIMAL(7,4),\n ".format(i)
+            sql += "EESS DECIMAL(7,4)\n "
             sql_start_end = """)"""
 
         cursor.execute(sql_start + sql + sql_start_end)
