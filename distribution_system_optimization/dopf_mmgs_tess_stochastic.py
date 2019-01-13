@@ -137,9 +137,11 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         Aeq_full = lil_matrix((neq_index[-1], nv_index[-1]))
         Aeq_full[0:neq_index[0], 0:nv_index[0]] = model_first_stage["Aeq"]
+        rc = zeros(0)
         for i in range(ns):
             Aeq_full[neq_index[i]:neq_index[i + 1], nv_index[i]:nv_index[i + 1]] = model_second_stage[i]["Aeq"]
             Qc.update(model_second_stage[i]["Qc"])
+            rc = concatenate([rc, model_second_stage[i]["rc"]])
 
         A_full = lil_matrix((nineq_index[-1], nv_index[-1]))
         b = model_first_stage["b"]
@@ -151,7 +153,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         # 3) Obtain the results for first-stage and second stage optimization problems
         # 3.1) Obtain the integrated solution
-        (sol, obj, success) = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=A_full, b=b, Qc=Qc, xmin=lb, xmax=ub, vtypes=vtypes)
+        (sol, obj, success) = miqcp(c, q, Aeq=Aeq_full, beq=beq, A=A_full, b=b, Qc=Qc, rc=rc, xmin=lb, xmax=ub, vtypes=vtypes)
         # 3.2) decouple the solution into multiple subsystems
         sol_first_stage = sol[0:nv_second_stage]
         sol_second_stage = {}
@@ -741,11 +743,11 @@ class StochasticDynamicOptimalPowerFlowTess():
         nv_second_stage = nv_index_ev[-1]
         nv_first_stage = self.nv_first_stage
         self.nv_second_stage = nv_second_stage
-        # 4) Pij**2+Qij**2<=Vi*Iij
         Qc = dict()
+        # 4) Pij**2+Qij**2<=Vi*Iij
         for t in range(T):
             for i in range(nl):
-                Qc[T * nl * index + t * nl + i] = [
+                Qc[(T * nl + T * nmg) * index + t * nl + i] = [
                     [int(nv_first_stage + index * nv_second_stage + t * _nv_second_stage + i),
                      int(nv_first_stage + index * nv_second_stage + t * _nv_second_stage + i + nl),
                      int(nv_first_stage + index * nv_second_stage + t * _nv_second_stage + i + 2 * nl),
@@ -755,7 +757,25 @@ class StochasticDynamicOptimalPowerFlowTess():
                      int(nv_first_stage + index * nv_second_stage + t * _nv_second_stage + f[i] + 3 * nl),
                      int(nv_first_stage + index * nv_second_stage + t * _nv_second_stage + i + 2 * nl)],
                     [1, 1, -1 / 2, -1 / 2]]
-
+        Rc = zeros(nl * T)
+        # 5) (Pbic_ac2dc+Pbic_dc2ac)**2+Qbic**2<=Sbic**2
+        Rc_temp = zeros(nmg * T)
+        for i in range(nmg):
+            for t in range(T):
+                Qc[(T * nl + T * nmg) * index + T * nl + T * i + t] = [
+                    [int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_AC2DC),
+                     int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_DC2AC),
+                     int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_AC2DC),
+                     int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_DC2AC),
+                     int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + QBIC)],
+                    [int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_AC2DC),
+                     int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_DC2AC),
+                     int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_DC2AC),
+                     int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_AC2DC),
+                     int(nv_first_stage + index * nv_second_stage + nv_ds + NX_MG * T * i + NX_MG * t + QBIC)],
+                    [1, 1, 1, 1, 1]]
+                Rc_temp[i * T + t] = mgs[i]["BIC"]["SMAX"] ** 2
+        Rc = concatenate([Rc, Rc_temp])
         ## IV. Coupling constraints between the first stage and second stage decision variables
         # pg, pg_mg, pess_mg, pess_tess
         # Ts*x+Ws*ys<=hs
@@ -891,6 +911,7 @@ class StochasticDynamicOptimalPowerFlowTess():
                               "Aeq": Aeq,
                               "beq": beq,
                               "Qc": Qc,
+                              "rc": Rc,
                               "c0": c0,
                               "Ts": Ts,
                               "Ws": Ws,
@@ -1594,6 +1615,6 @@ if __name__ == "__main__":
                                                                                      micro_grids=case_micro_grids,
                                                                                      mess=ev,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=50)
+                                                                                     ns=1)
 
     print(sol_second_stage[0]['DS']['gap'].max())
