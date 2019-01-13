@@ -87,8 +87,8 @@ class StochasticDynamicOptimalPowerFlowTess():
         (ds_second_stage, mgs_second_stage, weight) = self.scenario_generation_reduction(profile=profile,
                                                                                          micro_grids=micro_grids, ns=ns,
                                                                                          pns=power_networks,
-                                                                                         ns_reduced=round(0.9 * ns))
-        ns -= round(0.9 * ns)
+                                                                                         ns_reduced=round(0.97 * ns))
+        ns -= round(0.97 * ns)
         model_second_stage = {}
         for i in range(ns):
             model_second_stage[i] = self.second_stage_problem_formualtion(pns=power_networks, mgs=mgs_second_stage[i],
@@ -1503,9 +1503,9 @@ if __name__ == "__main__":
     micro_grid_1["DG"]["PMAX"] = 100
     micro_grid_1["DG"]["QMAX"] = 100
     micro_grid_1["DG"]["QMIN"] = -100
-    micro_grid_1["DG"]["COST_A"] = 0.015
+    micro_grid_1["DG"]["COST_A"] = 0.002
     micro_grid_1["ESS"]["PDC_MAX"] = 50
-    micro_grid_1["ESS"]["COST_OP"] = 0.01
+    micro_grid_1["ESS"]["COST_OP"] = 0.0005
     micro_grid_1["ESS"]["PCH_MAX"] = 50
     micro_grid_1["ESS"]["E0"] = 50
     micro_grid_1["ESS"]["EMIN"] = 10
@@ -1530,8 +1530,8 @@ if __name__ == "__main__":
     micro_grid_2["DG"]["PMAX"] = 100
     micro_grid_1["DG"]["QMAX"] = 100
     micro_grid_1["DG"]["QMIN"] = -100
-    micro_grid_2["DG"]["COST_A"] = 0.01
-    micro_grid_2["ESS"]["COST_OP"] = 0.01
+    micro_grid_2["DG"]["COST_A"] = 0.0015
+    micro_grid_2["ESS"]["COST_OP"] = 0.0005
     micro_grid_2["ESS"]["PDC_MAX"] = 50
     micro_grid_2["ESS"]["PCH_MAX"] = 50
     micro_grid_2["ESS"]["E0"] = 15
@@ -1557,8 +1557,8 @@ if __name__ == "__main__":
     micro_grid_3["DG"]["PMAX"] = 100
     micro_grid_3["DG"]["QMAX"] = 100
     micro_grid_3["DG"]["QMIN"] = -100
-    micro_grid_3["DG"]["COST_A"] = 0.01
-    micro_grid_3["ESS"]["COST_OP"] = 0.01
+    micro_grid_3["DG"]["COST_A"] = 0.001
+    micro_grid_3["ESS"]["COST_OP"] = 0.0005
     micro_grid_3["ESS"]["PDC_MAX"] = 50
     micro_grid_3["ESS"]["PCH_MAX"] = 50
     micro_grid_3["ESS"]["E0"] = 20
@@ -1584,7 +1584,7 @@ if __name__ == "__main__":
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.01,
+               "COST_OP": 0.0005,
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
@@ -1595,7 +1595,7 @@ if __name__ == "__main__":
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.01,
+               "COST_OP": 0.0005,
                })
     """
     ev.append({"initial": array([1, 0, 0]),
