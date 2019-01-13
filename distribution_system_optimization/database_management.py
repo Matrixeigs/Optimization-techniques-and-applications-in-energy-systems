@@ -191,7 +191,8 @@ class DataBaseManagement():
         self.db.commit()
         cursor.close()
 
-    def insert_data_scenario(self, table_name, scenario=0, weight=0, time=0, nb=1, nmg=2, pd=[0,0], pd_ac=[0,0], pd_dc=[0,0]):
+    def insert_data_scenario(self, table_name, scenario=0, weight=0, time=0, nb=1, nmg=2, pd=[0, 0], pd_ac=[0, 0],
+                             pd_dc=[0, 0]):
         cursor = self.db.cursor()
         sql_start = "INSERT INTO " + table_name + " ("
         sql = "SCENARIO,WEIGHT,TIME,"
@@ -202,10 +203,10 @@ class DataBaseManagement():
         for i in range(nmg):
             sql += "PD_AC{0},".format(i)
             value += "{0},".format(pd_ac[i])
-        for i in range(nmg-1):
+        for i in range(nmg - 1):
             sql += "PD_DC{0},".format(i)
             value += "{0},".format(pd_dc[i])
-        if nmg>1:
+        if nmg > 1:
             sql += "PD_DC{0}".format(nmg - 1)
             value += "{0}".format(pd_dc[nmg - 1])
 
@@ -214,9 +215,22 @@ class DataBaseManagement():
         self.db.commit()
         cursor.close()
 
+    def inquery_data_scenario(self, table_name, scenario=0, time=0):
+        cursor = self.db.cursor()
+        # sql = "SELECT * FROM " + table_name + " ;"
+        sql = "SELECT * FROM " + table_name + " WHERE SCENARIO={0} AND TIME={1};".format(scenario,time)
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        n_data = len(data[0])
+        temp = []
+        for i in range(n_data): temp.append(float(data[0][i]))
+
+        cursor.close()
+        return temp
 
 
 if __name__ == "__main__":
     db_management = DataBaseManagement()
-    db_management.create_table(table_name="scenarios")
-    db_management.insert_data_scenario(table_name="scenarios")
+    data=db_management.inquery_data_scenario(table_name="scenarios")
+    print(data)
+

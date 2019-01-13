@@ -87,8 +87,8 @@ class StochasticDynamicOptimalPowerFlowTess():
         (ds_second_stage, mgs_second_stage, weight) = self.scenario_generation_reduction(profile=profile,
                                                                                          micro_grids=micro_grids, ns=ns,
                                                                                          pns=power_networks,
-                                                                                         ns_reduced=round(0.97 * ns))
-        ns -= round(0.97 * ns)
+                                                                                         ns_reduced=round(0.95 * ns))
+        ns -= round(0.95 * ns)
         model_second_stage = {}
         for i in range(ns):
             model_second_stage[i] = self.second_stage_problem_formualtion(pns=power_networks, mgs=mgs_second_stage[i],
@@ -1427,38 +1427,56 @@ class StochasticDynamicOptimalPowerFlowTess():
         T = self.T
         nmg = self.nmg
         nb = self.nb
-        # 1) scenario generation
-        bus_load = zeros((ns, nb * T))
-        mg_load = zeros((ns, nmg * T * 2))
-        weight = ones(ns) / ns
-        for i in range(ns):
-            for t in range(T):
-                for j in range(nb):
-                    bus_load[i, t * nb + j] = pns["bus"][j, PD] * (1 + random.normal(0, std)) * profile[t]
-                for j in range(nmg):
-                    mg_load[i, t * nmg + j] = micro_grids[j]["PD"]["AC"][t] * (1 + random.uniform(-interval, interval))
-                    mg_load[i, nmg * T + t * nmg + j] = micro_grids[j]["PD"]["DC"][t] * \
-                                                        (1 + random.uniform(-interval, interval))
-
-        # 2) scenario reduction
-        scenario_reduction = ScenarioReduction()
-        (scenario_reduced, weight_reduced) = scenario_reduction.run(scenario=concatenate([bus_load, mg_load], axis=1),
-                                                                    weight=weight, n_reduced=ns_reduced, power=2)
-        # 3) Store the data into database
         db_management = DataBaseManagement()
-        db_management.create_table("scenarios", nb=nb, nmg=nmg)
-        for i in range(ns - ns_reduced):
-            for t in range(T):
-                db_management.insert_data_scenario("scenarios", scenario=i, weight=weight_reduced[i], time=t, nb=nb,
-                                                   pd=scenario_reduced[i, t * nb:(t + 1) * nb].tolist(), nmg=nmg,
-                                                   pd_ac=scenario_reduced[i, nb * T + t * nmg:
-                                                                             nb * T + (t + 1) * nmg].tolist(),
-                                                   pd_dc=scenario_reduced[i, nb * T + nmg * T + t * nmg:
-                                                                             nb * T + nmg * T + (t + 1) * nmg].tolist())
+
+        if update > 0:
+            # 1) scenario generation
+            bus_load = zeros((ns, nb * T))
+            mg_load = zeros((ns, nmg * T * 2))
+            weight = ones(ns) / ns
+            for i in range(ns):
+                for t in range(T):
+                    for j in range(nb):
+                        bus_load[i, t * nb + j] = pns["bus"][j, PD] * (1 + random.normal(0, std)) * profile[t]
+                    for j in range(nmg):
+                        mg_load[i, t * nmg + j] = micro_grids[j]["PD"]["AC"][t] * \
+                                                  (1 + random.uniform(-interval, interval))
+                        mg_load[i, nmg * T + t * nmg + j] = micro_grids[j]["PD"]["DC"][t] * \
+                                                            (1 + random.uniform(-interval, interval))
+
+            # 2) scenario reduction
+            scenario_reduction = ScenarioReduction()
+            (scenario_reduced, weight_reduced) = \
+                scenario_reduction.run(scenario=concatenate([bus_load, mg_load], axis=1), weight=weight,
+                                       n_reduced=ns_reduced, power=2)
+            # 3) Store the data into database
+            db_management.create_table("scenarios", nb=nb, nmg=nmg)
+            for i in range(ns - ns_reduced):
+                for t in range(T):
+                    db_management.insert_data_scenario("scenarios", scenario=i, weight=weight_reduced[i], time=t, nb=nb,
+                                                       pd=scenario_reduced[i, t * nb:(t + 1) * nb].tolist(), nmg=nmg,
+                                                       pd_ac=scenario_reduced[i, nb * T + t * nmg:
+                                                                                 nb * T + (t + 1) * nmg].tolist(),
+                                                       pd_dc=scenario_reduced[i, nb * T + nmg * T + t * nmg:
+                                                                                 nb * T + nmg * T + (
+                                                                                         t + 1) * nmg].tolist())
+        else:
+            # 4) if not updated, inquery the database
+            scenario_reduced = zeros((ns - ns_reduced, nb * T + nmg * T * 2))
+            weight_reduced = zeros(ns - ns_reduced)
+            for i in range(ns - ns_reduced):
+                for t in range(T):
+                    data = db_management.inquery_data_scenario(table_name="scenarios", scenario=i, time=t)
+                    weight_reduced[i] = data[1]
+                    scenario_reduced[i, nb * t:nb * (t + 1)] = array(data[3:nb + 3])
+                    scenario_reduced[i, nb * T + nmg * t:nb * T + nmg * (t + 1)] = array(data[nb + 3:nb + 3 + nmg])
+                    scenario_reduced[i, nb * T + nmg * T + nmg * t:nb * T + nmg * T + nmg * (t + 1)] = \
+                        array(data[nb + 3:nb + 3 + nmg])
+            assert sum(weight_reduced) == 1, "The weight factor is not right!"
+
         # 4) return value
         ds_load_profile = scenario_reduced[:, 0:nb * T]
         mgs_load_profile = scenario_reduced[:, nb * T:]
-
         # profile_second_stage = zeros((ns, T))
         microgrids_second_stage = [0] * (ns - ns_reduced)
         # for i in range(ns):
@@ -1597,7 +1615,6 @@ if __name__ == "__main__":
                "EMIN": 50,
                "COST_OP": 0.0005,
                })
-    """
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
                "PCMAX": 200,
@@ -1607,8 +1624,9 @@ if __name__ == "__main__":
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.01,
+               "COST_OP": 0.0005,
                })
+    """
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
                "PCMAX": 200,
