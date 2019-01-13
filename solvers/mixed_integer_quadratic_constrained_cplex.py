@@ -7,7 +7,7 @@ from cplex.exceptions import CplexError
 
 
 def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None,
-                                                    vtypes=None, Qc=None,
+                                                    vtypes=None, Qc=None, rc=None,
                                                     opt=None, objsense=None):
     if type(c) == list:
         nx = len(c)
@@ -34,6 +34,15 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         nqc = len(Qc)
     else:
         nqc = 0
+
+    if rc is not None:
+        try:
+            rc = rc[:, 0]
+            rc = rc.tolist()
+        except IndexError:
+            rc = rc.tolist()
+        except:
+            pass
 
     # Fulfilling the missing information
     if beq is None or len(beq) == 0: beq = -cplex.infinity * ones(neq)
@@ -159,7 +168,7 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         # 3) Quadratic constraints
         if nqc != 0:
             for i in range(nqc):
-                prob.quadratic_constraints.add(quad_expr=cplex.SparseTriple(Qc[i][0], Qc[i][1], Qc[i][2]))
+                prob.quadratic_constraints.add(quad_expr=cplex.SparseTriple(Qc[i][0], Qc[i][1], Qc[i][2]), rhs=rc[i])
 
         # 4) Objective values
         qmat = [0] * nx
@@ -177,10 +186,11 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         # prob.set_error_stream(None)
         # prob.set_warning_stream(None)
         # prob.set_results_stream(None)
-        prob.timelimit = 100
-        prob.parameters.preprocessing.presolve = 0
-        prob.parameters.timelimit = 100
-        prob.parameters.dettimelimit = 100
+        # prob.timelimit = 100
+        # prob.parameters.preprocessing.presolve = 0
+        prob.parameters.timelimit.set(10000)
+        prob.parameters.mip.tolerances.mipgap.set(10 ** -2)
+        # prob.parameters.dettimelimit = 100
 
         prob.solve()
 
