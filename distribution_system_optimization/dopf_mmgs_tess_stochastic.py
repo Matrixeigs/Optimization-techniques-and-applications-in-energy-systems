@@ -87,8 +87,8 @@ class StochasticDynamicOptimalPowerFlowTess():
         (ds_second_stage, mgs_second_stage, weight) = self.scenario_generation_reduction(profile=profile,
                                                                                          micro_grids=micro_grids, ns=ns,
                                                                                          pns=power_networks,
-                                                                                         ns_reduced=round(0.95 * ns))
-        ns -= round(0.95 * ns)
+                                                                                         ns_reduced=round(0.98 * ns))
+        ns -= round(0.98 * ns)
         model_second_stage = {}
         for i in range(ns):
             model_second_stage[i] = self.second_stage_problem_formualtion(pns=power_networks, mgs=mgs_second_stage[i],
@@ -174,6 +174,31 @@ class StochasticDynamicOptimalPowerFlowTess():
         db_management.create_table(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng)
         db_management.create_table(table_name="micro_grids", nmg=self.nmg)
         db_management.create_table(table_name="mobile_energy_storage_systems", nmg=self.nmg)
+        db_management.create_table(table_name="first_stage_solutions", nmg=self.nmg, ng=self.ng, nmes=self.nmes)
+        db_management.create_table(table_name="fisrt_stage_mess", nmg=self.nmg)
+
+        for t in range(T):
+            db_management.insert_data_first_stage(table_name="first_stage_solutions", time=t, ng=self.ng, nmg=self.nmg,
+                                                  pg=sol_first_stage["pg"][:, t].tolist(),
+                                                  rg=sol_first_stage["rg"][:, t].tolist(),
+                                                  pg_mg=sol_first_stage["pg_mg"][:, t].tolist(),
+                                                  rg_mg=sol_first_stage["rg_mg"][:, t].tolist(),
+                                                  pess_ch=sol_first_stage["pess_ch"][:, t].tolist(),
+                                                  pess_dc=sol_first_stage["pess_dc"][:, t].tolist(),
+                                                  ress=sol_first_stage["ress"][:, t].tolist(),
+                                                  ess=sol_first_stage["eess"][:, t].tolist(),
+                                                  iess=sol_first_stage["iess"][:, t].tolist())
+        for i in range(nmes):
+            for t in range(T):
+                db_management.insert_data_first_stage_mess(table_name="fisrt_stage_mess", nmg=self.nmg, time=t, mess=i,
+                                                           imess=sol_first_stage["MESS"][i]["idc"][:, t].tolist(),
+                                                           rmess=sol_first_stage["MESS"][i]["rmess"][:, t].tolist(),
+                                                           pmess_ch=
+                                                           sol_first_stage["MESS"][i]["pmess_ch"][:, t].tolist(),
+                                                           pmess_dc=
+                                                           sol_first_stage["MESS"][i]["pmess_dc"][:, t].tolist(),
+                                                           mess_f_stop=sol_first_stage["MESS"][i]["VRP"][t + 1][0],
+                                                           mess_t_stop=sol_first_stage["MESS"][i]["VRP"][t + 1][1])
 
         for i in range(ns):
             sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
@@ -206,11 +231,11 @@ class StochasticDynamicOptimalPowerFlowTess():
                 for t in range(T):
                     db_management.insert_data_mess(table_name="mobile_energy_storage_systems", scenario=i, time=t,
                                                    mess=j, nmg=self.nmg,
-                                                   pess_dc=
+                                                   pmess_dc=
                                                    sol_second_stage_checked[i]["MESS"][j]["pmess_dc"][:, t].tolist(),
-                                                   pess_ch=
+                                                   pmess_ch=
                                                    sol_second_stage_checked[i]["MESS"][j]["pmess_ch"][:, t].tolist(),
-                                                   eess=sol_second_stage_checked[i]["MESS"][j]["emess"][0, t])
+                                                   emess=sol_second_stage_checked[i]["MESS"][j]["emess"][0, t])
         # 4.3) Cross validation of the first-stage and second-stage decision variables
         tess_check = {}
         for i in range(ns):
@@ -520,6 +545,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         sol_first_stage = {"pg": Pg,
                            "rg": Rg,
                            "pg_mg": Pg_mg,
+                           "rg_mg": Rg_mg,
                            "pess_ch": Pess_ch,
                            "pess_dc": Pess_dc,
                            "ress": Ress,
@@ -1668,6 +1694,6 @@ if __name__ == "__main__":
                                                                                      profile=load_profile.tolist(),
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=200)
+                                                                                     ns=100)
 
     print(sol_second_stage[0]['DS']['gap'].max())

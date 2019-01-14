@@ -49,14 +49,14 @@ class DataBaseManagement():
             for i in range(ng - 1):
                 sql += "QG{0} DECIMAL(8,6),\n ".format(i)
             sql += "QG{0} DECIMAL(8,6)\n ".format(ng - 1)
-            sql_start_end = """)"""
+            sql_end = """)"""
         elif table_name == "micro_grids":
             sql_start = """CREATE TABLE micro_grids ("""
             sql = 'SCENARIO  INT,\n MG INT,\n TIME INT,\n '
             sql += 'PG DECIMAL(7,4),\n QG DECIMAL(7,4),\n PUG DECIMAL(7,4),\n QUG DECIMAL(7,4),\n '
             sql += 'PBIC_AC2DC DECIMAL(7,4),\n PBIC_DC2AC DECIMAL(7,4),\n QBIC DECIMAL(7,4),\n PESS_CH DECIMAL(7,4),\n '
             sql += 'PESS_DC  DECIMAL(7,4),\n EESS DECIMAL(7,4),\n PMESS DECIMAL(7,4)'
-            sql_start_end = """)"""
+            sql_end = """)"""
         elif table_name == "mobile_energy_storage_systems":
             sql_start = """CREATE TABLE mobile_energy_storage_systems ("""
             sql = 'SCENARIO  INT,\n MESS INT,\n TIME INT,\n'
@@ -65,14 +65,14 @@ class DataBaseManagement():
             for i in range(nmg):
                 sql += "PCH_MG{0} DECIMAL(7,4),\n ".format(i)
             sql += "EESS DECIMAL(7,4)\n "
-            sql_start_end = """)"""
+            sql_end = """)"""
         elif table_name == "first_stage_solutions":  # First-stage solution table
             sql_start = """CREATE TABLE first_stage_solutions ("""
             sql = 'TIME  INT,\n'
             for i in range(ng):
                 sql += "PG{0} DECIMAL(7,4),\n ".format(i)
                 sql += "RG{0} DECIMAL(7,4),\n ".format(i)
-            for i in range(nmg):
+            for i in range(nmg - 1):
                 sql += "PG_MG{0} DECIMAL(7,4),\n ".format(i)
                 sql += "RG_MG{0} DECIMAL(7,4),\n ".format(i)
                 sql += "IESS{0} INT,\n ".format(i)
@@ -80,20 +80,28 @@ class DataBaseManagement():
                 sql += "PESS_CH{0} DECIMAL(7,4),\n ".format(i)
                 sql += "RESS{0} DECIMAL(7,4),\n ".format(i)
                 sql += "ESS{0} DECIMAL(7,4),\n ".format(i)
-            for i in range(nmes - 1):
-                sql += "IMESS{0} INT,\n ".format(i)
-                sql += "PCH_MESS{0} DECIMAL(7,4),\n ".format(i)
-                sql += "PDC_MESS{0} DECIMAL(7,4),\n ".format(i)
+            sql += "PG_MG{0} DECIMAL(7,4),\n ".format(nmg - 1)
+            sql += "RG_MG{0} DECIMAL(7,4),\n ".format(nmg - 1)
+            sql += "IESS{0} INT,\n ".format(nmg - 1)
+            sql += "PESS_DC{0} DECIMAL(7,4),\n ".format(nmg - 1)
+            sql += "PESS_CH{0} DECIMAL(7,4),\n ".format(nmg - 1)
+            sql += "RESS{0} DECIMAL(7,4),\n ".format(nmg - 1)
+            sql += "ESS{0} DECIMAL(7,4)\n ".format(nmg - 1)
+            sql_end = """)"""
+        elif table_name == "fisrt_stage_mess":  # First-stage solution table
+            sql_start = """CREATE TABLE fisrt_stage_mess ("""
+            sql = 'MESS INT,\n TIME  INT,\n'
+            for i in range(nmg):
+                sql += "IDC_MG{0} INT,\n ".format(i)
+            for i in range(nmg):
+                sql += "PDC_MG{0} DECIMAL(7,4),\n ".format(i)
+            for i in range(nmg):
+                sql += "PCH_MG{0} DECIMAL(7,4),\n ".format(i)
+            for i in range(nmg):
                 sql += "RMESS{0} DECIMAL(7,4),\n ".format(i)
-                sql += "MESS_F_STOP{0} DECIMAL(7,4),\n ".format(i)
-                sql += "MESS_T_STOP{0} DECIMAL(7,4),\n ".format(i)
-            sql += "IMESS{0} INT,\n ".format(nmes - 1)
-            sql += "PCH_MESS{0} DECIMAL(7,4),\n ".format(nmes - 1)
-            sql += "PDC_MESS{0} DECIMAL(7,4),\n ".format(nmes - 1)
-            sql += "RMESS{0} DECIMAL(7,4),\n ".format(nmes - 1)
-            sql += "MESS_F_STOP{0} DECIMAL(7,4),\n ".format(nmes - 1)
-            sql += "MESS_T_STOP{0} DECIMAL(7,4)\n ".format(nmes - 1)
-            sql_start_end = """)"""
+            sql += "MESS_F_STOP INT,\n "
+            sql += "MESS_T_STOP INT\n "
+            sql_end = """)"""
         else:
             sql_start = """CREATE TABLE scenarios ("""
             sql = 'SCENARIO  INT,\n WEIGHT DECIMAL(7,4),\n TIME INT,\n'
@@ -104,9 +112,9 @@ class DataBaseManagement():
             for i in range(nmg - 1):
                 sql += "PD_DC{0} DECIMAL(7,4),\n ".format(i)
             sql += "PD_DC{0} DECIMAL(7,4)\n".format(nmg - 1)
-            sql_start_end = """)"""
+            sql_end = """)"""
 
-        cursor.execute(sql_start + sql + sql_start_end)
+        cursor.execute(sql_start + sql + sql_end)
         cursor.close()
 
     def insert_data_ds(self, table_name, nl=32, nb=33, ng=6, scenario=0, time=0, pij=0, qij=0, lij=0, vi=0, pg=0, qg=0):
@@ -188,8 +196,45 @@ class DataBaseManagement():
         self.db.commit()
         cursor.close()
 
-    def insert_data_mess(self, table_name, scenario=0, time=0, mess=0, pess_ch=[0, 0, 0], pess_dc=[0, 0, 0], eess=0,
-                         nmg=3):
+    def insert_data_first_stage_mess(self, table_name, time=0, mess=0, imess=[0, 0, 0], pmess_ch=[0, 0, 0],
+                                     pmess_dc=[0, 0, 0], rmess=[0, 0, 0], mess_f_stop=0, mess_t_stop=0, nmg=3):
+        """
+        insert mobile energy storage systems data in the first-stage
+        :param table_name:
+        :param scenario:
+        :param time:
+        :param mess:
+        :param pess_ch:
+        :param pess_dc:
+        :param eess:
+        :param nmg:
+        :return:
+        """
+        cursor = self.db.cursor()
+        sql_start = "INSERT INTO " + table_name + " ("
+        sql = "MESS,TIME,"
+        value = "{0},{1},".format(mess, time)
+        for i in range(nmg):
+            sql += "IDC_MG{0},".format(i)
+            value += "{0},".format(imess[i])
+        for i in range(nmg):
+            sql += "PDC_MG{0},".format(i)
+            value += "{0},".format(pmess_dc[i])
+        for i in range(nmg):
+            sql += "PCH_MG{0},".format(i)
+            value += "{0},".format(pmess_ch[i])
+        for i in range(nmg):
+            sql += "RMESS{0},".format(i)
+            value += "{0},".format(rmess[i])
+        sql += "MESS_F_STOP,MESS_T_STOP"
+        value += "{0},{1}".format(mess_f_stop, mess_t_stop)
+        sql += ") VALUES (" + value + ")"
+        cursor.execute(sql_start + sql)
+        self.db.commit()
+        cursor.close()
+
+    def insert_data_mess(self, table_name, scenario=0, time=0, mess=0, pmess_ch=[0, 0, 0], pmess_dc=[0, 0, 0],
+                         emess=0, nmg=3):
         """
         insert mobile energy storage systems data
         :param table_name:
@@ -208,21 +253,19 @@ class DataBaseManagement():
         value = "{0},{1},{2},".format(scenario, mess, time)
         for i in range(nmg):
             sql += "PDC_MG{0},".format(i)
-            value += "{0},".format(pess_dc[i])
+            value += "{0},".format(pmess_dc[i])
         for i in range(nmg):
             sql += "PCH_MG{0},".format(i)
-            value += "{0},".format(pess_ch[i])
+            value += "{0},".format(pmess_ch[i])
         sql += "EESS"
-        value += "{0}".format(eess)
+        value += "{0}".format(emess)
         sql += ") VALUES (" + value + ")"
         cursor.execute(sql_start + sql)
         self.db.commit()
         cursor.close()
 
-    def insert_data_first_stage(self, table_name, time=0, ng=2, nmg=2, nmes=2, pg=[0, 0], rg=[0, 0], pg_mg=[0, 0],
-                                rg_mg=[0, 0], iess=[0, 0], pess_dc=[0, 0], pess_ch=[0, 0], ress=[0, 0], ess=[0, 0],
-                                imess=[0, 0], pch_mess=[0, 0], pdc_mess=[0, 0], rmess=[0, 0], mess_f_stop=[0, 0],
-                                mess_t_stop=[0, 0]):
+    def insert_data_first_stage(self, table_name, time=0, ng=2, nmg=2, pg=[0, 0], rg=[0, 0], pg_mg=[0, 0],
+                                rg_mg=[0, 0], iess=[0, 0], pess_dc=[0, 0], pess_ch=[0, 0], ress=[0, 0], ess=[0, 0]):
         """
         insert scenario data
         :param table_name:
@@ -245,15 +288,15 @@ class DataBaseManagement():
             sql += "RG{0},".format(i)
             value += "{0},".format(pg[i])
             value += "{0},".format(rg[i])
-        for i in range(nmg):
-            sql += "PG_MG{0},".format(i)
-            sql += "RG_MG{0},".format(i)
-            sql += "IESS{0},".format(i)
-            sql += "PESS_DC{0},".format(i)
-            sql += "PESS_CH{0},".format(i)
-            sql += "RESS{0},".format(i)
-            sql += "ESS{0},".format(i)
-            if nmg>1:
+        if nmg > 1:
+            for i in range(nmg - 1):
+                sql += "PG_MG{0},".format(i)
+                sql += "RG_MG{0},".format(i)
+                sql += "IESS{0},".format(i)
+                sql += "PESS_DC{0},".format(i)
+                sql += "PESS_CH{0},".format(i)
+                sql += "RESS{0},".format(i)
+                sql += "ESS{0},".format(i)
                 value += "{0},".format(pg_mg[i])
                 value += "{0},".format(rg_mg[i])
                 value += "{0},".format(iess[i])
@@ -261,40 +304,59 @@ class DataBaseManagement():
                 value += "{0},".format(pess_ch[i])
                 value += "{0},".format(ress[i])
                 value += "{0},".format(ess[i])
-            else:
-                value += "{0},".format(pg_mg)
-                value += "{0},".format(rg_mg)
-                value += "{0},".format(iess)
-                value += "{0},".format(pess_dc)
-                value += "{0},".format(pess_ch)
-                value += "{0},".format(ress)
-                value += "{0},".format(ess)
-        if nmes > 1:
-            for i in range(nmes - 1):
-                sql += "IMESS{0},".format(i)
-                sql += "PCH_MESS{0},".format(i)
-                sql += "PDC_MESS{0}, ".format(i)
-                sql += "RMESS{0},".format(i)
-                sql += "MESS_F_STOP{0},".format(i)
-                sql += "MESS_T_STOP{0},".format(i)
-                value += "{0},".format(imess[i])
-                value += "{0},".format(pch_mess[i])
-                value += "{0},".format(pdc_mess[i])
-                value += "{0},".format(rmess[i])
-                value += "{0},".format(mess_f_stop[i])
-                value += "{0},".format(mess_t_stop[i])
-        sql += "IMESS{0},".format(nmes - 1)
-        sql += "PCH_MESS{0},".format(nmes - 1)
-        sql += "PDC_MESS{0}, ".format(nmes - 1)
-        sql += "RMESS{0},".format(nmes - 1)
-        sql += "MESS_F_STOP{0},".format(nmes - 1)
-        sql += "MESS_T_STOP{0}".format(nmes - 1)
-        value += "{0},".format(imess[nmes - 1])
-        value += "{0},".format(pch_mess[nmes - 1])
-        value += "{0},".format(pdc_mess[nmes - 1])
-        value += "{0},".format(rmess[nmes - 1])
-        value += "{0},".format(mess_f_stop[nmes - 1])
-        value += "{0}".format(mess_t_stop[nmes - 1])
+            sql += "PG_MG{0},".format(nmg - 1)
+            sql += "RG_MG{0},".format(nmg - 1)
+            sql += "IESS{0},".format(nmg - 1)
+            sql += "PESS_DC{0},".format(nmg - 1)
+            sql += "PESS_CH{0},".format(nmg - 1)
+            sql += "RESS{0},".format(nmg - 1)
+            sql += "ESS{0}".format(nmg - 1)
+            value += "{0},".format(pg_mg[nmg - 1])
+            value += "{0},".format(rg_mg[nmg - 1])
+            value += "{0},".format(iess[nmg - 1])
+            value += "{0},".format(pess_dc[nmg - 1])
+            value += "{0},".format(pess_ch[nmg - 1])
+            value += "{0},".format(ress[nmg - 1])
+            value += "{0}".format(ess[nmg - 1])
+        else:
+            sql += "PG_MG{0},".format(nmg - 1)
+            sql += "RG_MG{0},".format(nmg - 1)
+            sql += "IESS{0},".format(nmg - 1)
+            sql += "PESS_DC{0},".format(nmg - 1)
+            sql += "PESS_CH{0},".format(nmg - 1)
+            sql += "RESS{0},".format(nmg - 1)
+            sql += "ESS{0}".format(nmg - 1)
+            value += "{0},".format(pg_mg)
+            value += "{0},".format(rg_mg)
+            value += "{0},".format(iess)
+            value += "{0},".format(pess_dc)
+            value += "{0},".format(pess_ch)
+            value += "{0},".format(ress)
+            value += "{0}".format(ess)
+
+        sql += ") VALUES (" + value + ")"
+        cursor.execute(sql_start + sql)
+        self.db.commit()
+        cursor.close()
+
+    def insert_data_scenario(self, table_name, scenario=0, weight=0, time=0, nb=1, nmg=2, pd=[0, 0], pd_ac=[0, 0],
+                             pd_dc=[0, 0]):
+        cursor = self.db.cursor()
+        sql_start = "INSERT INTO " + table_name + " ("
+        sql = "SCENARIO,WEIGHT,TIME,"
+        value = "{0},{1},{2},".format(scenario, weight, time)
+        for i in range(nb):
+            sql += "PD{0},".format(i)
+            value += "{0},".format(pd[i])
+        for i in range(nmg):
+            sql += "PD_AC{0},".format(i)
+            value += "{0},".format(pd_ac[i])
+        for i in range(nmg - 1):
+            sql += "PD_DC{0},".format(i)
+            value += "{0},".format(pd_dc[i])
+        if nmg > 1:
+            sql += "PD_DC{0}".format(nmg - 1)
+            value += "{0}".format(pd_dc[nmg - 1])
 
         sql += ") VALUES (" + value + ")"
         cursor.execute(sql_start + sql)
@@ -318,8 +380,8 @@ class DataBaseManagement():
 
 if __name__ == "__main__":
     db_management = DataBaseManagement()
-    db_management.create_table("first_stage_solutions")
-    db_management.insert_data_first_stage("first_stage_solutions")
+    db_management.create_table("fisrt_stage_mess")
+    db_management.insert_data_first_stage_mess("fisrt_stage_mess")
 
     data = db_management.inquery_data_scenario(table_name="scenarios")
     print(data)
