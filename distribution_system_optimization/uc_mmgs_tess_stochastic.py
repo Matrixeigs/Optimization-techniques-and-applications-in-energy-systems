@@ -276,15 +276,15 @@ class StochasticDynamicOptimalPowerFlowTess():
         nb = shape(mpc["bus"])[0]
         self.nb = nb
         # Obtain the initial status, start-up and shut down of generators
-        Ig0 = gen[:, -1]
-        DOWN_LIMIT = gen[:, -2]
-        UP_LIMIT = gen[:, -3]
+        Ig0 = gen[:, -1].astype(int)
+        MIN_DOWN = gen[:, -2].astype(int)
+        MIN_UP = gen[:, -3].astype(int)
 
         alpha_l = zeros(ng)
         beta_l = zeros(ng)
         Ig_l = zeros(ng)
-        pg_l = gen[:, PMIN] / baseMVA  # Boundary for DGs within distribution networks
-        rg_l = gen[:, PMIN] / baseMVA
+        pg_l = zeros(ng)  # Boundary for DGs within distribution networks
+        rg_l = zeros(ng)
 
         alpha_u = ones(ng)
         beta_u = ones(ng)
@@ -354,27 +354,65 @@ class StochasticDynamicOptimalPowerFlowTess():
         b = zeros(ng * T)
         for t in range(T):
             for j in range(ng):
-                A[t * ng + j, t * _nv_first_stage + ng * 2 + j] = 1
                 A[t * ng + j, t * _nv_first_stage + ng * 3 + j] = 1
-                A[t * ng + j, t * _nv_first_stage + j] = -pg_u[j]
+                A[t * ng + j, t * _nv_first_stage + ng * 4 + j] = 1
+                A[t * ng + j, t * _nv_first_stage + ng * 2 + j] = -pg_u[j]
         # 2) Pg-Rg>=IgPgl
-        # A_temp = lil_matrix((ng * T, nv_first_stage))
-        # b_temp = zeros(ng * T)
-        # for t in range(T):
-        #     for j in range(ng):
-        #         A_temp[t * ng + j, t * _nv_first_stage + ng * 3 + j] = -1
-        #         A_temp[t * ng + j, t * _nv_first_stage + ng * 4 + j] = 1
-        #         A_temp[t * ng + j, t * _nv_first_stage + j] = pg_l[j]
-        # A = vstack([A, A_temp])
-        # b = concatenate([b, b_temp])
+        A_temp = lil_matrix((ng * T, nv_first_stage))
+        b_temp = zeros(ng * T)
+        for t in range(T):
+            for j in range(ng):
+                A_temp[t * ng + j, t * _nv_first_stage + ng * 3 + j] = -1
+                A_temp[t * ng + j, t * _nv_first_stage + ng * 4 + j] = 1
+                A_temp[t * ng + j, t * _nv_first_stage + j] = pg_l[j]
+        A = vstack([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 3) Start-up and shut-down constraints of DGs
+        UP_LIMIT = zeros(ng).astype(int)
+        DOWN_LIMIT = zeros(ng).astype(int)
+        for i in range(ng):
+            UP_LIMIT[i] = T - MIN_UP[i]
+            DOWN_LIMIT[i] = T - MIN_DOWN[i]
+        # 3.1) Up limit
+        A_temp = lil_matrix((sum(UP_LIMIT), nv_first_stage))
+        b_temp = zeros(sum(UP_LIMIT))
+        for i in range(ng):
+            for t in range(MIN_UP[i], T):
+                for k in range(t - MIN_UP[i], t):
+                    A_temp[sum(UP_LIMIT[0:i]) + t - MIN_UP[i], k * _nv_first_stage + i] = 1
+                A_temp[sum(UP_LIMIT[0:i]) + t - MIN_UP[i], t * _nv_first_stage + ng * 2 + i] = -1
+        A = vstack([A, A_temp])
+        b = concatenate([b, b_temp])
+        # # 3.2) Down limit
+        A_temp = lil_matrix((sum(DOWN_LIMIT), nv_first_stage))
+        b_temp = ones(sum(DOWN_LIMIT))
+        for i in range(ng):
+            for t in range(MIN_DOWN[i], T):
+                for k in range(t - MIN_DOWN[i], t):
+                    A_temp[sum(DOWN_LIMIT[0:i]) + t - MIN_DOWN[i], k * _nv_first_stage + ng + i] = 1
+                A_temp[sum(DOWN_LIMIT[0:i]) + t - MIN_DOWN[i], t * _nv_first_stage + ng * 2 + i] = 1
+        A = vstack([A, A_temp])
+        b = concatenate([b, b_temp])
+        # 4) Status transformation of each unit
+        Aeq = lil_matrix((T * ng, nv_first_stage))
+        beq = zeros(T * ng)
+        for i in range(ng):
+            for t in range(T):
+                Aeq[i * T + t, t * _nv_first_stage + i] = 1
+                Aeq[i * T + t, t * _nv_first_stage + ng + i] = -1
+                Aeq[i * T + t, t * _nv_first_stage + ng * 2 + i] = -1
+                if t != 0:
+                    Aeq[i * T + t, (t - 1) * _nv_first_stage + ng * 2 + i] = 1
+                else:
+                    beq[i * T + t] = -Ig0[i]
 
         # 3) Pg_mg+Rg_mg<=Pg_mg_u
         A_temp = lil_matrix((nmg * T, nv_first_stage))
         b_temp = zeros(nmg * T)
         for t in range(T):
             for j in range(nmg):
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + j] = 1
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg + j] = 1
                 b_temp[t * nmg + j] = pg_mg_u[j]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
@@ -383,8 +421,8 @@ class StochasticDynamicOptimalPowerFlowTess():
         b_temp = zeros(nmg * T)
         for t in range(T):
             for j in range(nmg):
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + j] = -1
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + j] = -1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg + j] = 1
                 b_temp[t * nmg + j] = pg_mg_l[j]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
@@ -393,9 +431,9 @@ class StochasticDynamicOptimalPowerFlowTess():
         b_temp = zeros(nmg * T)
         for t in range(T):
             for j in range(nmg):
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + j] = -1
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 2 + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + j] = -1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 2 + j] = 1
                 b_temp[t * nmg + j] = pes_dc_u[j]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
@@ -404,31 +442,34 @@ class StochasticDynamicOptimalPowerFlowTess():
         b_temp = zeros(nmg * T)
         for t in range(T):
             for j in range(nmg):
-                A_temp[t * nmg + j, ng * 2 + nmg * 2 + t] = 1
-                A_temp[t * nmg + j, ng * 2 + nmg * 2 + nmg + t] = -1
-                A_temp[t * nmg + j, ng * 2 + nmg * 2 + nmg * 2 + t] = 1
+                A_temp[t * nmg + j, ng * 5 + nmg * 2 + t] = 1
+                A_temp[t * nmg + j, ng * 5 + nmg * 2 + nmg + t] = -1
+                A_temp[t * nmg + j, ng * 5 + nmg * 2 + nmg * 2 + t] = 1
                 b_temp[t * nmg + j] = pes_ch_u[j]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # 7) Energy storage balance equation
-        Aeq = lil_matrix((T * nmg, nv_first_stage))
-        beq = zeros(T * nmg)
+        Aeq_temp = lil_matrix((T * nmg, nv_first_stage))
+        beq_temp = zeros(T * nmg)
         for t in range(T):
             for j in range(nmg):
-                Aeq[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = 1
-                Aeq[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + j] = -mgs[j]["ESS"]["EFF_CH"]
-                Aeq[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1 / mgs[j]["ESS"]["EFF_DC"]
+                Aeq_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 3 + j] = 1
+                Aeq_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + j] = -mgs[j]["ESS"]["EFF_CH"]
+                Aeq_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg + j] = 1 / mgs[j]["ESS"]["EFF_DC"]
                 if t == 0:
-                    beq[i * nmg + j] = mgs[j]["ESS"]["E0"]
+                    beq_temp[i * nmg + j] = mgs[j]["ESS"]["E0"]
                 else:
-                    Aeq[i * nmg + j, (i - 1) * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 3 + j] = -1
+                    Aeq_temp[i * nmg + j, (i - 1) * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 3 + j] = -1
+        Aeq = vstack([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+
         # 8) Pess_ch<=I*Pess_ch_max
         A_temp = lil_matrix((nmg * T, nv_first_stage))
         b_temp = zeros(nmg * T)
         for t in range(T):
             for j in range(nmg):
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + j] = 1
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 4 + j] = -pes_ch_u[j]
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 4 + j] = -pes_ch_u[j]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # 9) Pess_dc<=(1-I)*Pess_dc_max
@@ -436,8 +477,8 @@ class StochasticDynamicOptimalPowerFlowTess():
         b_temp = zeros(nmg * T)
         for t in range(T):
             for j in range(nmg):
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg + j] = 1
-                A_temp[t * nmg + j, t * _nv_first_stage + ng * 2 + nmg * 2 + nmg * 4 + j] = pes_dc_u[j]
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 4 + j] = pes_dc_u[j]
                 b_temp[t * nmg + j] = pes_dc_u[j]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
