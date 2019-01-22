@@ -208,7 +208,8 @@ class StochasticDynamicOptimalPowerFlowTess():
             sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
         for i in range(ns):
             for t in range(T):
-                db_management.insert_data_ds(table_name="distribution_networks", scenario=i, time=t,
+                db_management.insert_data_ds(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng,
+                                             scenario=i, time=t,
                                              pij=sol_second_stage_checked[i]["DS"]["pij"][:, t].tolist(),
                                              qij=sol_second_stage_checked[i]["DS"]["qij"][:, t].tolist(),
                                              lij=sol_second_stage_checked[i]["DS"]["lij"][:, t].tolist(),
@@ -1536,7 +1537,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_tess
 
-    def scenario_generation_reduction(self, micro_grids, profile, pns, update=0, ns=2, ns_reduced=2, std=0.03,
+    def scenario_generation_reduction(self, micro_grids, profile, pns, update=1, ns=2, ns_reduced=2, std=0.03,
                                       interval=0.05):
         """
         Scenario generation function for the second-stage scheduling
