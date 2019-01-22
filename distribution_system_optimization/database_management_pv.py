@@ -191,8 +191,8 @@ class DataBaseManagement():
         sql = "SCENARIO,MG,TIME,"
         value = "{0},{1},{2},".format(scenario, mg, time)
         sql += "PG,QG,PUG,QUG,PBIC_AC2DC,PBIC_DC2AC,QBIC,PESS_CH,PESS_DC,EESS,PPV,PMESS"
-        value += "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}".format(pg, qg, pug, qug, pbic_ac2dc, pbic_dc2ac, qbic,
-                                                                       pess_ch, pess_dc, eess, ppv, pmess)
+        value += "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}".format(pg, qg, pug, qug, pbic_ac2dc, pbic_dc2ac,
+                                                                            qbic, pess_ch, pess_dc, eess, ppv, pmess)
         sql += ") VALUES (" + value + ")"
         cursor.execute(sql_start + sql)
         self.db.commit()
