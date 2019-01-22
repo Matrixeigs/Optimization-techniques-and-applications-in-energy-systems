@@ -1498,7 +1498,7 @@ class StochasticDynamicOptimalPowerFlowTess():
                     scenario_reduced[i, nb * t:nb * (t + 1)] = array(data[3:nb + 3])
                     scenario_reduced[i, nb * T + nmg * t:nb * T + nmg * (t + 1)] = array(data[nb + 3:nb + 3 + nmg])
                     scenario_reduced[i, nb * T + nmg * T + nmg * t:nb * T + nmg * T + nmg * (t + 1)] = \
-                        array(data[nb + 3:nb + 3 + nmg])
+                        array(data[nb + 3 + nmg:nb + 3 + nmg * 2])
             assert sum(weight_reduced) == 1, "The weight factor is not right!"
 
         # 4) return value
