@@ -1537,7 +1537,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_tess
 
-    def scenario_generation_reduction(self, micro_grids, profile, pns, update=1, ns=2, ns_reduced=2, std=0.03,
+    def scenario_generation_reduction(self, micro_grids, profile, pns, update=0, ns=2, ns_reduced=2, std=0.03,
                                       interval=0.05):
         """
         Scenario generation function for the second-stage scheduling
@@ -1793,6 +1793,6 @@ if __name__ == "__main__":
                                                                                      profile=load_profile.tolist(),
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=100)
+                                                                                     ns=200)
 
     print(sol_second_stage[0]['DS']['gap'].max())
