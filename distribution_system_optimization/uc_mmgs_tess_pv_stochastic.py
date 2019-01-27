@@ -55,7 +55,7 @@ from solvers.scenario_reduction import ScenarioReduction
 
 class StochasticDynamicOptimalPowerFlowTess():
     def __init__(self):
-        self.name = "Stochastic optimal power flow with tess"
+        self.name = "Unit commitment with tess"
 
     def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100):
         """
@@ -1278,7 +1278,6 @@ class StochasticDynamicOptimalPowerFlowTess():
                             }
 
         return model_micro_grid
-
 
     def problem_formulation_tess(self, mess, tns):
         """
