@@ -170,14 +170,14 @@ def quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=None, b=None, 
         else:
             prob.objective.set_sense(prob.objective.sense.minimize)
 
-        # prob.set_log_stream(None)
-        # prob.set_error_stream(None)
-        # prob.set_warning_stream(None)
-        # prob.set_results_stream(None)
+        prob.set_log_stream(None)
+        prob.set_error_stream(None)
+        prob.set_warning_stream(None)
+        prob.set_results_stream(None)
         # prob.timelimit = 100
         # prob.parameters.preprocessing.presolve = 0
-        prob.parameters.timelimit.set(10000)
-        prob.parameters.mip.tolerances.mipgap.set(10 ** -2)
+        # prob.parameters.timelimit.set(10000)
+        # prob.parameters.mip.tolerances.mipgap.set(10 ** -4)
         # prob.parameters.dettimelimit = 100
 
         prob.solve()
