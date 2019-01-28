@@ -90,20 +90,23 @@ class StochasticUnitCommitmentTess():
         master_problem["A"] = hstack([master_problem["A"], zeros((master_problem["A"].shape[0], ns))]).tolil()
         master_problem["Aeq"] = hstack([master_problem["Aeq"], zeros((master_problem["Aeq"].shape[0], ns))]).tolil()
 
-        (sol_first_stage, obj, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
-                                               beq=master_problem["beq"],
-                                               A=master_problem["A"], b=master_problem["b"],
-                                               vtypes=master_problem["vtypes"],
-                                               xmax=master_problem["ub"], xmin=master_problem["lb"])
+        (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
+                                                           beq=master_problem["beq"],
+                                                           A=master_problem["A"], b=master_problem["b"],
+                                                           vtypes=master_problem["vtypes"],
+                                                           xmax=master_problem["ub"], xmin=master_problem["lb"])
         assert success == 1, "The master problem is infeasible!"
-
+        # 4) Solve this problem using Generalized Bender decomposition algorithm!
         iter = 0
         iter_max = 1000
         Gap_index = zeros(iter_max)
         LB_index = zeros(iter_max)
         UB_index = zeros(iter_max)
-        LB_index[iter] = obj
-        while iter < iter_max and Gap_index[iter] < 1e-2:
+        LB_index[iter] = obj_first_stage
+        UB_index[iter] = self.bigM
+        Gap_index[iter] = abs(UB_index[iter] - LB_index[iter]) / UB_index[iter]
+
+        while iter < iter_max and Gap_index[iter] > 2 * 1e-2:
             problem_second_stage = {}
             problem_second_stage_relaxed = {}
 
@@ -145,36 +148,36 @@ class StochasticUnitCommitmentTess():
             master_problem["A"] = vstack([master_problem["A"], cuts]).tolil()
             master_problem["b"] = concatenate([master_problem["b"], b_cuts])
 
+            iter += 1
             if sum(success_second_stage) < ns:
                 Gap_index[iter] = self.bigM
                 UB_index[iter] = self.bigM
             else:
                 UB_index[iter] = model_first_stage["c"].dot(array(sol_first_stage[0:self.nv_first_stage])) + \
                                  sum(obj_second_stage)
-                Gap_index[iter] = abs(UB_index[iter] - LB_index[iter])
+                Gap_index[iter] = abs(UB_index[iter] - LB_index[iter - 1]) / UB_index[iter]
 
-            iter += 1
-            (sol_first_stage, obj, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
-                                                   beq=master_problem["beq"],
-                                                   A=master_problem["A"], b=master_problem["b"],
-                                                   vtypes=master_problem["vtypes"],
-                                                   xmax=master_problem["ub"], xmin=master_problem["lb"])
+            (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
+                                                               beq=master_problem["beq"],
+                                                               A=master_problem["A"], b=master_problem["b"],
+                                                               vtypes=master_problem["vtypes"],
+                                                               xmax=master_problem["ub"], xmin=master_problem["lb"])
+
             assert success == 1, "The master problem is infeasible!"
-            LB_index[iter] = obj
+            LB_index[iter] = obj_first_stage
 
-        # generate cuts to the master problem
+            print("The lower boundary is {0}".format(LB_index[iter]))
+            print("The upper boundary is {0}".format(UB_index[iter]))
+            print("The gap is {0}".format(Gap_index[iter]))
 
-        # Update the mater problem
-        # The rhs can be calculated using sub-gradient method
-
-        # 3) Merge the first-stage problem and second stage problem
-
-        # 4) Verify the first-stage and second stage optization problem
-        # 4.1) First-stage solution
-        sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage)
-        # 4.2) Second-stage solution
+        # Verify the solutions!
+        # 5.1) Second-stage solution
+        sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
+        # 5.2) Second-stage solution
         sol_second_stage_checked = {}
-
+        for i in range(ns):
+            sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
+        # 6) Store the solutions into database!
         db_management = DataBaseManagement()
         db_management.create_table(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng)
         db_management.create_table(table_name="micro_grids", nmg=self.nmg)
@@ -207,8 +210,6 @@ class StochasticUnitCommitmentTess():
                                                            mess_f_stop=sol_first_stage["MESS"][i]["VRP"][t + 1][0],
                                                            mess_t_stop=sol_first_stage["MESS"][i]["VRP"][t + 1][1])
 
-        for i in range(ns):
-            sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
         for i in range(ns):
             for t in range(T):
                 db_management.insert_data_ds(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng,
@@ -247,7 +248,7 @@ class StochasticUnitCommitmentTess():
                                                    sol_second_stage_checked[i]["MESS"][j]["pmess_ch"][:,
                                                    t].tolist(),
                                                    emess=sol_second_stage_checked[i]["MESS"][j]["emess"][0, t])
-        # 4.3) Cross validation of the first-stage and second-stage decision variables
+        # 7) Cross validation of the first-stage and second-stage decision variables
         tess_check = {}
         for i in range(ns):
             tess_temp = {}
@@ -264,7 +265,6 @@ class StochasticUnitCommitmentTess():
                                       sol_first_stage["MESS"][j]["rmess"]
             tess_check[i] = tess_temp
 
-        # return sol_distribution_network, sol_microgrids, sol_tess
         return sol_first_stage, sol_second_stage_checked
 
     def second_stage_problem(self, x, model):
@@ -274,22 +274,6 @@ class StochasticUnitCommitmentTess():
         :param model:
         :return:
         """
-
-        # model_second_stage = {"c": c * weight,
-        #                       "q": q * weight,
-        #                       "lb": lb,
-        #                       "ub": ub,
-        #                       "vtypes": vtypes,
-        #                       "A": None,
-        #                       "b": None,
-        #                       "Aeq": Aeq,
-        #                       "beq": beq,
-        #                       "Qc": Qc,
-        #                       "rc": Rc,
-        #                       "c0": c0,
-        #                       "Ts": Ts,
-        #                       "Ws": Ws,
-        #                       "hs": hs}
         primal_problem = deepcopy(model)
         if primal_problem["A"] is not None:
             primal_problem["A"] = vstack([model["Ws"], primal_problem["A"]])
@@ -1160,6 +1144,7 @@ class StochasticUnitCommitmentTess():
         mg_sol["pess_dc"] = zeros((nmg, T))
         mg_sol["eess"] = zeros((nmg, T))
         mg_sol["pmess"] = zeros((nmg, T))
+        mg_sol["ppv"] = zeros((nmg, T))
         for i in range(nmg):
             for t in range(T):
                 mg_sol["pg"][i, t] = sol[_nv_second_stage * T + NX_MG * T * i + NX_MG * t + PG]
@@ -1698,7 +1683,7 @@ if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81, 0.59, 0.35, 0.14, 0.17, 0.41]) * 2
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41]) * 3
 
     # Microgrid information
     Profile = array([
