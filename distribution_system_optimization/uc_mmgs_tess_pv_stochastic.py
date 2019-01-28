@@ -1104,6 +1104,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         mg_sol["pess_dc"] = zeros((nmg, T))
         mg_sol["eess"] = zeros((nmg, T))
         mg_sol["pmess"] = zeros((nmg, T))
+        mg_sol["ppv"] = zeros((nmg, T))
         for i in range(nmg):
             for t in range(T):
                 mg_sol["pg"][i, t] = sol[_nv_second_stage * T + NX_MG * T * i + NX_MG * t + PG]
