@@ -38,6 +38,7 @@ from solvers.scenario_reduction import ScenarioReduction
 class StochasticUnitCommitmentTess():
     def __init__(self):
         self.name = "Unit commitment flow with tess"
+        self.bigM = 1e8
 
     def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100):
         """
@@ -61,8 +62,6 @@ class StochasticUnitCommitmentTess():
         # 1) Formulate the first stage optimization problem
         model_first_stage = self.first_stage_problem_formualtion(pns=power_networks, mgs=micro_grids, mess=mess,
                                                                  tns=traffic_networks)
-        # modify the first-stage problem
-        problem_first_stage = deepcopy(model_first_stage)
 
         # sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage)
 
@@ -80,38 +79,91 @@ class StochasticUnitCommitmentTess():
                                                                           mess=mess, tns=traffic_networks,
                                                                           profile=ds_second_stage[i, :], index=i,
                                                                           weight=weight[i])
+
         # 3) Formulate the primal problem and dual-problem for each scenario
-        (sol_first_stage, obj, success) = milp(model_first_stage["c"], Aeq=model_first_stage["Aeq"],
-                                               beq=model_first_stage["beq"],
-                                               A=model_first_stage["A"], b=model_first_stage["b"],
-                                               vtypes=model_first_stage["vtypes"],
-                                               xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
-        problem_second_stage = {}
-        problem_second_stage_relaxed = {}
+        # modify the first-stage problem, add ns variables, generate the first problem
+        master_problem = deepcopy(model_first_stage)
+        master_problem["c"] = concatenate([master_problem["c"], ones(ns)])
+        master_problem["lb"] = concatenate([master_problem["lb"], -ones(ns) * self.bigM])
+        master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM])
+        master_problem["vtypes"] = master_problem["vtypes"] + ["c"] * ns
+        master_problem["A"] = hstack([master_problem["A"], zeros((master_problem["A"].shape[0], ns))]).tolil()
+        master_problem["Aeq"] = hstack([master_problem["Aeq"], zeros((master_problem["Aeq"].shape[0], ns))]).tolil()
 
-        for i in range(ns):
-            (problem_second_stage[i], problem_second_stage_relaxed[i]) = \
-                self.second_stage_problem(x=sol_first_stage, model=model_second_stage[i])
+        (sol_first_stage, obj, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
+                                               beq=master_problem["beq"],
+                                               A=master_problem["A"], b=master_problem["b"],
+                                               vtypes=master_problem["vtypes"],
+                                               xmax=master_problem["ub"], xmin=master_problem["lb"])
+        assert success == 1, "The master problem is infeasible!"
 
-        sol_second_stage = {}
-        obj = zeros(ns)
-        success = zeros(ns)
-        slack_eq = {}
-        slack_ineq = {}
+        iter = 0
+        iter_max = 1000
+        Gap_index = zeros(iter_max)
+        LB_index = zeros(iter_max)
+        UB_index = zeros(iter_max)
+        LB_index[iter] = obj
+        while iter < iter_max and Gap_index[iter] < 1e-2:
+            problem_second_stage = {}
+            problem_second_stage_relaxed = {}
 
-        for i in range(ns):
-            (sol_second_stage[i], obj[i], success[i], slack_eq[i], slack_ineq[i]) = qcqp(
-                problem_second_stage[i]["c"], problem_second_stage[i]["q"], Aeq=problem_second_stage[i]["Aeq"],
-                beq=problem_second_stage[i]["beq"], A=problem_second_stage[i]["A"], b=problem_second_stage[i]["b"],
-                Qc=problem_second_stage[i]["Qc"], rc=problem_second_stage[i]["rc"],
-                xmin=problem_second_stage[i]["lb"], xmax=problem_second_stage[i]["ub"])
-            if success[i] == 0:
-                (sol_second_stage[i], obj[i], success[i], slack_eq[i], slack_ineq[i]) = qcqp(
-                    problem_second_stage_relaxed[i]["c"], problem_second_stage_relaxed[i]["q"],
-                    Aeq=problem_second_stage_relaxed[i]["Aeq"], beq=problem_second_stage_relaxed[i]["beq"],
-                    A=problem_second_stage_relaxed[i]["A"], b=problem_second_stage_relaxed[i]["b"],
-                    Qc=problem_second_stage_relaxed[i]["Qc"], rc=problem_second_stage_relaxed[i]["rc"],
-                    xmin=problem_second_stage_relaxed[i]["lb"], xmax=problem_second_stage_relaxed[i]["ub"])
+            for i in range(ns):
+                (problem_second_stage[i], problem_second_stage_relaxed[i]) = \
+                    self.second_stage_problem(x=sol_first_stage[0:self.nv_first_stage], model=model_second_stage[i])
+
+            sol_second_stage = {}
+            obj_second_stage = zeros(ns)
+            success_second_stage = zeros(ns)
+            slack_eq = {}
+            slack_ineq = {}
+            cuts = lil_matrix((ns, self.nv_first_stage + ns))
+            b_cuts = zeros(ns)
+            for i in range(ns):
+                (sol_second_stage[i], obj_second_stage[i], success_second_stage[i], slack_eq[i], slack_ineq[i]) = qcqp(
+                    problem_second_stage[i]["c"], problem_second_stage[i]["q"], Aeq=problem_second_stage[i]["Aeq"],
+                    beq=problem_second_stage[i]["beq"], A=problem_second_stage[i]["A"], b=problem_second_stage[i]["b"],
+                    Qc=problem_second_stage[i]["Qc"], rc=problem_second_stage[i]["rc"],
+                    xmin=problem_second_stage[i]["lb"], xmax=problem_second_stage[i]["ub"])
+                if success_second_stage[i] == 0:
+                    (sol_second_stage[i], obj_second_stage[i], success_second_stage[i], slack_eq[i],
+                     slack_ineq[i]) = qcqp(
+                        problem_second_stage_relaxed[i]["c"], problem_second_stage_relaxed[i]["q"],
+                        Aeq=problem_second_stage_relaxed[i]["Aeq"], beq=problem_second_stage_relaxed[i]["beq"],
+                        A=problem_second_stage_relaxed[i]["A"], b=problem_second_stage_relaxed[i]["b"],
+                        Qc=problem_second_stage_relaxed[i]["Qc"], rc=problem_second_stage_relaxed[i]["rc"],
+                        xmin=problem_second_stage_relaxed[i]["lb"], xmax=problem_second_stage_relaxed[i]["ub"])
+                    success_second_stage[i] -= 1
+                    cuts[i, 0:self.nv_first_stage] = problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]
+                    b_cuts[i] = -(sol_second_stage[i][0] - array(sol_first_stage[0:self.nv_first_stage]).dot(
+                        problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]))
+                else:  # optimal cuts
+                    cuts[i, 0:self.nv_first_stage] = problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
+                    cuts[i, self.nv_first_stage + i] = -1
+                    b_cuts[i] = -(sol_second_stage[i][0] - array(sol_first_stage[0:self.nv_first_stage]).dot(
+                        problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]))
+
+            master_problem["A"] = vstack([master_problem["A"], cuts]).tolil()
+            master_problem["b"] = concatenate([master_problem["b"], b_cuts])
+
+            if sum(success_second_stage) < ns:
+                Gap_index[iter] = self.bigM
+                UB_index[iter] = self.bigM
+            else:
+                UB_index[iter] = model_first_stage["c"].dot(array(sol_first_stage[0:self.nv_first_stage])) + \
+                                 sum(obj_second_stage)
+                Gap_index[iter] = abs(UB_index[iter] - LB_index[iter])
+
+            iter += 1
+            (sol_first_stage, obj, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
+                                                   beq=master_problem["beq"],
+                                                   A=master_problem["A"], b=master_problem["b"],
+                                                   vtypes=master_problem["vtypes"],
+                                                   xmax=master_problem["ub"], xmin=master_problem["lb"])
+            assert success == 1, "The master problem is infeasible!"
+            LB_index[iter] = obj
+
+        # generate cuts to the master problem
+
         # Update the mater problem
         # The rhs can be calculated using sub-gradient method
 
