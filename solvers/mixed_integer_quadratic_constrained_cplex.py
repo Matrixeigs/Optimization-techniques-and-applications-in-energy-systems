@@ -189,7 +189,7 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         # prob.timelimit = 100
         # prob.parameters.preprocessing.presolve = 0
         prob.parameters.timelimit.set(10000)
-        prob.parameters.mip.tolerances.mipgap.set(10 ** -3)
+        prob.parameters.mip.tolerances.mipgap.set(10 ** -2)
         # prob.parameters.dettimelimit = 100
 
         prob.solve()

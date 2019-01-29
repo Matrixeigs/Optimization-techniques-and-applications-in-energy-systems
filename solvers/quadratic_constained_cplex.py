@@ -181,13 +181,20 @@ def quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=None, b=None, 
         # prob.parameters.dettimelimit = 100
 
         prob.solve()
+        if prob.solution.get_status()==prob.solution.status.optimal:
+            obj = prob.solution.get_objective_value()
+            x = prob.solution.get_values()
+            slacks = prob.solution.get_linear_slacks()
+            slacks_eq = slacks[0:neq]
+            slacks_ineq = slacks[neq:]
+            success = 1
+        else:
+            x = 0
+            obj = 0
+            success = 0
+            slacks_eq = 0
+            slacks_ineq = 0
 
-        obj = prob.solution.get_objective_value()
-        x = prob.solution.get_values()
-        slacks = prob.solution.get_linear_slacks()
-        slacks_eq = slacks[0:neq]
-        slacks_ineq = slacks[neq:]
-        success = 1
 
     except CplexError:
         x = 0
