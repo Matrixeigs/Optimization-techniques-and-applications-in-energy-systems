@@ -1545,7 +1545,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_tess
 
-    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=0, ns=2, ns_reduced=2,
+    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=1, ns=2, ns_reduced=2,
                                       std=0.03, interval=0.05, std_pv=0.05):
         """
         Scenario generation function for the second-stage scheduling
