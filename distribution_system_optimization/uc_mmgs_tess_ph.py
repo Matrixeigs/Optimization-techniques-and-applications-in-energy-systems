@@ -91,7 +91,7 @@ class StochasticUnitCommitmentTess():
             sub_problem[i] = {}
             sub_problem[i]["c"] = concatenate([model_first_stage["c"], model_second_stage[i]["c"]])
             # sub_problem[i]["q"] = concatenate([zeros(self.nv_first_stage), model_second_stage[i]["q"]])
-            sub_problem[i]["q"] = zeros(self.nv_first_stage+self.nv_second_stage)
+            sub_problem[i]["q"] = zeros(self.nv_first_stage + self.nv_second_stage)
             sub_problem[i]["lb"] = concatenate([model_first_stage["lb"], model_second_stage[i]["lb"]])
             sub_problem[i]["ub"] = concatenate([model_first_stage["ub"], model_second_stage[i]["ub"]])
             sub_problem[i]["vtypes"] = model_first_stage["vtypes"] + model_second_stage[i]["vtypes"]
@@ -142,11 +142,12 @@ class StochasticUnitCommitmentTess():
         pi_k = []
         obj_k = []
         temp = 0
-        temp_obj=0
+        temp_obj = 0
         for i in range(ns):
             temp += (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean).dot(
                 array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean) * weight[i]
-            temp_obj+=(array(sol_sub_problem[i]).dot(sub_problem[i]["c"]+power(array(sol_sub_problem[i]),2).dot(sub_problem[i]["q"])))* weight[i]
+            temp_obj += (array(sol_sub_problem[i]).dot(
+                sub_problem[i]["c"] + power(array(sol_sub_problem[i]), 2).dot(sub_problem[i]["q"]))) * weight[i]
         obj_k.append(temp_obj)
         pi_k.append(temp)
         print("The gap is {0}".format(pi_k[-1]))
@@ -156,22 +157,22 @@ class StochasticUnitCommitmentTess():
         ru = zeros(self.nv_first_stage)
         x_first_stgae = zeros((ns, self.nv_first_stage))
         for i in range(ns):
-            x_first_stgae[i,:] = array(sol_sub_problem[i][0:self.nv_first_stage])
+            x_first_stgae[i, :] = array(sol_sub_problem[i][0:self.nv_first_stage])
         x_min = amin(x_first_stgae, axis=0)
         x_max = amax(x_first_stgae, axis=0)
         for i in range(self.nv_first_stage):
-            if model_first_stage["vtypes"][i]=="b":
-                ru[i] = model_first_stage["c"][i]/(x_max[i]-x_min[i]+1)
+            if model_first_stage["vtypes"][i] == "b":
+                ru[i] = model_first_stage["c"][i] / (x_max[i] - x_min[i] + 1)
             else:
                 temp = 0
                 for j in range(ns):
-                    temp += weight[j]*(abs(x_first_stgae[j,i]-x_mean[j]))
-                ru[i] = model_first_stage["c"][i] / max(temp,1)
+                    temp += weight[j] * (abs(x_first_stgae[j, i] - x_mean[j]))
+                ru[i] = model_first_stage["c"][i] / max(temp, 1)
 
         ws = zeros((ns, self.nv_first_stage))
         for i in range(ns):
             for j in range(self.nv_first_stage):
-                ws[i, j] = ru[j] * (x_first_stgae[i,j] - x_mean[j])
+                ws[i, j] = ru[j] * (x_first_stgae[i, j] - x_mean[j])
 
         while k <= 1000 and pi_k[-1] > 1e-0:
             k += 1
@@ -182,15 +183,16 @@ class StochasticUnitCommitmentTess():
             success_sub_problem = zeros(ns)
             for i in range(ns):
                 sub_problem_updated[i] = deepcopy(sub_problem[i])
-                sub_problem_updated[i]["c"][0:self.nv_first_stage] += ws[i, :] - ru * x_mean
-                sub_problem_updated[i]["q"][0:self.nv_first_stage] += ones(self.nv_first_stage) * ru / 2
+                for j in range(self.nv_first_stage):
+                    sub_problem_updated[i]["c"][j] += ws[i, j] - ru[j] * x_mean[j]
+                    sub_problem_updated[i]["q"][j] += ru[j] / 2
             with Pool(n_processors) as p:
                 sol = list(p.map(sub_problem_solving, sub_problem_updated))
             for i in range(ns):
                 sol_sub_problem[i] = sol[i][0]
                 obj_sub_problem[i] = sol[i][1]
                 success_sub_problem[i] = sol[i][2]
-                obj_sub_problem[i] += x_mean.dot(x_mean) * ru / 2
+                # obj_sub_problem[i] += x_mean.dot(x_mean) * ru / 2
 
             x_mean = zeros(self.nv_first_stage)
             for i in range(ns):
@@ -226,7 +228,6 @@ class StochasticUnitCommitmentTess():
             for i in range(ns):
                 for j in range(self.nv_first_stage):
                     ws[i, j] += ru[j] * (x_first_stgae[i, j] - x_mean[j])
-
 
         # 5) Verify the solutions!
         # 5.1) Second-stage solution
