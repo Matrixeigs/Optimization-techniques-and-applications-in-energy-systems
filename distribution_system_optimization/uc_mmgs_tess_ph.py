@@ -33,6 +33,9 @@ from distribution_system_optimization.data_format.idx_MG_PV import PBIC_AC2DC, P
 from distribution_system_optimization.database_management_pv import DataBaseManagement
 from solvers.scenario_reduction import ScenarioReduction
 
+from multiprocessing import Pool
+import os
+
 
 class StochasticUnitCommitmentTess():
     def __init__(self):
@@ -78,7 +81,7 @@ class StochasticUnitCommitmentTess():
                                                                           weight=1)
 
         # 3) Formulate the sub-problem with the first-stage and second-stage problem
-        sub_problem = {}
+        sub_problem = [0] * ns
         sol_sub_problem = {}
         obj_sub_problem = zeros(ns)
         success_sub_problem = zeros(ns)
@@ -122,17 +125,14 @@ class StochasticUnitCommitmentTess():
             sub_problem[i]["A"] = vstack(
                 [sub_problem[i]["A"], hstack([model_second_stage[i]["Ts"], model_second_stage[i]["Ws"]])]).tolil()
 
-            (sol_sub_problem[i], obj_sub_problem[i], success_sub_problem[i]) = miqcp(sub_problem[i]["c"],
-                                                                                     sub_problem[i]["q"],
-                                                                                     Aeq=sub_problem[i]["Aeq"],
-                                                                                     beq=sub_problem[i]["beq"],
-                                                                                     A=sub_problem[i]["A"],
-                                                                                     b=sub_problem[i]["b"],
-                                                                                     Qc=sub_problem[i]["Qc"],
-                                                                                     rc=sub_problem[i]["rc"],
-                                                                                     xmin=sub_problem[i]["lb"],
-                                                                                     xmax=sub_problem[i]["ub"],
-                                                                                     vtypes=sub_problem[i]["vtypes"])
+        n_processors = os.cpu_count()
+        with Pool(n_processors) as p:
+            sol = list(p.map(sub_problem_solving, sub_problem))
+        for i in range(ns):
+            sol_sub_problem[i] = sol[i][0]
+            obj_sub_problem[i] = sol[i][1]
+            success_sub_problem[i] = sol[i][2]
+
         assert sum(success_sub_problem) == ns, "The formulated problem is not feasible!"
         x_mean = zeros(self.nv_first_stage)
         for i in range(ns):
@@ -156,7 +156,7 @@ class StochasticUnitCommitmentTess():
         while k <= 1000 and pi_k[-1] > 1e-0:
             k += 1
             # Update the sub-problems!
-            sub_problem_updated = {}
+            sub_problem_updated = [0] * ns
             sol_sub_problem = {}
             obj_sub_problem = zeros(ns)
             success_sub_problem = zeros(ns)
@@ -164,12 +164,12 @@ class StochasticUnitCommitmentTess():
                 sub_problem_updated[i] = deepcopy(sub_problem[i])
                 sub_problem_updated[i]["c"][0:self.nv_first_stage] += ws[i, :] - ru * x_mean
                 sub_problem_updated[i]["q"][0:self.nv_first_stage] += ones(self.nv_first_stage) * ru / 2
-                (sol_sub_problem[i], obj_sub_problem[i], success_sub_problem[i]) = \
-                    miqcp(sub_problem_updated[i]["c"],sub_problem_updated[i]["q"],Aeq=sub_problem_updated[i]["Aeq"],
-                          beq=sub_problem_updated[i]["beq"],A=sub_problem_updated[i]["A"],b=sub_problem_updated[i]["b"],
-                          Qc=sub_problem_updated[i]["Qc"],rc=sub_problem_updated[i]["rc"],
-                          xmin=sub_problem_updated[i]["lb"],xmax=sub_problem_updated[i]["ub"],
-                          vtypes=sub_problem_updated[i]["vtypes"])
+            with Pool(n_processors) as p:
+                sol = list(p.map(sub_problem_solving, sub_problem_updated))
+            for i in range(ns):
+                sol_sub_problem[i] = sol[i][0]
+                obj_sub_problem[i] = sol[i][1]
+                success_sub_problem[i] = sol[i][2]
                 obj_sub_problem[i] += x_mean.dot(x_mean) * ru / 2
 
             x_mean = zeros(self.nv_first_stage)
@@ -285,50 +285,6 @@ class StochasticUnitCommitmentTess():
             tess_check[i] = tess_temp
 
         return sol_first_stage, sol_second_stage_checked
-
-    def second_stage_problem(self, x, model):
-        """
-        Formulate the second-stage mathematical models
-        :param x:
-        :param model:
-        :return:
-        """
-        primal_problem = deepcopy(model)
-        if primal_problem["A"] is not None:
-            primal_problem["A"] = vstack([model["Ws"], primal_problem["A"]])
-            primal_problem["b"] = concatenate([model["hs"] - model["Ts"] * array(x), primal_problem["b"]])
-        else:
-            primal_problem["A"] = model["Ws"]
-            primal_problem["b"] = model["hs"] - model["Ts"] * array(x)
-        # Formulate the relaxed second stage problem
-        try:
-            primal_problem["A"] = primal_problem["A"].tolil()
-            primal_problem["Aeq"] = primal_problem["Aeq"].tolil()
-        except:
-            pass
-
-        # Formulate the infeasible problem,
-        nx = len(primal_problem["c"])
-        primal_problem_relaxed = deepcopy(primal_problem)
-        primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(1)])
-        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * 1e3])
-        primal_problem_relaxed["Aeq"] = hstack(
-            [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
-        primal_problem_relaxed["A"] = hstack(
-            [primal_problem_relaxed["A"], -ones((primal_problem_relaxed["A"].shape[0], 1))]).tolil()
-        primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
-        primal_problem_relaxed["q"] = zeros(nx + 1)
-
-        # nx_relaxed = primal_problem_relaxed["A"].shape[0]
-        # primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(nx_relaxed)])
-        # primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(nx_relaxed) * 1e3])
-        # primal_problem_relaxed["Aeq"] = hstack(
-        #     [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], nx_relaxed))]).tolil()
-        # primal_problem_relaxed["A"] = hstack([primal_problem_relaxed["A"], -eye(nx_relaxed)]).tolil()
-        # primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(nx_relaxed)])
-        # primal_problem_relaxed["q"] = zeros(nx + nx_relaxed)
-
-        return primal_problem, primal_problem_relaxed
 
     def first_stage_problem_formualtion(self, pns, mgs, mess, tns):
         """
@@ -1704,6 +1660,15 @@ class StochasticUnitCommitmentTess():
                     microgrids_second_stage[i][j]["PV"]["PROFILE"][t] = pv_load_profile[i, t * nmg + j]
 
         return ds_load_profile, microgrids_second_stage, weight_reduced
+
+
+def sub_problem_solving(sub_problem):
+    (sol, obj, success) = miqcp(sub_problem["c"], sub_problem["q"], Aeq=sub_problem["Aeq"],
+                                beq=sub_problem["beq"], A=sub_problem["A"],
+                                b=sub_problem["b"], Qc=sub_problem["Qc"],
+                                rc=sub_problem["rc"], xmin=sub_problem["lb"],
+                                xmax=sub_problem["ub"], vtypes=sub_problem["vtypes"])
+    return sol, obj, success
 
 
 if __name__ == "__main__":
