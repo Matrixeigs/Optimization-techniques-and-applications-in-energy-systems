@@ -135,16 +135,20 @@ class StochasticUnitCommitmentTess():
                         A=problem_second_stage_relaxed[i]["A"], b=problem_second_stage_relaxed[i]["b"],
                         Qc=problem_second_stage_relaxed[i]["Qc"], rc=problem_second_stage_relaxed[i]["rc"],
                         xmin=problem_second_stage_relaxed[i]["lb"], xmax=problem_second_stage_relaxed[i]["ub"])
-                    # success_second_stage[i] -= 1
+                    success_second_stage[i] -= 1
                     cuts[i, 0:self.nv_first_stage] = problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]
-                    cuts[i, self.nv_first_stage + i] = -1
-                    b_cuts[i] = -(sol_second_stage[i][0] - array(sol_first_stage[0:self.nv_first_stage]).dot(
-                        problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]))
+                    # b_cuts[i] = -(array(slack_ineq[i]).dot(
+                    #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i][0:self.nv_second_stage]) -
+                    #     problem_second_stage[i]["hs"]))
+                    b_cuts[i] = -(sol_second_stage[i][0] - array(slack_ineq[i]).dot(
+                        problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
                 else:  # optimal cuts
                     cuts[i, 0:self.nv_first_stage] = problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
                     cuts[i, self.nv_first_stage + i] = -1
-                    b_cuts[i] = -(sol_second_stage[i][0] - array(sol_first_stage[0:self.nv_first_stage]).dot(
-                        problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]))
+                    # b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
+                    #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i]) - problem_second_stage[i]["hs"]))
+                    b_cuts[i] = -(sol_second_stage[i][0] - array(slack_ineq[i]).dot(
+                        problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
 
             master_problem["A"] = vstack([master_problem["A"], cuts]).tolil()
             master_problem["b"] = concatenate([master_problem["b"], b_cuts])
@@ -166,10 +170,10 @@ class StochasticUnitCommitmentTess():
 
             assert success == 1, "The master problem is infeasible!"
             LB_index[iter] = obj_first_stage
-            # sol_first_stage_checked = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
-            # sol_second_stage_checked = {}
-            # for i in range(ns):
-            #     sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
+            sol_first_stage_checked = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
+            sol_second_stage_checked = {}
+            for i in range(ns):
+                sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
 
             print("The lower boundary is {0}".format(LB_index[iter]))
             print("The upper boundary is {0}".format(UB_index[iter]))
@@ -293,17 +297,26 @@ class StochasticUnitCommitmentTess():
         except:
             pass
 
+        # Formulate the infeasible problem,
+        nx = len(primal_problem["c"])
         primal_problem_relaxed = deepcopy(primal_problem)
-        nx_slack = len(model["hs"])
-
-
-        primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(nx_slack)])
-        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(nx_slack) * 1e6])
+        primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(1)])
+        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * 1e3])
         primal_problem_relaxed["Aeq"] = hstack(
-            [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], nx_slack))]).tolil()
-        primal_problem_relaxed["A"] = hstack([primal_problem_relaxed["A"], -eye(nx_slack)]).tolil()
-        primal_problem_relaxed["c"] = concatenate([primal_problem_relaxed["c"], ones(nx_slack) * 1e6])
-        primal_problem_relaxed["q"] = concatenate([primal_problem_relaxed["q"], zeros(nx_slack)])
+            [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
+        primal_problem_relaxed["A"] = hstack(
+            [primal_problem_relaxed["A"], -ones((primal_problem_relaxed["A"].shape[0], 1))]).tolil()
+        primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
+        primal_problem_relaxed["q"] = zeros(nx + 1)
+
+        # nx_relaxed = primal_problem_relaxed["A"].shape[0]
+        # primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(nx_relaxed)])
+        # primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(nx_relaxed) * 1e3])
+        # primal_problem_relaxed["Aeq"] = hstack(
+        #     [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], nx_relaxed))]).tolil()
+        # primal_problem_relaxed["A"] = hstack([primal_problem_relaxed["A"], -eye(nx_relaxed)]).tolil()
+        # primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(nx_relaxed)])
+        # primal_problem_relaxed["q"] = zeros(nx + nx_relaxed)
 
         return primal_problem, primal_problem_relaxed
 
@@ -1657,7 +1670,7 @@ class StochasticUnitCommitmentTess():
                         array(data[nb + 3 + nmg:nb + 3 + nmg * 2])
                     scenario_reduced[i, nb * T + nmg * T * 2 + nmg * t:nb * T + nmg * T * 2 + nmg * (t + 1)] = \
                         array(data[nb + 3 + nmg * 2:nb + 3 + nmg * 3])
-            assert sum(weight_reduced) == 1, "The weight factor is not right!"
+            # assert sum(weight_reduced) == 1, "The weight factor is not right!"
 
         # 4) return value
         ds_load_profile = scenario_reduced[:, 0:nb * T]
@@ -1867,6 +1880,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=100)
+                                                                                     ns=200)
 
     print(sol_second_stage[0]['DS']['gap'].max())
