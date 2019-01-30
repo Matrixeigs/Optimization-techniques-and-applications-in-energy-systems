@@ -5,6 +5,7 @@ Stochastic optimal power flow with multiple microgrids and mobile energy storage
 @date: 30 Jan 2019
 Major updates:
 1) Solve using Progressive Hedging algorithm!
+2) Update the ru parameter using adaptive methods
 """
 
 from distribution_system_optimization.test_cases import case33
@@ -15,7 +16,7 @@ from scipy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack, lil_matrix
 from numpy import flatnonzero as find
-from numpy import array, tile, arange, random, power
+from numpy import array, tile, arange, random, power, amin, amax
 
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, RATE_A
 from pypower.idx_bus import PD, VMAX, VMIN, QD
@@ -152,11 +153,25 @@ class StochasticUnitCommitmentTess():
         print("The objective value is {0}".format(obj_k[-1]))
         # 4) Iteration
         k = 0
-        ru = 1.1
+        ru = zeros(self.nv_first_stage)
+        x_first_stgae = zeros((ns, self.nv_first_stage))
+        for i in range(ns):
+            x_first_stgae[i,:] = array(sol_sub_problem[i][0:self.nv_first_stage])
+        x_min = amin(x_first_stgae, axis=0)
+        x_max = amax(x_first_stgae, axis=0)
+        for i in range(self.nv_first_stage):
+            if model_first_stage["vtypes"][i]=="b":
+                ru[i] = model_first_stage["c"][i]/(x_max[i]-x_min[i]+1)
+            else:
+                temp = 0
+                for j in range(ns):
+                    temp += weight[j]*(abs(x_first_stgae[j,i]-x_mean[j]))
+                ru[i] = model_first_stage["c"][i] / max(temp,1)
+
         ws = zeros((ns, self.nv_first_stage))
         for i in range(ns):
-            ws[i, :] = ru * (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean)
-        k += 1
+            for j in range(self.nv_first_stage):
+                ws[i, j] = ru[j] * (x_first_stgae[i,j] - x_mean[j])
 
         while k <= 1000 and pi_k[-1] > 1e-0:
             k += 1
@@ -193,9 +208,24 @@ class StochasticUnitCommitmentTess():
             print("The gap is {0}".format(pi_k[-1]))
             print("The objective value is {0}".format(obj_k[-1]))
 
+            ru = zeros(self.nv_first_stage)
+            x_first_stgae = zeros((ns, self.nv_first_stage))
             for i in range(ns):
-                ws[i, :] += ru * (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean)
-            k += 1
+                x_first_stgae[i, :] = array(sol_sub_problem[i][0:self.nv_first_stage])
+            x_min = amin(x_first_stgae, axis=0)
+            x_max = amax(x_first_stgae, axis=0)
+            for i in range(self.nv_first_stage):
+                if model_first_stage["vtypes"][i] == "b":
+                    ru[i] = model_first_stage["c"][i] / (x_max[i] - x_min[i] + 1)
+                else:
+                    temp = 0
+                    for j in range(ns):
+                        temp += weight[j] * (abs(x_first_stgae[j, i] - x_mean[j]))
+                    ru[i] = model_first_stage["c"][i] / max(temp, 1)
+
+            for i in range(ns):
+                for j in range(self.nv_first_stage):
+                    ws[i, j] += ru[j] * (x_first_stgae[i, j] - x_mean[j])
 
 
         # 5) Verify the solutions!
