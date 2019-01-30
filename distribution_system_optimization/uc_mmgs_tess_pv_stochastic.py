@@ -1823,6 +1823,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=500)
+                                                                                     ns=50)
 
     print(sol_second_stage[0]['DS']['gap'].max())
