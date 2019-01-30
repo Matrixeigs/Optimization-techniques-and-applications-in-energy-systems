@@ -15,7 +15,7 @@ from scipy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack, lil_matrix
 from numpy import flatnonzero as find
-from numpy import array, tile, arange, random
+from numpy import array, tile, arange, random, power
 
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, RATE_A
 from pypower.idx_bus import PD, VMAX, VMIN, QD
@@ -89,7 +89,8 @@ class StochasticUnitCommitmentTess():
         for i in range(ns):
             sub_problem[i] = {}
             sub_problem[i]["c"] = concatenate([model_first_stage["c"], model_second_stage[i]["c"]])
-            sub_problem[i]["q"] = concatenate([zeros(self.nv_first_stage), model_second_stage[i]["q"]])
+            # sub_problem[i]["q"] = concatenate([zeros(self.nv_first_stage), model_second_stage[i]["q"]])
+            sub_problem[i]["q"] = zeros(self.nv_first_stage+self.nv_second_stage)
             sub_problem[i]["lb"] = concatenate([model_first_stage["lb"], model_second_stage[i]["lb"]])
             sub_problem[i]["ub"] = concatenate([model_first_stage["ub"], model_second_stage[i]["ub"]])
             sub_problem[i]["vtypes"] = model_first_stage["vtypes"] + model_second_stage[i]["vtypes"]
@@ -138,16 +139,20 @@ class StochasticUnitCommitmentTess():
         for i in range(ns):
             x_mean += array(sol_sub_problem[i][0:self.nv_first_stage]) * weight[i]
         pi_k = []
+        obj_k = []
         temp = 0
+        temp_obj=0
         for i in range(ns):
             temp += (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean).dot(
                 array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean) * weight[i]
+            temp_obj+=(array(sol_sub_problem[i]).dot(sub_problem[i]["c"]+power(array(sol_sub_problem[i]),2).dot(sub_problem[i]["q"])))* weight[i]
+        obj_k.append(temp_obj)
         pi_k.append(temp)
         print("The gap is {0}".format(pi_k[-1]))
-
+        print("The objective value is {0}".format(obj_k[-1]))
         # 4) Iteration
         k = 0
-        ru = 1000
+        ru = 1.1
         ws = zeros((ns, self.nv_first_stage))
         for i in range(ns):
             ws[i, :] = ru * (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean)
@@ -177,16 +182,21 @@ class StochasticUnitCommitmentTess():
                 x_mean += array(sol_sub_problem[i][0:self.nv_first_stage]) * weight[i]
 
             temp = 0
+            temp_obj = 0
             for i in range(ns):
                 temp += (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean).dot(
                     array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean) * weight[i]
+                temp_obj += (array(sol_sub_problem[i]).dot(
+                    sub_problem[i]["c"] + power(array(sol_sub_problem[i]), 2).dot(sub_problem[i]["q"]))) * weight[i]
+            obj_k.append(temp_obj)
             pi_k.append(temp)
+            print("The gap is {0}".format(pi_k[-1]))
+            print("The objective value is {0}".format(obj_k[-1]))
 
             for i in range(ns):
                 ws[i, :] += ru * (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean)
             k += 1
 
-            print("The gap is {0}".format(pi_k[-1]))
 
         # 5) Verify the solutions!
         # 5.1) Second-stage solution
