@@ -148,11 +148,12 @@ class StochasticUnitCommitmentTess():
         # 4) Iteration
         k = 0
         ru = 1000
+        ws = zeros((ns, self.nv_first_stage))
+        for i in range(ns):
+            ws[i, :] = ru * (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean)
+        k += 1
 
-        while k <= 1000 and pi_k[-1] > 1e-2:
-            ws = zeros((ns, self.nv_first_stage))
-            for i in range(ns):
-                ws[i, :] = ru * (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean)
+        while k <= 1000 and pi_k[-1] > 1e-0:
             k += 1
             # Update the sub-problems!
             sub_problem_updated = {}
@@ -180,9 +181,14 @@ class StochasticUnitCommitmentTess():
                 temp += (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean).dot(
                     array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean) * weight[i]
             pi_k.append(temp)
+
+            for i in range(ns):
+                ws[i, :] += ru * (array(sol_sub_problem[i][0:self.nv_first_stage]) - x_mean)
+            k += 1
+
             print("The gap is {0}".format(pi_k[-1]))
 
-        # Verify the solutions!
+        # 5) Verify the solutions!
         # 5.1) Second-stage solution
         sol_first_stage = self.first_stage_solution_validation(sol=x_mean)
         # 5.2) Second-stage solution
