@@ -25,7 +25,6 @@ from pypower.ext2int import ext2int
 
 from solvers.quadratic_constained_cplex import quadratic_constrained_programming as qcqp
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
-
 from copy import deepcopy
 
 from distribution_system_optimization.data_format.idx_MG_PV import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, \
@@ -38,7 +37,7 @@ from solvers.scenario_reduction import ScenarioReduction
 class StochasticUnitCommitmentTess():
     def __init__(self):
         self.name = "Unit commitment flow with tess"
-        self.bigM = 1e8
+        self.bigM = 1e3
 
     def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100):
         """
@@ -79,6 +78,52 @@ class StochasticUnitCommitmentTess():
                                                                           mess=mess, tns=traffic_networks,
                                                                           profile=ds_second_stage[i, :], index=i,
                                                                           weight=weight[i])
+
+        sub_problem = [0] * ns
+        sol_sub_problem = {}
+        obj_sub_problem = zeros(ns)
+        success_sub_problem = zeros(ns)
+
+        for i in range(ns):
+            sub_problem[i] = {}
+            sub_problem[i]["c"] = concatenate([model_first_stage["c"], model_second_stage[i]["c"]])
+            # sub_problem[i]["q"] = concatenate([zeros(self.nv_first_stage), model_second_stage[i]["q"]])
+            sub_problem[i]["q"] = zeros(self.nv_first_stage + self.nv_second_stage)
+            sub_problem[i]["lb"] = concatenate([model_first_stage["lb"], model_second_stage[i]["lb"]])
+            sub_problem[i]["ub"] = concatenate([model_first_stage["ub"], model_second_stage[i]["ub"]])
+            sub_problem[i]["vtypes"] = model_first_stage["vtypes"] + model_second_stage[i]["vtypes"]
+            if model_second_stage[i]["A"] is not None:
+                sub_problem[i]["b"] = concatenate([model_first_stage["b"], model_second_stage[i]["b"]])
+                sub_problem[i]["A"] = hstack(
+                    [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.nv_second_stage))])
+                sub_problem[i]["A"] = vstack([sub_problem[i]["A"], hstack(
+                    [zeros((model_second_stage[i]["A"].shape[0], self.nv_first_stage)),
+                     model_second_stage[i]["A"]])]).tolil()
+            else:
+                sub_problem[i]["b"] = model_first_stage["b"]
+                sub_problem[i]["A"] = hstack(
+                    [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.nv_second_stage))])
+
+            if model_second_stage[i]["Aeq"] is not None:
+                sub_problem[i]["beq"] = concatenate([model_first_stage["beq"], model_second_stage[i]["beq"]])
+                sub_problem[i]["Aeq"] = hstack(
+                    [model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], self.nv_second_stage))])
+                sub_problem[i]["Aeq"] = vstack([sub_problem[i]["Aeq"], hstack(
+                    [zeros((model_second_stage[i]["Aeq"].shape[0], self.nv_first_stage)),
+                     model_second_stage[i]["Aeq"]])]).tolil()
+            else:
+                sub_problem[i]["beq"] = model_first_stage["beq"]
+                sub_problem[i]["Aeq"] = hstack(
+                    [model_first_stage["Aeq"],
+                     zeros((model_first_stage["Aeq"].shape[0], self.nv_second_stage))]).tolil()
+
+            sub_problem[i]["Qc"] = model_second_stage[i]["Qc"]
+            sub_problem[i]["rc"] = model_second_stage[i]["rc"]
+            # coupling constraints
+            sub_problem[i]["b"] = concatenate([sub_problem[i]["b"], model_second_stage[i]["hs"]])
+            sub_problem[i]["A"] = vstack(
+                [sub_problem[i]["A"], hstack([model_second_stage[i]["Ts"], model_second_stage[i]["Ws"]])]).tolil()
+
 
         # 3) Formulate the primal problem and dual-problem for each scenario
         # modify the first-stage problem, add ns variables, generate the first problem
@@ -136,18 +181,18 @@ class StochasticUnitCommitmentTess():
                         Qc=problem_second_stage_relaxed[i]["Qc"], rc=problem_second_stage_relaxed[i]["rc"],
                         xmin=problem_second_stage_relaxed[i]["lb"], xmax=problem_second_stage_relaxed[i]["ub"])
                     success_second_stage[i] -= 1
-                    cuts[i, 0:self.nv_first_stage] = problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]
+                    cuts[i, 0:self.nv_first_stage] = -problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]
                     # b_cuts[i] = -(array(slack_ineq[i]).dot(
                     #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i][0:self.nv_second_stage]) -
                     #     problem_second_stage[i]["hs"]))
-                    b_cuts[i] = -(sol_second_stage[i][0] - array(slack_ineq[i]).dot(
+                    b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
                         problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
                 else:  # optimal cuts
-                    cuts[i, 0:self.nv_first_stage] = problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
+                    cuts[i, 0:self.nv_first_stage] = -problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
                     cuts[i, self.nv_first_stage + i] = -1
                     # b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
                     #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i]) - problem_second_stage[i]["hs"]))
-                    b_cuts[i] = -(sol_second_stage[i][0] - array(slack_ineq[i]).dot(
+                    b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
                         problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
 
             master_problem["A"] = vstack([master_problem["A"], cuts]).tolil()
@@ -157,11 +202,12 @@ class StochasticUnitCommitmentTess():
             if sum(success_second_stage) < ns:
                 Gap_index[iter] = self.bigM
                 UB_index[iter] = self.bigM
+                print("The violation is {0}".format(sum(obj_second_stage)))
             else:
                 UB_index[iter] = min(model_first_stage["c"].dot(array(sol_first_stage[0:self.nv_first_stage])) + \
                                      sum(obj_second_stage), UB_index[iter - 1])
                 Gap_index[iter] = abs(UB_index[iter] - LB_index[iter - 1]) / UB_index[iter]
-
+            sol_first_stage_0 = array(sol_first_stage[0:self.nv_first_stage])
             (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
                                                                beq=master_problem["beq"],
                                                                A=master_problem["A"], b=master_problem["b"],
@@ -175,6 +221,9 @@ class StochasticUnitCommitmentTess():
             for i in range(ns):
                 sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
 
+            print(
+                "The derivation is {0}".format((array(sol_first_stage[0:self.nv_first_stage]) - sol_first_stage_0).dot(
+                    (array(sol_first_stage[0:self.nv_first_stage]) - sol_first_stage_0))))
             print("The lower boundary is {0}".format(LB_index[iter]))
             print("The upper boundary is {0}".format(UB_index[iter]))
             print("The gap is {0}".format(Gap_index[iter]))
@@ -301,13 +350,14 @@ class StochasticUnitCommitmentTess():
         nx = len(primal_problem["c"])
         primal_problem_relaxed = deepcopy(primal_problem)
         primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(1)])
-        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * 1e3])
+        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * 1e2])
         primal_problem_relaxed["Aeq"] = hstack(
             [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
         primal_problem_relaxed["A"] = hstack(
             [primal_problem_relaxed["A"], -ones((primal_problem_relaxed["A"].shape[0], 1))]).tolil()
         primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
         primal_problem_relaxed["q"] = zeros(nx + 1)
+        primal_problem["q"] = zeros(nx)
 
         # nx_relaxed = primal_problem_relaxed["A"].shape[0]
         # primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(nx_relaxed)])
@@ -1695,6 +1745,13 @@ class StochasticUnitCommitmentTess():
 
         return ds_load_profile, microgrids_second_stage, weight_reduced
 
+def sub_problem_solving(sub_problem):
+    (sol, obj, success) = miqcp(sub_problem["c"], sub_problem["q"], Aeq=sub_problem["Aeq"],
+                                beq=sub_problem["beq"], A=sub_problem["A"],
+                                b=sub_problem["b"], Qc=sub_problem["Qc"],
+                                rc=sub_problem["rc"], xmin=sub_problem["lb"],
+                                xmax=sub_problem["ub"], vtypes=sub_problem["vtypes"])
+    return sol, obj, success
 
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
