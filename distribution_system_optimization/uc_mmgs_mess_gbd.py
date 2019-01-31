@@ -88,54 +88,54 @@ class StochasticUnitCommitmentTess():
                                                                               mess=mess, tns=traffic_networks,
                                                                               profile=ds_second_stage[0, :], index=i,
                                                                               weight=1)
-        sub_problem = {}
-        sub_problem["c"] = concatenate([model_first_stage["c"], model_second_stage_primal["c"]])
+        base_problem = {}
+        base_problem["c"] = concatenate([model_first_stage["c"], model_second_stage_primal["c"]])
         # sub_problem[i]["q"] = concatenate([zeros(self.nv_first_stage), model_second_stage[i]["q"]])
-        sub_problem["q"] = zeros(self.nv_first_stage + self.nv_second_stage)
-        sub_problem["lb"] = concatenate([model_first_stage["lb"], model_second_stage_primal["lb"]])
-        sub_problem["ub"] = concatenate([model_first_stage["ub"], model_second_stage_primal["ub"]])
-        sub_problem["vtypes"] = model_first_stage["vtypes"] + model_second_stage_primal["vtypes"]
+        base_problem["q"] = zeros(self.nv_first_stage + self.nv_second_stage)
+        base_problem["lb"] = concatenate([model_first_stage["lb"], model_second_stage_primal["lb"]])
+        base_problem["ub"] = concatenate([model_first_stage["ub"], model_second_stage_primal["ub"]])
+        base_problem["vtypes"] = model_first_stage["vtypes"] + model_second_stage_primal["vtypes"]
         if model_second_stage_primal["A"] is not None:
-            sub_problem["b"] = concatenate([model_first_stage["b"], model_second_stage_primal["b"]])
-            sub_problem["A"] = hstack(
+            base_problem["b"] = concatenate([model_first_stage["b"], model_second_stage_primal["b"]])
+            base_problem["A"] = hstack(
                 [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.nv_second_stage))])
-            sub_problem["A"] = vstack([sub_problem["A"], hstack(
+            base_problem["A"] = vstack([base_problem["A"], hstack(
                 [zeros((model_second_stage_primal["A"].shape[0], self.nv_first_stage)),
                  model_second_stage_primal["A"]])]).tolil()
         else:
-            sub_problem["b"] = model_first_stage["b"]
-            sub_problem["A"] = hstack(
+            base_problem["b"] = model_first_stage["b"]
+            base_problem["A"] = hstack(
                 [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.nv_second_stage))])
 
         if model_second_stage_primal["Aeq"] is not None:
-            sub_problem["beq"] = concatenate([model_first_stage["beq"], model_second_stage_primal["beq"]])
-            sub_problem["Aeq"] = hstack(
+            base_problem["beq"] = concatenate([model_first_stage["beq"], model_second_stage_primal["beq"]])
+            base_problem["Aeq"] = hstack(
                 [model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], self.nv_second_stage))])
-            sub_problem["Aeq"] = vstack([sub_problem["Aeq"], hstack(
+            base_problem["Aeq"] = vstack([base_problem["Aeq"], hstack(
                 [zeros((model_second_stage_primal["Aeq"].shape[0], self.nv_first_stage)),
                  model_second_stage_primal["Aeq"]])]).tolil()
         else:
-            sub_problem["beq"] = model_first_stage["beq"]
-            sub_problem["Aeq"] = hstack(
+            base_problem["beq"] = model_first_stage["beq"]
+            base_problem["Aeq"] = hstack(
                 [model_first_stage["Aeq"],
                  zeros((model_first_stage["Aeq"].shape[0], self.nv_second_stage))]).tolil()
 
-        sub_problem["Qc"] = model_second_stage_primal["Qc"]
-        sub_problem["rc"] = model_second_stage_primal["rc"]
+        base_problem["Qc"] = model_second_stage_primal["Qc"]
+        base_problem["rc"] = model_second_stage_primal["rc"]
         # coupling constraints
-        sub_problem["b"] = concatenate([sub_problem["b"], model_second_stage_primal["hs"]])
-        sub_problem["A"] = vstack(
-            [sub_problem["A"], hstack([model_second_stage_primal["Ts"], model_second_stage_primal["Ws"]])]).tolil()
+        base_problem["b"] = concatenate([base_problem["b"], model_second_stage_primal["hs"]])
+        base_problem["A"] = vstack(
+            [base_problem["A"], hstack([model_second_stage_primal["Ts"], model_second_stage_primal["Ws"]])]).tolil()
 
-        (sol, obj, success) = miqcp(sub_problem["c"], sub_problem["q"], Aeq=sub_problem["Aeq"],
-                                    beq=sub_problem["beq"], A=sub_problem["A"],
-                                    b=sub_problem["b"], Qc=sub_problem["Qc"],
-                                    rc=sub_problem["rc"], xmin=sub_problem["lb"],
-                                    xmax=sub_problem["ub"], vtypes=sub_problem["vtypes"])
+        # (sol, obj, success) = miqcp(base_problem["c"], base_problem["q"], Aeq=base_problem["Aeq"],
+        #                             beq=base_problem["beq"], A=base_problem["A"],
+        #                             b=base_problem["b"], Qc=base_problem["Qc"],
+        #                             rc=base_problem["rc"], xmin=base_problem["lb"],
+        #                             xmax=base_problem["ub"], vtypes=base_problem["vtypes"])
 
         # 3) Formulate the primal problem and dual-problem for each scenario
         # modify the first-stage problem, add ns variables, generate the first problem
-        master_problem = deepcopy(sub_problem)
+        master_problem = deepcopy(base_problem)
         master_problem["c"] = concatenate([master_problem["c"], ones(ns)])
         master_problem["lb"] = concatenate([master_problem["lb"], -ones(ns) * self.bigM])
         master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM])
@@ -157,7 +157,7 @@ class StochasticUnitCommitmentTess():
         assert success == 1, "The master problem is infeasible!"
         # 4) Solve this problem using Generalized Bender decomposition algorithm!
         iter = 0
-        iter_max = 1000
+        iter_max = 10000
         Gap_index = zeros(iter_max)
         LB_index = zeros(iter_max)
         UB_index = zeros(iter_max)
@@ -180,7 +180,7 @@ class StochasticUnitCommitmentTess():
             success_second_stage = zeros(ns)
             slack_eq = {}
             slack_ineq = {}
-            cuts = lil_matrix((ns, self.nv_first_stage + ns))
+            cuts = lil_matrix((ns, self.nv_first_stage + self.nv_second_stage+ns))
             b_cuts = zeros(ns)
             sol = [0] * ns
             # for i in range(ns):
@@ -203,13 +203,12 @@ class StochasticUnitCommitmentTess():
                         problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
                 else:  # optimal cuts
                     cuts[i, 0:self.nv_first_stage] = -problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
-                    cuts[i, self.nv_first_stage + i] = -1
+                    cuts[i, self.nv_first_stage + self.nv_second_stage+i] = -1
                     # b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
                     #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i]) - problem_second_stage[i]["hs"]))
                     b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
                         problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
 
-            cuts = hstack([cuts, zeros((ns, self.nv_second_stage))]).tolil()
             master_problem["A"] = vstack([master_problem["A"], cuts]).tolil()
             master_problem["b"] = concatenate([master_problem["b"], b_cuts])
 
@@ -220,7 +219,7 @@ class StochasticUnitCommitmentTess():
                 print("The violation is {0}".format(sum(obj_second_stage)))
             else:
                 UB_index[iter] = min(
-                    sub_problem["c"].dot(array(sol_first_stage[0:self.nv_first_stage + self.nv_second_stage])) + \
+                    base_problem["c"].dot(array(sol_first_stage[0:self.nv_first_stage + self.nv_second_stage])) + \
                     sum(obj_second_stage), UB_index[iter - 1])
                 Gap_index[iter] = abs(UB_index[iter] - LB_index[iter - 1]) / UB_index[iter]
             sol_first_stage_0 = array(sol_first_stage[0:self.nv_first_stage])
@@ -2390,6 +2389,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=200)
+                                                                                     ns=1000)
 
     print(sol_second_stage[0]['DS']['gap'].max())
