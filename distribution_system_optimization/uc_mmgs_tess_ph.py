@@ -169,6 +169,7 @@ class StochasticUnitCommitmentTess():
                     temp += weight[j] * (abs(x_first_stgae[j, i] - x_mean[j]))
                 ru[i] = model_first_stage["c"][i] / max(temp, 1)
 
+        # ru = ones(self.nv_first_stage)*1.1
         ws = zeros((ns, self.nv_first_stage))
         for i in range(ns):
             for j in range(self.nv_first_stage):
@@ -181,6 +182,8 @@ class StochasticUnitCommitmentTess():
             sol_sub_problem = {}
             obj_sub_problem = zeros(ns)
             success_sub_problem = zeros(ns)
+            # ru = ones(self.nv_first_stage) * 1.1
+
             for i in range(ns):
                 sub_problem_updated[i] = deepcopy(sub_problem[i])
                 for j in range(self.nv_first_stage):
@@ -225,6 +228,7 @@ class StochasticUnitCommitmentTess():
                         temp += weight[j] * (abs(x_first_stgae[j, i] - x_mean[j]))
                     ru[i] = model_first_stage["c"][i] / max(temp, 1)
 
+            # ru = ones(self.nv_first_stage) * 1.1
             for i in range(ns):
                 for j in range(self.nv_first_stage):
                     ws[i, j] += ru[j] * (x_first_stgae[i, j] - x_mean[j])
