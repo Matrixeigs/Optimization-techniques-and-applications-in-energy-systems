@@ -33,6 +33,9 @@ from distribution_system_optimization.data_format.idx_MG_PV import PBIC_AC2DC, P
 from distribution_system_optimization.database_management_pv import DataBaseManagement
 from solvers.scenario_reduction import ScenarioReduction
 
+from multiprocessing import Pool
+import os
+
 
 class StochasticUnitCommitmentTess():
     def __init__(self):
@@ -79,52 +82,6 @@ class StochasticUnitCommitmentTess():
                                                                           profile=ds_second_stage[i, :], index=i,
                                                                           weight=weight[i])
 
-        sub_problem = [0] * ns
-        sol_sub_problem = {}
-        obj_sub_problem = zeros(ns)
-        success_sub_problem = zeros(ns)
-
-        for i in range(ns):
-            sub_problem[i] = {}
-            sub_problem[i]["c"] = concatenate([model_first_stage["c"], model_second_stage[i]["c"]])
-            # sub_problem[i]["q"] = concatenate([zeros(self.nv_first_stage), model_second_stage[i]["q"]])
-            sub_problem[i]["q"] = zeros(self.nv_first_stage + self.nv_second_stage)
-            sub_problem[i]["lb"] = concatenate([model_first_stage["lb"], model_second_stage[i]["lb"]])
-            sub_problem[i]["ub"] = concatenate([model_first_stage["ub"], model_second_stage[i]["ub"]])
-            sub_problem[i]["vtypes"] = model_first_stage["vtypes"] + model_second_stage[i]["vtypes"]
-            if model_second_stage[i]["A"] is not None:
-                sub_problem[i]["b"] = concatenate([model_first_stage["b"], model_second_stage[i]["b"]])
-                sub_problem[i]["A"] = hstack(
-                    [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.nv_second_stage))])
-                sub_problem[i]["A"] = vstack([sub_problem[i]["A"], hstack(
-                    [zeros((model_second_stage[i]["A"].shape[0], self.nv_first_stage)),
-                     model_second_stage[i]["A"]])]).tolil()
-            else:
-                sub_problem[i]["b"] = model_first_stage["b"]
-                sub_problem[i]["A"] = hstack(
-                    [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.nv_second_stage))])
-
-            if model_second_stage[i]["Aeq"] is not None:
-                sub_problem[i]["beq"] = concatenate([model_first_stage["beq"], model_second_stage[i]["beq"]])
-                sub_problem[i]["Aeq"] = hstack(
-                    [model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], self.nv_second_stage))])
-                sub_problem[i]["Aeq"] = vstack([sub_problem[i]["Aeq"], hstack(
-                    [zeros((model_second_stage[i]["Aeq"].shape[0], self.nv_first_stage)),
-                     model_second_stage[i]["Aeq"]])]).tolil()
-            else:
-                sub_problem[i]["beq"] = model_first_stage["beq"]
-                sub_problem[i]["Aeq"] = hstack(
-                    [model_first_stage["Aeq"],
-                     zeros((model_first_stage["Aeq"].shape[0], self.nv_second_stage))]).tolil()
-
-            sub_problem[i]["Qc"] = model_second_stage[i]["Qc"]
-            sub_problem[i]["rc"] = model_second_stage[i]["rc"]
-            # coupling constraints
-            sub_problem[i]["b"] = concatenate([sub_problem[i]["b"], model_second_stage[i]["hs"]])
-            sub_problem[i]["A"] = vstack(
-                [sub_problem[i]["A"], hstack([model_second_stage[i]["Ts"], model_second_stage[i]["Ws"]])]).tolil()
-
-
         # 3) Formulate the primal problem and dual-problem for each scenario
         # modify the first-stage problem, add ns variables, generate the first problem
         master_problem = deepcopy(model_first_stage)
@@ -150,14 +107,16 @@ class StochasticUnitCommitmentTess():
         LB_index[iter] = obj_first_stage
         UB_index[iter] = self.bigM
         Gap_index[iter] = abs(UB_index[iter] - LB_index[iter]) / UB_index[iter]
+        n_processors = os.cpu_count()
 
         while iter < iter_max and Gap_index[iter] > 2 * 1e-2:
             problem_second_stage = {}
             problem_second_stage_relaxed = {}
-
+            sub_problem = []
             for i in range(ns):
                 (problem_second_stage[i], problem_second_stage_relaxed[i]) = \
                     self.second_stage_problem(x=sol_first_stage[0:self.nv_first_stage], model=model_second_stage[i])
+                sub_problem.append([problem_second_stage[i],problem_second_stage_relaxed[i]])
 
             sol_second_stage = {}
             obj_second_stage = zeros(ns)
@@ -166,21 +125,19 @@ class StochasticUnitCommitmentTess():
             slack_ineq = {}
             cuts = lil_matrix((ns, self.nv_first_stage + ns))
             b_cuts = zeros(ns)
+            sol=[0]*ns
+            # for i in range(ns):
+            #     sol[i] = sub_problem_solving(sub_problem[i])
+            with Pool(n_processors) as p:
+                sol = list(p.map(sub_problem_solving, sub_problem))
+
             for i in range(ns):
-                (sol_second_stage[i], obj_second_stage[i], success_second_stage[i], slack_eq[i], slack_ineq[i]) = qcqp(
-                    problem_second_stage[i]["c"], problem_second_stage[i]["q"], Aeq=problem_second_stage[i]["Aeq"],
-                    beq=problem_second_stage[i]["beq"], A=problem_second_stage[i]["A"], b=problem_second_stage[i]["b"],
-                    Qc=problem_second_stage[i]["Qc"], rc=problem_second_stage[i]["rc"],
-                    xmin=problem_second_stage[i]["lb"], xmax=problem_second_stage[i]["ub"])
+                sol_second_stage[i] = sol[i][0]
+                obj_second_stage[i] = sol[i][1]
+                success_second_stage[i] = sol[i][2]
+                slack_eq[i] = sol[i][3]
+                slack_ineq[i] = sol[i][4]
                 if success_second_stage[i] == 0:
-                    (sol_second_stage[i], obj_second_stage[i], success_second_stage[i], slack_eq[i],
-                     slack_ineq[i]) = qcqp(
-                        problem_second_stage_relaxed[i]["c"], problem_second_stage_relaxed[i]["q"],
-                        Aeq=problem_second_stage_relaxed[i]["Aeq"], beq=problem_second_stage_relaxed[i]["beq"],
-                        A=problem_second_stage_relaxed[i]["A"], b=problem_second_stage_relaxed[i]["b"],
-                        Qc=problem_second_stage_relaxed[i]["Qc"], rc=problem_second_stage_relaxed[i]["rc"],
-                        xmin=problem_second_stage_relaxed[i]["lb"], xmax=problem_second_stage_relaxed[i]["ub"])
-                    success_second_stage[i] -= 1
                     cuts[i, 0:self.nv_first_stage] = -problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]
                     # b_cuts[i] = -(array(slack_ineq[i]).dot(
                     #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i][0:self.nv_second_stage]) -
@@ -1745,13 +1702,22 @@ class StochasticUnitCommitmentTess():
 
         return ds_load_profile, microgrids_second_stage, weight_reduced
 
-def sub_problem_solving(sub_problem):
-    (sol, obj, success) = miqcp(sub_problem["c"], sub_problem["q"], Aeq=sub_problem["Aeq"],
-                                beq=sub_problem["beq"], A=sub_problem["A"],
-                                b=sub_problem["b"], Qc=sub_problem["Qc"],
-                                rc=sub_problem["rc"], xmin=sub_problem["lb"],
-                                xmax=sub_problem["ub"], vtypes=sub_problem["vtypes"])
-    return sol, obj, success
+
+def sub_problem_solving(problem_second_stage):
+    sol = list(qcqp(problem_second_stage[0]["c"], problem_second_stage[0]["q"], Aeq=problem_second_stage[0]["Aeq"],
+               beq=problem_second_stage[0]["beq"], A=problem_second_stage[0]["A"], b=problem_second_stage[0]["b"],
+               Qc=problem_second_stage[0]["Qc"], rc=problem_second_stage[0]["rc"],
+               xmin=problem_second_stage[0]["lb"], xmax=problem_second_stage[0]["ub"]))
+
+    if sol[2] == 0:
+        sol = list(qcqp(problem_second_stage[1]["c"], problem_second_stage[1]["q"], Aeq=problem_second_stage[1]["Aeq"],
+                   beq=problem_second_stage[1]["beq"], A=problem_second_stage[1]["A"], b=problem_second_stage[1]["b"],
+                   Qc=problem_second_stage[1]["Qc"], rc=problem_second_stage[1]["rc"],
+                   xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
+        sol[2] = 0
+
+    return sol
+
 
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
