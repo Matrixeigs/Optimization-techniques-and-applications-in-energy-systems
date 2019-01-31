@@ -25,6 +25,7 @@ from pypower.ext2int import ext2int
 
 from solvers.quadratic_constained_cplex import quadratic_constrained_programming as qcqp
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
+from solvers.mixed_integer_quadratic_constrained_cplex import mixed_integer_quadratic_constrained_programming as miqcp
 from copy import deepcopy
 
 from distribution_system_optimization.data_format.idx_MG_PV import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, \
@@ -82,21 +83,77 @@ class StochasticUnitCommitmentTess():
                                                                           profile=ds_second_stage[i, :], index=i,
                                                                           weight=weight[i])
 
+        model_second_stage_primal = self.second_stage_problem_formualtion_gdb(pns=power_networks,
+                                                                              mgs=mgs_second_stage[0],
+                                                                              mess=mess, tns=traffic_networks,
+                                                                              profile=ds_second_stage[0, :], index=i,
+                                                                              weight=1)
+        sub_problem = {}
+        sub_problem["c"] = concatenate([model_first_stage["c"], model_second_stage_primal["c"]])
+        # sub_problem[i]["q"] = concatenate([zeros(self.nv_first_stage), model_second_stage[i]["q"]])
+        sub_problem["q"] = zeros(self.nv_first_stage + self.nv_second_stage)
+        sub_problem["lb"] = concatenate([model_first_stage["lb"], model_second_stage_primal["lb"]])
+        sub_problem["ub"] = concatenate([model_first_stage["ub"], model_second_stage_primal["ub"]])
+        sub_problem["vtypes"] = model_first_stage["vtypes"] + model_second_stage_primal["vtypes"]
+        if model_second_stage_primal["A"] is not None:
+            sub_problem["b"] = concatenate([model_first_stage["b"], model_second_stage_primal["b"]])
+            sub_problem["A"] = hstack(
+                [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.nv_second_stage))])
+            sub_problem["A"] = vstack([sub_problem["A"], hstack(
+                [zeros((model_second_stage_primal["A"].shape[0], self.nv_first_stage)),
+                 model_second_stage_primal["A"]])]).tolil()
+        else:
+            sub_problem["b"] = model_first_stage["b"]
+            sub_problem["A"] = hstack(
+                [model_first_stage["A"], zeros((model_first_stage["A"].shape[0], self.nv_second_stage))])
+
+        if model_second_stage_primal["Aeq"] is not None:
+            sub_problem["beq"] = concatenate([model_first_stage["beq"], model_second_stage_primal["beq"]])
+            sub_problem["Aeq"] = hstack(
+                [model_first_stage["Aeq"], zeros((model_first_stage["Aeq"].shape[0], self.nv_second_stage))])
+            sub_problem["Aeq"] = vstack([sub_problem["Aeq"], hstack(
+                [zeros((model_second_stage_primal["Aeq"].shape[0], self.nv_first_stage)),
+                 model_second_stage_primal["Aeq"]])]).tolil()
+        else:
+            sub_problem["beq"] = model_first_stage["beq"]
+            sub_problem["Aeq"] = hstack(
+                [model_first_stage["Aeq"],
+                 zeros((model_first_stage["Aeq"].shape[0], self.nv_second_stage))]).tolil()
+
+        sub_problem["Qc"] = model_second_stage_primal["Qc"]
+        sub_problem["rc"] = model_second_stage_primal["rc"]
+        # coupling constraints
+        sub_problem["b"] = concatenate([sub_problem["b"], model_second_stage_primal["hs"]])
+        sub_problem["A"] = vstack(
+            [sub_problem["A"], hstack([model_second_stage_primal["Ts"], model_second_stage_primal["Ws"]])]).tolil()
+
+        (sol, obj, success) = miqcp(sub_problem["c"], sub_problem["q"], Aeq=sub_problem["Aeq"],
+                                    beq=sub_problem["beq"], A=sub_problem["A"],
+                                    b=sub_problem["b"], Qc=sub_problem["Qc"],
+                                    rc=sub_problem["rc"], xmin=sub_problem["lb"],
+                                    xmax=sub_problem["ub"], vtypes=sub_problem["vtypes"])
+
         # 3) Formulate the primal problem and dual-problem for each scenario
         # modify the first-stage problem, add ns variables, generate the first problem
-        master_problem = deepcopy(model_first_stage)
+        master_problem = deepcopy(sub_problem)
         master_problem["c"] = concatenate([master_problem["c"], ones(ns)])
         master_problem["lb"] = concatenate([master_problem["lb"], -ones(ns) * self.bigM])
         master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM])
         master_problem["vtypes"] = master_problem["vtypes"] + ["c"] * ns
         master_problem["A"] = hstack([master_problem["A"], zeros((master_problem["A"].shape[0], ns))]).tolil()
         master_problem["Aeq"] = hstack([master_problem["Aeq"], zeros((master_problem["Aeq"].shape[0], ns))]).tolil()
-
-        (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
-                                                           beq=master_problem["beq"],
-                                                           A=master_problem["A"], b=master_problem["b"],
-                                                           vtypes=master_problem["vtypes"],
-                                                           xmax=master_problem["ub"], xmin=master_problem["lb"])
+        master_problem["q"] = concatenate([master_problem["q"], zeros(ns)])
+        # (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
+        #                                                    beq=master_problem["beq"],
+        #                                                    A=master_problem["A"], b=master_problem["b"],
+        #                                                    vtypes=master_problem["vtypes"],
+        #                                                    xmax=master_problem["ub"], xmin=master_problem["lb"])
+        (sol_first_stage, obj_first_stage, success) = miqcp(master_problem["c"], master_problem["q"],
+                                                            Aeq=master_problem["Aeq"],
+                                                            beq=master_problem["beq"], A=master_problem["A"],
+                                                            b=master_problem["b"], Qc=master_problem["Qc"],
+                                                            rc=master_problem["rc"], xmin=master_problem["lb"],
+                                                            xmax=master_problem["ub"], vtypes=master_problem["vtypes"])
         assert success == 1, "The master problem is infeasible!"
         # 4) Solve this problem using Generalized Bender decomposition algorithm!
         iter = 0
@@ -116,7 +173,7 @@ class StochasticUnitCommitmentTess():
             for i in range(ns):
                 (problem_second_stage[i], problem_second_stage_relaxed[i]) = \
                     self.second_stage_problem(x=sol_first_stage[0:self.nv_first_stage], model=model_second_stage[i])
-                sub_problem.append([problem_second_stage[i],problem_second_stage_relaxed[i]])
+                sub_problem.append([problem_second_stage[i], problem_second_stage_relaxed[i]])
 
             sol_second_stage = {}
             obj_second_stage = zeros(ns)
@@ -125,7 +182,7 @@ class StochasticUnitCommitmentTess():
             slack_ineq = {}
             cuts = lil_matrix((ns, self.nv_first_stage + ns))
             b_cuts = zeros(ns)
-            sol=[0]*ns
+            sol = [0] * ns
             # for i in range(ns):
             #     sol[i] = sub_problem_solving(sub_problem[i])
             with Pool(n_processors) as p:
@@ -152,6 +209,7 @@ class StochasticUnitCommitmentTess():
                     b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
                         problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
 
+            cuts = hstack([cuts, zeros((ns, self.nv_second_stage))]).tolil()
             master_problem["A"] = vstack([master_problem["A"], cuts]).tolil()
             master_problem["b"] = concatenate([master_problem["b"], b_cuts])
 
@@ -161,15 +219,23 @@ class StochasticUnitCommitmentTess():
                 UB_index[iter] = self.bigM
                 print("The violation is {0}".format(sum(obj_second_stage)))
             else:
-                UB_index[iter] = min(model_first_stage["c"].dot(array(sol_first_stage[0:self.nv_first_stage])) + \
-                                     sum(obj_second_stage), UB_index[iter - 1])
+                UB_index[iter] = min(
+                    sub_problem["c"].dot(array(sol_first_stage[0:self.nv_first_stage + self.nv_second_stage])) + \
+                    sum(obj_second_stage), UB_index[iter - 1])
                 Gap_index[iter] = abs(UB_index[iter] - LB_index[iter - 1]) / UB_index[iter]
             sol_first_stage_0 = array(sol_first_stage[0:self.nv_first_stage])
-            (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
-                                                               beq=master_problem["beq"],
-                                                               A=master_problem["A"], b=master_problem["b"],
-                                                               vtypes=master_problem["vtypes"],
-                                                               xmax=master_problem["ub"], xmin=master_problem["lb"])
+            # (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
+            #                                                    beq=master_problem["beq"],
+            #                                                    A=master_problem["A"], b=master_problem["b"],
+            #                                                    vtypes=master_problem["vtypes"],
+            #                                                    xmax=master_problem["ub"], xmin=master_problem["lb"])
+            (sol_first_stage, obj_first_stage, success) = miqcp(master_problem["c"], master_problem["q"],
+                                                                Aeq=master_problem["Aeq"],
+                                                                beq=master_problem["beq"], A=master_problem["A"],
+                                                                b=master_problem["b"], Qc=master_problem["Qc"],
+                                                                rc=master_problem["rc"], xmin=master_problem["lb"],
+                                                                xmax=master_problem["ub"],
+                                                                vtypes=master_problem["vtypes"])
 
             assert success == 1, "The master problem is infeasible!"
             LB_index[iter] = obj_first_stage
@@ -694,6 +760,426 @@ class StochasticUnitCommitmentTess():
                            "MESS": sol_ev,
                            }
         return sol_first_stage
+
+    def second_stage_problem_formualtion_gdb(self, pns, mgs, mess, tns, profile, index=0, weight=1):
+        """
+        Second-stage problem formulation, the decision variables includes DGs within power networks, DGs within MGs, EESs within MGs and TESSs and other systems' information
+        :param power_networks:
+        :param micro_grids:
+        :param tess:
+        :param traffic_networks:
+        :return: The second stage problems as list, including coupling constraints, and other constraint set
+        """
+        # I) Formulate the problem for distribution systems operator
+        T = self.T
+        mpc = ext2int(pns)
+        baseMVA, bus, gen, branch, gencost = mpc["baseMVA"], mpc["bus"], mpc["gen"], mpc["branch"], mpc["gencost"]
+
+        nb = shape(mpc['bus'])[0]  ## number of buses
+        nl = shape(mpc['branch'])[0]  ## number of branches
+        ng = shape(mpc['gen'])[0]  ## number of dispatchable injections
+        nmg = self.nmg
+        nmes = self.nmes
+
+        self.nl = nl
+        self.nb = nb
+        self.ng = ng
+
+        m = zeros(nmg)  ## list of integration index
+        pmg_l = zeros(nmg)  ## list of lower boundary
+        pmg_u = zeros(nmg)  ## list of upper boundary
+        qmg_l = zeros(nmg)  ## list of lower boundary
+        qmg_u = zeros(nmg)  ## list of upper boundary
+        for i in range(nmg):
+            m[i] = mgs[i]["BUS"]
+            pmg_l[i] = mgs[i]["UG"]["PMIN"] / 1000 / baseMVA
+            pmg_u[i] = mgs[i]["UG"]["PMAX"] / 1000 / baseMVA
+            qmg_l[i] = mgs[i]["UG"]["QMIN"] / 1000 / baseMVA
+            qmg_u[i] = mgs[i]["UG"]["QMAX"] / 1000 / baseMVA
+
+        f = branch[:, F_BUS]  ## list of "from" buses
+        t = branch[:, T_BUS]  ## list of "to" buses
+        i = range(nl)  ## double set of row indices
+        self.f = f  ## record from bus for each branch
+
+        # Connection matrix
+        Cf = sparse((ones(nl), (i, f)), (nl, nb))
+        Ct = sparse((ones(nl), (i, t)), (nl, nb))
+        Cg = sparse((ones(ng), (gen[:, GEN_BUS], range(ng))), (nb, ng))
+        Cmg = sparse((ones(nmg), (m, range(nmg))), (nb, nmg))
+
+        Branch_R = branch[:, BR_R]
+        Branch_X = branch[:, BR_X]
+        Cf = Cf.T
+        Ct = Ct.T
+        # Obtain the boundary information
+        slmax = branch[:, RATE_A] / baseMVA
+
+        pij_l = -slmax
+        qij_l = -slmax
+        lij_l = zeros(nl)
+        vm_l = bus[:, VMIN] ** 2
+        pg_l = gen[:, PMIN] / baseMVA
+        qg_l = gen[:, QMIN] / baseMVA
+
+        pij_u = slmax
+        qij_u = slmax
+        lij_u = slmax
+        vm_u = bus[:, VMAX] ** 2
+        pg_u = 2 * gen[:, PMAX] / baseMVA
+        qg_u = 2 * gen[:, QMAX] / baseMVA
+
+        _nv_second_stage = int(3 * nl + nb + 2 * ng + 2 * nmg)
+        self._nv_second_stage = _nv_second_stage  # Number of decision variable within each time slot
+
+        lb = concatenate([tile(concatenate([pij_l, qij_l, lij_l, vm_l, pg_l, qg_l, pmg_l, qmg_l]), T)])
+        ub = concatenate([tile(concatenate([pij_u, qij_u, lij_u, vm_u, pg_u, qg_u, pmg_u, qmg_u]), T)])
+        vtypes = ["c"] * _nv_second_stage * T
+        nv_ds = _nv_second_stage * T  # Number of total decision variables
+
+        # Add system level constraints
+        # 1) Active power balance
+        Aeq_p = lil_matrix((nb * T, nv_ds))
+        beq_p = zeros(nb * T)
+        for i in range(T):
+            Aeq_p[i * nb:(i + 1) * nb, i * _nv_second_stage: (i + 1) * _nv_second_stage] = \
+                hstack([Ct - Cf, zeros((nb, nl)),
+                        -diag(Ct * Branch_R) * Ct,
+                        zeros((nb, nb)), Cg,
+                        zeros((nb, ng)), -Cmg,
+                        zeros((nb, nmg))])
+
+            beq_p[i * nb:(i + 1) * nb] = profile[i * nb:(i + 1) * nb] / baseMVA
+
+        # 2) Reactive power balance
+        Aeq_q = lil_matrix((nb * T, nv_ds))
+        beq_q = zeros(nb * T)
+        for i in range(T):
+            Aeq_q[i * nb:(i + 1) * nb, i * _nv_second_stage: (i + 1) * _nv_second_stage] = \
+                hstack([zeros((nb, nl)), Ct - Cf,
+                        -diag(Ct * Branch_X) * Ct,
+                        zeros((nb, nb)),
+                        zeros((nb, ng)), Cg,
+                        zeros((nb, nmg)), -Cmg])
+            for j in range(nb):
+                if bus[j, PD] > 0:
+                    beq_q[i * nb:(i + 1) * nb] = profile[i * nb + j] / bus[j, PD] * bus[j, QD] / baseMVA
+        # 3) KVL equation
+        Aeq_kvl = lil_matrix((nl * T, nv_ds))
+        beq_kvl = zeros(nl * T)
+
+        for i in range(T):
+            Aeq_kvl[i * nl:(i + 1) * nl, i * _nv_second_stage: i * _nv_second_stage + nl] = -2 * diag(Branch_R)
+            Aeq_kvl[i * nl:(i + 1) * nl, i * _nv_second_stage + nl: i * _nv_second_stage + 2 * nl] = -2 * diag(Branch_X)
+            Aeq_kvl[i * nl:(i + 1) * nl, i * _nv_second_stage + 2 * nl: i * _nv_second_stage + 3 * nl] = diag(
+                Branch_R ** 2) + diag(Branch_X ** 2)
+            Aeq_kvl[i * nl:(i + 1) * nl, i * _nv_second_stage + 3 * nl:i * _nv_second_stage + 3 * nl + nb] = (
+                    Cf.T - Ct.T).toarray()
+
+        Aeq = vstack([Aeq_p, Aeq_q, Aeq_kvl])
+        beq = concatenate([beq_p, beq_q, beq_kvl])
+
+        c = zeros(nv_ds)
+        q = zeros(nv_ds)
+        c0 = 0
+        for t in range(T):
+            for i in range(ng):
+                c[t * _nv_second_stage + i + 3 * nl + nb] = gencost[i, 5] * baseMVA
+                q[t * _nv_second_stage + i + 3 * nl + nb] = gencost[i, 4] * baseMVA * baseMVA
+                c0 += gencost[i, 6]
+        # Coupling constraints between the distribution systems and micro_grids
+        Ax2y = lil_matrix((2 * nmg * T, nv_ds))  # connection matrix with the microgrids
+        for i in range(T):
+            for j in range(nmg):
+                # Active power
+                Ax2y[i * nmg + j, i * _nv_second_stage + 3 * nl + nb + 2 * ng + j] = 1000 * baseMVA
+                # Reactive power
+                Ax2y[nmg * T + i * nmg + j, i * _nv_second_stage + 3 * nl + nb + 2 * ng + nmg + j] = 1000 * baseMVA
+
+        # II) Formulate the problem for microgrids
+        model_microgrids = {}
+        for i in range(nmg):
+            model_microgrids[i] = self.problem_formulation_microgrid(mg=mgs[i], mess=mess)
+        # II.A) Combine the distribution system operation problem and microgrid systems
+        if Aeq is not None:
+            neq_ds = Aeq.shape[0]
+        else:
+            neq_ds = 0
+
+        nVariables = int(nv_ds)
+        neq = int(neq_ds)
+
+        nv_index = zeros(nmg + 1).astype(int)
+        neq_index = zeros(nmg + 1).astype(int)
+        nv_index[0] = nv_ds
+        neq_index[0] = int(neq_ds)
+        for i in range(nmg):
+            nv_index[i + 1] = nv_index[i] + len(model_microgrids[i]["c"])
+            neq_index[i + 1] = neq_index[i] + model_microgrids[i]["Aeq"].shape[0]
+            nVariables += len(model_microgrids[i]["c"])
+            neq += int(model_microgrids[i]["Aeq"].shape[0])
+
+        Aeq_full = lil_matrix((int(neq_index[-1]), int(nv_index[-1])))
+        Aeq_full[0:neq_ds, 0:nv_ds] = Aeq
+        for i in range(nmg):
+            lb = concatenate([lb, model_microgrids[i]["lb"]])
+            ub = concatenate([ub, model_microgrids[i]["ub"]])
+            c = concatenate([c, model_microgrids[i]["c"]])
+            q = concatenate([q, model_microgrids[i]["q"]])
+            vtypes += model_microgrids[i]["vtypes"]
+            beq = concatenate([beq, model_microgrids[i]["beq"]])
+            Aeq_full[neq_index[i]:neq_index[i + 1], nv_index[i]:nv_index[i + 1]] = model_microgrids[i]["Aeq"]
+
+        # Add coupling constraints, between the microgrids and distribution networks
+        Ay2x = lil_matrix((2 * nmg * T, nv_index[-1] - nv_index[0]))
+        for i in range(T):
+            for j in range(nmg):
+                Ay2x[i * nmg + j, int(nv_index[j] - nv_index[0]) + i * NX_MG + PUG] = -1
+                Ay2x[nmg * T + i * nmg + j, int(nv_index[j] - nv_index[0]) + i * NX_MG + QUG] = -1
+
+        Aeq_temp = hstack([Ax2y, Ay2x])
+        beq_temp = zeros(2 * nmg * T)
+
+        Aeq_full = vstack([Aeq_full, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+        # III) Formulate the optimization problem for tess in the second stage optimization
+        model_tess = {}
+        for i in range(nmes):
+            model_tess[i] = self.problem_formulation_tess_second_stage(mess=mess[i])
+        # III.1) Merge the models of mirogrids and distribution
+        # Formulate the index
+        nv_index_ev = zeros(1 + nmes).astype(int)
+        neq_index_temp = zeros(1 + nmes).astype(int)
+        nv_index_ev[0] = int(Aeq_full.shape[1])
+        neq_index_temp[0] = int(Aeq_full.shape[0])
+        for i in range(nmes):
+            nv_index_ev[i + 1] = nv_index_ev[i] + len(model_tess[i]["c"])
+            neq_index_temp[i + 1] = neq_index_temp[i] + model_tess[i]["Aeq"].shape[0]
+
+        Aeq = lil_matrix((int(neq_index_temp[-1]), int(nv_index_ev[-1])))
+        Aeq[0:int(neq_index_temp[0]), 0:int(nv_index_ev[0])] = Aeq_full
+        for i in range(nmes):
+            lb = concatenate([lb, model_tess[i]["lb"]])
+            ub = concatenate([ub, model_tess[i]["ub"]])
+            c = concatenate([c, model_tess[i]["c"]])
+            q = concatenate([q, model_tess[i]["q"]])
+            vtypes += model_tess[i]["vtypes"]
+            beq = concatenate([beq, model_tess[i]["beq"]])
+            Aeq[neq_index_temp[i]:neq_index_temp[i + 1], nv_index_ev[i]:nv_index_ev[i + 1]] = model_tess[i]["Aeq"]
+        # III.2) Coupling constraints between the microgrids and mobile energy storage systems
+        # Additional equal constraints, nmg*T
+        Aeq_temp = lil_matrix((nmg * T, nv_index_ev[-1]))
+        beq_temp = zeros(nmg * T)
+        for i in range(nmg):
+            for t in range(T):
+                Aeq_temp[i * T + t, nv_index[i] + t * NX_MG + PMESS] = 1  # TESSs injections to the MGs
+                for j in range(nmes):
+                    Aeq_temp[i * T + t, nv_index_ev[j] + t * self.nb_tra_ele + i] = -1  # Discharging
+                    Aeq_temp[i * T + t,
+                             nv_index_ev[j] + self.nb_tra_ele * T + t * self.nb_tra_ele + i] = 1  # Sort by order
+        Aeq = vstack([Aeq, Aeq_temp])
+        beq = concatenate((beq, beq_temp))
+        nv_second_stage = nv_index_ev[-1]
+        nv_first_stage = self.nv_first_stage
+        self.nv_second_stage = nv_second_stage
+        Qc = dict()
+        # 4) Pij**2+Qij**2<=Vi*Iij
+        for t in range(T):
+            for i in range(nl):
+                Qc[t * nl + i] = [
+                    [int(nv_first_stage + t * _nv_second_stage + i),
+                     int(nv_first_stage + t * _nv_second_stage + i + nl),
+                     int(nv_first_stage + t * _nv_second_stage + i + 2 * nl),
+                     int(nv_first_stage + t * _nv_second_stage + f[i] + 3 * nl)],
+                    [int(nv_first_stage + t * _nv_second_stage + i),
+                     int(nv_first_stage + t * _nv_second_stage + i + nl),
+                     int(nv_first_stage + t * _nv_second_stage + f[i] + 3 * nl),
+                     int(nv_first_stage + t * _nv_second_stage + i + 2 * nl)],
+                    [1, 1, -1 / 2, -1 / 2]]
+        Rc = zeros(nl * T)
+        # 5) (Pbic_ac2dc+Pbic_dc2ac)**2+Qbic**2<=Sbic**2
+        Rc_temp = zeros(nmg * T)
+        for i in range(nmg):
+            for t in range(T):
+                Qc[T * nl + T * i + t] = [
+                    [int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_AC2DC),
+                     int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_DC2AC),
+                     int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_AC2DC),
+                     int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_DC2AC),
+                     int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + QBIC)],
+                    [int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_AC2DC),
+                     int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_DC2AC),
+                     int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_DC2AC),
+                     int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + PBIC_AC2DC),
+                     int(nv_first_stage + nv_ds + NX_MG * T * i + NX_MG * t + QBIC)],
+                    [1, 1, 1, 1, 1]]
+                Rc_temp[i * T + t] = mgs[i]["BIC"]["SMAX"] ** 2
+        Rc = concatenate([Rc, Rc_temp])
+        ## IV. Coupling constraints between the first stage and second stage decision variables
+        # pg, pg_mg, pess_mg, pess_tess
+        # Ts*x+Ws*ys<=hs
+        ## IV) Formulate the coupling constraints between the first-stage and second-stage problems
+        # 1) -Pg -Rg + pg <= 0
+        _nv_first_stage = self._nv_first_stage
+        Ts = lil_matrix((ng * T, nv_first_stage))
+        Ws = lil_matrix((ng * T, nv_second_stage))
+        hs = zeros(ng * T)
+        for i in range(T):
+            for j in range(ng):
+                Ts[i * ng + j, i * _nv_first_stage + ng * 3 + j] = -1
+                Ts[i * ng + j, i * _nv_first_stage + ng * 4 + j] = -1
+                Ws[i * ng + j, i * _nv_second_stage + 3 * nl + nb + j] = 1
+        # 2) Pg-Rg - pg <= 0
+        Ts_temp = lil_matrix((ng * T, nv_first_stage))
+        Ws_temp = lil_matrix((ng * T, nv_second_stage))
+        hs_temp = zeros(ng * T)
+        for i in range(T):
+            for j in range(ng):
+                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 3 + j] = 1
+                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 4 + j] = -1
+                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + j] = -1
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 3) Qg <= IgQg_max
+        Ts_temp = lil_matrix((ng * T, nv_first_stage))
+        Ws_temp = lil_matrix((ng * T, nv_second_stage))
+        hs_temp = zeros(ng * T)
+        for i in range(T):
+            for j in range(ng):
+                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 2 + j] = -qg_u[j]
+                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + ng + j] = 1
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 4) Qg >= IgQg_min
+        Ts_temp = lil_matrix((ng * T, nv_first_stage))
+        Ws_temp = lil_matrix((ng * T, nv_second_stage))
+        hs_temp = zeros(ng * T)
+        for i in range(T):
+            for j in range(ng):
+                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 2 + j] = qg_l[j]
+                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + ng + j] = -1
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+
+        # 3) -Pg_mg - Rg_mg + pg_mg <= 0
+        Ts_temp = lil_matrix((nmg * T, nv_first_stage))
+        Ws_temp = lil_matrix((nmg * T, nv_second_stage))
+        hs_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + j] = -1
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg + j] = -1
+                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PG] = 1
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 4) Pg_mg - Rg_mg - pg_mg <= 0
+        Ts_temp = lil_matrix((nmg * T, nv_first_stage))
+        Ws_temp = lil_matrix((nmg * T, nv_second_stage))
+        hs_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + j] = 1
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg + j] = -1
+                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PG] = -1
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 5) pess_dc - pess_ch <= Pess_dc - Pess_ch + Ress
+        Ts_temp = lil_matrix((nmg * T, nv_first_stage))
+        Ws_temp = lil_matrix((nmg * T, nv_second_stage))
+        hs_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 2 + j] = 1  # Charging
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 3 + j] = -1  # Dis-charging
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 4 + j] = -1  # Reserve
+                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_CH] = -1
+                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_DC] = 1
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 6) pess_ch - pess_dc <= Pess_ch - Pess_dc + Ress
+        Ts_temp = lil_matrix((nmg * T, nv_first_stage))
+        Ws_temp = lil_matrix((nmg * T, nv_second_stage))
+        hs_temp = zeros(nmg * T)
+        for i in range(T):
+            for j in range(nmg):
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 2 + j] = -1  # Charging
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 3 + j] = 1  # Dis-charging
+                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 4 + j] = -1  # Reserve
+                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_CH] = 1
+                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_DC] = -1
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 7) ptss_ch - ptss_dc <= Ptss_ch - Ptss_dc + Rtss
+        nv_tra = self.nv_tra
+        nl_tra = self.nl_tra
+        Ts_temp = lil_matrix((nmg * T * nmes, nv_first_stage))
+        Ws_temp = lil_matrix((nmg * T * nmes, nv_second_stage))
+        hs_temp = zeros(nmg * T * nmes)
+        for i in range(nmes):
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T:_nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 2] = eye(
+                nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 2:
+            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 3] = -eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
+            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 3:
+            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 4] = -eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T, nv_index_ev[i] + nmg * T * 0:nv_index_ev[i] + nmg * T * 1] = \
+                -eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T, nv_index_ev[i] + nmg * T * 1:nv_index_ev[i] + nmg * T * 2] = \
+                eye(nmg * T)
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+        # 8) ptss_dc - ptss_ch <= Ptss_dc - Ptss_ch + Rtss
+        Ts_temp = lil_matrix((nmg * T * nmes, nv_first_stage))
+        Ws_temp = lil_matrix((nmg * T * nmes, nv_second_stage))
+        hs_temp = zeros(nmg * T * nmes)
+        for i in range(nmes):
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T:
+                                                   _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 2] = \
+                -eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 2:
+                                                   _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 3] = \
+                eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 3:
+                                                   _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 4] = \
+                -eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T, int(nv_index_ev[i]) + nmg * T * 0:
+                                                   int(nv_index_ev[i]) + nmg * T * 1] = eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T, int(nv_index_ev[i]) + nmg * T * 1:
+                                                   int(nv_index_ev[i]) + nmg * T * 2] = -eye(nmg * T)
+        Ts = vstack((Ts, Ts_temp))
+        Ws = vstack((Ws, Ws_temp))
+        hs = concatenate((hs, hs_temp))
+
+        # sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
+
+        model_second_stage = {"c": c * weight,
+                              "q": q * weight,
+                              "lb": lb,
+                              "ub": ub,
+                              "vtypes": vtypes,
+                              "A": None,
+                              "b": None,
+                              "Aeq": Aeq,
+                              "beq": beq,
+                              "Qc": Qc,
+                              "rc": Rc,
+                              "c0": c0,
+                              "Ts": Ts,
+                              "Ws": Ws,
+                              "hs": hs}
+
+        return model_second_stage
 
     def second_stage_problem_formualtion(self, pns, mgs, mess, tns, profile, index=0, weight=1):
         """
@@ -1705,15 +2191,16 @@ class StochasticUnitCommitmentTess():
 
 def sub_problem_solving(problem_second_stage):
     sol = list(qcqp(problem_second_stage[0]["c"], problem_second_stage[0]["q"], Aeq=problem_second_stage[0]["Aeq"],
-               beq=problem_second_stage[0]["beq"], A=problem_second_stage[0]["A"], b=problem_second_stage[0]["b"],
-               Qc=problem_second_stage[0]["Qc"], rc=problem_second_stage[0]["rc"],
-               xmin=problem_second_stage[0]["lb"], xmax=problem_second_stage[0]["ub"]))
+                    beq=problem_second_stage[0]["beq"], A=problem_second_stage[0]["A"], b=problem_second_stage[0]["b"],
+                    Qc=problem_second_stage[0]["Qc"], rc=problem_second_stage[0]["rc"],
+                    xmin=problem_second_stage[0]["lb"], xmax=problem_second_stage[0]["ub"]))
 
     if sol[2] == 0:
         sol = list(qcqp(problem_second_stage[1]["c"], problem_second_stage[1]["q"], Aeq=problem_second_stage[1]["Aeq"],
-                   beq=problem_second_stage[1]["beq"], A=problem_second_stage[1]["A"], b=problem_second_stage[1]["b"],
-                   Qc=problem_second_stage[1]["Qc"], rc=problem_second_stage[1]["rc"],
-                   xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
+                        beq=problem_second_stage[1]["beq"], A=problem_second_stage[1]["A"],
+                        b=problem_second_stage[1]["b"],
+                        Qc=problem_second_stage[1]["Qc"], rc=problem_second_stage[1]["rc"],
+                        xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
         sol[2] = 0
 
     return sol
