@@ -164,11 +164,11 @@ def quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=None, b=None, 
             qmat[i] = [[i], [q[i]]]
         prob.objective.set_quadratic(qmat)
 
-        if objsense is not None:
-            if objsense == "max":
-                prob.objective.set_sense(prob.objective.sense.maximize)
-        else:
-            prob.objective.set_sense(prob.objective.sense.minimize)
+        # if objsense is not None:
+        #     if objsense == "max":
+        #         prob.objective.set_sense(prob.objective.sense.maximize)
+        # else:
+        #     prob.objective.set_sense(prob.objective.sense.minimize)
 
         prob.set_log_stream(None)
         prob.set_error_stream(None)
@@ -184,9 +184,9 @@ def quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=None, b=None, 
         if prob.solution.get_status()==prob.solution.status.optimal:
             obj = prob.solution.get_objective_value()
             x = prob.solution.get_values()
-            slacks = prob.solution.get_linear_slacks()
-            slacks_eq = slacks[0:neq]
-            slacks_ineq = slacks[neq:]
+            pi = prob.solution.get_dual_values()
+            slacks_eq = pi[0:neq]
+            slacks_ineq = pi[neq:neq+nineq]
             success = 1
         else:
             x = 0
