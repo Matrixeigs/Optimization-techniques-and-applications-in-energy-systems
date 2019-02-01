@@ -41,7 +41,7 @@ import os
 class StochasticUnitCommitmentTess():
     def __init__(self):
         self.name = "Unit commitment flow with tess"
-        self.bigM = 1e3
+        self.bigM = 1e4
 
     def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100):
         """
@@ -166,7 +166,7 @@ class StochasticUnitCommitmentTess():
         Gap_index[iter] = abs(UB_index[iter] - LB_index[iter]) / UB_index[iter]
         n_processors = os.cpu_count()
 
-        while iter < iter_max and Gap_index[iter] > 2 * 1e-2:
+        while iter < iter_max and Gap_index[iter] > 1 * 1e-1:
             problem_second_stage = {}
             problem_second_stage_relaxed = {}
             sub_problem = []
@@ -195,33 +195,50 @@ class StochasticUnitCommitmentTess():
                 slack_eq[i] = sol[i][3]
                 slack_ineq[i] = sol[i][4]
                 if success_second_stage[i] == 0:
-                    cuts[i, 0:self.nv_first_stage] = -problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]
-                    # b_cuts[i] = -(array(slack_ineq[i]).dot(
-                    #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i][0:self.nv_second_stage]) -
-                    #     problem_second_stage[i]["hs"]))
-                    b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
-                        problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
+                    if sum(slack_ineq[i])<0:
+                        cuts[i, 0:self.nv_first_stage] = -problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]
+                        # b_cuts[i] = -(array(slack_ineq[i]).dot(
+                        #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i][0:self.nv_second_stage]) -
+                        #     problem_second_stage[i]["hs"]))
+                        b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
+                            problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
+                    else:
+                        cuts[i, 0:self.nv_first_stage] = problem_second_stage_relaxed[i]["Ts"].transpose() * \
+                                                         slack_ineq[i]
+                        # b_cuts[i] = -(array(slack_ineq[i]).dot(
+                        #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i][0:self.nv_second_stage]) -
+                        #     problem_second_stage[i]["hs"]))
+                        b_cuts[i] = -(sol_second_stage[i][0] - array(slack_ineq[i]).dot(
+                            problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
                 else:  # optimal cuts
-                    cuts[i, 0:self.nv_first_stage] = -problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
-                    cuts[i, self.nv_first_stage + self.nv_second_stage+i] = -1
-                    # b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
-                    #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i]) - problem_second_stage[i]["hs"]))
-                    b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
-                        problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
+                    if sum(slack_ineq[i])<0:
+                        cuts[i, 0:self.nv_first_stage] = -problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
+                        cuts[i, self.nv_first_stage + self.nv_second_stage+i] = -1
+                        #b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
+                        #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i]) - problem_second_stage[i]["hs"]))
+                        b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
+                            problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
+                    else:
+                        cuts[i, 0:self.nv_first_stage] = problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
+                        cuts[i, self.nv_first_stage + self.nv_second_stage + i] = -1
+                        # b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
+                        #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i]) - problem_second_stage[i]["hs"]))
+                        b_cuts[i] = -(sol_second_stage[i][0] - array(slack_ineq[i]).dot(
+                            problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
 
             master_problem["A"] = vstack([master_problem["A"], cuts]).tolil()
             master_problem["b"] = concatenate([master_problem["b"], b_cuts])
 
             iter += 1
+            UB_index[iter] = min(
+                base_problem["c"].dot(array(sol_first_stage[0:self.nv_first_stage + self.nv_second_stage])) + \
+                sum(obj_second_stage), UB_index[iter - 1])
             if sum(success_second_stage) < ns:
                 Gap_index[iter] = self.bigM
-                UB_index[iter] = self.bigM
                 print("The violation is {0}".format(sum(obj_second_stage)))
             else:
-                UB_index[iter] = min(
-                    base_problem["c"].dot(array(sol_first_stage[0:self.nv_first_stage + self.nv_second_stage])) + \
-                    sum(obj_second_stage), UB_index[iter - 1])
                 Gap_index[iter] = abs(UB_index[iter] - LB_index[iter - 1]) / UB_index[iter]
+                # break
             sol_first_stage_0 = array(sol_first_stage[0:self.nv_first_stage])
             # (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
             #                                                    beq=master_problem["beq"],
@@ -238,10 +255,10 @@ class StochasticUnitCommitmentTess():
 
             assert success == 1, "The master problem is infeasible!"
             LB_index[iter] = obj_first_stage
-            sol_first_stage_checked = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
-            sol_second_stage_checked = {}
-            for i in range(ns):
-                sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
+            # sol_first_stage_checked = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
+            # sol_second_stage_checked = {}
+            # for i in range(ns):
+            #     sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
 
             print(
                 "The derivation is {0}".format((array(sol_first_stage[0:self.nv_first_stage]) - sol_first_stage_0).dot(
