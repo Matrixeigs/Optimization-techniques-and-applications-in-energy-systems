@@ -210,7 +210,8 @@ class DynamicOptimalPowerFlowTess():
         beq = concatenate([beq, beq_temp])
         A = A_full
         # 3) Solve the problem
-        (xx, obj, success) = miqcp(c, q, Aeq=Aeq, beq=beq, vtypes=vtypes, A=A, b=b, Qc=Qc, xmin=lx, xmax=ux)
+        rc = zeros(len(Qc))
+        (xx, obj, success) = miqcp(c, q, Aeq=Aeq, beq=beq, vtypes=vtypes, A=A, b=b, Qc=Qc,rc=rc, xmin=lx, xmax=ux)
 
         # 4) Check the solutions, including microgrids and distribution networks
         # 4.1) Scheduling plan of distribution networks
