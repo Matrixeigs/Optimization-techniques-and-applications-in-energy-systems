@@ -41,7 +41,7 @@ if __name__ == "__main__":
     labels = dict()
     for i in range(nb):
         pos[test_graphic["bus"][i,BUS_I]] = [i*10, i*10+5]
-        labels[test_graphic["bus"][i,BUS_I]] = i+1
+        labels[test_graphic["bus"][i,BUS_I]] = "bus{0}".format(i+1)
 
     single_line_diagram_draming = SingleLineDiagramDraming()
     single_line_diagram_draming.graphic_generation(nodes=nodes,edges=edges)
