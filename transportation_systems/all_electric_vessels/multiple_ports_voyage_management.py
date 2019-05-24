@@ -38,9 +38,9 @@ class OptimalVoyage():
         I_S0[0] = 1
         I_Sn = [0] * NPORTs
         I_Sn[-1] = 1
-        I_D0 = [0] * NYs
-        I_C0 = [0] * NYs
-        I_A0 = [0] * NYs
+        i_D0 = [0] * NYs
+        i_C0 = [0] * NYs
+        i_A0 = [0] * NYs
         # Optimization problem formulation
         # 1)
         # The variables are sorted by time
@@ -205,7 +205,7 @@ class OptimalVoyage():
             for j in range(NPORTs):
                 lb[i * NX + PUG0 + j] = PUG_MIN
                 ub[i * NX + PUG0 + j] = PUG_MAX
-                c[i * NX + PUG0 + j] = Price_port[i, j]
+                c[i * NX + PUG0 + j] = Price_port[i, 1]
                 q[i * NX + PUG0 + j] = 0
             # PL
             lb[i * NX + PL] = 0
@@ -233,9 +233,9 @@ class OptimalVoyage():
             for j in range(NPORTs):
                 Aeq[i * NPORTs + j, i * NX + I_S + j] = 1
                 for k in range(NYs):
-                    if networks[k, 0] == j:  # From
+                    if networks["voyage"][k, 0] == j:  # From
                         Aeq[i * NPORTs + j, i * NX + ALPHA_S2D0 + k] = 1
-                    if networks[k, 1] == j:  # From
+                    if networks["voyage"][k, 1] == j:  # To
                         Aeq[i * NPORTs + j, i * NX + ALPHA_A2S0 + k] = -1
                 if i == 0:
                     beq[i * NPORTs + j] = I_S0[j]
@@ -252,7 +252,7 @@ class OptimalVoyage():
                 Aeq_temp[i * NYs + j, i * NX + ALPHA_D2A0 + j] = 1
                 Aeq_temp[i * NYs + j, i * NX + ALPHA_D2C0 + j] = 1
                 if i == 0:
-                    beq_temp[i * NYs + j] = I_D0[j]
+                    beq_temp[i * NYs + j] = i_D0[j]
                 else:
                     Aeq_temp[i * NYs + j, (i - 1) * NX + I_D0 + j] = -1
         Aeq = vstack([Aeq, Aeq_temp])
@@ -266,7 +266,7 @@ class OptimalVoyage():
                 Aeq_temp[i * NYs + j, i * NX + ALPHA_D2C0 + j] = -1
                 Aeq_temp[i * NYs + j, i * NX + ALPHA_C2A0 + j] = 1
                 if i == 0:
-                    beq_temp[i * NYs + j] = I_C0[j]
+                    beq_temp[i * NYs + j] = i_C0[j]
                 else:
                     Aeq_temp[i * NYs + j, (i - 1) * NX + I_C0 + j] = -1
         Aeq = vstack([Aeq, Aeq_temp])
@@ -281,7 +281,7 @@ class OptimalVoyage():
                 Aeq_temp[i * NYs + j, i * NX + ALPHA_C2A0 + j] = -1
                 Aeq_temp[i * NYs + j, i * NX + ALPHA_A2S0 + j] = 1
                 if i == 0:
-                    beq_temp[i * NYs + j] = I_A0
+                    beq_temp[i * NYs + j] = i_A0[j]
                 else:
                     Aeq_temp[i * NYs + j, (i - 1) * NX + I_A0 + j] = -1
         Aeq = vstack([Aeq, Aeq_temp])
@@ -296,22 +296,32 @@ class OptimalVoyage():
                 A[i, i * NX + ALPHA_S2D0 + j] = 1
                 A[i, i * NX + ALPHA_C2A0 + j] = 1
                 A[i, i * NX + ALPHA_D2C0 + j] = 1
-                b[i] = 1
+            b[i] = 1
         # equation 10
         Aeq_temp = zeros((NYs, nx))
         beq_temp = zeros(NYs)
-        for j in range(NYs):
-            for i in range(T):
-                Aeq_temp[j, i * NX + V0 + j] = 1
-                Aeq_temp[j, i * NX + ALPHA_D2A0 + j] = -DIS[j]
+        for i in range(NYs):
+            for j in range(T):
+                Aeq_temp[i, j * NX + V0 + i] = 1
+                Aeq_temp[i, j * NX + ALPHA_S2D0 + i] = -DIS[j]
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
+
+        A_temp = zeros((NYs, nx))
+        b_temp = zeros(NYs)
+        for i in range(NYs):
+            for j in range(T):
+                A_temp[i, j * NX + ALPHA_S2D0 + i] = 1
+            b_temp[i] = 1
+        A = vstack([A, A_temp])
+        b = concatenate([b, b_temp])
+
         # equation 11
         Aeq_temp = zeros((T, nx))
         beq_temp = zeros(T)
         for i in range(T):
             for j in range(NPORTs):
-                Aeq_temp[i, i * NX + I_S0 + j] = 1
+                Aeq_temp[i, i * NX + I_S + j] = 1
             for j in range(NYs):
                 Aeq_temp[i, i * NX + I_A0 + j] = 1
                 Aeq_temp[i, i * NX + I_D0 + j] = 1
@@ -378,7 +388,7 @@ class OptimalVoyage():
                 Aeq_temp[i, i * NX + I_A0 + j] = -PL_IN_OUT
                 Aeq_temp[i, i * NX + I_D0 + j] = -PL_IN_OUT
             for j in range(NPORTs):
-                Aeq_temp[i, i * NX + I_S] = -PL_STOP
+                Aeq_temp[i, i * NX + I_S + j] = -PL_STOP
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
         # equation 17
@@ -445,8 +455,8 @@ class OptimalVoyage():
         b_temp = zeros(T * NPORTs)
         for i in range(T):
             for j in range(NPORTs):
-                A_temp[i, i * NX + PUG0 + j] = 1
-                A_temp[i, i * NX + I_S + j] = -PUG_MAX
+                A_temp[i * NPORTs + j, i * NX + PUG0 + j] = 1
+                A_temp[i * NPORTs + j, i * NX + I_S + j] = -PUG_MAX
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
 
@@ -454,8 +464,8 @@ class OptimalVoyage():
         b_temp = zeros(T * NPORTs)
         for i in range(T):
             for j in range(NPORTs):
-                A_temp[i, i * NX + PUG0 + j] = -1
-                A_temp[i, i * NX + I_S + j] = PUG_MIN
+                A_temp[i * NPORTs + j, i * NX + PUG0 + j] = -1
+                A_temp[i * NPORTs + j, i * NX + I_S + j] = PUG_MIN
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # piece-wise linear approximation
@@ -471,19 +481,19 @@ class OptimalVoyage():
         b = concatenate([b, b_temp])
 
         ## Problem solving
-        (x, obj, success) = miqp(c, diag(q), Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
+        (x, obj, success) = miqp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
         # Obtain the solution
-        alpha_A2S = zeros(T, NYs)
-        alpha_S2D = zeros(T, NYs)
-        alpha_D2A = zeros(T, NYs)
-        alpha_D2C = zeros(T, NYs)
-        alpha_C2A = zeros(T, NYs)
-        i_S = zeros(T, NPORTs)
-        i_D = zeros(T, NYs)
-        i_C = zeros(T, NYs)
-        i_A = zeros(T, NYs)
-        i_C_F = zeros(T, NYs)
-        i_C_H = zeros(T, NYs)
+        alpha_A2S = zeros((T, NYs))
+        alpha_S2D = zeros((T, NYs))
+        alpha_D2A = zeros((T, NYs))
+        alpha_D2C = zeros((T, NYs))
+        alpha_C2A = zeros((T, NYs))
+        i_S = zeros((T, NPORTs))
+        i_D = zeros((T, NYs))
+        i_C = zeros((T, NYs))
+        i_A = zeros((T, NYs))
+        i_C_F = zeros((T, NYs))
+        i_C_H = zeros((T, NYs))
         i_G = zeros((T, ng))
         p_G = zeros((T, ng))
         Pess_DC = zeros(T)
@@ -491,9 +501,9 @@ class OptimalVoyage():
         Iess_DC = zeros(T)
         Eess = zeros(T)
         Pl = zeros(T)
-        Pug = zeros(T)
+        Pug = zeros((T, NPORTs))
         Ppro = zeros(T)
-        v = zeros(T, NYs)
+        v = zeros((T, NYs))
 
         for i in range(T):
             for j in range(NYs):
