@@ -470,10 +470,29 @@ class OptimalVoyage():
             Pl[i] = x[i * NX + PL]
             Ppro[i] = x[i * NX + PPRO]
 
+        solution = {"obj": obj,
+                    "success": success,
+                    "i_S": i_S,
+                    "i_D": i_D,
+                    "i_C": i_C,
+                    "i_A": i_A,
+                    "i_C_F": i_C_F,
+                    "i_C_H": i_C_H,
+                    "i_G": i_G,
+                    "p_G": p_G,
+                    "Pess_DC": Pess_DC,
+                    "Pess_CH": Pess_CH,
+                    "Eess": Eess,
+                    "v": v,
+                    "Pug": Pug,
+                    "Pl": Pl,
+                    "Ppro": Ppro
+                    }
 
-        return sol
+        return solution
 
 
 if __name__ == "__main__":
     optimal_voyage = OptimalVoyage()
     sol = optimal_voyage.problem_formulaiton(networks=transportation_network())
+    print(sol)
