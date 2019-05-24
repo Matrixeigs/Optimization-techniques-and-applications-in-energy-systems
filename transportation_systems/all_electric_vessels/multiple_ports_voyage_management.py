@@ -303,7 +303,7 @@ class OptimalVoyage():
         for i in range(NYs):
             for j in range(T):
                 Aeq_temp[i, j * NX + V0 + i] = 1
-                Aeq_temp[i, j * NX + ALPHA_S2D0 + i] = -DIS[j]
+                Aeq_temp[i, j * NX + ALPHA_S2D0 + i] = -DIS[i]
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
 
