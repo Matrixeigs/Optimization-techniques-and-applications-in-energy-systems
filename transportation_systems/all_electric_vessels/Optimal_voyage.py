@@ -6,7 +6,7 @@ For paper:
 The input is a time space network
 """
 
-from numpy import zeros, array, concatenate, vstack, diag
+from numpy import zeros, concatenate, vstack, diag
 import os
 
 from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
