@@ -2,7 +2,7 @@
 Test case for optimal voyage problem with 5 ports and 9 voyages
 """
 
-from numpy import array
+from numpy import array, arange, zeros
 
 
 def transportation_network(delta=1):
@@ -73,7 +73,6 @@ b0 = array([8383, 8383, 360, 360, 360])
 b1 = array([385, 385, 950, 950, 950])
 b2 = array([385, 385, 950, 950, 950])
 
-
 Price_port = array([
     [51.78, 52.54056, 52.70963],
     [55.71, 52.54, 18.44477],
@@ -100,3 +99,22 @@ Price_port = array([
     [83.5, 63.69508, 66.05],
     [68.84, 61.59095, 63.15723],
 ])
+
+PL_FULL = 9.845  # Full speed service load
+PL_CRUISE = 8.69  # Cruise speed service load
+PL_IN_OUT = 9.075  # In/Out speed service load
+PL_STOP = 3.5  # Stop speed service load
+
+PUG_MAX = 10
+PUG_MIN = -10
+
+cp1 = 0.0012
+cp2 = 3
+nV = 10
+vBlock = arange(0, Vfull + Vfull / (nV - 1), Vfull / (nV - 1))
+PproBlock = zeros(nV)
+for i in range(nV): PproBlock[i] = cp1 * (vBlock[i] / 1.852) ** cp2
+
+mBlock = zeros(nV - 1)
+for i in range(nV - 1):
+    mBlock[i] = (PproBlock[i + 1] - PproBlock[i]) / (vBlock[i + 1] - vBlock[i])
