@@ -23,7 +23,7 @@ class OptimalVoyage():
     def __init__(self):
         self.pwd = os.getcwd()
 
-    def problem_formulaiton(self, networks=transportation_network()):
+    def problem_formulaiton(self, networks=transportation_network(), weight=0):
         """
         Problem formulation for optimal voyage among multiple ports
         :param networks:
@@ -171,15 +171,15 @@ class OptimalVoyage():
             for j in range(ng):
                 lb[i * NX + I_G0 + j] = 0
                 ub[i * NX + I_G0 + j] = 1
-                c[i * NX + I_G0 + j] = a0[j]
+                c[i * NX + I_G0 + j] = (1 - weight) * a0[j] + weight * b0[j]
                 q[i * NX + I_G0 + j] = 0
                 vtypes[i * NX + I_G0 + j] = 'b'
             # Pg
             for j in range(ng):
                 lb[i * NX + P_G0 + j] = 0
                 ub[i * NX + P_G0 + j] = PMAX[j]
-                c[i * NX + P_G0 + j] = a1[j]
-                q[i * NX + P_G0 + j] = a2[j]
+                c[i * NX + P_G0 + j] = (1 - weight) * a1[j] + weight * b1[j]
+                q[i * NX + P_G0 + j] = (1 - weight) * a2[j] + weight * b2[j]
             # PESS_DC
             lb[i * NX + PESS_DC] = 0
             ub[i * NX + PESS_DC] = pdcMax
