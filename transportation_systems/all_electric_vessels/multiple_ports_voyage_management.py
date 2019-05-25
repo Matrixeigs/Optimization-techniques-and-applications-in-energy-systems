@@ -23,7 +23,7 @@ class OptimalVoyage():
     def __init__(self):
         self.pwd = os.getcwd()
 
-    def problem_formulaiton(self, networks=transportation_network(), weight=0):
+    def problem_formulaiton(self, networks=transportation_network(), weight=1):
         """
         Problem formulation for optimal voyage among multiple ports
         :param networks:
@@ -481,7 +481,7 @@ class OptimalVoyage():
         b = concatenate([b, b_temp])
 
         ## Problem solving
-        (x, obj, success) = miqp(c, zeros(nx), Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
+        (x, obj, success) = miqp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
         # Obtain the solution
         alpha_A2S = zeros((T, NYs))
         alpha_S2D = zeros((T, NYs))
