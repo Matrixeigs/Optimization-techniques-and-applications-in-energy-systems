@@ -5,9 +5,9 @@ Optimal voyage management among multiple ports
 
 """
 
-from numpy import zeros, concatenate, vstack, diag
-import os
-
+from numpy import zeros, concatenate, vstack, array
+import os, platform
+import pandas as pd
 from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
 from transportation_systems.all_electric_vessels.test_case import a0, a1, a2, PMIN, PMAX, b0, b1, b2
 from transportation_systems.all_electric_vessels.test_case import Vfull, Vhalf, Vin_out, Vmin
@@ -481,7 +481,7 @@ class OptimalVoyage():
         b = concatenate([b, b_temp])
 
         ## Problem solving
-        (x, obj, success) = miqp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
+        (x, obj, success) = miqp(c, zeros(nx), Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
         # Obtain the solution
         alpha_A2S = zeros((T, NYs))
         alpha_S2D = zeros((T, NYs))
@@ -550,10 +550,55 @@ class OptimalVoyage():
                     "Ppro": Ppro
                     }
 
+        # save the results into excel file
+        if platform.system() == "Windows":
+            writer = pd.ExcelWriter(self.pwd + r"\result.xlsx", float_format="10.4%f", index=True)
+        else:
+            writer = pd.ExcelWriter(self.pwd + "/result.xlsx", float_format="10.4%f", index=True)
+
+        df = pd.DataFrame(array([solution["obj"]]))
+        df.to_excel(writer, sheet_name='obj')
+        port_text = []
+        for i in range(NPORTs): port_text.append("#{0} P".format(i + 1))
+        df = pd.DataFrame(solution["i_S"])
+        df.to_excel(writer, sheet_name='Berth_status', header=port_text)
+        voyage_text = []
+        for i in range(NYs): voyage_text.append("#{0} R".format(i))
+        df = pd.DataFrame(solution["i_D"])
+        df.to_excel(writer, sheet_name='Departure_status', header=voyage_text)
+        df = pd.DataFrame(solution["i_C"])
+        df.to_excel(writer, sheet_name='Cruise_status', header=voyage_text)
+        df = pd.DataFrame(solution["i_A"])
+        df.to_excel(writer, sheet_name='Arrival_status', header=voyage_text)
+        df = pd.DataFrame(solution["i_C_H"])
+        df.to_excel(writer, sheet_name='Cruise_half_status', header=voyage_text)
+        df = pd.DataFrame(solution["i_C_F"])
+        df.to_excel(writer, sheet_name='Cruise_full_status', header=voyage_text)
+        gene_text = []
+        for i in range(ng): gene_text.append("#{0} G".format(i))
+        df = pd.DataFrame(solution["i_G"])
+        df.to_excel(writer, sheet_name='Generator_status', header=gene_text)
+        df = pd.DataFrame(solution["p_G"])
+        df.to_excel(writer, sheet_name='Generator_output', header=gene_text)
+        df = pd.DataFrame(solution["Pug"])
+        df.to_excel(writer, sheet_name='Port_exchange', header=port_text)
+        df = pd.DataFrame(solution["v"])
+        df.to_excel(writer, sheet_name='vessel_speed', header=voyage_text)
+        df = pd.DataFrame(solution["Ppro"])
+        df.to_excel(writer, sheet_name='Pro_load')
+        df = pd.DataFrame(solution["Pl"])
+        df.to_excel(writer, sheet_name='service_load')
+        df = pd.DataFrame(solution["Pess_DC"])
+        df.to_excel(writer, sheet_name='ESS_discharging')
+        df = pd.DataFrame(solution["Pess_CH"])
+        df.to_excel(writer, sheet_name='ESS_charging')
+        df = pd.DataFrame(solution["Eess"])
+        df.to_excel(writer, sheet_name='ESS_energy_status')
+        writer.save()
+
         return solution
 
 
 if __name__ == "__main__":
     optimal_voyage = OptimalVoyage()
     sol = optimal_voyage.problem_formulaiton(networks=transportation_network())
-    print(sol)
