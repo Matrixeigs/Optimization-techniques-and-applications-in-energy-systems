@@ -23,7 +23,7 @@ class OptimalVoyage():
     def __init__(self):
         self.pwd = os.getcwd()
 
-    def problem_formulaiton(self, networks=transportation_network(), weight=1):
+    def problem_formulaiton(self, networks=transportation_network(), weight=0.5):
         """
         Problem formulation for optimal voyage among multiple ports
         :param networks:
