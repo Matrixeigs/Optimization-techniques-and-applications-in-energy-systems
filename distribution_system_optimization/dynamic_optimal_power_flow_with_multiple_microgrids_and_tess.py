@@ -12,14 +12,13 @@ from scipy.sparse import hstack, vstack
 from numpy import flatnonzero as find
 from numpy import array, tile, arange
 
-from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_STATUS, RATE_A
-from pypower.idx_bus import BUS_TYPE, REF, PD, VMAX, VMIN, QD
+from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, RATE_A
+from pypower.idx_bus import PD, VMAX, VMIN, QD
 from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
 from pypower.ext2int import ext2int
 
 from solvers.mixed_integer_quadratic_constrained_cplex import mixed_integer_quadratic_constrained_programming as miqcp
 from copy import deepcopy
-from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as milp
 
 from distribution_system_optimization.data_format.idx_opf import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, RUG, \
     RESS, RG, EESS, NX_MG, QBIC, QUG, QG
@@ -211,7 +210,7 @@ class DynamicOptimalPowerFlowTess():
         A = A_full
         # 3) Solve the problem
         rc = zeros(len(Qc))
-        (xx, obj, success) = miqcp(c, q, Aeq=Aeq, beq=beq, vtypes=vtypes, A=A, b=b, Qc=Qc,rc=rc, xmin=lx, xmax=ux)
+        (xx, obj, success) = miqcp(c, q, Aeq=Aeq, beq=beq, vtypes=vtypes, A=A, b=b, Qc=Qc, rc=rc, xmin=lx, xmax=ux)
 
         # 4) Check the solutions, including microgrids and distribution networks
         # 4.1) Scheduling plan of distribution networks
