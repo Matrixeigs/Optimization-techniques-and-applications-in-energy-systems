@@ -893,7 +893,7 @@ class DynamicOptimalPowerFlowTess():
             # maximal energy
             Aenergy[T + j, NX_status + n_stops: NX_status + n_stops + (j + 1) * nb_traffic_electric] = \
                 -1 / tess["EFF_DC"]
-            Aenergy[T + j, NX_status + 2 * n_stops: i * NX_traffic + NX_status + 2 * n_stops +
+            Aenergy[T + j, NX_status + 2 * n_stops: NX_status + 2 * n_stops +
                                                     (j + 1) * nb_traffic_electric] = tess["EFF_CH"]
             if j != (T - 1):
                 benergy[T + j] = tess["EMAX"] - tess["E0"]
