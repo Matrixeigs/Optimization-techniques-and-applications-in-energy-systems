@@ -650,7 +650,7 @@ if __name__ == "__main__":
                "EMAX": 200,
                "EMIN": 50,
                "COST_OP": 0.01,
-               "SERVICE_ARC": [(6, 0, 2), (18, 1, 1)]})
+               "SERVICE_ARC": [(6, 0, 2), (13, 1, 1), (19, 1, 1)]})
     # The data structure of service arc is a list of tuples. In each tuple, the first element stands for departure time,
     # the second item indicates whether the routine is from
 
