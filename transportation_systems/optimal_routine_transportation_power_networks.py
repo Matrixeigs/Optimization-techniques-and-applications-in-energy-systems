@@ -3,7 +3,6 @@ Dynamic optimal power flow with multiple microgrids
 """
 
 from distribution_system_optimization.test_cases import case33
-from micro_grids.test_cases.cases_unit_commitment import micro_grid
 from transportation_systems.test_cases import case3, TIME, LOCATION
 
 from scipy import zeros, shape, ones, diag, concatenate, eye
@@ -18,10 +17,8 @@ from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
 from pypower.ext2int import ext2int
 
 from solvers.mixed_integer_quadratic_constrained_cplex import mixed_integer_quadratic_constrained_programming as miqcp
-from copy import deepcopy
-
-from distribution_system_optimization.data_format.idx_opf import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, RUG, \
-    RESS, RG, EESS, NX_MG, QBIC, QUG, QG
+from math import floor
+from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
 
 
 class DynamicOptimalPowerFlowTess():
@@ -363,12 +360,14 @@ class DynamicOptimalPowerFlowTess():
         nb_traffic = self.nb_traffic
         T = self.T
         nb = self.nb
-
+        n_arc = len(tess["SERVICE_ARC"])
         nl_traffic = traffic_networks["branch"].shape[0]
 
         # Formulate the connection matrix between the transportaion networks and power networks
         connection_matrix = zeros(((2 * nl_traffic + nb_traffic) * T, 4))
         weight = zeros(((2 * nl_traffic + nb_traffic) * T, 1))
+        service_arc = zeros(((2 * nl_traffic + nb_traffic) * T, 1))
+
         for i in range(T):
             for j in range(nl_traffic):
                 # Add from matrix
@@ -377,7 +376,8 @@ class DynamicOptimalPowerFlowTess():
                 connection_matrix[i * (2 * nl_traffic + nb_traffic) + j, T_BUS] = traffic_networks["branch"][j, T_BUS] + \
                                                                                   traffic_networks["branch"][j, TIME] * \
                                                                                   nb_traffic + i * nb_traffic
-                weight[i * (2 * nl_traffic + nb_traffic) + j, 0] = 1
+                weight[i * (2 * nl_traffic + nb_traffic) + j, 0] = traffic_networks["branch"][j, TIME + 1] / \
+                                                                   traffic_networks["branch"][j, TIME]
                 connection_matrix[i * (2 * nl_traffic + nb_traffic) + j, TIME] = traffic_networks["branch"][j, TIME]
 
             for j in range(nl_traffic):
@@ -390,6 +390,9 @@ class DynamicOptimalPowerFlowTess():
 
                 connection_matrix[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic, TIME] = \
                     traffic_networks["branch"][j, TIME]
+                weight[i * (2 * nl_traffic + nb_traffic) + j + nl_traffic, 0] = traffic_networks["branch"][
+                                                                                    j, TIME + 1] / \
+                                                                                traffic_networks["branch"][j, TIME]
 
             for j in range(nb_traffic):
                 connection_matrix[i * (2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, F_BUS] = \
@@ -400,11 +403,18 @@ class DynamicOptimalPowerFlowTess():
                 if traffic_networks["bus"][j, LOCATION] >= 0:
                     connection_matrix[i * (2 * nl_traffic + nb_traffic) + 2 * nl_traffic + j, 3] = \
                         traffic_networks["bus"][j, LOCATION] + i * nb  # Location information
+        for j in range(n_arc):
+            if tess["SERVICE_ARC"][j][1] == 0:
+                service_arc[tess["SERVICE_ARC"][j][0] * (2 * nl_traffic + nb_traffic) + tess["SERVICE_ARC"][j][2]] = 1
+            else:
+                service_arc[tess["SERVICE_ARC"][j][0] * (2 * nl_traffic + nb_traffic) + tess["SERVICE_ARC"][j][
+                    2] + nl_traffic] = 1
 
         # Delete the out of range lines
         index = find(connection_matrix[:, T_BUS] < T * nb_traffic)
         connection_matrix = connection_matrix[index, :]
-
+        weight = weight[index]
+        service_arc = service_arc[index]
         # add two virtual nodes to represent the initial and end status of vehicles
         # special attention should be paid here, as the original index has been modified!
         connection_matrix[:, F_BUS] += 1
@@ -413,6 +423,8 @@ class DynamicOptimalPowerFlowTess():
         temp = zeros((nb_traffic, 4))
         for i in range(nb_traffic): temp[i, 1] = i + 1
         connection_matrix = concatenate([temp, connection_matrix])
+        weight = concatenate([zeros((nb_traffic, 1)), weight])
+        service_arc = concatenate([zeros((nb_traffic, 1)), service_arc])
 
         # To matrix
         for i in range(nb_traffic):
@@ -422,6 +434,8 @@ class DynamicOptimalPowerFlowTess():
             if traffic_networks["bus"][i, LOCATION] >= 0:
                 temp[0, 3] = traffic_networks["bus"][i, LOCATION] + (T - 1) * nb
             connection_matrix = concatenate([connection_matrix, temp])
+        weight = concatenate([weight, zeros((nb_traffic, 1))])
+        service_arc = concatenate([service_arc, zeros((nb_traffic, 1))])
 
         # Status transition matrix
         nl_traffic = connection_matrix.shape[0]
@@ -435,9 +449,16 @@ class DynamicOptimalPowerFlowTess():
                         connection_matrix[j, F_BUS] < (i + 1) * nb_traffic + 1:
                     status_matrix[i, j] = 1
 
-                if connection_matrix[j, F_BUS] <= i * nb_traffic + 1 and \
-                        connection_matrix[j, T_BUS] > (i + 1) * nb_traffic + 1:
+                if connection_matrix[j, F_BUS] < i * nb_traffic + 1 and \
+                        connection_matrix[j, T_BUS] >= (i + 1) * nb_traffic + 1:
                     status_matrix[i, j] = 1
+
+        status_matrix_energy = zeros((T, nl_traffic))
+        for i in range(T):
+            for j in range(nl_traffic):
+                if status_matrix[i, j] > 0 and weight[j] > 0:
+                    status_matrix_energy[i, j] = weight[j]
+
         # Update connection matrix
         connection_matrix_f = zeros((T * nb_traffic + 2, nl_traffic))
         connection_matrix_t = zeros((T * nb_traffic + 2, nl_traffic))
@@ -449,12 +470,12 @@ class DynamicOptimalPowerFlowTess():
         n_stops = find(connection_matrix[:, 3]).__len__()
 
         assert n_stops == nb_traffic_electric * T, "The number of bus stop is not right!"
+        self.connection_matrix = connection_matrix
 
-        NX_traffic = nl_traffic + 4 * n_stops  # Status transition, charging status, charging rate, discharging rate, spinning reserve
+        NX_traffic = nl_traffic + 3 * n_stops  # Status transition, charging status, charging rate, discharging rate
         NX_status = nl_traffic
         lx = zeros(NX_traffic)
         ux = ones(NX_traffic)
-
         self.NX_traffic = NX_traffic
         self.nl_traffic = nl_traffic
         self.n_stops = n_stops
@@ -462,15 +483,17 @@ class DynamicOptimalPowerFlowTess():
         ux[NX_status + 0 * n_stops:NX_status + 1 * n_stops] = 1
         ux[NX_status + 1 * n_stops:NX_status + 2 * n_stops] = tess["PDMAX"]
         ux[NX_status + 2 * n_stops:NX_status + 3 * n_stops] = tess["PCMAX"]
-        ux[NX_status + 3 * n_stops:NX_status + 4 * n_stops] = tess["PCMAX"] + tess["PDMAX"]
         # The initial location and stop location
         lx[find(connection_matrix[:, F_BUS] == 0)] = tess["initial"]
         ux[find(connection_matrix[:, F_BUS] == 0)] = tess["initial"]
         lx[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = tess["end"]
         ux[find(connection_matrix[:, T_BUS] == T * nb_traffic + 1)] = tess["end"]
 
-        vtypes = ["b"] * NX_status + ["b"] * n_stops + ["c"] * 3 * n_stops
+        # The service arc constraints
+        lx[find(service_arc == 1)] = 1
 
+        vtypes = ["b"] * NX_status + ["b"] * n_stops + ["c"] * 2 * n_stops
+        # Flow conservation
         Aeq = connection_matrix_f - connection_matrix_t
         beq = zeros(T * nb_traffic + 2)
         beq[0] = 1
@@ -482,7 +505,8 @@ class DynamicOptimalPowerFlowTess():
         beq = concatenate([beq, beq_temp])
         neq_traffic = Aeq.shape[0]
         # Fulfill the missing zeros
-        Aeq = concatenate([Aeq, zeros((neq_traffic, 4 * n_stops))], axis=1)
+        Aeq = concatenate([Aeq, zeros((neq_traffic, 3 * n_stops))], axis=1)
+        self.Aeq_temp = concatenate([Aeq_temp, zeros((Aeq_temp.shape[0], 3 * n_stops))], axis=1)
 
         ## Inequality constraints
         index_stops = find(connection_matrix[:, 3])
@@ -514,15 +538,16 @@ class DynamicOptimalPowerFlowTess():
         A = concatenate([A, Arange])
         b = concatenate([b, brange])
 
-        # Add constraints on the energy status
+        # Add constraints on the energy status, considering the energy consumption
         Aenergy = zeros((2 * T, NX_traffic))
         benergy = zeros(2 * T)
         for j in range(T):
             # minimal energy
             Aenergy[j, NX_status + n_stops: NX_status + n_stops + (j + 1) * nb_traffic_electric] = 1 / tess["EFF_DC"]
+            for k in range(j + 1):
+                Aenergy[j, 0:NX_status] += status_matrix_energy[k, :]
             Aenergy[j, NX_status + 2 * n_stops: NX_status + 2 * n_stops + (j + 1) * nb_traffic_electric] = \
                 -tess["EFF_CH"]
-            Aenergy[j, NX_status + 3 * n_stops + (j + 1) * nb_traffic_electric - 1] = 0.5
             if j != (T - 1):
                 benergy[j] = tess["E0"] - tess["EMIN"]
             else:
@@ -530,13 +555,15 @@ class DynamicOptimalPowerFlowTess():
             # maximal energy
             Aenergy[T + j, NX_status + n_stops: NX_status + n_stops + (j + 1) * nb_traffic_electric] = \
                 -1 / tess["EFF_DC"]
-            Aenergy[T + j, NX_status + 2 * n_stops: i * NX_traffic + NX_status + 2 * n_stops +
-                                                    (j + 1) * nb_traffic_electric] = tess["EFF_CH"]
+            for k in range(j + 1):
+                Aenergy[T + j, 0:NX_status] -= status_matrix_energy[k, :]
+            Aenergy[T + j, NX_status + 2 * n_stops:  NX_status + 2 * n_stops + (j + 1) * nb_traffic_electric] = \
+                tess["EFF_CH"]
             if j != (T - 1):
                 benergy[T + j] = tess["EMAX"] - tess["E0"]
             else:
                 benergy[T + j] = 0
-
+        # self.Aenergy = Aenergy
         A = concatenate([A, Aenergy])
         b = concatenate([b, benergy])
 
@@ -550,6 +577,8 @@ class DynamicOptimalPowerFlowTess():
                       "Aeq": Aeq,
                       "beq": beq,
                       "NX": NX_traffic}
+        # sol = miqp(model_tess["c"], model_tess["q"], Aeq=Aeq, beq=beq, A=A, b=b, xmin=lx, xmax=ux,
+        #            vtypes=model_tess["vtypes"])
 
         return model_tess
 
@@ -563,15 +592,28 @@ class DynamicOptimalPowerFlowTess():
         nl_traffic = self.nl_traffic
         n_stops = self.n_stops
         nev = self.nev
+        nb_traffic = self.nb_traffic
 
         tsn_ev = zeros((nl_traffic, nev))
         ich_ev = zeros((n_stops, nev))
         pdc_ev = zeros((n_stops, nev))
         pch_ev = zeros((n_stops, nev))
+        VRP = [0] * nev
 
         for i in range(nev):
+            VRP[i] = []
             for j in range(nl_traffic):
                 tsn_ev[j, i] = sol[i * NX_traffic + j]
+                if tsn_ev[j, i] > 0:
+                    if self.connection_matrix[j, 0] == 0:
+                        VRP[i].append(((self.connection_matrix[j, 1] - 1) % nb_traffic,
+                                       (self.connection_matrix[j, 1] - 1) % nb_traffic,
+                                       floor((self.connection_matrix[j, 1] - 1) / nb_traffic)))
+                    else:
+                        VRP[i].append(((self.connection_matrix[j, 0] - 1) % nb_traffic,
+                                       (self.connection_matrix[j, 1] - 1) % nb_traffic,
+                                       floor((self.connection_matrix[j, 0] - 1) / nb_traffic)
+                                       ))
             for j in range(n_stops):
                 ich_ev[j, i] = sol[i * NX_traffic + nl_traffic + 0 * n_stops + j]
             for j in range(n_stops):
@@ -582,7 +624,8 @@ class DynamicOptimalPowerFlowTess():
         sol_tess = {"Tsn_ev": tsn_ev,
                     "Ich": ich_ev,
                     "Pdc": pdc_ev,
-                    "Pch": pch_ev}
+                    "Pch": pch_ev,
+                    "VRP": VRP}
 
         return sol_tess
 
@@ -591,14 +634,14 @@ if __name__ == "__main__":
     # Distribution network information
     mpc = case33.case33()  # Default test case
     load_profile = array(
-        [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81, 0.59, 0.35, 0.14, 0.17, 0.41]) * 2
+        [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00,
+         0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41]) * 2
 
     ## Transportaion network information
     ev = []
     traffic_networks = case3.transportation_network()  # Default transportation networks
     ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
+               "end": array([1, 0, 0]),
                "PCMAX": 200,
                "PDMAX": 200,
                "EFF_CH": 0.9,
@@ -607,7 +650,11 @@ if __name__ == "__main__":
                "EMAX": 200,
                "EMIN": 50,
                "COST_OP": 0.01,
-               })
+               "SERVICE_ARC": [(6, 0, 2), (18, 1, 1)]})
+    # The data structure of service arc is a list of tuples. In each tuple, the first element stands for departure time,
+    # the second item indicates whether the routine is from
+
+    # Service arc and time
 
     dynamic_optimal_power_flow = DynamicOptimalPowerFlowTess()
 

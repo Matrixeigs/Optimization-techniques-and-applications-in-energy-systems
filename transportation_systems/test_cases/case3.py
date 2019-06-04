@@ -8,10 +8,11 @@ from transportation_systems.test_cases import TIME
 
 
 def transportation_network(delta=1):
+
     branch = array([
-        [0, 1, 1],
-        [0, 2, 3],
-        [1, 2, 2],
+        [0, 1, 1, 10],
+        [0, 2, 3, 30],
+        [1, 2, 2, 20],
     ])
 
     branch[:, TIME] = branch[:, TIME] / delta
