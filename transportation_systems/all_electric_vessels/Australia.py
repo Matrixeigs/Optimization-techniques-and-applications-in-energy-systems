@@ -95,12 +95,12 @@ PL_STOP = 3.5  # Stop speed service load
 PUG_MAX = 10
 PUG_MIN = -10
 
-cp1 = 0.0012
+cp1 = 0.003
 cp2 = 3
 nV = 10
 vBlock = arange(0, Vfull + Vfull / (nV - 1), Vfull / (nV - 1))
 PproBlock = zeros(nV)
-for i in range(nV): PproBlock[i] = cp1 * (vBlock[i] / 1.852) ** cp2
+for i in range(nV): PproBlock[i] = cp1 * vBlock[i] ** cp2
 
 mBlock = zeros(nV - 1)
 for i in range(nV - 1):
