@@ -9,13 +9,13 @@ from numpy import zeros, concatenate, vstack, array
 import os, platform
 import pandas as pd
 from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
-from transportation_systems.all_electric_vessels.test_case import a0, a1, a2, PMIN, PMAX, b0, b1, b2
-from transportation_systems.all_electric_vessels.test_case import Vfull, Vhalf, Vin_out, Vmin
-from transportation_systems.all_electric_vessels.test_case import capacityEss, socMax, socMin, effCharing, \
+from transportation_systems.all_electric_vessels.Australia import a0, a1, a2, PMIN, PMAX, b0, b1, b2
+from transportation_systems.all_electric_vessels.Australia import Vfull, Vhalf, Vin_out, Vmin
+from transportation_systems.all_electric_vessels.Australia import capacityEss, socMax, socMin, effCharing, \
     effDischaring, pchMax, pdcMax, PL_CRUISE, PL_FULL, PL_IN_OUT, PL_STOP, PUG_MAX, PUG_MIN, vBlock, PproBlock, mBlock, \
     nV
 
-from transportation_systems.all_electric_vessels.test_case import transportation_network, Price_port
+from transportation_systems.all_electric_vessels.Australia import transportation_network, Price_port
 
 
 class OptimalVoyage():
@@ -163,7 +163,7 @@ class OptimalVoyage():
             # I_C_H
             for j in range(NYs):
                 lb[i * NX + I_C_H0 + j] = 0
-                ub[i * NX + I_C_H0 + j] = 1
+                ub[i * NX + I_C_H0 + j] = 0  # Do not allow half cruise
                 c[i * NX + I_C_H0 + j] = 0
                 q[i * NX + I_C_H0 + j] = 0
                 vtypes[i * NX + I_C_H0 + j] = 'b'
