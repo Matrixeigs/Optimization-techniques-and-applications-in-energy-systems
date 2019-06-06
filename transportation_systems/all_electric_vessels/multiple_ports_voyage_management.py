@@ -23,7 +23,7 @@ class OptimalVoyage():
     def __init__(self):
         self.pwd = os.getcwd()
 
-    def problem_formulaiton(self, networks=transportation_network(), weight=0.5):
+    def problem_formulaiton(self, networks=transportation_network(), weight=0):
         """
         Problem formulation for optimal voyage among multiple ports
         :param networks:
@@ -477,6 +477,17 @@ class OptimalVoyage():
                 for k in range(NYs):
                     A_temp[i * (nV - 1) + j, i * NX + V0 + k] = mBlock[j]
                 b_temp[i * (nV - 1) + j] = -PproBlock[j] + mBlock[j] * vBlock[j]
+        A = vstack([A, A_temp])
+        b = concatenate([b, b_temp])
+        # Pproload
+        A_temp = zeros((T, nx))
+        b_temp = zeros(T)
+        for i in range(T):
+            A_temp[i, i * NX + PPRO] = 1
+            for j in range(NYs):
+                A_temp[i, i * NX + I_C0 + j] = -PproBlock[-1]
+                A_temp[i, i * NX + I_D0 + j] = -PproBlock[-1]
+                A_temp[i, i * NX + I_A0 + j] = -PproBlock[-1]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
 
