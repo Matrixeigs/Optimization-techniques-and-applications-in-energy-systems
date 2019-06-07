@@ -73,37 +73,52 @@ pchMax = 5
 effCharing = 0.95
 effDischaring = 1
 
-EcapacityEss = 1000
-PcapacityEss = 1000
-CostEssP = 1000000
-CostEssE = 500000
+EcapacityEss = 1e4
+PcapacityEss = 1e2
+CostEssP = 3000
+CostEssE = 2000
 
-PMIN = array([0, 0, 0])
-PMAX = array([16.5, 16.5, 9.6])
+# PMIN = array([0, 0, 0])
+# PMAX = array([16.5, 16.5, 9.6])
+# # a0 = array([3000, 3000, 210])
+# # a1 = array([2185, 2185, 1623])
+# # a2 = array([30, 30, 10])
+# # a2 = array([0, 0, 0])
+# # a0 = array([0.246, 0.246, 0.246]) * 0.709 *1000
+# # a1 = array([0.0845, 0.0845, 0.0845]) * 0.709 * 1000
+# a0 = array([0.0845*16.5, 0.0845*16.5, 0.0845*9.6]) * 1.04 *1000
+# a1 = array([0.245, 0.245, 0.245]) * 1.04 * 1000
+# a2 = array([0, 0, 0])
+
+PMIN = array([0, 0])
+PMAX = array([12, 12])
 # a0 = array([3000, 3000, 210])
 # a1 = array([2185, 2185, 1623])
 # a2 = array([30, 30, 10])
 # a2 = array([0, 0, 0])
-a0 = array([0.246, 0.246, 0.246]) * 0.709 *1000
-a1 = array([0.0845, 0.0845, 0.0845]) * 0.709 * 1000
-a2 = array([0, 0, 0])
+# a0 = array([0.246, 0.246, 0.246]) * 0.709 *1000
+# a1 = array([0.0845, 0.0845, 0.0845]) * 0.709 * 1000
+a0 = array([0.0845*12, 0.0845*12]) * 1.04 *1000
+a1 = array([0.245, 0.245]) * 1.04 * 1000
+a2 = array([0, 0])
+
 
 b0 = array([8383, 8383, 360])
 b1 = array([385, 385, 950])
 # b2 = array([385, 385, 950])
 b2 = array([0, 0, 0])
-
-Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()
+Tmax = 125
+Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()[0:Tmax,]
 
 PL_FULL = 9.845  # Full speed service load
 PL_CRUISE = 8.69  # Cruise speed service load
 PL_IN_OUT = 9.075  # In/Out speed service load
 PL_STOP = 3.5  # Stop speed service load
 
-PUG_MAX = 10
-PUG_MIN = -10
+PUG_MAX = PcapacityEss
+PUG_MIN = 0
 
-cp1 = 0.0012
+cp1 = 0.003
 cp2 = 3
 nV = 10
 vBlock = arange(0, Vfull + Vfull / (nV - 1), Vfull / (nV - 1))

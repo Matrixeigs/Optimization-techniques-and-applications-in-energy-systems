@@ -416,7 +416,7 @@ class OptimalPlanningESS():
         b_temp = zeros(T)
         for i in range(T):
             A_temp[i, i * NX + PESS_DC] = 1
-            A_temp[i, i * NX + IESS_DC] = -pdcMax
+            A_temp[i, i * NX + IESS_DC] = -PcapacityEss
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # equation 21
@@ -424,8 +424,8 @@ class OptimalPlanningESS():
         b_temp = zeros(T)
         for i in range(T):
             A_temp[i, i * NX + PESS_CH] = 1
-            A_temp[i, i * NX + IESS_DC] = pchMax
-            b_temp[i] = pchMax
+            A_temp[i, i * NX + IESS_DC] = PcapacityEss
+            b_temp[i] = PcapacityEss
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
         # equation 22
@@ -436,7 +436,7 @@ class OptimalPlanningESS():
             Aeq_temp[i, i * NX + PESS_DC] = 1 / effDischaring
             Aeq_temp[i, i * NX + PESS_CH] = effCharing
             if i == 0:
-                Aeq_temp[i, ESSCAP] = -0.5
+                Aeq_temp[i, ESSCAP] = -socMax
             else:
                 Aeq_temp[i, (i - 1) * NX + EESS] = -1
         Aeq = vstack([Aeq, Aeq_temp])
@@ -491,7 +491,7 @@ class OptimalPlanningESS():
             A_temp[i, PESSCAP] = -1
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
-
+        #
         # piece-wise linear approximation
         A_temp = zeros((T * (nV - 1), nx))
         b_temp = zeros(T * (nV - 1))
