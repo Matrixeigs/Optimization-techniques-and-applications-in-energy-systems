@@ -77,13 +77,13 @@ PMIN = array([0, 0, 0])
 PMAX = array([16.5, 16.5, 9.6])
 a0 = array([3000, 3000, 210])
 a1 = array([2185, 2185, 1623])
-a2 = array([30, 30, 10])
-# a2 = array([0, 0, 0])
+# a2 = array([30, 30, 10])
+a2 = array([0, 0, 0])
 
 b0 = array([8383, 8383, 360])
 b1 = array([385, 385, 950])
-b2 = array([385, 385, 950])
-# b2 = array([0, 0, 0])
+# b2 = array([385, 385, 950])
+b2 = array([0, 0, 0])
 
 Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()
 

@@ -9,6 +9,7 @@ from numpy import zeros, concatenate, vstack, array
 import os, platform
 import pandas as pd
 from solvers.mixed_integer_quadratic_solver_cplex import mixed_integer_quadratic_programming as miqp
+from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
 from transportation_systems.all_electric_vessels.Australia import a0, a1, a2, PMIN, PMAX, b0, b1, b2
 from transportation_systems.all_electric_vessels.Australia import Vfull, Vhalf, Vin_out, Vmin
 from transportation_systems.all_electric_vessels.Australia import capacityEss, socMax, socMin, effCharing, \
@@ -492,7 +493,8 @@ class OptimalVoyage():
         b = concatenate([b, b_temp])
 
         ## Problem solving
-        (x, obj, success) = miqp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
+        (x, obj, success) = milp(c, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
+        # (x, obj, success) = miqp(c, q, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
         # Obtain the solution
         alpha_A2S = zeros((T, NYs))
         alpha_S2D = zeros((T, NYs))
