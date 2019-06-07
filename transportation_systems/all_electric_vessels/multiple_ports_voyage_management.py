@@ -444,7 +444,7 @@ class OptimalVoyage():
         for i in range(T):
             Aeq_temp[i, i * NX + EESS] = 1
             Aeq_temp[i, i * NX + PESS_DC] = 1 / effDischaring
-            Aeq_temp[i, i * NX + PESS_CH] = effCharing
+            Aeq_temp[i, i * NX + PESS_CH] = -effCharing
             if i == 0:
                 beq_temp[i] = capacityEss * 0.5
             else:

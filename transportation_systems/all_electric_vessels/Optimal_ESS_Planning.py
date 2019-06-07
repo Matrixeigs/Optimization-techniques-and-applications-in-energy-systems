@@ -13,7 +13,7 @@ from transportation_systems.all_electric_vessels.Australia import a0, a1, a2, PM
 from transportation_systems.all_electric_vessels.Australia import Vfull, Vhalf, Vin_out, Vmin
 from transportation_systems.all_electric_vessels.Australia import capacityEss, socMax, socMin, effCharing, \
     effDischaring, pchMax, pdcMax, PL_CRUISE, PL_FULL, PL_IN_OUT, PL_STOP, PUG_MAX, PUG_MIN, vBlock, PproBlock, mBlock, \
-    nV, EcapacityEss, PcapacityEss, CostEssE, CostEssP
+    nV, EcapacityEss, PcapacityEss, CostEssE, CostEssP,soc0
 
 from transportation_systems.all_electric_vessels.Australia import transportation_network, Price_port
 
@@ -434,9 +434,9 @@ class OptimalPlanningESS():
         for i in range(T):
             Aeq_temp[i, i * NX + EESS] = 1
             Aeq_temp[i, i * NX + PESS_DC] = 1 / effDischaring
-            Aeq_temp[i, i * NX + PESS_CH] = effCharing
+            Aeq_temp[i, i * NX + PESS_CH] = -effCharing
             if i == 0:
-                Aeq_temp[i, ESSCAP] = -socMax
+                Aeq_temp[i, ESSCAP] = -soc0
             else:
                 Aeq_temp[i, (i - 1) * NX + EESS] = -1
         Aeq = vstack([Aeq, Aeq_temp])
@@ -515,6 +515,12 @@ class OptimalPlanningESS():
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
 
+        Aeq_temp = zeros((1, nx))
+        beq_temp = zeros(1)
+        Aeq_temp[0, ESSCAP] = -soc0
+        Aeq_temp[0, (T-1) * NX + EESS] = 1
+        Aeq = vstack([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
         ## Problem solving
         # (x, obj, success) = milp(c, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
         (x, obj, success) = milp(c, Aeq=Aeq, beq=beq, A=A, b=b, xmin=lb, xmax=ub, vtypes=vtypes)
