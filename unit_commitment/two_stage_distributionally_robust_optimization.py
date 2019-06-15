@@ -9,6 +9,7 @@ from numpy import zeros, shape, ones, concatenate, r_, arange, array, eye, tile
 import scipy.linalg as linalg
 from scipy.sparse import csc_matrix as sparse
 from scipy.sparse import lil_matrix, vstack, hstack
+from scipy import inf
 
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, TAP, SHIFT, BR_STATUS, RATE_A
 from pypower.idx_bus import BUS_TYPE, REF, VA, VM, PD, GS, VMAX, VMIN, BUS_I, QD
@@ -37,7 +38,6 @@ class TwoStageUnitCommitmentRobust():
 
         MIN_UP = -2
         MIN_DOWN = -3
-        inf = 1e8
         # Modify the bus, gen and branch matrix
         bus[:, BUS_I] = bus[:, BUS_I] - 1
         gen[:, GEN_BUS] = gen[:, GEN_BUS] - 1
@@ -83,6 +83,8 @@ class TwoStageUnitCommitmentRobust():
                 ub[RDG * ng * T + i * ng + j] = gen[j, PMAX]
                 # variable types
                 vtypes[IG * ng * T + i * ng + j] = "D"
+                vtypes[ALPHA * ng * T + i * ng + j] = "D"
+                vtypes[BETA * ng * T + i * ng + j] = "D"
 
         c = zeros((nx, 1))
         q = zeros((nx, 1))
@@ -189,8 +191,8 @@ class TwoStageUnitCommitmentRobust():
             for j in range(T - 1):
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + (j + 1) * ng + i] = 1
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + j * ng + i] = -1
-                Aineq_temp[i * (T - 1) + j, ALPHA * ng * T + (j + 1) * ng + i] = gen[i, RAMP_AGC] - gen[i, PMIN]
-                bineq_temp[i * (T - 1) + j] = gen[i, RAMP_AGC]
+                Aineq_temp[i * (T - 1) + j, ALPHA * ng * T + (j + 1) * ng + i] = gen[i, PMAX] - gen[i, PMIN]
+                bineq_temp[i * (T - 1) + j] = gen[i, PMAX]
 
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
@@ -201,8 +203,8 @@ class TwoStageUnitCommitmentRobust():
             for j in range(T - 1):
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + (j + 1) * ng + i] = -1
                 Aineq_temp[i * (T - 1) + j, PG * ng * T + j * ng + i] = 1
-                Aineq_temp[i * (T - 1) + j, BETA * ng * T + (j + 1) * ng + i] = gen[i, RAMP_AGC] - gen[i, PMIN]
-                bineq_temp[i * (T - 1) + j] = gen[i, RAMP_AGC]
+                Aineq_temp[i * (T - 1) + j, BETA * ng * T + (j + 1) * ng + i] = gen[i, PMAX] - gen[i, PMIN]
+                bineq_temp[i * (T - 1) + j] = gen[i, PMAX]
         Aineq = concatenate((Aineq, Aineq_temp), axis=0)
         bineq = concatenate((bineq, bineq_temp), axis=0)
 
@@ -227,29 +229,29 @@ class TwoStageUnitCommitmentRobust():
         Cg = sparse((ones(ng), (gen[:, GEN_BUS], arange(ng))),
                     (nb, ng))  # Sparse index generation method is different from the way of matlab
 
-        Aineq_temp = zeros((T * nl, nx))
-        bineq_temp = zeros((T * nl, 1))
-        for i in range(T):
-            Aineq_temp[i * nl:(i + 1) * nl, PG * ng * T + i * ng:PG * ng * T + (i + 1) * ng] = -(
-                    Distribution_factor * Cg).todense()
-            bineq_temp[i * nl:(i + 1) * nl, :] = (
-                    branch[:, RATE_A] - Distribution_factor * bus[:, PD] * profile[i]).reshape((nl, 1))
-        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-        bineq = concatenate((bineq, bineq_temp), axis=0)
-
+        # Aineq_temp = zeros((T * nl, nx))
+        # bineq_temp = zeros((T * nl, 1))
+        # for i in range(T):
+        #     Aineq_temp[i * nl:(i + 1) * nl, PG * ng * T + i * ng:PG * ng * T + (i + 1) * ng] = -(
+        #             Distribution_factor * Cg).todense()
+        #     bineq_temp[i * nl:(i + 1) * nl, :] = (
+        #             branch[:, RATE_A] - Distribution_factor * bus[:, PD] * profile[i]).reshape((nl, 1))
+        # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        # bineq = concatenate((bineq, bineq_temp), axis=0)
+        #
         self.Distribution_factor = Distribution_factor
         self.Pd = bus[:, PD]
         self.profile = profile
         self.Cg = Cg
-        Aineq_temp = zeros((T * nl, nx))
-        bineq_temp = zeros((T * nl, 1))
-        for i in range(T):
-            Aineq_temp[i * nl:(i + 1) * nl, PG * ng * T + i * ng:PG * ng * T + (i + 1) * ng] = (
-                    Distribution_factor * Cg).todense()
-            bineq_temp[i * nl:(i + 1) * nl, :] = (
-                    branch[:, RATE_A] + Distribution_factor * bus[:, PD] * profile[i]).reshape((nl, 1))
-        Aineq = concatenate((Aineq, Aineq_temp), axis=0)
-        bineq = concatenate((bineq, bineq_temp), axis=0)
+        # Aineq_temp = zeros((T * nl, nx))
+        # bineq_temp = zeros((T * nl, 1))
+        # for i in range(T):
+        #     Aineq_temp[i * nl:(i + 1) * nl, PG * ng * T + i * ng:PG * ng * T + (i + 1) * ng] = (
+        #             Distribution_factor * Cg).todense()
+        #     bineq_temp[i * nl:(i + 1) * nl, :] = (
+        #             branch[:, RATE_A] + Distribution_factor * bus[:, PD] * profile[i]).reshape((nl, 1))
+        # Aineq = concatenate((Aineq, Aineq_temp), axis=0)
+        # bineq = concatenate((bineq, bineq_temp), axis=0)
 
         # 2.7)  Up and down reserve for the forecasting errors
         # Up reserve limitation
@@ -281,7 +283,7 @@ class TwoStageUnitCommitmentRobust():
                  "Aeq": sparse(Aeq).tocoo(),
                  "beq": beq,
                  "vtypes": vtypes}
-        # self.problem_solving(model)
+        self.problem_solving(model)
         # The second stage model
         nx = len(model["lb"])
         ny = int(ng * T + nb * T)
@@ -300,7 +302,7 @@ class TwoStageUnitCommitmentRobust():
             for j in range(ng):
                 Tx[i * ng + j, PG * ng * T + i * ng + j] = 1
                 Tx[i * ng + j, RUG * ng * T + i * ng + j] = 1
-                Wy[i * ng + j, i * ng + j] = 1
+                Wy[i * ng + j, i * ng + j] = -1
         # 2) -Pg+Ru+pg>=0
         Tx_temp = zeros((ng * T, nx))
         Wy_temp = zeros((ng * T, ny))
@@ -309,7 +311,7 @@ class TwoStageUnitCommitmentRobust():
         for i in range(T):
             for j in range(ng):
                 Tx_temp[i * ng + j, PG * ng * T + i * ng + j] = -1
-                Tx_temp[i * ng + j, RUG * ng * T + i * ng + j] = 1
+                Tx_temp[i * ng + j, RDG * ng * T + i * ng + j] = 1
                 Wy_temp[i * ng + j, i * ng + j] = 1
         Tx = concatenate([Tx, Tx_temp])
         Wy = concatenate([Wy, Wy_temp])
@@ -341,35 +343,35 @@ class TwoStageUnitCommitmentRobust():
         h0 = concatenate([h0, h0_temp])
         Hz = concatenate([Hz, Hz_temp])
         # 5) Transmission lines flow limitaions
-        Tx_temp = zeros((nl * T, nx))
-        Wy_temp = zeros((nl * T, ny))
-        h0_temp = zeros((nl * T, 1))
-        Hz_temp = zeros((nl * T, nz))
-        for i in range(T):
-            for j in range(nb):
-                Wy_temp[i * nl:(i + 1) * nl, i * ng:(i + 1) * ng] = -(Distribution_factor * Cg).todense()
-                Wy_temp[i * nl:(i + 1) * nl, ng * T + i * nb:ng * T + (i + 1) * nb] = -Distribution_factor.todense()
-                h0_temp[i * nl:(i + 1) * nl, 0] = -branch[:, RATE_A]
-                Hz_temp[i * nl:(i + 1) * nl, i * nb:(i + 1) * nb] = -Distribution_factor.todense()
-        Tx = concatenate([Tx, Tx_temp])
-        Wy = concatenate([Wy, Wy_temp])
-        h0 = concatenate([h0, h0_temp])
-        Hz = concatenate([Hz, Hz_temp])
-
-        Tx_temp = zeros((nl * T, nx))
-        Wy_temp = zeros((nl * T, ny))
-        h0_temp = zeros((nl * T, 1))
-        Hz_temp = zeros((nl * T, nz))
-        for i in range(T):
-            for j in range(nb):
-                Wy_temp[i * nl:(i + 1) * nl, i * ng:(i + 1) * ng] = (Distribution_factor * Cg).todense()
-                Wy_temp[i * nl:(i + 1) * nl, ng * T + i * nb:ng * T + (i + 1) * nb] = Distribution_factor.todense()
-                h0_temp[i * nl:(i + 1) * nl, 0] = -branch[:, RATE_A]
-                Hz_temp[i * nl:(i + 1) * nl, i * nb:(i + 1) * nb] = Distribution_factor.todense()
-        Tx = concatenate([Tx, Tx_temp])
-        Wy = concatenate([Wy, Wy_temp])
-        h0 = concatenate([h0, h0_temp])
-        Hz = concatenate([Hz, Hz_temp])
+        # Tx_temp = zeros((nl * T, nx))
+        # Wy_temp = zeros((nl * T, ny))
+        # h0_temp = zeros((nl * T, 1))
+        # Hz_temp = zeros((nl * T, nz))
+        # for i in range(T):
+        #     for j in range(nb):
+        #         Wy_temp[i * nl:(i + 1) * nl, i * ng:(i + 1) * ng] = -(Distribution_factor * Cg).todense()
+        #         Wy_temp[i * nl:(i + 1) * nl, ng * T + i * nb:ng * T + (i + 1) * nb] = -Distribution_factor.todense()
+        #         h0_temp[i * nl:(i + 1) * nl, 0] = -branch[:, RATE_A]
+        #         Hz_temp[i * nl:(i + 1) * nl, i * nb:(i + 1) * nb] = -Distribution_factor.todense()
+        # Tx = concatenate([Tx, Tx_temp])
+        # Wy = concatenate([Wy, Wy_temp])
+        # h0 = concatenate([h0, h0_temp])
+        # Hz = concatenate([Hz, Hz_temp])
+        #
+        # Tx_temp = zeros((nl * T, nx))
+        # Wy_temp = zeros((nl * T, ny))
+        # h0_temp = zeros((nl * T, 1))
+        # Hz_temp = zeros((nl * T, nz))
+        # for i in range(T):
+        #     for j in range(nb):
+        #         Wy_temp[i * nl:(i + 1) * nl, i * ng:(i + 1) * ng] = (Distribution_factor * Cg).todense()
+        #         Wy_temp[i * nl:(i + 1) * nl, ng * T + i * nb:ng * T + (i + 1) * nb] = Distribution_factor.todense()
+        #         h0_temp[i * nl:(i + 1) * nl, 0] = -branch[:, RATE_A]
+        #         Hz_temp[i * nl:(i + 1) * nl, i * nb:(i + 1) * nb] = Distribution_factor.todense()
+        # Tx = concatenate([Tx, Tx_temp])
+        # Wy = concatenate([Wy, Wy_temp])
+        # h0 = concatenate([h0, h0_temp])
+        # Hz = concatenate([Hz, Hz_temp])
 
         # 6) Power balance equations
         # sum(pg)+sum(pd_shed)==sum(pd)
@@ -436,14 +438,14 @@ class TwoStageUnitCommitmentRobust():
         meq = zeros((nz, 1))
         for i in range(nz):
             Heq[i, ny + i * ny:ny + (i + 1) * ny] = -d.transpose()
-            Heq[i, ny + ny * nz + ny * nu + 1:ny + ny * nz + ny * nu + 1 + ns] = G[:, i].transpose()
-            Heq[i, ny + ny * nz + ny * nu + 1 + ns + nt:ny + ny * nz + ny * nu + 1 + ns + nt + npi] = C[:,
-                                                                                                      i].transpose()
+            Heq[i, ny + ny * nz + ny * nu + 1: ny + ny * nz + ny * nu + 1 + ns] = G[:, i].transpose()
+            Heq[i, ny + ny * nz + ny * nu + 1 + ns + nt: ny + ny * nz + ny * nu + 1 + ns + nt + npi] = C[:,
+                                                                                                       i].transpose()
 
         Heq_temp = lil_matrix((nu, ny + ny * nz + ny * nu + 1 + ns + nt + npi))
         meq_temp = zeros((nu, 1))
         for i in range(nu):
-            Heq_temp[i, ny + i * ny:ny + (i + 1) * ny] = -d.transpose()
+            Heq_temp[i, ny + ny * nz + i * ny:ny + ny * nz + (i + 1) * ny] = -d.transpose()
             Heq_temp[i, ny + ny * nz + ny * nu + ns + i] = 1
             Heq_temp[i, ny + ny * nz + ny * nu + 1 + ns + nt:ny + ny * nz + ny * nu + 1 + ns + nt + npi] = D[:,
                                                                                                            i].transpose()
@@ -465,9 +467,8 @@ class TwoStageUnitCommitmentRobust():
         m_temp = zeros((M, 1))
         for l in range(M):
             # For the novel added variables
-            H_temp[l,
-            ny + ny * nz + ny * nu + 1 + ns + nt + npi + l * npi: ny + ny * nz + ny * nu + 1 + ns + nt + npi + (
-                    l + 1) * npi] = h.transpose()
+            H_temp[l,ny + ny * nz + ny * nu + 1 + ns + nt + npi + l * npi: ny + ny * nz + ny * nu + 1 + ns + nt + npi + (
+                        l + 1) * npi] = h.transpose()
             H_temp[l, 0:ny] = -Wy[l, :]
             m_temp[l, 0] = -h0[l]
 
@@ -482,9 +483,9 @@ class TwoStageUnitCommitmentRobust():
                 Heq_temp[l * nz + i, ny + ny * i:ny + ny * (i + 1)] = Wy[l, :]
                 Heq_temp[l * nz + i,
                 ny + ny * nz + ny * nu + 1 + ns + nt + npi + l * npi:ny + ny * nz + ny * nu + 1 + ns + nt + npi + (
-                        l + 1) * npi] = C[:, i].transpose()
+                            l + 1) * npi] = C[:, i].transpose()
                 meq_temp[l * nz + i, 0] = Hz[l, i]
-                print(l / M)
+            # print(l / M)
         Heq = vstack([Heq, Heq_temp])
         meq = concatenate([meq, meq_temp])
         Neq = vstack([Neq, lil_matrix(zeros((M * nz, nx)))])
@@ -496,17 +497,17 @@ class TwoStageUnitCommitmentRobust():
                 Heq_temp[l * nu + i, ny + ny * nz + i * ny:ny + ny * nz + (i + 1) * ny] = Wy[l, :]
                 Heq_temp[l * nu + i,
                 ny + ny * nz + ny * nu + 1 + ns + nt + npi + l * npi:ny + ny * nz + ny * nu + 1 + ns + nt + npi + (
-                        l + 1) * npi] = D[:, i].transpose()
-            print(l / M)
+                            l + 1) * npi] = D[:, i].transpose()
+            # print(l / M)
         Heq = vstack([Heq, Heq_temp])
         meq = concatenate([meq, meq_temp])
         Neq = vstack([Neq, lil_matrix(zeros((M * nu, nx)))])
 
-        model["A"] = hstack([model["A"], lil_matrix(zeros((model["A"].shape[0], len(lb))))])
+        model["A"] = hstack([model["A"], lil_matrix((model["A"].shape[0], len(lb)))])
         model["A"] = vstack([model["A"], hstack([N, H])])
         model["b"] = concatenate([model["b"], m])
 
-        model["Aeq"] = hstack([model["Aeq"], lil_matrix(zeros((model["Aeq"].shape[0], len(lb))))])
+        model["Aeq"] = hstack([model["Aeq"], lil_matrix((model["Aeq"].shape[0], len(lb)))])
         model["Aeq"] = vstack([model["Aeq"], hstack([Neq, Heq])])
         model["beq"] = concatenate([model["beq"], meq])
 
@@ -577,9 +578,7 @@ if __name__ == "__main__":
     from unit_commitment.test_cases.case6 import case6
 
     two_stage_unit_commitment_robust = TwoStageUnitCommitmentRobust()
-    profile = array(
-        [1.75, 1.65, 1.58, 1.54, 1.55, 1.60, 1.73, 1.77, 1.86, 2.07, 2.29, 2.36, 2.42, 2.44, 2.49, 2.56, 2.56, 2.47,
-         2.46, 2.37, 2.37, 2.33, 1.96, 1.96])
+    profile = array([0.64, 0.60, 0.58, 0.56, 0.56, 0.58, 0.64, 0.76, 0.87, 0.95, 0.99, 1.00])
     case_base = case6()
     case_base["Load_profile"] = profile
 

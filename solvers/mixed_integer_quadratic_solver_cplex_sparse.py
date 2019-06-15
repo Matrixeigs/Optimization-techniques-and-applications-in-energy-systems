@@ -3,7 +3,7 @@ Mixed-integer programming using the CPLEX
 only support the coo_matrix in scipy.sparse
 """
 import cplex  # import the cplex solver package
-from scipy import ones, concatenate, zeros
+from scipy import ones, concatenate, zeros, inf
 from cplex.exceptions import CplexError
 
 
@@ -103,6 +103,10 @@ def mixed_integer_quadratic_programming(c, q=None, Aeq=None, beq=None, A=None, b
             elif vtypes[i] == "d" or vtypes[i] == "D":
                 var_types[i] = prob.variables.type.integer
 
+            if xmin[i] == -inf: xmin[i] = -cplex.infinity
+            if xmax[i] == inf: xmax[i] = cplex.infinity
+
+
         prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
         # 2) Constraints
         rhs = beq + b
@@ -152,7 +156,7 @@ def mixed_integer_quadratic_programming(c, q=None, Aeq=None, beq=None, A=None, b
         # prob.set_warning_stream(None)
         # prob.set_results_stream(None)
         # prob.set_problem_type(type=prob.problem_type.LP)
-        prob.parameters.preprocessing.presolve = 0
+        prob.parameters.preprocessing.presolve.set(0)
 
         prob.solve()
 
