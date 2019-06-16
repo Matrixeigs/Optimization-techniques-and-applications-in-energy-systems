@@ -5,12 +5,12 @@ Dynamic optimal power flow with multiple microgrids
 from distribution_system_optimization.test_cases import case33
 from transportation_systems.test_cases import case3, TIME, LOCATION
 
-from scipy import zeros, shape, ones, diag, concatenate, eye
+from scipy import zeros, shape, ones, diag, concatenate, eye, inf
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack
 from numpy import flatnonzero as find
 from numpy import array, tile, arange
-
+from numpy import linalg as LA
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, RATE_A
 from pypower.idx_bus import PD, VMAX, VMIN, QD
 from pypower.idx_gen import GEN_BUS, PMAX, PMIN, QMAX, QMIN
@@ -56,94 +56,137 @@ class DynamicOptimalPowerFlowTess():
 
         # 2) System level modelling
         # 2.1) Merge the model between distribution networks and microgrdis
-        nVariables_distribution_network = len(model_distribution_networks["c"])
-        if model_distribution_networks["Aeq"] is not None:
-            neq_distribution_network = model_distribution_networks["Aeq"].shape[0]
-        else:
-            neq_distribution_network = 0
-        if model_distribution_networks["A"] is not None:
-            nineq_distribution_network = model_distribution_networks["A"].shape[0]
-        else:
-            nineq_distribution_network = 0
-
-        nVariables = int(nVariables_distribution_network)
-        neq = int(neq_distribution_network)
-        nineq = int(nineq_distribution_network)
-
-        lx = model_distribution_networks["lb"]
-        ux = model_distribution_networks["ub"]
-        c = model_distribution_networks["c"]
-        vtypes = model_distribution_networks["vtypes"]
-
-        if model_distribution_networks["beq"] is not None:
-            beq = model_distribution_networks["beq"]
-        else:
-            beq = zeros(0)
-
-        if model_distribution_networks["b"] is not None:
-            b = model_distribution_networks["b"]
-        else:
-            b = zeros(0)
-
-        Qc = model_distribution_networks["Qc"]
-        q = model_distribution_networks["q"]
-
-        # 2.2) Merge the model between distribution networks and transportation networks
-        NX_traffic = self.NX_traffic
-
-        nVariables_index_tess = zeros(nev + 1)
-        neq_index_tess = zeros(nev + 1)
-        nineq_index_tess = zeros(nev + 1)
-        nVariables_index_tess[0] = nVariables_distribution_network
-        neq_index_tess[0] = neq_distribution_network
-        nineq_index_tess[0] = nineq_distribution_network
-
-        for i in range(nev):
-            nVariables_index_tess[i + 1] = nVariables_index_tess[i] + len(model_tess[i]["c"])
-            neq_index_tess[i + 1] = neq_index_tess[i] + model_tess[i]["Aeq"].shape[0]
-            nineq_index_tess[i + 1] = nineq_index_tess[i] + model_tess[i]["A"].shape[0]
-            nVariables += len(model_tess[i]["c"])
-            neq += int(model_tess[i]["Aeq"].shape[0])
-            nineq += int(model_tess[i]["A"].shape[0])
-
-            c = concatenate([c, model_tess[i]["c"]])
-            q = concatenate([q, model_tess[i]["q"]])
-            lx = concatenate([lx, model_tess[i]["lb"]])
-            ux = concatenate([ux, model_tess[i]["ub"]])
-            vtypes += model_tess[i]["vtypes"]
-            beq = concatenate([beq, model_tess[i]["beq"]])
-            b = concatenate([b, model_tess[i]["b"]])
-
-        A_full = zeros((int(nineq_index_tess[-1]), int(nVariables_index_tess[-1])))
-        Aeq_full = zeros((int(neq_index_tess[-1]), int(nVariables_index_tess[-1])))
-        Aeq = model_distribution_networks["Aeq"]
-        A = model_distribution_networks["A"]
-
-        if Aeq is not None:
-            Aeq_full[0:int(neq_index_tess[0]), 0:int(nVariables_index_tess[0])] = Aeq
-        if A is not None:
-            A_full[0:int(nineq_index_tess[0]), 0:int(nVariables_index_tess[0])] = A
-
-        for i in range(nev):
-            Aeq_full[int(neq_index_tess[i]):int(neq_index_tess[i + 1]),
-            int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["Aeq"]
-
-            A_full[int(nineq_index_tess[i]):int(nineq_index_tess[i + 1]),
-            int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["A"]
+        # nVariables_distribution_network = len(model_distribution_networks["c"])
+        # if model_distribution_networks["Aeq"] is not None:
+        #     neq_distribution_network = model_distribution_networks["Aeq"].shape[0]
+        # else:
+        #     neq_distribution_network = 0
+        # if model_distribution_networks["A"] is not None:
+        #     nineq_distribution_network = model_distribution_networks["A"].shape[0]
+        # else:
+        #     nineq_distribution_network = 0
+        #
+        # nVariables = int(nVariables_distribution_network)
+        # neq = int(neq_distribution_network)
+        # nineq = int(nineq_distribution_network)
+        #
+        # lx = model_distribution_networks["lb"]
+        # ux = model_distribution_networks["ub"]
+        # c = model_distribution_networks["c"]
+        # vtypes = model_distribution_networks["vtypes"]
+        #
+        # if model_distribution_networks["beq"] is not None:
+        #     beq = model_distribution_networks["beq"]
+        # else:
+        #     beq = zeros(0)
+        #
+        # if model_distribution_networks["b"] is not None:
+        #     b = model_distribution_networks["b"]
+        # else:
+        #     b = zeros(0)
+        #
+        # Qc = model_distribution_networks["Qc"]
+        # q = model_distribution_networks["q"]
+        #
+        # # 2.2) Merge the model between distribution networks and transportation networks
+        # NX_traffic = self.NX_traffic
+        #
+        # nVariables_index_tess = zeros(nev + 1)
+        # neq_index_tess = zeros(nev + 1)
+        # nineq_index_tess = zeros(nev + 1)
+        # nVariables_index_tess[0] = nVariables_distribution_network
+        # neq_index_tess[0] = neq_distribution_network
+        # nineq_index_tess[0] = nineq_distribution_network
+        #
+        # for i in range(nev):
+        #     nVariables_index_tess[i + 1] = nVariables_index_tess[i] + len(model_tess[i]["c"])
+        #     neq_index_tess[i + 1] = neq_index_tess[i] + model_tess[i]["Aeq"].shape[0]
+        #     nineq_index_tess[i + 1] = nineq_index_tess[i] + model_tess[i]["A"].shape[0]
+        #     nVariables += len(model_tess[i]["c"])
+        #     neq += int(model_tess[i]["Aeq"].shape[0])
+        #     nineq += int(model_tess[i]["A"].shape[0])
+        #
+        #     c = concatenate([c, model_tess[i]["c"]])
+        #     q = concatenate([q, model_tess[i]["q"]])
+        #     lx = concatenate([lx, model_tess[i]["lb"]])
+        #     ux = concatenate([ux, model_tess[i]["ub"]])
+        #     vtypes += model_tess[i]["vtypes"]
+        #     beq = concatenate([beq, model_tess[i]["beq"]])
+        #     b = concatenate([b, model_tess[i]["b"]])
+        #
+        # A_full = zeros((int(nineq_index_tess[-1]), int(nVariables_index_tess[-1])))
+        # Aeq_full = zeros((int(neq_index_tess[-1]), int(nVariables_index_tess[-1])))
+        # Aeq = model_distribution_networks["Aeq"]
+        # A = model_distribution_networks["A"]
+        #
+        # if Aeq is not None:
+        #     Aeq_full[0:int(neq_index_tess[0]), 0:int(nVariables_index_tess[0])] = Aeq
+        # if A is not None:
+        #     A_full[0:int(nineq_index_tess[0]), 0:int(nVariables_index_tess[0])] = A
+        #
+        # for i in range(nev):
+        #     Aeq_full[int(neq_index_tess[i]):int(neq_index_tess[i + 1]),
+        #     int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["Aeq"]
+        #
+        #     A_full[int(nineq_index_tess[i]):int(nineq_index_tess[i + 1]),
+        #     int(nVariables_index_tess[i]):int(nVariables_index_tess[i + 1])] = model_tess[i]["A"]
 
         # Coupling constraints between distribution networks and tess
-        Az2x = zeros((2 * nb_traffic * T, int(nVariables_index_tess[-1] - nVariables_index_tess[0])))
+        # Az2x = zeros((nb_traffic * T, int(nVariables_index_tess[1] - nVariables_index_tess[0])))
+        Az2x = zeros((nb_traffic * T, model_tess[0]["NX"]))
         n_stops = self.n_stops
         NX_status = self.nl_traffic
 
-        for i in range(nev):
-            Az2x[0:n_stops, i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + 2 * n_stops] = \
-                -eye(n_stops)  # Discharging
-            Az2x[0:n_stops, i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 3 * n_stops] = \
-                eye(n_stops)  # Charging
+        # for i in range(nev):
+        #     Az2x[0:n_stops, i * NX_traffic + NX_status + n_stops:i * NX_traffic + NX_status + 2 * n_stops] = \
+        #         -eye(n_stops)  # Discharging
+        #     Az2x[0:n_stops, i * NX_traffic + NX_status + 2 * n_stops:i * NX_traffic + NX_status + 3 * n_stops] = \
+        #         eye(n_stops)  # Charging
+        Az2x[0:n_stops, NX_status + n_stops: NX_status + 2 * n_stops] = -eye(n_stops)  # Discharging
+        Az2x[0:n_stops, NX_status + 2 * n_stops:NX_status + 3 * n_stops] = eye(n_stops)  # Charging
+
+        # Test the Lagrange duality decomposition method to decouple the optimization of distribution systems and electric vehicles
+        mu = zeros((nb_traffic * T, 1))  # Initialize the multiplier
+        Gap = inf
+        alpha = 10
+        Gap_index = []
+        while Gap > 1e-3:
+            (xx_dis, obj_dis, success_dis) = miqcp(
+                model_distribution_networks["c"] - model_distribution_networks["Ax2z"].transpose().dot(mu),
+                model_distribution_networks["q"],
+                Aeq=model_distribution_networks["Aeq"],
+                beq=model_distribution_networks["beq"],
+                vtypes=model_distribution_networks["vtypes"], A=model_distribution_networks["A"],
+                b=model_distribution_networks["b"], Qc=model_distribution_networks["Qc"],
+                rc=zeros(len(model_distribution_networks["Qc"])), xmin=model_distribution_networks["lb"],
+                xmax=model_distribution_networks["ub"])
+
+            rhs = -model_distribution_networks["Ax2z"].dot(array(xx_dis).reshape(len(xx_dis), 1))
+
+            xx_tess = [0] * nev
+            obj_tess = [0] * nev
+            success_tess = [0] * nev
+            for i in range(nev):
+                (xx_tess[i], obj_tess[i], success_tess[i]) = miqp(model_tess[i]["c"] - Az2x.transpose().dot(mu),
+                                                                  model_tess[i]["q"],
+                                                                  Aeq=model_tess[i]["Aeq"],
+                                                                  beq=model_tess[i]["beq"],
+                                                                  vtypes=model_tess[i]["vtypes"], A=model_tess[i]["A"],
+                                                                  b=model_tess[i]["b"], xmin=model_tess[i]["lb"],
+                                                                  xmax=model_tess[i]["ub"])
+                rhs -= Az2x.dot(array(xx_tess[i]).reshape((len(xx_tess[i]), 1)))
+
+            print("The primal feasibile level is: {0}".format(max(abs(rhs))))
+            print("The objective functions is: {0}".format(obj_dis + sum(array(obj_tess))))
+
+            mu += alpha * rhs
+            # Gap = max(abs(mu))[0]
+            Gap = LA.norm(mu)
+            Gap_index.append(Gap)
+            print("The gap is {0}".format(Gap))
 
         Aeq_temp = concatenate([model_distribution_networks["Ax2z"], Az2x], axis=1)
-        beq_temp = zeros(2 * nb_traffic * T)
+        beq_temp = zeros(nb_traffic * T)
 
         Aeq = concatenate([Aeq_full, Aeq_temp])
         beq = concatenate([beq, beq_temp])
@@ -282,7 +325,7 @@ class DynamicOptimalPowerFlowTess():
                 c0 += gencost[i, 6]
 
         # The boundary information
-        Ax2z = zeros((2 * nb_traffic * T, NX))  # connection matrix with the tess
+        Ax2z = zeros((nb_traffic * T, NX))  # connection matrix with the tess
         for i in range(T):
             for j in range(nb_traffic):
                 Ax2z[i * nb_traffic + j, i * nx + 3 * nl + nb + 2 * ng + j] = 1000 * baseMVA  # Active power
