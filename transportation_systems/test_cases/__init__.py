@@ -9,3 +9,5 @@ TIME = 2
 BUS_ID = 0
 D = 1
 LOCATION = 2
+
+FREE_FLOW_TIME = 4

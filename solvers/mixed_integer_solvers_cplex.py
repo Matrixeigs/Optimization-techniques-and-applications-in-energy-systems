@@ -148,14 +148,16 @@ def mixed_integer_linear_programming(c, Aeq=None, beq=None, A=None, b=None, xmin
             if objsense == "max":
                 prob.objective.set_sense(prob.objective.sense.maximize)
 
-        prob.set_log_stream(None)
-        prob.set_error_stream(None)
-        prob.set_warning_stream(None)
-        prob.set_results_stream(None)
+        # prob.set_log_stream(None)
+        # prob.set_error_stream(None)
+        # prob.set_warning_stream(None)
+        # prob.set_results_stream(None)
         # prob.set_problem_type(type=prob.problem_type.LP)
         # prob.parameters.preprocessing.presolve = 0
 
-        # prob.parameters.mip.tolerances.mipgap.set(10 ** -3)
+        prob.parameters.mip.tolerances.mipgap.set(10 ** -3)
+        prob.parameters.emphasis.mip.set(2)
+
         prob.solve()
 
         obj = prob.solution.get_objective_value()

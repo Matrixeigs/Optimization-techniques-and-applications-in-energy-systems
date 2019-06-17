@@ -144,15 +144,17 @@ class DynamicOptimalPowerFlowTess():
         #         eye(n_stops)  # Charging
         Az2x[0:n_stops, NX_status + n_stops: NX_status + 2 * n_stops] = -eye(n_stops)  # Discharging
         Az2x[0:n_stops, NX_status + 2 * n_stops:NX_status + 3 * n_stops] = eye(n_stops)  # Charging
+        Ax2z = concatenate([model_distribution_networks["Ax2z"], -model_distribution_networks["Ax2z"]])
+        Az2x = concatenate([Az2x, -Az2x])
 
         # Test the Lagrange duality decomposition method to decouple the optimization of distribution systems and electric vehicles
-        mu = zeros((nb_traffic * T, 1))  # Initialize the multiplier
+        mu = zeros((2 * nb_traffic * T, 1))  # Initialize the multiplier
         Gap = inf
-        alpha = 10
+        alpha = 0.01
         Gap_index = []
         while Gap > 1e-3:
             (xx_dis, obj_dis, success_dis) = miqcp(
-                model_distribution_networks["c"] - model_distribution_networks["Ax2z"].transpose().dot(mu),
+                model_distribution_networks["c"] + Ax2z.transpose().dot(mu),
                 model_distribution_networks["q"],
                 Aeq=model_distribution_networks["Aeq"],
                 beq=model_distribution_networks["beq"],
@@ -161,25 +163,27 @@ class DynamicOptimalPowerFlowTess():
                 rc=zeros(len(model_distribution_networks["Qc"])), xmin=model_distribution_networks["lb"],
                 xmax=model_distribution_networks["ub"])
 
-            rhs = -model_distribution_networks["Ax2z"].dot(array(xx_dis).reshape(len(xx_dis), 1))
+            rhs = Ax2z.dot(array(xx_dis).reshape(len(xx_dis), 1))
 
             xx_tess = [0] * nev
             obj_tess = [0] * nev
             success_tess = [0] * nev
             for i in range(nev):
-                (xx_tess[i], obj_tess[i], success_tess[i]) = miqp(model_tess[i]["c"] - Az2x.transpose().dot(mu),
+                (xx_tess[i], obj_tess[i], success_tess[i]) = miqp(model_tess[i]["c"] + Az2x.transpose().dot(mu),
                                                                   model_tess[i]["q"],
                                                                   Aeq=model_tess[i]["Aeq"],
                                                                   beq=model_tess[i]["beq"],
                                                                   vtypes=model_tess[i]["vtypes"], A=model_tess[i]["A"],
                                                                   b=model_tess[i]["b"], xmin=model_tess[i]["lb"],
                                                                   xmax=model_tess[i]["ub"])
-                rhs -= Az2x.dot(array(xx_tess[i]).reshape((len(xx_tess[i]), 1)))
+                rhs += Az2x.dot(array(xx_tess[i]).reshape((len(xx_tess[i]), 1)))
 
             print("The primal feasibile level is: {0}".format(max(abs(rhs))))
             print("The objective functions is: {0}".format(obj_dis + sum(array(obj_tess))))
 
             mu += alpha * rhs
+            for i in range(2 * nb_traffic * T):
+                mu[i] = max(mu[i], 0)
             # Gap = max(abs(mu))[0]
             Gap = LA.norm(mu)
             Gap_index.append(Gap)
