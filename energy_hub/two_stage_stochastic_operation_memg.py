@@ -5,7 +5,7 @@ Two stage stochastic optimization problem for multi energy microgrid
 """
 from gurobipy import *
 import numpy as np
-import os
+import os, platform
 import pandas as pd
 
 
@@ -25,7 +25,10 @@ class TwoStageStochastic():
         # 1) Generate scenarios
         if SCENARIO_UPDATE > 0:  # We need to update the scenarios
             # The scenarios are stored by row.
-            writer = pd.ExcelWriter(self.pwd + "/input_data.xlsx", float_format="10.4%f", index=False)
+            if platform.system() == "Windows":
+                writer = pd.ExcelWriter(self.pwd + "\input_data.xlsx", float_format="10.4%f", index=False)
+            else:
+                writer = pd.ExcelWriter(self.pwd + "/input_data.xlsx", float_format="10.4%f", index=False)
 
             ac_load = self.scenario_generation(AC_LOAD_MEAN, AC_LOAD_STD, N_S)
             df = pd.DataFrame(ac_load)
@@ -78,6 +81,7 @@ class TwoStageStochastic():
         pES_CH = {}  # ESS charging rate
         pHVAC = {}  # HVAC consumption
         pPV = {}  # PV output
+        pP2G = {}  # Power to Gas rate
         ## Group 2: Heating ##
         eHSS = {}
         qHS_DC = {}
@@ -94,6 +98,7 @@ class TwoStageStochastic():
         ## Group 4: Gas ##
         vCHP = {}
         v = {}
+        vBoil = {}
         vGS_DC = {}
         vGS_CH = {}
         IGS_DC = {}
@@ -118,31 +123,33 @@ class TwoStageStochastic():
                 pA2D[i, j] = model.addVar(lb=-BIC_CAP, ub=BIC_CAP, name="pA2D{0}".format(i * N_S + j))
                 pD2A[i, j] = model.addVar(lb=-BIC_CAP, ub=BIC_CAP, name="pD2A{0}".format(i * N_S + j))
                 IA2D[i, j] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="IA2D{0}".format(i * N_S + j))
-                eESS[i, j] = model.addVar(lb=Emin, ub=Emax, name="eESS{0}".format(i * N_S + j))
+                eESS[i, j] = model.addVar(lb=EESS_MIN, ub=EESS_MAX, name="eESS{0}".format(i * N_S + j))
                 pES_DC[i, j] = model.addVar(lb=0, ub=PESS_DC_MAX, name="pES_DC{0}".format(i * N_S + j))
                 pES_CH[i, j] = model.addVar(lb=0, ub=PESS_CH_MAX, name="pES_CH{0}".format(i * N_S + j))
                 IES_DC[i, j] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="IES_DC{0}".format(i * N_S + j))
                 pHVAC[i, j] = model.addVar(lb=0, ub=QHVAC_max, name="pHVAC{0}".format(i * N_S + j))  # using AC machines
                 pPV[i, j] = model.addVar(lb=0, ub=pv[j, i], name="pPV{0}".format(i * N_S + j))
+                pP2G[i, j] = model.addVar(lb=0, ub=PP2G_cap, name="pP2G{0}".format(i * N_S + j))
                 # Heating
-                eHSS[i, j] = model.addVar(lb=Emin, ub=Emax, name="eHSS{0}".format(i * N_S + j))
-                qHS_DC[i, j] = model.addVar(lb=0, ub=PESS_DC_MAX, name="qHS_DC{0}".format(i * N_S + j))
-                qHS_CH[i, j] = model.addVar(lb=0, ub=PESS_CH_MAX, name="qHS_CH{0}".format(i * N_S + j))
+                eHSS[i, j] = model.addVar(lb=EHSS_MIN, ub=EHSS_MAX, name="eHSS{0}".format(i * N_S + j))
+                qHS_DC[i, j] = model.addVar(lb=0, ub=PHSS_DC_MAX, name="qHS_DC{0}".format(i * N_S + j))
+                qHS_CH[i, j] = model.addVar(lb=0, ub=PHSS_CH_MAX, name="qHS_CH{0}".format(i * N_S + j))
                 IHS_DC[i, j] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="IHS_DC{0}".format(i * N_S + j))
                 qHD[i, j] = model.addVar(lb=0, ub=QHVAC_max, name="qHD{0}".format(i * N_S + j))
                 qAC[i, j] = model.addVar(lb=0, ub=Chiller_max, name="qAC{0}".format(i * N_S + j))
                 # Cooling
-                eCSS[i, j] = model.addVar(lb=Emin, ub=Emax, name="eCSS{0}".format(i * N_S + j))
-                qCS_DC[i, j] = model.addVar(lb=0, ub=PESS_DC_MAX, name="qCS_DC{0}".format(i * N_S + j))
-                qCS_CH[i, j] = model.addVar(lb=0, ub=PESS_CH_MAX, name="qCS_CH{0}".format(i * N_S + j))
+                eCSS[i, j] = model.addVar(lb=ECSS_MIN, ub=ECSS_MAX, name="eCSS{0}".format(i * N_S + j))
+                qCS_DC[i, j] = model.addVar(lb=0, ub=PCSS_DC_MAX, name="qCS_DC{0}".format(i * N_S + j))
+                qCS_CH[i, j] = model.addVar(lb=0, ub=PCSS_CH_MAX, name="qCS_CH{0}".format(i * N_S + j))
                 ICS_DC[i, j] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="ICS_DC{0}".format(i * N_S + j))
                 qCD[i, j] = model.addVar(lb=0, ub=QHVAC_max, name="qCD{0}".format(i * N_S + j))
                 # Gas
                 v[i, j] = model.addVar(lb=0, ub=Gmax * 10, name="v{0}".format(i * N_S + j))
+                vBoil[i, j] = model.addVar(lb=0, ub=G_boiler_cap, name="vBoil{0}".format(i * N_S + j))
                 vCHP[i, j] = model.addVar(lb=0, ub=Gmax, name="vCHP{0}".format(i * N_S + j))
-                vGS_DC[i, j] = model.addVar(lb=0, ub=PESS_DC_MAX, name="vGS_DC{0}".format(i * N_S + j))
-                vGS_CH[i, j] = model.addVar(lb=0, ub=PESS_CH_MAX, name="vGS_CH{0}".format(i * N_S + j))
-                eGSS[i, j] = model.addVar(lb=Emin, ub=Emax, name="eGSS{0}".format(i * N_S + j))
+                vGS_DC[i, j] = model.addVar(lb=0, ub=PGSS_DC_MAX, name="vGS_DC{0}".format(i * N_S + j))
+                vGS_CH[i, j] = model.addVar(lb=0, ub=PGSS_CH_MAX, name="vGS_CH{0}".format(i * N_S + j))
+                eGSS[i, j] = model.addVar(lb=EGSS_MIN, ub=EGSS_MAX, name="eGSS{0}".format(i * N_S + j))
                 IGS_DC[i, j] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="IGS_DC{0}".format(i * N_S + j))
                 # Temperature
                 temprature_in[i, j] = model.addVar(lb=0, ub=max(AT_MEAN),
@@ -173,13 +180,13 @@ class TwoStageStochastic():
         for i in range(self.T):
             for j in range(N_S):
                 model.addConstr(
-                    PDA[i] + pRT[i, j] + eff_CHP_e * vCHP[i, j] + eff_BIC * pD2A[i, j] == ac_load[j, i] + pA2D[i, j] +
-                    pHVAC[i, j])
+                    PDA[i] + pRT[i, j] + eff_CHP_e * vCHP[i, j] + eff_BIC_D2A * pD2A[i, j] == ac_load[j, i] + pA2D[i, j] +
+                    pHVAC[i, j] + pP2G[i,j])
         # Eq.(9):
         for i in range(self.T):
             for j in range(N_S):
                 model.addConstr(
-                    pES_DC[i, j] - pES_CH[i, j] + eff_BIC * pA2D[i, j] + pPV[i, j] == dc_load[j, i] + pD2A[i, j])
+                    pES_DC[i, j] - pES_CH[i, j] + eff_BIC_A2D * pA2D[i, j] + pPV[i, j] == dc_load[j, i] + pD2A[i, j])
         # Eq.(10)-(11):
         for i in range(self.T):
             for j in range(N_S):
@@ -191,39 +198,38 @@ class TwoStageStochastic():
                 model.addConstr(pES_DC[i, j] <= IES_DC[i, j] * PESS_DC_MAX)
                 model.addConstr(pES_CH[i, j] <= (1 - IES_DC[i, j]) * PESS_CH_MAX)
                 if i == 0:
-                    model.addConstr(eESS[i, j] - E0 == pES_CH[i, j] * EFF_CH - pES_DC[i, j] / EFF_DC)
+                    model.addConstr(eESS[i, j] - EESS0 == pES_CH[i, j] * eff_PESS_CH - pES_DC[i, j] / eff_PESS_DC)
                 else:
-                    model.addConstr(eESS[i, j] - eESS[i - 1, j] == pES_CH[i, j] * EFF_CH - pES_DC[i, j] / EFF_DC)
+                    model.addConstr(eESS[i, j] - eESS[i - 1, j] == pES_CH[i, j] * eff_PESS_CH - pES_DC[i, j] / eff_PESS_DC)
         ###Thermal part
         # Eq.(21)
         for i in range(self.T):
             for j in range(N_S):
                 model.addConstr(
-                    qHD[i, j] + hd[j, i] + qAC[i, j] + qHS_CH[i, j] == eff_CHP_h * vCHP[i, j] + qHS_DC[i, j])
+                    qHD[i, j] + hd[j, i] + qAC[i, j] + qHS_CH[i, j] == eff_CHP_h * vCHP[i, j] + qHS_DC[i, j]+vBoil[i,j]*eff_boiler)
         # Eq.(22)
         for i in range(self.T):
             for j in range(N_S):
                 model.addConstr(
-                    qCD[i, j] + cd[j, i] + qCS_CH[i, j] == qCS_DC[i, j] + eff_HVAC * pHVAC[i, j] + eff_chiller * qAC[
-                        i, j])
+                    qCD[i, j] + cd[j, i] + qCS_CH[i, j] == qCS_DC[i, j] + eff_HVAC * pHVAC[i, j] + eff_chiller * qAC[i, j])
         # Additional constraints for heating storage and cooling storage
         for i in range(self.T):
             for j in range(N_S):
                 model.addConstr(qHS_DC[i, j] <= IHS_DC[i, j] * PESS_DC_MAX)
                 model.addConstr(qHS_CH[i, j] <= (1 - IHS_DC[i, j]) * PESS_CH_MAX)
                 if i == 0:
-                    model.addConstr(eHSS[i, j] - E0 == qHS_CH[i, j] * EFF_CH - qHS_DC[i, j] / EFF_DC)
+                    model.addConstr(eHSS[i, j] - EHSS0 == qHS_CH[i, j] * eff_HSS_CH - qHS_DC[i, j] / eff_HSS_DC)
                 else:
-                    model.addConstr(eHSS[i, j] - eHSS[i - 1, j] == qHS_CH[i, j] * EFF_CH - qHS_DC[i, j] / EFF_DC)
+                    model.addConstr(eHSS[i, j] - eHSS[i - 1, j] == qHS_CH[i, j] * eff_HSS_CH - qHS_DC[i, j] / eff_HSS_DC)
 
         for i in range(self.T):
             for j in range(N_S):
                 model.addConstr(qCS_DC[i, j] <= ICS_DC[i, j] * PESS_DC_MAX)
                 model.addConstr(qCS_CH[i, j] <= (1 - ICS_DC[i, j]) * PESS_CH_MAX)
                 if i == 0:
-                    model.addConstr(eCSS[i, j] - E0 == qCS_CH[i, j] * EFF_CH - qCS_DC[i, j] / EFF_DC)
+                    model.addConstr(eCSS[i, j] - ECSS0 == qCS_CH[i, j] * eff_CSS_CH - qCS_DC[i, j] / eff_CSS_DC)
                 else:
-                    model.addConstr(eCSS[i, j] - eCSS[i - 1, j] == qCS_CH[i, j] * EFF_CH - qCS_DC[i, j] / EFF_DC)
+                    model.addConstr(eCSS[i, j] - eCSS[i - 1, j] == qCS_CH[i, j] * eff_CSS_CH - qCS_DC[i, j] / eff_CSS_DC)
         # Eq.(23)
         for i in range(self.T):
             for j in range(N_S):
@@ -234,21 +240,22 @@ class TwoStageStochastic():
         for i in range(self.T):
             for j in range(N_S):
                 model.addConstr(temprature_in[i, j] >= temprature_in_min)
+                model.addConstr(temprature_in[i, j] <= temprature_in_max)
 
         ###Gas part
         # Eq.(25)
         for i in range(self.T):
             for j in range(N_S):
-                model.addConstr(v[i, j] + vGS_DC[i, j] == vCHP[i, j] + vGS_CH[i, j])
+                model.addConstr(eff_P2G*pP2G[i,j] + v[i, j] + vGS_DC[i, j] == vCHP[i, j] + vGS_CH[i, j])
         # Gas storage
         for i in range(self.T):
             for j in range(N_S):
                 model.addConstr(vGS_DC[i, j] <= IGS_DC[i, j] * PESS_DC_MAX)
                 model.addConstr(vGS_CH[i, j] <= (1 - IGS_DC[i, j]) * PESS_CH_MAX)
                 if i == 0:
-                    model.addConstr(eGSS[i, j] - E0 == vGS_CH[i, j] * EFF_CH - vGS_DC[i, j] / EFF_DC)
+                    model.addConstr(eGSS[i, j] - EGSS0 == vGS_CH[i, j] * eff_GSS_CH - vGS_DC[i, j] / eff_GSS_CH)
                 else:
-                    model.addConstr(eGSS[i, j] - eGSS[i - 1, j] == vGS_CH[i, j] * EFF_CH - vGS_DC[i, j] / EFF_DC)
+                    model.addConstr(eGSS[i, j] - eGSS[i - 1, j] == vGS_CH[i, j] * eff_GSS_CH - vGS_DC[i, j] / eff_GSS_CH)
         model.optimize()
         # Objective function
         for i in range(self.T):
@@ -348,7 +355,24 @@ class TwoStageStochastic():
                 eGSS[i, j] = model.getVarByName("eGSS{0}".format(i * N_S + j)).X
                 temprature_in[i, j] = model.getVarByName("temprature_in{0}".format(i * N_S + j)).X
         # save results to the files
+        if platform.system() == "Windows":
+            writer = pd.ExcelWriter(self.pwd + r"\result.xlsx", float_format="10.4%f", index=False)
+        else:
+            writer = pd.ExcelWriter(self.pwd + "/result.xlsx", float_format="10.4%f", index=False)
+
+        df = pd.DataFrame(PDA)
+        df.to_excel(writer, sheet_name="PDA")
+        df = pd.DataFrame(ICHP)
+        df.to_excel(writer, sheet_name="ICHP")
+        df = pd.DataFrame(ALPHA_CHP)
+        df.to_excel(writer, sheet_name="ALPHA_CHP")
+        df = pd.DataFrame(BETA_CHP)
+        df.to_excel(writer, sheet_name="BETA_CHP")
+        writer.save()
+
         return
+
+
 
     def scenario_generation(self, MEAN_VALUE, STD, N_S):
         scenarios = np.zeros((N_S, self.T))
@@ -360,11 +384,74 @@ class TwoStageStochastic():
 
 
 if __name__ == "__main__":
-    PV_cap = 500
-    AC_PD_cap = 500
-    DC_PD_cap = 500
-    HD_cap = 500
-    CD_cap = 500
+    ## Capacity Configuration
+    PV_cap = 10000
+    AC_PD_cap = 5000
+    DC_PD_cap = 5000
+    HD_cap = 8000
+    CD_cap = 5000
+    GAS_cap = 5000
+    NEV = 500
+    NGV = 500
+    # Chiller information
+    Chiller_max = 5000
+    eff_chiller = 1.2
+
+    # Electricity system configuration
+    PUG_MAX = 20000
+
+    BIC_CAP = 5000
+    eff_BIC_A2D = 0.95
+    eff_BIC_D2A = 0.95
+
+    G_boiler_cap = 8000
+    eff_boiler = 0.75
+
+    PP2G_cap = 14000
+    eff_P2G = 0.6
+
+    PCHP_cap = 6000
+    eff_CHP_e = 0.35
+    eff_CHP_h = 0.35
+
+    PESS_CH_MAX = 800
+    PESS_DC_MAX = 1000
+    eff_PESS_CH = 0.9
+    eff_PESS_DC = 0.9
+    eff_PESS = 0.001
+    EESS_MIN = 0.2*2000
+    EESS_MAX = 0.9*2000
+    EESS0 = 0.5*2000
+
+
+    PHSS_CH_MAX = 1500
+    PHSS_DC_MAX = 2100
+    eff_HSS_CH = 0.85
+    eff_HSS_DC = 0.85
+    eff_HSS = 0.005
+    EHSS_MIN = 0.2 * 2500
+    EHSS_MAX = 0.9 * 2500
+    EHSS0 = 0.5 * 2500
+
+    PCSS_CH_MAX = 1500
+    PCSS_DC_MAX = 2100
+    eff_CSS_CH = 0.85
+    eff_CSS_DC = 0.85
+    eff_CSS = 0.005
+    ECSS_MIN = 0.2 * 2500
+    ECSS_MAX = 0.9 * 2500
+    ECSS0 = 0.5 * 2500
+
+    PGSS_CH_MAX = 1250
+    PGSS_DC_MAX = 1500
+    eff_GSS_CH = 0.95
+    eff_GSS_DC = 0.95
+    eff_GSS = 0.003
+    EGSS_MIN = 0.2 * 3000
+    EGSS_MAX = 0.9 * 3000
+    EGSS0 = 0.5 * 3000
+
+
     # AC electrical demand
     AC_PD = np.array(
         [323.0284, 308.2374, 318.1886, 307.9809, 331.2170, 368.6539, 702.0040, 577.7045, 1180.4547, 1227.6240,
@@ -408,47 +495,36 @@ if __name__ == "__main__":
          91.26, 80.39, 76.25, 76.80, 81.22, 83.75, 76.16, 72.69]) / 300
 
     # 2) Thermal system configuration
-    QHVAC_max = 1000
+    QHVAC_max = 5000
     eff_HVAC = 4
-    c_air = 18.5
-    r_t = 0.13
+    c_air = 185
+    r_t = 0.013
     ambinent_temprature = np.array(
         [27, 27, 26, 26, 26, 26, 26, 25, 27, 28, 30, 31, 32, 32, 32, 32, 32, 32, 31, 30, 29, 28, 28, 27])
     temprature_in_min = 20
     temprature_in_max = 27
-    # 3) For the vehicles
+    # 3) For the vehicles, the driving patterns are assumed to be the same, following the normal distribution, in the day-time
     # 3.1) Electric vehicles
+    Arrival_mean = 8.92
+    Arrival_std = 3.24
+    Dep_mean = 17.47
+    Dep_std = 3.41
+    SOC_mean = 0.5
+    SOC_std = 0.1
 
     # 3.2) Gas vehicles
 
     # 4) CCHP system
     # CCHP system
     Gas_price = 0.1892
-    Gmax = 2000
-    eff_CHP_e = 0.3
-    eff_CHP_h = 0.4
+    Gmax = 20000
     UT = 2
     DT = 1
     ICHP0 = 1
     SU = 10
     SD = 10
-    # Chiller information
-    Chiller_max = 1000
-    eff_chiller = 1.2
 
-    # 5) Electricity system configuration
-    PUG_MAX = 2000
 
-    PESS_CH_MAX = 1000
-    PESS_DC_MAX = 1000
-    EFF_DC = 0.9
-    EFF_CH = 0.9
-    E0 = 500
-    Emax = 1000
-    Emin = 200
-
-    BIC_CAP = 1000
-    eff_BIC = 0.95
 
     two_stage_stochastic = TwoStageStochastic()
     two_stage_stochastic.day_ahead_scheduling(SCENARIO_UPDATE=1, AC_LOAD_MEAN=AC_PD, DC_LOAD_MEAN=DC_PD,
