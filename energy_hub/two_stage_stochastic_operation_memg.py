@@ -335,18 +335,18 @@ class TwoStageStochastic():
                 qHD[i, j] = model.getVarByName("qHD{0}".format(i * N_S + j)).X
                 qAC[i, j] = model.getVarByName("qAC{0}".format(i * N_S + j)).X
                 IHS_DC[i, j] = model.getVarByName("IHS_DC{0}".format(i * N_S + j)).X
-                eCSS[i, j] = eCSS.getVarByName("eCSS{0}".format(i * N_S + j)).X
-                qCS_DC[i, j] = eCSS.getVarByName("qCS_DC{0}".format(i * N_S + j)).X
-                qCS_CH[i, j] = eCSS.getVarByName("qCS_CH{0}".format(i * N_S + j)).X
-                ICS_DC[i, j] = eCSS.getVarByName("ICS_DC{0}".format(i * N_S + j)).X
-                qCD[i, j] = eCSS.getVarByName("qCD{0}".format(i * N_S + j)).X
-                vCHP[i, j] = eCSS.getVarByName("vCHP{0}".format(i * N_S + j)).X
-                v[i, j] = eCSS.getVarByName("v{0}".format(i * N_S + j)).X
-                vGS_DC[i, j] = eCSS.getVarByName("vGS_DC{0}".format(i * N_S + j)).X
-                vGS_CH[i, j] = eCSS.getVarByName("vGS_CH{0}".format(i * N_S + j)).X
-                IGS_DC[i, j] = eCSS.getVarByName("IGS_DC{0}".format(i * N_S + j)).X
-                eGSS[i, j] = eCSS.getVarByName("eGSS{0}".format(i * N_S + j)).X
-                temprature_in[i, j] = eCSS.getVarByName("temprature_in{0}".format(i * N_S + j)).X
+                eCSS[i, j] = model.getVarByName("eCSS{0}".format(i * N_S + j)).X
+                qCS_DC[i, j] = model.getVarByName("qCS_DC{0}".format(i * N_S + j)).X
+                qCS_CH[i, j] = model.getVarByName("qCS_CH{0}".format(i * N_S + j)).X
+                ICS_DC[i, j] = model.getVarByName("ICS_DC{0}".format(i * N_S + j)).X
+                qCD[i, j] = model.getVarByName("qCD{0}".format(i * N_S + j)).X
+                vCHP[i, j] = model.getVarByName("vCHP{0}".format(i * N_S + j)).X
+                v[i, j] = model.getVarByName("v{0}".format(i * N_S + j)).X
+                vGS_DC[i, j] = model.getVarByName("vGS_DC{0}".format(i * N_S + j)).X
+                vGS_CH[i, j] = model.getVarByName("vGS_CH{0}".format(i * N_S + j)).X
+                IGS_DC[i, j] = model.getVarByName("IGS_DC{0}".format(i * N_S + j)).X
+                eGSS[i, j] = model.getVarByName("eGSS{0}".format(i * N_S + j)).X
+                temprature_in[i, j] = model.getVarByName("temprature_in{0}".format(i * N_S + j)).X
         # save results to the files
         return
 
