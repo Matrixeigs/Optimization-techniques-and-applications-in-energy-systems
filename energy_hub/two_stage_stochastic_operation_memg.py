@@ -48,6 +48,31 @@ class TwoStageStochastic():
             at = self.scenario_generation(AT_MEAN, AT_STD, N_S)
             df = pd.DataFrame(at)
             df.to_excel(writer, sheet_name="ambinent_temprature")
+            # Sample the vehicle driving pattern, to generate the arrival pattern and minimal departure pattern
+            Arrival_curve = np.zeros((N_S, T))
+            Minimal_departure_curve = np.zeros((N_S, T))
+            for i in range(N_S):
+                ev_sample_arr = np.zeros((NEV, T))
+                ev_sample_dep = np.zeros((NEV, T))
+                for j in range(NEV):
+                    arrival_time = max(int(np.ceil(np.random.normal(Arrival_mean,Arrival_std))), 8)
+                    departure_time = int(min(np.ceil(np.random.normal(Dep_mean, Dep_std)), T-1))
+                    departure_time = max(arrival_time,departure_time)
+                    energy_ev = min(np.random.normal(SOC_mean, SOC_std)*EEV, (departure_time-arrival_time)*PEV_max)
+                    for k in range(arrival_time, departure_time):
+                        ev_sample_arr[j,k] = min(energy_ev, PEV_max)
+                        ev_sample_dep[j,departure_time-k+arrival_time] = min(energy_ev, PEV_max)
+                        energy_ev = max(energy_ev-PEV_max,0)
+
+                Arrival_curve[i,:]=np.cumsum(np.sum(ev_sample_arr, axis=0))
+                Minimal_departure_curve[i,:]=np.cumsum(np.sum(ev_sample_dep, axis=0))
+                Gap = Arrival_curve-Minimal_departure_curve
+            df = pd.DataFrame(Arrival_curve)
+            df.to_excel(writer, sheet_name="Arrival_curve")
+            df = pd.DataFrame(Minimal_departure_curve)
+            df.to_excel(writer, sheet_name="Minimal_departure_curve")
+            df = pd.DataFrame(Gap)
+            df.to_excel(writer, sheet_name="Gap")
 
             writer.save()
         else:
@@ -57,7 +82,7 @@ class TwoStageStochastic():
             pv = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="pv")
             hd = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="hd")
             cd = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="cd")
-            ambinent_temprature = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ambinent_temprature")
+            at = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ambinent_temprature")
 
             # The driving patterns of EVs and GVs are assumed to be the same.
 
@@ -511,8 +536,11 @@ if __name__ == "__main__":
     Dep_std = 3.41
     SOC_mean = 0.5
     SOC_std = 0.1
-
+    EEV = 32
+    PEV_max = 7
     # 3.2) Gas vehicles
+    EGV = 32
+    PGV_max = 700
 
     # 4) CCHP system
     # CCHP system
