@@ -14,12 +14,13 @@ class TwoStageStochastic():
         self.pwd = os.getcwd()
 
     def day_ahead_scheduling(self, AC_LOAD_MEAN, AC_LOAD_STD, DC_LOAD_MEAN, DC_LOAD_STD, PV_MEAN, PV_STD, HD_MEAN,
-                             HD_STD, CD_MEAN, CD_STD, AT_MEAN, AT_STD, SCENARIO_UPDATE=0, N_S=100):
+                             HD_STD, CD_MEAN, CD_STD, AT_MEAN, AT_STD, SCENARIO_UPDATE=1, N_S=100,
+                             condifential_level=0.05, beta=0.5):
         """
         Day-ahead scheduling problem for memg
         :return:
         """
-
+        bigM = 1e5
         T = len(AC_LOAD_MEAN)
         self.T = T
         # 1) Generate scenarios
@@ -51,28 +52,35 @@ class TwoStageStochastic():
             # Sample the vehicle driving pattern, to generate the arrival pattern and minimal departure pattern
             Arrival_curve = np.zeros((N_S, T))
             Minimal_departure_curve = np.zeros((N_S, T))
+            ev_scale = np.zeros((N_S, T))
             for i in range(N_S):
                 ev_sample_arr = np.zeros((NEV, T))
                 ev_sample_dep = np.zeros((NEV, T))
+                ev_sample = np.zeros((NEV, T))
                 for j in range(NEV):
-                    arrival_time = max(int(np.ceil(np.random.normal(Arrival_mean,Arrival_std))), 8)
-                    departure_time = int(min(np.ceil(np.random.normal(Dep_mean, Dep_std)), T-1))
-                    departure_time = max(arrival_time,departure_time)
-                    energy_ev = min(np.random.normal(SOC_mean, SOC_std)*EEV, (departure_time-arrival_time)*PEV_max)
+                    arrival_time = max(int(np.ceil(np.random.normal(Arrival_mean, Arrival_std))), 8)
+                    departure_time = int(min(np.ceil(np.random.normal(Dep_mean, Dep_std)), T - 1))
+                    departure_time = max(arrival_time, departure_time)
+                    energy_ev = min(np.random.normal(SOC_mean, SOC_std) * EEV,
+                                    (departure_time - arrival_time) * PEV_max)
+                    ev_sample[j, arrival_time:departure_time] = 1
                     for k in range(arrival_time, departure_time):
-                        ev_sample_arr[j,k] = min(energy_ev, PEV_max)
-                        ev_sample_dep[j,departure_time-k+arrival_time] = min(energy_ev, PEV_max)
-                        energy_ev = max(energy_ev-PEV_max,0)
+                        ev_sample_arr[j, k] = min(energy_ev, PEV_max)
+                        ev_sample_dep[j, departure_time - k + arrival_time] = min(energy_ev, PEV_max)
+                        energy_ev = max(energy_ev - PEV_max, 0)
 
-                Arrival_curve[i,:]=np.cumsum(np.sum(ev_sample_arr, axis=0))
-                Minimal_departure_curve[i,:]=np.cumsum(np.sum(ev_sample_dep, axis=0))
-                Gap = Arrival_curve-Minimal_departure_curve
+                Arrival_curve[i, :] = np.cumsum(np.sum(ev_sample_arr, axis=0))
+                Minimal_departure_curve[i, :] = np.cumsum(np.sum(ev_sample_dep, axis=0))
+                ev_scale[i, :] = np.sum(ev_sample, axis=0)
+                # Gap = Arrival_curve-Minimal_departure_curve
             df = pd.DataFrame(Arrival_curve)
             df.to_excel(writer, sheet_name="Arrival_curve")
             df = pd.DataFrame(Minimal_departure_curve)
             df.to_excel(writer, sheet_name="Minimal_departure_curve")
-            df = pd.DataFrame(Gap)
-            df.to_excel(writer, sheet_name="Gap")
+            df = pd.DataFrame(ev_scale)
+            df.to_excel(writer, sheet_name="ev_scale")
+            # df = pd.DataFrame(Gap)
+            # df.to_excel(writer, sheet_name="Gap")
 
             writer.save()
         else:
@@ -83,8 +91,9 @@ class TwoStageStochastic():
             hd = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="hd")
             cd = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="cd")
             at = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ambinent_temprature")
-
-            # The driving patterns of EVs and GVs are assumed to be the same.
+            Arrival_curve = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="Arrival_curve")
+            Minimal_departure_curve = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="Minimal_departure_curve")
+            ev_scale = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ev_scale")
 
         # 2) Problem formulation
         model = Model("MEMG")
@@ -107,6 +116,7 @@ class TwoStageStochastic():
         pHVAC = {}  # HVAC consumption
         pPV = {}  # PV output
         pP2G = {}  # Power to Gas rate
+        pEV = {}  # Power to Gas rate
         ## Group 2: Heating ##
         eHSS = {}
         qHS_DC = {}
@@ -128,25 +138,32 @@ class TwoStageStochastic():
         vGS_CH = {}
         IGS_DC = {}
         eGSS = {}
+        eGV = {}
         # Group 5: Temperature in side the routine
-        temprature_in = {}
+        temperature_in = {}
         # Group 6: feasible control
-        Recovery_index = {}
+        Temperature_index = {}
+        EV_index = {}
+        GV_index = {}
+
+        # Group CVaR
+        ru = model.addVar(name="ru")
+        var = {}
         ## The first stage decision variables
-        for i in range(self.T):
+        for i in range(T):
             PDA[i] = model.addVar(lb=-PUG_MAX, ub=PUG_MAX, name="PDA{0}".format(i))
             ALPHA_CHP[i] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="ALPHA_CHP{0}".format(i))
             BETA_CHP[i] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="BETA_CHP{0}".format(i))
             ICHP[i] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="ICHP{0}".format(i))
         ## The second stage decision variables
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 # Electrical
                 pRT[i, j] = model.addVar(lb=-PUG_MAX, ub=PUG_MAX, name="pRT{0}".format(i * N_S + j))
                 pRT_positive[i, j] = model.addVar(lb=0, ub=PUG_MAX, name="pRT_positive{0}".format(i * N_S + j))
                 pRT_negative[i, j] = model.addVar(lb=0, ub=PUG_MAX, name="pRT_negative{0}".format(i * N_S + j))
-                pA2D[i, j] = model.addVar(lb=-BIC_CAP, ub=BIC_CAP, name="pA2D{0}".format(i * N_S + j))
-                pD2A[i, j] = model.addVar(lb=-BIC_CAP, ub=BIC_CAP, name="pD2A{0}".format(i * N_S + j))
+                pA2D[i, j] = model.addVar(lb=0, ub=BIC_CAP, name="pA2D{0}".format(i * N_S + j))
+                pD2A[i, j] = model.addVar(lb=0, ub=BIC_CAP, name="pD2A{0}".format(i * N_S + j))
                 IA2D[i, j] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="IA2D{0}".format(i * N_S + j))
                 eESS[i, j] = model.addVar(lb=EESS_MIN, ub=EESS_MAX, name="eESS{0}".format(i * N_S + j))
                 pES_DC[i, j] = model.addVar(lb=0, ub=PESS_DC_MAX, name="pES_DC{0}".format(i * N_S + j))
@@ -155,6 +172,7 @@ class TwoStageStochastic():
                 pHVAC[i, j] = model.addVar(lb=0, ub=QHVAC_max, name="pHVAC{0}".format(i * N_S + j))  # using AC machines
                 pPV[i, j] = model.addVar(lb=0, ub=pv[j, i], name="pPV{0}".format(i * N_S + j))
                 pP2G[i, j] = model.addVar(lb=0, ub=PP2G_cap, name="pP2G{0}".format(i * N_S + j))
+                pEV[i, j] = model.addVar(lb=0, ub=PEV_max * NEV, name="pEV{0}".format(i * N_S + j))
                 # Heating
                 eHSS[i, j] = model.addVar(lb=EHSS_MIN, ub=EHSS_MAX, name="eHSS{0}".format(i * N_S + j))
                 qHS_DC[i, j] = model.addVar(lb=0, ub=PHSS_DC_MAX, name="qHS_DC{0}".format(i * N_S + j))
@@ -176,9 +194,16 @@ class TwoStageStochastic():
                 vGS_CH[i, j] = model.addVar(lb=0, ub=PGSS_CH_MAX, name="vGS_CH{0}".format(i * N_S + j))
                 eGSS[i, j] = model.addVar(lb=EGSS_MIN, ub=EGSS_MAX, name="eGSS{0}".format(i * N_S + j))
                 IGS_DC[i, j] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="IGS_DC{0}".format(i * N_S + j))
+                eGV[i, j] = model.addVar(lb=0, ub=PGV_max * NGV, name="eGV{0}".format(i * N_S + j))
                 # Temperature
-                temprature_in[i, j] = model.addVar(lb=0, ub=max(AT_MEAN),
-                                                   name="temprature_in{0}".format(i * N_S + j))
+                temperature_in[i, j] = model.addVar(lb=-1e3, ub=1e3, name="temperature_in{0}".format(i * N_S + j))
+
+        for i in range(N_S):
+            var[i] = model.addVar(lb=0, name="var{0}".format(i))
+            Temperature_index[i] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="Temperature_index{0}".format(i))
+            EV_index[i] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="EV_index{0}".format(i))
+            GV_index[i] = model.addVar(vtype=GRB.BINARY, lb=0, ub=1, name="GV_index{0}".format(i))
+
         # 2.2) First-stage constraint set
         # 1) Eq.(4) is satisfied automatically
         # 2) Eq.(5)
@@ -202,104 +227,192 @@ class TwoStageStochastic():
         # 2.3) Second-stage constraint set
         ### Electrical part
         # Eq.(8):
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(
-                    PDA[i] + pRT[i, j] + eff_CHP_e * vCHP[i, j] + eff_BIC_D2A * pD2A[i, j] == ac_load[j, i] + pA2D[i, j] +
-                    pHVAC[i, j] + pP2G[i,j])
+                    PDA[i] + pRT[i, j] + eff_CHP_e * vCHP[i, j] + eff_BIC_D2A * pD2A[i, j] == ac_load[j, i] + pA2D[
+                        i, j] + pHVAC[i, j] + pP2G[i, j])
         # Eq.(9):
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(
-                    pES_DC[i, j] - pES_CH[i, j] + eff_BIC_A2D * pA2D[i, j] + pPV[i, j] == dc_load[j, i] + pD2A[i, j])
+                    pES_DC[i, j] - pES_CH[i, j] + eff_BIC_A2D * pA2D[i, j] + pPV[i, j] == dc_load[j, i] + pD2A[i, j] +
+                    pEV[i, j])
         # Eq.(10)-(11):
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(pA2D[i, j] <= IA2D[i, j] * BIC_CAP)
                 model.addConstr(pD2A[i, j] <= (1 - IA2D[i, j]) * BIC_CAP)
         # Eq.(12)-(16):
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(pES_DC[i, j] <= IES_DC[i, j] * PESS_DC_MAX)
                 model.addConstr(pES_CH[i, j] <= (1 - IES_DC[i, j]) * PESS_CH_MAX)
                 if i == 0:
                     model.addConstr(eESS[i, j] - EESS0 == pES_CH[i, j] * eff_PESS_CH - pES_DC[i, j] / eff_PESS_DC)
                 else:
-                    model.addConstr(eESS[i, j] - eESS[i - 1, j] == pES_CH[i, j] * eff_PESS_CH - pES_DC[i, j] / eff_PESS_DC)
+                    model.addConstr(
+                        eESS[i, j] - eESS[i - 1, j] == pES_CH[i, j] * eff_PESS_CH - pES_DC[i, j] / eff_PESS_DC)
+
+        for i in range(N_S): model.addConstr(eESS[T - 1, i] == EESS0)
+        # EV part
+        for i in range(T):
+            for j in range(N_S):
+                rhs = 0
+                for k in range(i + 1):
+                    rhs += pEV[k, j]
+                model.addConstr(rhs <= Arrival_curve[j, i])
+
+                if i == T - 1:
+                    model.addConstr(rhs >= Minimal_departure_curve[j, i])
+                else:
+                    model.addConstr(rhs >= Minimal_departure_curve[j, i] - EV_index[j] * bigM)
+
+        for i in range(T):
+            for j in range(N_S):
+                model.addConstr(pEV[i, j] <= ev_scale[j, i] * PEV_max + EV_index[j] * bigM)
+
         ###Thermal part
         # Eq.(21)
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(
-                    qHD[i, j] + hd[j, i] + qAC[i, j] + qHS_CH[i, j] == eff_CHP_h * vCHP[i, j] + qHS_DC[i, j]+vBoil[i,j]*eff_boiler)
+                    qHD[i, j] + hd[j, i] + qAC[i, j] + qHS_CH[i, j] == eff_CHP_h * vCHP[i, j] + qHS_DC[i, j] + vBoil[
+                        i, j] * eff_boiler)
         # Eq.(22)
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(
-                    qCD[i, j] + cd[j, i] + qCS_CH[i, j] == qCS_DC[i, j] + eff_HVAC * pHVAC[i, j] + eff_chiller * qAC[i, j])
+                    qCD[i, j] + cd[j, i] + qCS_CH[i, j] == qCS_DC[i, j] + eff_HVAC * pHVAC[i, j] + eff_chiller * qAC[
+                        i, j])
         # Additional constraints for heating storage and cooling storage
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(qHS_DC[i, j] <= IHS_DC[i, j] * PESS_DC_MAX)
                 model.addConstr(qHS_CH[i, j] <= (1 - IHS_DC[i, j]) * PESS_CH_MAX)
                 if i == 0:
-                    model.addConstr(eHSS[i, j] - EHSS0 == qHS_CH[i, j] * eff_HSS_CH - qHS_DC[i, j] / eff_HSS_DC)
+                    model.addConstr(
+                        eHSS[i, j] - (1 - eff_HSS) * EHSS0 == qHS_CH[i, j] * eff_HSS_CH - qHS_DC[i, j] / eff_HSS_DC)
                 else:
-                    model.addConstr(eHSS[i, j] - eHSS[i - 1, j] == qHS_CH[i, j] * eff_HSS_CH - qHS_DC[i, j] / eff_HSS_DC)
+                    model.addConstr(
+                        eHSS[i, j] - (1 - eff_HSS) * eHSS[i - 1, j] == qHS_CH[i, j] * eff_HSS_CH - qHS_DC[
+                            i, j] / eff_HSS_DC)
 
-        for i in range(self.T):
+        for i in range(N_S): model.addConstr(eHSS[T - 1, i] == EHSS0)
+
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(qCS_DC[i, j] <= ICS_DC[i, j] * PESS_DC_MAX)
                 model.addConstr(qCS_CH[i, j] <= (1 - ICS_DC[i, j]) * PESS_CH_MAX)
                 if i == 0:
-                    model.addConstr(eCSS[i, j] - ECSS0 == qCS_CH[i, j] * eff_CSS_CH - qCS_DC[i, j] / eff_CSS_DC)
+                    model.addConstr(
+                        eCSS[i, j] - (1 - eff_CSS) * ECSS0 == qCS_CH[i, j] * eff_CSS_CH - qCS_DC[i, j] / eff_CSS_DC)
                 else:
-                    model.addConstr(eCSS[i, j] - eCSS[i - 1, j] == qCS_CH[i, j] * eff_CSS_CH - qCS_DC[i, j] / eff_CSS_DC)
+                    model.addConstr(
+                        eCSS[i, j] - (1 - eff_CSS) * eCSS[i - 1, j] == qCS_CH[i, j] * eff_CSS_CH - qCS_DC[
+                            i, j] / eff_CSS_DC)
+
+        for i in range(N_S): model.addConstr(eCSS[T - 1, i] == ECSS0)
+
         # Eq.(23)
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 if i > 0:
-                    model.addConstr(qHD[i, j] - qCD[i, j] == c_air * (temprature_in[i, j] - temprature_in[i - 1, j]) - (
-                            at[j, i] - temprature_in[i, j]) / r_t)
+                    model.addConstr(
+                        qHD[i, j] - qCD[i, j] == c_air * (temperature_in[i, j] - temperature_in[i - 1, j]) - (
+                                at[j, i] - temperature_in[i, j]) / r_t)
+                else:
+                    model.addConstr(temperature_in[i, j] == (temprature_in_min + temprature_in_max) / 2)
         # Eq.(24)
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
-                model.addConstr(temprature_in[i, j] >= temprature_in_min)
-                model.addConstr(temprature_in[i, j] <= temprature_in_max)
+                model.addConstr(temperature_in[i, j] >= temprature_in_min - Temperature_index[j] * bigM)
+                model.addConstr(temperature_in[i, j] <= Temperature_index[j] * bigM + temprature_in_max)
 
         ###Gas part
         # Eq.(25)
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
-                model.addConstr(eff_P2G*pP2G[i,j] + v[i, j] + vGS_DC[i, j] == vCHP[i, j] + vGS_CH[i, j])
+                model.addConstr(eff_P2G * pP2G[i, j] + v[i, j] + vGS_DC[i, j] == vCHP[i, j] + vGS_CH[i, j] + eGV[i, j])
+        # GV part
+        for i in range(T):
+            for j in range(N_S):
+                rhs = 0
+                for k in range(i + 1):
+                    rhs += eGV[k, j]
+                model.addConstr(rhs <= Arrival_curve[j, i])
+                if i == T - 1:
+                    model.addConstr(rhs >= Minimal_departure_curve[j, i])
+                else:
+                    model.addConstr(rhs >= Minimal_departure_curve[j, i] - GV_index[j] * bigM)
+
+        for i in range(T):
+            for j in range(N_S):
+                model.addConstr(eGV[i, j] <= ev_scale[j, i] * PGV_max + GV_index[j] * bigM)
+
         # Gas storage
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(vGS_DC[i, j] <= IGS_DC[i, j] * PESS_DC_MAX)
                 model.addConstr(vGS_CH[i, j] <= (1 - IGS_DC[i, j]) * PESS_CH_MAX)
                 if i == 0:
-                    model.addConstr(eGSS[i, j] - EGSS0 == vGS_CH[i, j] * eff_GSS_CH - vGS_DC[i, j] / eff_GSS_CH)
+                    model.addConstr(
+                        eGSS[i, j] - (1 - eff_GSS) * EGSS0 == vGS_CH[i, j] * eff_GSS_CH - vGS_DC[i, j] / eff_GSS_CH)
                 else:
-                    model.addConstr(eGSS[i, j] - eGSS[i - 1, j] == vGS_CH[i, j] * eff_GSS_CH - vGS_DC[i, j] / eff_GSS_CH)
+                    model.addConstr(
+                        eGSS[i, j] - (1 - eff_GSS) * eGSS[i - 1, j] == vGS_CH[i, j] * eff_GSS_CH - vGS_DC[
+                            i, j] / eff_GSS_CH)
+
+        for i in range(N_S): model.addConstr(eGSS[T - 1, i] == EGSS0)
+        # Eq.(28)
+        for i in range(T):
+            for j in range(N_S):
+                model.addConstr(vCHP[i, j] <= ICHP[i] * Gmax)
+                model.addConstr(vCHP[i, j] >= ICHP[i] * 0)
+
+        # Relaxed Temperature constraints
+        rhs = 0
+        for i in range(N_S):
+            rhs += Temperature_index[i]
+            rhs += EV_index[i]
+            rhs += GV_index[i]
+        model.addConstr(rhs <= beta * N_S)
+
+        for i in range(N_S):
+            model.addConstr(Temperature_index[i] + EV_index[i] + GV_index[i] <= 1)
+
         model.optimize()
         # Objective function
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 model.addConstr(pRT_negative[i, j] >= -pRT[i, j])
                 model.addConstr(pRT_positive[i, j] >= pRT[i, j])
 
         obj_DA = 0
-        for i in range(self.T):
-            obj_DA += electricity_price_DA[i] * PDA[i] + ALPHA_CHP[i] * SU + BETA_CHP[i] * SD
+        for i in range(T):
+            obj_DA += electricity_price_DA[i] * PDA[i] + ALPHA_CHP[i] * SU + BETA_CHP[i] * SD + ICOST * ICHP[i]
         obj_RT = 0
-        for i in range(self.T):
+        for i in range(T):
             for j in range(N_S):
                 obj_RT += electricity_price[i] * pRT[i, j] / N_S
                 obj_RT += electricity_price[i] * pRT_positive[i, j] / N_S
                 obj_RT += electricity_price[i] * pRT_negative[i, j] / N_S
                 obj_RT += Gas_price * v[i, j] / N_S
+        # Add CVaR
+        for i in range(N_S):
+            rhs = 0
+            for j in range(T):
+                rhs += electricity_price[j] * pRT[j, i]
+                rhs += electricity_price[j] * pRT_positive[j, i]
+                rhs += electricity_price[j] * pRT_negative[j, i]
+                rhs += Gas_price * v[j, i]
+            model.addConstr(rhs + obj_DA - ru <= var[i])
+
+        obj_CVaR = ru
+        for i in range(N_S):
+            obj_CVaR += var[i] / (1 - condifential_level)
         # 3) Problem solving
-        model.setObjective(obj_DA + obj_RT)
+        model.setObjective(obj_DA + obj_RT + obj_CVaR)
         model.optimize()
         # 4) Save the results
         PDA = np.zeros(T)  # Day-ahead bidding strategy
@@ -324,6 +437,7 @@ class TwoStageStochastic():
         pES_CH = np.zeros((T, N_S))  # ESS charging rate
         pHVAC = np.zeros((T, N_S))  # HVAC consumption
         pPV = np.zeros((T, N_S))  # PV output
+        pEV = np.zeros((T, N_S))  # EV charging
         ## Group 2: Heating ##
         eHSS = np.zeros((T, N_S))
         qHS_DC = np.zeros((T, N_S))
@@ -344,8 +458,12 @@ class TwoStageStochastic():
         vGS_CH = np.zeros((T, N_S))
         IGS_DC = np.zeros((T, N_S))
         eGSS = np.zeros((T, N_S))
+        eGV = np.zeros((T, N_S))
         # Group 5: Temperature in side the routine
-        temprature_in = np.zeros((T, N_S))
+        temperature_in = np.zeros((T, N_S))
+        Temperature_index = np.zeros(N_S)
+        EV_index = np.zeros(N_S)
+        GV_index = np.zeros(N_S)
 
         for i in range(T):
             for j in range(N_S):
@@ -361,6 +479,8 @@ class TwoStageStochastic():
                 pES_CH[i, j] = model.getVarByName("pES_CH{0}".format(i * N_S + j)).X
                 pHVAC[i, j] = model.getVarByName("pHVAC{0}".format(i * N_S + j)).X
                 pPV[i, j] = model.getVarByName("pPV{0}".format(i * N_S + j)).X
+                pEV[i, j] = model.getVarByName("pEV{0}".format(i * N_S + j)).X
+
                 eHSS[i, j] = model.getVarByName("eHSS{0}".format(i * N_S + j)).X
                 qHS_DC[i, j] = model.getVarByName("qHS_DC{0}".format(i * N_S + j)).X
                 qHS_CH[i, j] = model.getVarByName("qHS_CH{0}".format(i * N_S + j)).X
@@ -378,12 +498,44 @@ class TwoStageStochastic():
                 vGS_CH[i, j] = model.getVarByName("vGS_CH{0}".format(i * N_S + j)).X
                 IGS_DC[i, j] = model.getVarByName("IGS_DC{0}".format(i * N_S + j)).X
                 eGSS[i, j] = model.getVarByName("eGSS{0}".format(i * N_S + j)).X
-                temprature_in[i, j] = model.getVarByName("temprature_in{0}".format(i * N_S + j)).X
+                eGV[i, j] = model.getVarByName("eGV{0}".format(i * N_S + j)).X
+
+                temperature_in[i, j] = model.getVarByName("temperature_in{0}".format(i * N_S + j)).X
+
+        for i in range(N_S):
+            Temperature_index[i] = model.getVarByName("Temperature_index{0}".format(i)).X
+            EV_index[i] = model.getVarByName("EV_index{0}".format(i)).X
+            GV_index[i] = model.getVarByName("GV_index{0}".format(i)).X
+
+        obj_DA = np.zeros(1)
+        for i in range(T):
+            obj_DA += electricity_price_DA[i] * PDA[i] + ALPHA_CHP[i] * SU + BETA_CHP[i] * SD + ICOST * ICHP[i]
+
+        obj_RT = np.zeros(N_S)
+        for i in range(T):
+            for j in range(N_S):
+                obj_RT[j] += electricity_price[i] * pRT[i, j] / N_S
+                obj_RT[j] += electricity_price[i] * pRT_positive[i, j] / N_S
+                obj_RT[j] += electricity_price[i] * pRT_negative[i, j] / N_S
+                obj_RT[j] += Gas_price * v[i, j] / N_S
+
         # save results to the files
         if platform.system() == "Windows":
             writer = pd.ExcelWriter(self.pwd + r"\result.xlsx", float_format="10.4%f", index=False)
         else:
             writer = pd.ExcelWriter(self.pwd + "/result.xlsx", float_format="10.4%f", index=False)
+        df = pd.DataFrame(obj_DA + sum(obj_RT))
+        df.to_excel(writer, sheet_name="obj")
+        df = pd.DataFrame(obj_DA)
+        df.to_excel(writer, sheet_name="obj_DA")
+        df = pd.DataFrame(obj_RT)
+        df.to_excel(writer, sheet_name="obj_RT")
+        df = pd.DataFrame(Temperature_index)
+        df.to_excel(writer, sheet_name="Temperature_index")
+        df = pd.DataFrame(EV_index)
+        df.to_excel(writer, sheet_name="EV_index")
+        df = pd.DataFrame(GV_index)
+        df.to_excel(writer, sheet_name="GV_index")
 
         df = pd.DataFrame(PDA)
         df.to_excel(writer, sheet_name="PDA")
@@ -393,11 +545,65 @@ class TwoStageStochastic():
         df.to_excel(writer, sheet_name="ALPHA_CHP")
         df = pd.DataFrame(BETA_CHP)
         df.to_excel(writer, sheet_name="BETA_CHP")
+
+        df = pd.DataFrame(pRT)
+        df.to_excel(writer, sheet_name="pRT")
+        df = pd.DataFrame(pA2D)
+        df.to_excel(writer, sheet_name="pA2D")
+        df = pd.DataFrame(pD2A)
+        df.to_excel(writer, sheet_name="pD2A")
+        df = pd.DataFrame(IA2D)
+        df.to_excel(writer, sheet_name="IA2D")
+        df = pd.DataFrame(eESS)
+        df.to_excel(writer, sheet_name="eESS")
+        df = pd.DataFrame(pES_DC)
+        df.to_excel(writer, sheet_name="pES_DC")
+        df = pd.DataFrame(pES_CH)
+        df.to_excel(writer, sheet_name="pES_CH")
+        df = pd.DataFrame(qHD)
+        df.to_excel(writer, sheet_name="qHD")
+        df = pd.DataFrame(qAC)
+        df.to_excel(writer, sheet_name="qAC")
+        df = pd.DataFrame(pPV)
+        df.to_excel(writer, sheet_name="pPV")
+        df = pd.DataFrame(pEV)
+        df.to_excel(writer, sheet_name="pEV")
+        df = pd.DataFrame(eHSS)
+        df.to_excel(writer, sheet_name="eHSS")
+        df = pd.DataFrame(qHS_DC)
+        df.to_excel(writer, sheet_name="qHS_DC")
+        df = pd.DataFrame(qHS_CH)
+        df.to_excel(writer, sheet_name="qHS_CH")
+        df = pd.DataFrame(IHS_DC)
+        df.to_excel(writer, sheet_name="IHS_DC")
+        df = pd.DataFrame(qCS_DC)
+        df.to_excel(writer, sheet_name="qCS_DC")
+        df = pd.DataFrame(qCS_CH)
+        df.to_excel(writer, sheet_name="qCS_CH")
+        df = pd.DataFrame(ICS_DC)
+        df.to_excel(writer, sheet_name="ICS_DC")
+        df = pd.DataFrame(qCD)
+        df.to_excel(writer, sheet_name="qCD")
+        df = pd.DataFrame(vCHP)
+        df.to_excel(writer, sheet_name="vCHP")
+        df = pd.DataFrame(v)
+        df.to_excel(writer, sheet_name="v")
+        df = pd.DataFrame(vGS_DC)
+        df.to_excel(writer, sheet_name="vGS_DC")
+        df = pd.DataFrame(vGS_CH)
+        df.to_excel(writer, sheet_name="vGS_CH")
+        df = pd.DataFrame(IGS_DC)
+        df.to_excel(writer, sheet_name="IGS_DC")
+        df = pd.DataFrame(eGSS)
+        df.to_excel(writer, sheet_name="eGSS")
+        df = pd.DataFrame(eGV)
+        df.to_excel(writer, sheet_name="eGV")
+        df = pd.DataFrame(temperature_in)
+        df.to_excel(writer, sheet_name="temperature_in")
+
         writer.save()
 
         return
-
-
 
     def scenario_generation(self, MEAN_VALUE, STD, N_S):
         scenarios = np.zeros((N_S, self.T))
@@ -416,14 +622,14 @@ if __name__ == "__main__":
     HD_cap = 8000
     CD_cap = 5000
     GAS_cap = 5000
-    NEV = 500
-    NGV = 500
+    NEV = 1000
+    NGV = 1000
     # Chiller information
     Chiller_max = 5000
     eff_chiller = 1.2
 
     # Electricity system configuration
-    PUG_MAX = 20000
+    PUG_MAX = 5000
 
     BIC_CAP = 5000
     eff_BIC_A2D = 0.95
@@ -444,10 +650,9 @@ if __name__ == "__main__":
     eff_PESS_CH = 0.9
     eff_PESS_DC = 0.9
     eff_PESS = 0.001
-    EESS_MIN = 0.2*2000
-    EESS_MAX = 0.9*2000
-    EESS0 = 0.5*2000
-
+    EESS_MIN = 0.2 * 2000
+    EESS_MAX = 0.9 * 2000
+    EESS0 = 0.5 * 2000
 
     PHSS_CH_MAX = 1500
     PHSS_DC_MAX = 2100
@@ -475,7 +680,6 @@ if __name__ == "__main__":
     EGSS_MIN = 0.2 * 3000
     EGSS_MAX = 0.9 * 3000
     EGSS0 = 0.5 * 3000
-
 
     # AC electrical demand
     AC_PD = np.array(
@@ -527,19 +731,19 @@ if __name__ == "__main__":
     ambinent_temprature = np.array(
         [27, 27, 26, 26, 26, 26, 26, 25, 27, 28, 30, 31, 32, 32, 32, 32, 32, 32, 31, 30, 29, 28, 28, 27])
     temprature_in_min = 20
-    temprature_in_max = 27
+    temprature_in_max = 20
     # 3) For the vehicles, the driving patterns are assumed to be the same, following the normal distribution, in the day-time
     # 3.1) Electric vehicles
     Arrival_mean = 8.92
     Arrival_std = 3.24
     Dep_mean = 17.47
     Dep_std = 3.41
-    SOC_mean = 0.5
+    SOC_mean = 0.4
     SOC_std = 0.1
-    EEV = 32
-    PEV_max = 7
+    EEV = 50
+    PEV_max = 10
     # 3.2) Gas vehicles
-    EGV = 32
+    EGV = 50
     PGV_max = 700
 
     # 4) CCHP system
@@ -551,8 +755,7 @@ if __name__ == "__main__":
     ICHP0 = 1
     SU = 10
     SD = 10
-
-
+    ICOST = 100
 
     two_stage_stochastic = TwoStageStochastic()
     two_stage_stochastic.day_ahead_scheduling(SCENARIO_UPDATE=1, AC_LOAD_MEAN=AC_PD, DC_LOAD_MEAN=DC_PD,
