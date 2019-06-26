@@ -85,15 +85,16 @@ class TwoStageStochastic():
             writer.save()
         else:
             # Load pre-generated sources
-            ac_load = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ac_load")
-            dc_load = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="dc_load")
-            pv = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="pv")
-            hd = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="hd")
-            cd = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="cd")
-            at = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ambinent_temprature")
-            Arrival_curve = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="Arrival_curve")
-            Minimal_departure_curve = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="Minimal_departure_curve")
-            ev_scale = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ev_scale")
+            ac_load = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ac_load", index_col=0).values
+            dc_load = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="dc_load", index_col=0).values
+            pv = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="pv", index_col=0).values
+            hd = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="hd", index_col=0).values
+            cd = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="cd", index_col=0).values
+            at = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ambinent_temprature", index_col=0).values
+            Arrival_curve = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="Arrival_curve", index_col=0).values
+            Minimal_departure_curve = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="Minimal_departure_curve",
+                                                    index_col=0).values
+            ev_scale = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ev_scale", index_col=0).values
 
         # 2) Problem formulation
         model = Model("MEMG")
@@ -758,7 +759,7 @@ if __name__ == "__main__":
     ICOST = 100
 
     two_stage_stochastic = TwoStageStochastic()
-    two_stage_stochastic.day_ahead_scheduling(SCENARIO_UPDATE=1, AC_LOAD_MEAN=AC_PD, DC_LOAD_MEAN=DC_PD,
+    two_stage_stochastic.day_ahead_scheduling(SCENARIO_UPDATE=0, AC_LOAD_MEAN=AC_PD, DC_LOAD_MEAN=DC_PD,
                                               DC_LOAD_STD=DC_PD * 0.03, AC_LOAD_STD=0.03 * AC_PD, PV_MEAN=PV_PG,
                                               PV_STD=PV_PG * 0.05, HD_MEAN=HD, HD_STD=HD * 0.03, CD_MEAN=CD,
                                               CD_STD=CD * 0.03, AT_MEAN=ambinent_temprature,
