@@ -95,7 +95,7 @@ class TwoStageStochastic():
             Minimal_departure_curve = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="Minimal_departure_curve",
                                                     index_col=0).values
             ev_scale = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ev_scale", index_col=0).values
-            N_S = ev_scale.shape[0]
+            # N_S = ev_scale.shape[0]
 
         # 2) Problem formulation
         model = Model("MEMG")
@@ -415,7 +415,7 @@ class TwoStageStochastic():
             obj_CVaR += var[i] / (1 - condifential_level)
         # 3) Problem solving
         model.setObjective(obj_DA + obj_RT + obj_CVaR)
-        model.Params.MIPGap = 5 * 10 ** -3
+        # model.Params.MIPGap = 5 * 10 ** -3
         model.optimize()
         # 4) Save the results
         PDA = np.zeros(T)  # Day-ahead bidding strategy
@@ -526,9 +526,9 @@ class TwoStageStochastic():
 
         # save results to the files
         if platform.system() == "Windows":
-            writer = pd.ExcelWriter(self.pwd + r"\result.xlsx", float_format="10.4%f", index=False)
+            writer = pd.ExcelWriter(self.pwd + r"\result_single_stage.xlsx", float_format="10.4%f", index=False)
         else:
-            writer = pd.ExcelWriter(self.pwd + "/result.xlsx", float_format="10.4%f", index=False)
+            writer = pd.ExcelWriter(self.pwd + "/result_single_stage.xlsx", float_format="10.4%f", index=False)
         df = pd.DataFrame(obj_DA + sum(obj_RT))
         df.to_excel(writer, sheet_name="obj")
         df = pd.DataFrame(obj_DA)
@@ -609,6 +609,24 @@ class TwoStageStochastic():
         df.to_excel(writer, sheet_name="eGV")
         df = pd.DataFrame(temperature_in)
         df.to_excel(writer, sheet_name="temperature_in")
+        # Temperature variation
+        at = pd.read_excel(self.pwd + "/input_data.xlsx", sheet_name="ambinent_temprature", index_col=0).values
+        at_second_stage = np.zeros((T, at.shape[0]))
+
+        """
+        model.addConstr(qHD[i, j] - qCD[i, j] == c_air * (temperature_in[i, j] - temperature_in[i - 1, j]) - (at[j, i] - temperature_in[i, j]) / r_t)
+                else:
+                    model.addConstr(temperature_in[i, j] == (temprature_in_min + temprature_in_max) / 2)
+        """
+        for i in range(T):
+            for j in range(at.shape[0]):
+                if i == 0:
+                    at_second_stage[i, j] = (temprature_in_min + temprature_in_max) / 2
+                else:
+                    at_second_stage[i, j] = (qHD[i, 0] - qCD[i, 0] + c_air * at_second_stage[i - 1, j] +
+                                             at[j, i] / r_t) / (c_air + 1 / r_t)
+        df = pd.DataFrame(at_second_stage)
+        df.to_excel(writer, sheet_name="at_second_stage")
 
         writer.save()
 
@@ -768,7 +786,7 @@ if __name__ == "__main__":
 
     two_stage_stochastic = TwoStageStochastic()
     two_stage_stochastic.day_ahead_scheduling(SCENARIO_UPDATE=0, AC_LOAD_MEAN=AC_PD, DC_LOAD_MEAN=DC_PD,
-                                              DC_LOAD_STD=DC_PD * 0.03, AC_LOAD_STD=0.03 * AC_PD, PV_MEAN=PV_PG,
-                                              PV_STD=PV_PG * 0.05, HD_MEAN=HD, HD_STD=HD * 0.03, CD_MEAN=CD,
-                                              CD_STD=CD * 0.03, AT_MEAN=ambinent_temprature,
-                                              AT_STD=ambinent_temprature * 0.05)
+                                              DC_LOAD_STD=DC_PD * 0.0, AC_LOAD_STD=0.0 * AC_PD, PV_MEAN=PV_PG,
+                                              PV_STD=PV_PG * 0.0, HD_MEAN=HD, HD_STD=HD * 0.0, CD_MEAN=CD,
+                                              CD_STD=CD * 0.0, AT_MEAN=ambinent_temprature,
+                                              AT_STD=ambinent_temprature * 0.0, beta=0, N_S=1)
