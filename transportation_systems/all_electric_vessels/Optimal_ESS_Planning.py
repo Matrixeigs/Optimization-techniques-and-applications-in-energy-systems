@@ -214,7 +214,15 @@ class OptimalPlanningESS():
         c[PESSCAP] = CostEssP
         vtypes[PESSCAP] = 'd'
 
-
+        # Arrival
+        # lb[41 * NX + I_S + 1] = 1
+        # lb[103 * NX + I_S + 2] = 1
+        # lb[127 * NX + I_S + 3] = 1
+        # # Departure
+        # lb[0 * NX + I_D0 + 0] = 1
+        # lb[55 * NX + I_D0 + 1] = 1
+        # lb[121 * NX + I_D0 + 2] = 1
+        # lb[135 * NX + I_D0 + 3] = 1
         # Constraints set
         # 1) Status change constraint
         # equation 5

@@ -75,7 +75,7 @@ effCharing = 0.95
 effDischaring = 1
 CRF = 0.0963/40
 EcapacityEss = 1e5
-PcapacityEss = 1e2
+PcapacityEss = 1e3
 CostEssP = 1000*1000*CRF
 CostEssE = 500*1000*CRF
 
@@ -92,7 +92,7 @@ CostEssE = 500*1000*CRF
 # a2 = array([0, 0, 0])
 
 PMIN = array([0, 0])
-PMAX = array([15, 15])
+PMAX = array([10, 10])
 # a0 = array([3000, 3000, 210])
 # a1 = array([2185, 2185, 1623])
 # a2 = array([30, 30, 10])
@@ -108,9 +108,9 @@ b0 = array([8383, 8383, 360])
 b1 = array([385, 385, 950])
 # b2 = array([385, 385, 950])
 b2 = array([0, 0, 0])
-Tmax = 240
-# Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()[0:Tmax,]
-Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()
+Tmax = 190
+Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()[0:Tmax,]
+# Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()
 
 
 PL_FULL = 9.845  # Full speed service load
@@ -119,7 +119,7 @@ PL_IN_OUT = 8.69  # In/Out speed service load
 PL_STOP = 3.5  # Stop speed service load
 
 PUG_MAX = PcapacityEss
-PUG_MIN = -PcapacityEss
+PUG_MIN = 0
 
 cp1 = 0.003
 cp2 = 3
