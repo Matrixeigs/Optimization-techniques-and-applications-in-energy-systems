@@ -11,7 +11,9 @@ from scipy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack, lil_matrix
 
-from micro_grids.idx_format_hybrid_AC_DC import PBIC_A2D, PBIC_D2A, PESS_CH0, PESS_DC0, PG0,PMESS, PPV0,PUG, NX_MG, QBIC, QG0,QUG, NG, NESS,NRES
+from micro_grids.idx_format_hybrid_AC_DC import PBIC_A2D, PBIC_D2A, PESS_CH0, PESS_DC0, PG0, PMESS, PPV0, PUG, NX_MG, \
+    QBIC, QG0, QUG, NG, NESS, NRES, EESS0
+
 
 class TwoStageStochasticHybirdACDCMG():
 
@@ -21,6 +23,11 @@ class TwoStageStochasticHybirdACDCMG():
         self.ness = NESS
         self.nres = NRES
         # Define the first-stage decision variable
+        self.PG0 = 0
+        self.RG0 = NG
+        self.PUG = NG * 2
+        self.nx_first_stage = NG * 2 + 1
+
 
 
     def main(self, microgrids):
@@ -29,7 +36,7 @@ class TwoStageStochasticHybirdACDCMG():
         :param microgrids:
         :return:
         """
-        self.T = len(microgrids["PD"]["AC"]) # The number of time slots
+        self.T = len(microgrids["PD"]["AC"])  # The number of time slots
         # First stage problem formulation
 
         # Second stage problem formulation
@@ -47,6 +54,8 @@ class TwoStageStochasticHybirdACDCMG():
         :return:
         """
 
+
+
     def second_stage_problem_formulation_microgrid(self, mg):
         """
         Dynamic optimal power flow problem formulation of single micro_grid
@@ -61,6 +70,10 @@ class TwoStageStochasticHybirdACDCMG():
 
         ## 1) boundary information and objective function
         nv = NX_MG * T
+        ng = self.ng
+        npv = self.nres
+        ness = self.ness
+
         lb = zeros(nv)
         ub = zeros(nv)
         c = zeros(nv)
@@ -68,45 +81,52 @@ class TwoStageStochasticHybirdACDCMG():
         vtypes = ["c"] * nv
         for t in range(T):
             ## 1.1) lower boundary
-            for j in range()
-            lb[t * NX_MG + PG] = 0
-            lb[t * NX_MG + QG] = mg["DG"]["QMIN"]
+            for j in range(ng):
+                lb[t * NX_MG + PG0] = 0
+                lb[t * NX_MG + QG0] = mg["DG"]["QMIN"]
             lb[t * NX_MG + PUG] = 0
             lb[t * NX_MG + QUG] = mg["UG"]["QMIN"]
-            lb[t * NX_MG + PBIC_DC2AC] = 0
-            lb[t * NX_MG + PBIC_AC2DC] = 0
+            lb[t * NX_MG + PBIC_D2A] = 0
+            lb[t * NX_MG + PBIC_A2D] = 0
             lb[t * NX_MG + QBIC] = -mg["BIC"]["SMAX"]
-            lb[t * NX_MG + PESS_CH] = 0
-            lb[t * NX_MG + PESS_DC] = 0
-            lb[t * NX_MG + EESS] = mg["ESS"]["EMIN"]
-            lb[t * NX_MG + PPV] = 0
-            lb[t * NX_MG + PMESS] = pmess_l
+            for j in range(ness):
+                lb[t * NX_MG + PESS_CH0+j] = 0
+                lb[t * NX_MG + PESS_DC0+j] = 0
+                lb[t * NX_MG + EESS0+j] = mg["ESS"]["EMIN"]
+            for j in range(npv):
+                lb[t * NX_MG + PPV0+j] = 0
+
+            # lb[t * NX_MG + PMESS] = pmess_l
             ## 1.2) upper boundary
-            ub[t * NX_MG + PG] = mg["DG"]["PMAX"]
-            ub[t * NX_MG + QG] = mg["DG"]["QMAX"]
+            for j in range(ng):
+                ub[t * NX_MG + PG0+j] = mg["DG"]["PMAX"]
+                ub[t * NX_MG + QG0+j] = mg["DG"]["QMAX"]
             ub[t * NX_MG + PUG] = mg["UG"]["PMAX"]
             ub[t * NX_MG + QUG] = mg["UG"]["QMAX"]
-            ub[t * NX_MG + PBIC_DC2AC] = mg["BIC"]["PMAX"]
-            ub[t * NX_MG + PBIC_AC2DC] = mg["BIC"]["PMAX"]
+            ub[t * NX_MG + PBIC_D2A] = mg["BIC"]["PMAX"]
+            ub[t * NX_MG + PBIC_A2D] = mg["BIC"]["PMAX"]
             ub[t * NX_MG + QBIC] = mg["BIC"]["SMAX"]
-            ub[t * NX_MG + PESS_CH] = mg["ESS"]["PCH_MAX"]
-            ub[t * NX_MG + PESS_DC] = mg["ESS"]["PDC_MAX"]
-            ub[t * NX_MG + EESS] = mg["ESS"]["EMAX"]
-            ub[t * NX_MG + PPV] = mg["PV"]["PROFILE"][t]
-            ub[t * NX_MG + PMESS] = pmess_u
+            for j in range(ness):
+                ub[t * NX_MG + PESS_CH0+j] = mg["ESS"]["PCH_MAX"]
+                ub[t * NX_MG + PESS_DC0+j] = mg["ESS"]["PDC_MAX"]
+                ub[t * NX_MG + EESS0+j] = mg["ESS"]["EMAX"]
+            for j in range(npv):
+                ub[t * NX_MG + PPV0] = mg["PV"]["PROFILE"][t]
+            # ub[t * NX_MG + PMESS] = pmess_u
             ## 1.3) Objective functions
-            c[t * NX_MG + PG] = mg["DG"]["COST_A"]
-            c[t * NX_MG + PESS_CH] = mg["ESS"]["COST_OP"]
-            c[t * NX_MG + PESS_DC] = mg["ESS"]["COST_OP"]
-            c[t * NX_MG + PPV] = mg["PV"]["COST"]
-            # c[t * NX_MG + PBIC_AC2DC] = mg["ESS"]["COST_OP"]
-            # c[t * NX_MG + PBIC_DC2AC] = mg["ESS"]["COST_OP"]
-            # c[t * NX_MG + PUG] = mg["DG"]["COST_A"]
-            # c[t * NX_MG + PMESS] = 0.001
+            for j in range(ng):
+                c[t * NX_MG + PG0 + j] = mg["DG"]["COST_A"]
+            for j in range(ness):
+                c[t * NX_MG + PESS_CH0+j] = mg["ESS"]["COST_OP"]
+                c[t * NX_MG + PESS_DC0+j] = mg["ESS"]["COST_OP"]
+
+            for j in range(npv):
+                c[t * NX_MG + PPV0] = mg["PV"]["COST"]
             ## 1.4) Upper and lower boundary information
             if t == T - 1:
-                lb[t * NX_MG + EESS] = mg["ESS"]["E0"]
-                ub[t * NX_MG + EESS] = mg["ESS"]["E0"]
+                for j in range(ness):
+                    lb[t * NX_MG + EESS0 + j] = mg["ESS"]["E0"]
+                    ub[t * NX_MG + EESS0 + j] = mg["ESS"]["E0"]
 
         # 2) Formulate the equal constraints
         # 2.1) Power balance equation
@@ -114,17 +134,18 @@ class TwoStageStochasticHybirdACDCMG():
         Aeq = lil_matrix((T, nv))
         beq = zeros(T)
         for t in range(T):
-            Aeq[t, t * NX_MG + PG] = 1
+            for j in range(ng):
+                Aeq[t, t * NX_MG + PG0+j] = 1
             Aeq[t, t * NX_MG + PUG] = 1
-            Aeq[t, t * NX_MG + PBIC_AC2DC] = -1
-            Aeq[t, t * NX_MG + PBIC_DC2AC] = mg["BIC"]["EFF_DC2AC"]
+            Aeq[t, t * NX_MG + PBIC_A2D] = -1
+            Aeq[t, t * NX_MG + PBIC_D2A] = mg["BIC"]["EFF_DC2AC"]
             beq[t] = mg["PD"]["AC"][t]
         # b) DC bus equation
         Aeq_temp = lil_matrix((T, nv))
         beq_temp = zeros(T)
         for t in range(T):
-            Aeq_temp[t, t * NX_MG + PBIC_AC2DC] = mg["BIC"]["EFF_AC2DC"]
-            Aeq_temp[t, t * NX_MG + PBIC_DC2AC] = -1
+            Aeq_temp[t, t * NX_MG + PBIC_A2D] = mg["BIC"]["EFF_AC2DC"]
+            Aeq_temp[t, t * NX_MG + PBIC_D2A] = -1
             Aeq_temp[t, t * NX_MG + PESS_CH] = -1
             Aeq_temp[t, t * NX_MG + PESS_DC] = 1
             Aeq_temp[t, t * NX_MG + PPV] = 1
@@ -144,16 +165,17 @@ class TwoStageStochasticHybirdACDCMG():
         beq = concatenate([beq, beq_temp])
 
         # 2.2) Energy storage balance equation
-        Aeq_temp = lil_matrix((T, nv))
+        Aeq_temp = lil_matrix((T*ness, nv))
         beq_temp = zeros(T)
         for t in range(T):
-            Aeq_temp[t, t * NX_MG + EESS] = 1
-            Aeq_temp[t, t * NX_MG + PESS_CH] = -mg["ESS"]["EFF_CH"]
-            Aeq_temp[t, t * NX_MG + PESS_DC] = 1 / mg["ESS"]["EFF_DC"]
-            if t == 0:
-                beq_temp[t] = mg["ESS"]["E0"]
-            else:
-                Aeq_temp[t, (t - 1) * NX_MG + EESS] = -1
+            for j in range(ness):
+                Aeq_temp[j*T+t, t * NX_MG + EESS0+j] = 1
+                Aeq_temp[j*T+t, t * NX_MG + PESS_CH0+j] = -mg["ESS"]["EFF_CH"]
+                Aeq_temp[j*T+t, t * NX_MG + PESS_DC0+j] = 1 / mg["ESS"]["EFF_DC"]
+                if t == 0:
+                    beq_temp[j*T+t] = mg["ESS"]["E0"]
+                else:
+                    Aeq_temp[j*T+t, (t - 1) * NX_MG + EESS0+j] = -1
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
         # 3) Formualte inequality constraints
