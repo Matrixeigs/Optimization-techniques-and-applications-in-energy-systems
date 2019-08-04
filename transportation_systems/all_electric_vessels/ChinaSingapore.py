@@ -107,6 +107,8 @@ b2 = array([0, 0, 0])
 Tmax = 200
 Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()[0:Tmax,]
 # Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()
+PV_profile = pd.read_excel(os.getcwd() + '/PV Profile.xlsx', index_col=0).as_matrix()
+PV_profile = PV_profile[:, 1:5]*5*0.24/1000
 
 
 PL_FULL = 9.845  # Full speed service load
@@ -117,7 +119,7 @@ PL_STOP = 3.5  # Stop speed service load
 PUG_MAX = PcapacityEss
 PUG_MIN = 0
 
-cp1 = 0.003
+cp1 = 0.0012
 cp2 = 3
 nV = 50
 vBlock = arange(0, Vfull + Vfull / (nV - 1), Vfull / (nV - 1))
