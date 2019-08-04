@@ -53,40 +53,40 @@ class DataBaseManagement():
         elif table_name == "micro_grids":
             sql_start = """CREATE TABLE micro_grids ("""
             sql = 'SCENARIO  INT,\n MG INT,\n TIME INT,\n '
-            sql += 'PG DECIMAL(7,4),\n QG DECIMAL(7,4),\n PUG DECIMAL(7,4),\n QUG DECIMAL(7,4),\n '
-            sql += 'PBIC_AC2DC DECIMAL(7,4),\n PBIC_DC2AC DECIMAL(7,4),\n QBIC DECIMAL(7,4),\n PESS_CH DECIMAL(7,4),\n '
-            sql += 'PESS_DC  DECIMAL(7,4),\n EESS DECIMAL(7,4),\n PPV DECIMAL(7,4),\n PMESS DECIMAL(7,4)'
+            sql += 'PG DECIMAL(8,4),\n QG DECIMAL(8,4),\n PUG DECIMAL(8,4),\n QUG DECIMAL(8,4),\n '
+            sql += 'PBIC_AC2DC DECIMAL(8,4),\n PBIC_DC2AC DECIMAL(8,4),\n QBIC DECIMAL(8,4),\n PESS_CH DECIMAL(7,4),\n '
+            sql += 'PESS_DC  DECIMAL(8,4),\n EESS DECIMAL(8,4),\n PPV DECIMAL(8,4),\n PMESS DECIMAL(8,4)'
             sql_end = """)"""
         elif table_name == "mobile_energy_storage_systems":
             sql_start = """CREATE TABLE mobile_energy_storage_systems ("""
             sql = 'SCENARIO  INT,\n MESS INT,\n TIME INT,\n'
             for i in range(nmg):
-                sql += "PDC_MG{0} DECIMAL(7,4),\n ".format(i)
+                sql += "PDC_MG{0} DECIMAL(8,4),\n ".format(i)
             for i in range(nmg):
-                sql += "PCH_MG{0} DECIMAL(7,4),\n ".format(i)
-            sql += "EESS DECIMAL(7,4)\n "
+                sql += "PCH_MG{0} DECIMAL(8,4),\n ".format(i)
+            sql += "EESS DECIMAL(8,4)\n "
             sql_end = """)"""
         elif table_name == "first_stage_solutions":  # First-stage solution table
             sql_start = """CREATE TABLE first_stage_solutions ("""
             sql = 'TIME  INT,\n'
             for i in range(ng):
-                sql += "PG{0} DECIMAL(7,4),\n ".format(i)
-                sql += "RG{0} DECIMAL(7,4),\n ".format(i)
+                sql += "PG{0} DECIMAL(8,4),\n ".format(i)
+                sql += "RG{0} DECIMAL(8,4),\n ".format(i)
             for i in range(nmg - 1):
-                sql += "PG_MG{0} DECIMAL(7,4),\n ".format(i)
-                sql += "RG_MG{0} DECIMAL(7,4),\n ".format(i)
+                sql += "PG_MG{0} DECIMAL(8,4),\n ".format(i)
+                sql += "RG_MG{0} DECIMAL(8,4),\n ".format(i)
                 sql += "IESS{0} INT,\n ".format(i)
-                sql += "PESS_DC{0} DECIMAL(7,4),\n ".format(i)
-                sql += "PESS_CH{0} DECIMAL(7,4),\n ".format(i)
-                sql += "RESS{0} DECIMAL(7,4),\n ".format(i)
-                sql += "ESS{0} DECIMAL(7,4),\n ".format(i)
-            sql += "PG_MG{0} DECIMAL(7,4),\n ".format(nmg - 1)
-            sql += "RG_MG{0} DECIMAL(7,4),\n ".format(nmg - 1)
+                sql += "PESS_DC{0} DECIMAL(8,4),\n ".format(i)
+                sql += "PESS_CH{0} DECIMAL(8,4),\n ".format(i)
+                sql += "RESS{0} DECIMAL(8,4),\n ".format(i)
+                sql += "ESS{0} DECIMAL(8,4),\n ".format(i)
+            sql += "PG_MG{0} DECIMAL(8,4),\n ".format(nmg - 1)
+            sql += "RG_MG{0} DECIMAL(8,4),\n ".format(nmg - 1)
             sql += "IESS{0} INT,\n ".format(nmg - 1)
-            sql += "PESS_DC{0} DECIMAL(7,4),\n ".format(nmg - 1)
-            sql += "PESS_CH{0} DECIMAL(7,4),\n ".format(nmg - 1)
-            sql += "RESS{0} DECIMAL(7,4),\n ".format(nmg - 1)
-            sql += "ESS{0} DECIMAL(7,4)\n ".format(nmg - 1)
+            sql += "PESS_DC{0} DECIMAL(8,4),\n ".format(nmg - 1)
+            sql += "PESS_CH{0} DECIMAL(8,4),\n ".format(nmg - 1)
+            sql += "RESS{0} DECIMAL(8,4),\n ".format(nmg - 1)
+            sql += "ESS{0} DECIMAL(8,4)\n ".format(nmg - 1)
             sql_end = """)"""
         elif table_name == "fisrt_stage_mess":  # First-stage solution table
             sql_start = """CREATE TABLE fisrt_stage_mess ("""
@@ -94,26 +94,26 @@ class DataBaseManagement():
             for i in range(nmg):
                 sql += "IDC_MG{0} INT,\n ".format(i)
             for i in range(nmg):
-                sql += "PDC_MG{0} DECIMAL(7,4),\n ".format(i)
+                sql += "PDC_MG{0} DECIMAL(8,4),\n ".format(i)
             for i in range(nmg):
-                sql += "PCH_MG{0} DECIMAL(7,4),\n ".format(i)
+                sql += "PCH_MG{0} DECIMAL(8,4),\n ".format(i)
             for i in range(nmg):
-                sql += "RMESS{0} DECIMAL(7,4),\n ".format(i)
+                sql += "RMESS{0} DECIMAL(8,4),\n ".format(i)
             sql += "MESS_F_STOP INT,\n "
             sql += "MESS_T_STOP INT\n "
             sql_end = """)"""
         else:
             sql_start = """CREATE TABLE scenarios ("""
-            sql = 'SCENARIO  INT,\n WEIGHT DECIMAL(7,4),\n TIME INT,\n'
+            sql = 'SCENARIO  INT,\n WEIGHT DECIMAL(8,4),\n TIME INT,\n'
             for i in range(nb):
-                sql += "PD{0} DECIMAL(7,4),\n ".format(i)
+                sql += "PD{0} DECIMAL(8,4),\n ".format(i)
             for i in range(nmg):
-                sql += "PD_AC{0} DECIMAL(7,4),\n ".format(i)
+                sql += "PD_AC{0} DECIMAL(8,4),\n ".format(i)
             for i in range(nmg):
-                sql += "PD_DC{0} DECIMAL(7,4),\n ".format(i)
+                sql += "PD_DC{0} DECIMAL(8,4),\n ".format(i)
             for i in range(nmg - 1):
-                sql += "PPV{0} DECIMAL(7,4),\n ".format(i)
-            sql += "PPV{0} DECIMAL(7,4)\n".format(nmg - 1)
+                sql += "PPV{0} DECIMAL(8,4),\n ".format(i)
+            sql += "PPV{0} DECIMAL(8,4)\n".format(nmg - 1)
             sql_end = """)"""
 
         cursor.execute(sql_start + sql + sql_end)

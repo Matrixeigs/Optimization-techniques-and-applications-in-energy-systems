@@ -1589,16 +1589,16 @@ class StochasticDynamicOptimalPowerFlowTess():
             db_management.create_table("scenarios", nb=nb, nmg=nmg)
             for i in range(ns - ns_reduced):
                 for t in range(T):
+                    # print(scenario_reduced[i, nb * T + nmg * T + t * nmg: nb * T + nmg * T + (t + 1) * nmg].tolist())
                     db_management.insert_data_scenario("scenarios", scenario=i, weight=weight_reduced[i], time=t, nb=nb,
                                                        pd=scenario_reduced[i, t * nb:(t + 1) * nb].tolist(), nmg=nmg,
                                                        pd_ac=scenario_reduced[i, nb * T + t * nmg:
                                                                                  nb * T + (t + 1) * nmg].tolist(),
                                                        pd_dc=scenario_reduced[i, nb * T + nmg * T + t * nmg:
-                                                                                 nb * T + nmg * T + (
-                                                                                         t + 1) * nmg].tolist(),
+                                                                                 nb * T + nmg * T + (t + 1) * nmg].tolist(),
                                                        ppv=scenario_reduced[i, nb * T + nmg * T * 2 + t * nmg:
-                                                                               nb * T + nmg * T * 2 + (
-                                                                                       t + 1) * nmg].tolist())
+                                                                               nb * T + nmg * T * 2 + (t + 1) * nmg].tolist())
+                    # print(t)
         else:
             # 4) if not updated, inquery the database
             scenario_reduced = zeros((ns - ns_reduced, nb * T + nmg * T * 3))
@@ -1643,7 +1643,7 @@ if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81, 0.59, 0.35, 0.14, 0.17, 0.41]) * 2
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
 
     # Microgrid information
     Profile = array([
@@ -1660,27 +1660,28 @@ if __name__ == "__main__":
 
     micro_grid_1 = deepcopy(micro_grid)
     micro_grid_1["BUS"] = 2
-    micro_grid_1["PD"]["AC_MAX"] = 100
-    micro_grid_1["PD"]["DC_MAX"] = 100
-    micro_grid_1["UG"]["PMIN"] = -500
-    micro_grid_1["UG"]["PMAX"] = 500
-    micro_grid_1["UG"]["QMIN"] = -500
-    micro_grid_1["UG"]["QMAX"] = 500
-    micro_grid_1["DG"]["PMAX"] = 100
-    micro_grid_1["DG"]["QMAX"] = 100
-    micro_grid_1["DG"]["QMIN"] = -100
-    micro_grid_1["DG"]["COST_A"] = 0.002
-    micro_grid_1["ESS"]["PDC_MAX"] = 50
-    micro_grid_1["ESS"]["COST_OP"] = 0.0005
-    micro_grid_1["ESS"]["PCH_MAX"] = 50
-    micro_grid_1["ESS"]["E0"] = 50
+    micro_grid_1["PD"]["AC_MAX"] = 1000
+    micro_grid_1["PD"]["DC_MAX"] = 500
+    micro_grid_1["UG"]["PMIN"] = -5000
+    micro_grid_1["UG"]["PMAX"] = 5000
+    micro_grid_1["UG"]["QMIN"] = -5000
+    micro_grid_1["UG"]["QMAX"] = 5000
+    micro_grid_1["DG"]["PMAX"] = 1000
+    micro_grid_1["DG"]["QMAX"] = 1000
+    micro_grid_1["DG"]["QMIN"] = -1000
+    micro_grid_1["DG"]["COST_A"] = 0.1808
+    micro_grid_1["DG"]["COST_B"] = 3.548*10
+    micro_grid_1["ESS"]["PDC_MAX"] = 200
+    micro_grid_1["ESS"]["COST_OP"] = 0.108
+    micro_grid_1["ESS"]["PCH_MAX"] = 200
+    micro_grid_1["ESS"]["E0"] = 100
     micro_grid_1["ESS"]["EMIN"] = 10
-    micro_grid_1["ESS"]["EMAX"] = 100
-    micro_grid_1["BIC"]["PMAX"] = 200
-    micro_grid_1["BIC"]["QMAX"] = 200
-    micro_grid_1["BIC"]["SMAX"] = 200
-    micro_grid_1["PV"]["PMAX"] = 200
-    micro_grid_1["PV"]["COST"] = 0.0005
+    micro_grid_1["ESS"]["EMAX"] = 200
+    micro_grid_1["BIC"]["PMAX"] = 1000
+    micro_grid_1["BIC"]["QMAX"] = 1000
+    micro_grid_1["BIC"]["SMAX"] = 1000
+    micro_grid_1["PV"]["PMAX"] = 1000
+    micro_grid_1["PV"]["COST"] = 0.0376
     micro_grid_1["PD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"]
     micro_grid_1["QD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"] * 0.2
     micro_grid_1["PD"]["DC"] = Profile[0] * micro_grid_1["PD"]["DC_MAX"]
@@ -1689,27 +1690,28 @@ if __name__ == "__main__":
 
     micro_grid_2 = deepcopy(micro_grid)
     micro_grid_2["BUS"] = 4
-    micro_grid_2["PD"]["AC_MAX"] = 100
-    micro_grid_2["PD"]["DC_MAX"] = 100
-    micro_grid_2["UG"]["PMIN"] = -500
-    micro_grid_2["UG"]["PMAX"] = 500
-    micro_grid_1["UG"]["QMIN"] = -500
-    micro_grid_1["UG"]["QMAX"] = 500
-    micro_grid_2["DG"]["PMAX"] = 100
-    micro_grid_1["DG"]["QMAX"] = 100
-    micro_grid_1["DG"]["QMIN"] = -100
-    micro_grid_2["DG"]["COST_A"] = 0.0015
-    micro_grid_2["ESS"]["COST_OP"] = 0.0005
-    micro_grid_2["ESS"]["PDC_MAX"] = 50
-    micro_grid_2["ESS"]["PCH_MAX"] = 50
-    micro_grid_2["ESS"]["E0"] = 15
+    micro_grid_2["PD"]["AC_MAX"] = 1000
+    micro_grid_2["PD"]["DC_MAX"] = 500
+    micro_grid_2["UG"]["PMIN"] = -5000
+    micro_grid_2["UG"]["PMAX"] = 5000
+    micro_grid_2["UG"]["QMIN"] = -5000
+    micro_grid_2["UG"]["QMAX"] = 5000
+    micro_grid_2["DG"]["PMAX"] = 1000
+    micro_grid_2["DG"]["QMAX"] = 1000
+    micro_grid_2["DG"]["QMIN"] = -1000
+    micro_grid_2["DG"]["COST_A"] = 0.1808
+    micro_grid_2["DG"]["COST_B"] = 3.548 * 10
+    micro_grid_2["ESS"]["COST_OP"] = 0.108
+    micro_grid_2["ESS"]["PDC_MAX"] = 200
+    micro_grid_2["ESS"]["PCH_MAX"] = 200
+    micro_grid_2["ESS"]["E0"] = 100
     micro_grid_2["ESS"]["EMIN"] = 10
-    micro_grid_2["ESS"]["EMAX"] = 50
-    micro_grid_2["BIC"]["PMAX"] = 200
-    micro_grid_2["BIC"]["QMAX"] = 200
-    micro_grid_2["BIC"]["SMAX"] = 200
-    micro_grid_2["PV"]["PMAX"] = 200
-    micro_grid_2["PV"]["COST"] = 0.0005
+    micro_grid_2["ESS"]["EMAX"] = 200
+    micro_grid_2["BIC"]["PMAX"] = 1000
+    micro_grid_2["BIC"]["QMAX"] = 1000
+    micro_grid_2["BIC"]["SMAX"] = 1000
+    micro_grid_2["PV"]["PMAX"] = 1000
+    micro_grid_2["PV"]["COST"] = 0.0376
     micro_grid_2["PD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"]
     micro_grid_2["QD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"] * 0.2
     micro_grid_2["PD"]["DC"] = Profile[1] * micro_grid_2["PD"]["DC_MAX"]
@@ -1718,27 +1720,28 @@ if __name__ == "__main__":
 
     micro_grid_3 = deepcopy(micro_grid)
     micro_grid_3["BUS"] = 10
-    micro_grid_3["PD"]["AC_MAX"] = 100
-    micro_grid_3["PD"]["DC_MAX"] = 100
-    micro_grid_3["UG"]["PMIN"] = -500
-    micro_grid_3["UG"]["PMAX"] = 500
-    micro_grid_3["UG"]["QMIN"] = -500
-    micro_grid_3["UG"]["QMAX"] = 500
-    micro_grid_3["DG"]["PMAX"] = 100
-    micro_grid_3["DG"]["QMAX"] = 100
-    micro_grid_3["DG"]["QMIN"] = -100
-    micro_grid_3["DG"]["COST_A"] = 0.001
-    micro_grid_3["ESS"]["COST_OP"] = 0.0005
-    micro_grid_3["ESS"]["PDC_MAX"] = 50
-    micro_grid_3["ESS"]["PCH_MAX"] = 50
-    micro_grid_3["ESS"]["E0"] = 20
+    micro_grid_3["PD"]["AC_MAX"] = 1000
+    micro_grid_3["PD"]["DC_MAX"] = 500
+    micro_grid_3["UG"]["PMIN"] = -5000
+    micro_grid_3["UG"]["PMAX"] = 5000
+    micro_grid_3["UG"]["QMIN"] = -5000
+    micro_grid_3["UG"]["QMAX"] = 5000
+    micro_grid_3["DG"]["PMAX"] = 1000
+    micro_grid_3["DG"]["QMAX"] = 1000
+    micro_grid_3["DG"]["QMIN"] = -1000
+    micro_grid_3["DG"]["COST_A"] = 0.1808
+    micro_grid_3["DG"]["COST_B"] = 3.548 * 10
+    micro_grid_3["ESS"]["COST_OP"] = 0.108
+    micro_grid_3["ESS"]["PDC_MAX"] = 200
+    micro_grid_3["ESS"]["PCH_MAX"] = 200
+    micro_grid_3["ESS"]["E0"] = 100
     micro_grid_3["ESS"]["EMIN"] = 10
-    micro_grid_3["ESS"]["EMAX"] = 50
-    micro_grid_3["BIC"]["PMAX"] = 200
-    micro_grid_3["BIC"]["QMAX"] = 200
-    micro_grid_3["BIC"]["SMAX"] = 200
-    micro_grid_3["PV"]["PMAX"] = 200
-    micro_grid_3["PV"]["COST"] = 0.0005
+    micro_grid_3["ESS"]["EMAX"] = 200
+    micro_grid_3["BIC"]["PMAX"] = 1000
+    micro_grid_3["BIC"]["QMAX"] = 1000
+    micro_grid_3["BIC"]["SMAX"] = 1000
+    micro_grid_3["PV"]["PMAX"] = 1000
+    micro_grid_3["PV"]["COST"] = 0.0376
     micro_grid_3["PD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"]
     micro_grid_3["QD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"] * 0.2
     micro_grid_3["PD"]["DC"] = Profile[2] * micro_grid_3["PD"]["DC_MAX"]
@@ -1756,7 +1759,7 @@ if __name__ == "__main__":
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.0005,
+               "COST_OP": 0.108,
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
@@ -1767,7 +1770,7 @@ if __name__ == "__main__":
                "E0": 100,
                "EMAX": 200,
                "EMIN": 50,
-               "COST_OP": 0.0005,
+               "COST_OP": 0.108,
                })
     """
     ev.append({"initial": array([1, 0, 0]),
@@ -1823,6 +1826,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=50)
+                                                                                     ns=100)
 
     print(sol_second_stage[0]['DS']['gap'].max())
