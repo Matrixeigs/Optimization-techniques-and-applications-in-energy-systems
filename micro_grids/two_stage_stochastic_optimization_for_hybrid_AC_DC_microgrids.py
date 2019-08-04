@@ -11,12 +11,17 @@ from scipy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack, lil_matrix
 
-from micro_grids.idx_format_hybrid_AC_DC import PBIC_A2D,PBIC_D2A,PESS_CH0,PESS_DC0,PG0,PMESS,PPV0,PUG,NX_MG,QBIC,QG0,QUG
+from micro_grids.idx_format_hybrid_AC_DC import PBIC_A2D, PBIC_D2A, PESS_CH0, PESS_DC0, PG0,PMESS, PPV0,PUG, NX_MG, QBIC, QG0,QUG, NG, NESS,NRES
 
 class TwoStageStochasticHybirdACDCMG():
 
     def __init__(self):
         self.name = "Two stage stochastic optimization for hybrid AC/DC microgrids"
+        self.ng = NG
+        self.ness = NESS
+        self.nres = NRES
+        # Define the first-stage decision variable
+
 
     def main(self, microgrids):
         """
@@ -24,25 +29,35 @@ class TwoStageStochasticHybirdACDCMG():
         :param microgrids:
         :return:
         """
+        self.T = len(microgrids["PD"]["AC"]) # The number of time slots
+        # First stage problem formulation
 
-    def problem_formulation_microgrid(self, mg, mess):
+        # Second stage problem formulation
+
+        # Merge the first stage and second stage problems
+
+        # Solve the problem
+
+        # Store the data into excel file
+
+    def first_stage_problem_formulation_microgrid(self, mg):
         """
-        Unit commitment problem formulation of single micro_grid
-        :param micro_grid:
+        First stage optimization problem formulation
+        :param mg:
         :return:
         """
 
+    def second_stage_problem_formulation_microgrid(self, mg):
+        """
+        Dynamic optimal power flow problem formulation of single micro_grid
+        Might be extended with
+        :param micro_grid:
+        :return:
+        """
         try:
             T = self.T
         except:
             T = 24
-        nmes = self.nmes
-
-        pmess_l = 0
-        pmess_u = 0
-        for i in range(nmes):
-            pmess_l -= mess[i]["PCMAX"]
-            pmess_u += mess[i]["PDMAX"]
 
         ## 1) boundary information and objective function
         nv = NX_MG * T
@@ -53,6 +68,7 @@ class TwoStageStochasticHybirdACDCMG():
         vtypes = ["c"] * nv
         for t in range(T):
             ## 1.1) lower boundary
+            for j in range()
             lb[t * NX_MG + PG] = 0
             lb[t * NX_MG + QG] = mg["DG"]["QMIN"]
             lb[t * NX_MG + PUG] = 0
