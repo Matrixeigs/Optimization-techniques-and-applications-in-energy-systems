@@ -79,12 +79,12 @@ class StochasticDynamicOptimalPowerFlowTess():
         # 1) Formulate the first stage optimization problem
         model_first_stage = self.first_stage_problem_formualtion(pns=power_networks, mgs=micro_grids, mess=mess,
                                                                  tns=traffic_networks)
-        (sol_first_stage, obj, success) = milp(model_first_stage["c"], Aeq=model_first_stage["Aeq"],
-                                               beq=model_first_stage["beq"],
-                                               A=model_first_stage["A"], b=model_first_stage["b"],
-                                               vtypes=model_first_stage["vtypes"],
-                                               xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
-        sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage)
+        # (sol_first_stage, obj, success) = milp(model_first_stage["c"], Aeq=model_first_stage["Aeq"],
+        #                                        beq=model_first_stage["beq"],
+        #                                        A=model_first_stage["A"], b=model_first_stage["b"],
+        #                                        vtypes=model_first_stage["vtypes"],
+        #                                        xmax=model_first_stage["ub"], xmin=model_first_stage["lb"])
+        # sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage)
 
         # 2) Formulate the second stage optimization problem
         # Formulate the second stage scenarios
@@ -1759,7 +1759,7 @@ if __name__ == "__main__":
                "E0": 500,
                "EMAX": 1000,
                "EMIN": 100,
-               "COST_OP": 0.108/2,
+               "COST_OP": 0.108/10,
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
@@ -1770,54 +1770,20 @@ if __name__ == "__main__":
                "E0": 500,
                "EMAX": 1000,
                "EMIN": 100,
-               "COST_OP": 0.108/2,
+               "COST_OP": 0.108/10,
                })
-    """
+
     ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
+               "end": array([0, 1, 0]),
+               "PCMAX": 500,
+               "PDMAX": 500,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.01,
+               "E0": 500,
+               "EMAX": 1000,
+               "EMIN": 100,
+               "COST_OP": 0.108 / 10,
                })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),weight
-               "PCMAX": 200,
-               "PDMAX": 200,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.01,
-               })
-    """
 
     stochastic_dynamic_optimal_power_flow = StochasticDynamicOptimalPowerFlowTess()
 
@@ -1826,6 +1792,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=100)
+                                                                                     ns=200)
 
     print(sol_second_stage[0]['DS']['gap'].max())
