@@ -46,18 +46,18 @@ from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming
 
 from copy import deepcopy
 
-from distribution_system_optimization.data_format.idx_MG import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, \
-    PMESS, EESS, NX_MG, QBIC, QUG, QG
+from distribution_system_optimization.data_format.idx_MG_PV import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, \
+    PMESS, EESS, NX_MG, QBIC, QUG, QG, PPV
 
-from distribution_system_optimization.database_management import DataBaseManagement
+from distribution_system_optimization.database_management_pv import DataBaseManagement
 from solvers.scenario_reduction import ScenarioReduction
 
 
 class StochasticDynamicOptimalPowerFlowTess():
     def __init__(self):
-        self.name = "Stochastic optimal power flow with tess"
+        self.name = "Unit commitment with tess"
 
-    def main(self, power_networks, micro_grids, profile, mess, traffic_networks, ns=100):
+    def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100):
         """
         Main entrance for network reconfiguration problems
         :param case: electric network information
@@ -91,6 +91,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         (ds_second_stage, mgs_second_stage, weight) = self.scenario_generation_reduction(profile=profile,
                                                                                          micro_grids=micro_grids, ns=ns,
                                                                                          pns=power_networks,
+                                                                                         pv_profile=pv_profile,
                                                                                          ns_reduced=round(0.98 * ns))
         ns -= round(0.98 * ns)
         model_second_stage = {}
@@ -178,7 +179,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         db_management.create_table(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng)
         db_management.create_table(table_name="micro_grids", nmg=self.nmg)
         db_management.create_table(table_name="mobile_energy_storage_systems", nmg=self.nmg)
-        db_management.create_table(table_name="first_stage_solutions", nmg=self.nmg, ng=self.ng, nmes=self.nmes)
+        db_management.create_table(table_name="first_stage_solutions", nmg=self.nmg, ng=self.ng)
         db_management.create_table(table_name="fisrt_stage_mess", nmg=self.nmg)
 
         for t in range(T):
@@ -230,7 +231,8 @@ class StochasticDynamicOptimalPowerFlowTess():
                                                  pess_ch=sol_second_stage_checked[i]["MG"]["pess_ch"][j, t],
                                                  pess_dc=sol_second_stage_checked[i]["MG"]["pess_dc"][j, t],
                                                  eess=sol_second_stage_checked[i]["MG"]["eess"][j, t],
-                                                 pmess=sol_second_stage_checked[i]["MG"]["pmess"][j, t])
+                                                 pmess=sol_second_stage_checked[i]["MG"]["pmess"][j, t],
+                                                 ppv=sol_second_stage_checked[i]["MG"]["ppv"][j, t])
         for i in range(ns):
             for j in range(nmes):
                 for t in range(T):
@@ -288,7 +290,8 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         alpha_l = zeros(ng)
         beta_l = zeros(ng)
-        Ig_l = zeros(ng)
+        # Ig_l = zeros(ng)
+        Ig_l = ones(ng)
         pg_l = zeros(ng)  # Boundary for DGs within distribution networks
         rg_l = zeros(ng)
 
@@ -297,9 +300,9 @@ class StochasticDynamicOptimalPowerFlowTess():
         Ig_u = ones(ng)
         pg_u = gen[:, PMAX] / baseMVA
         rg_u = gen[:, PMAX] / baseMVA
-        c_alpha = gencost[:, 0]
-        c_beta = gencost[:, 1]
-        c_ig = gencost[:, 6]
+        c_alpha = zeros(ng)
+        c_beta = zeros(ng)
+        c_ig = zeros(ng)
         cg = gencost[:, 5] * baseMVA
         cr = zeros(ng)
 
@@ -352,6 +355,9 @@ class StochasticDynamicOptimalPowerFlowTess():
         # Objective value
         c = concatenate(
             [tile(concatenate([c_alpha, c_beta, c_ig, cg, cr, cg_mg, cr_mg, ces_ch, ces_dc, ces, ces_r, ces_i]), T)])
+        for t in range(T):
+            for j in range(ng):
+                c[t * _nv_first_stage + ng * 3 + j] = Price_wholesale[0,t] * 1000 *baseMVA
         # Variable types
         vtypes = (["b"] * ng * 3 + ["c"] * (ng * 2 + nmg * 2 + nmg * 4) + ["b"] * nmg) * T
         ## Constraint sets
@@ -448,9 +454,9 @@ class StochasticDynamicOptimalPowerFlowTess():
         b_temp = zeros(nmg * T)
         for t in range(T):
             for j in range(nmg):
-                A_temp[t * nmg + j, ng * 5 + nmg * 2 + t] = 1
-                A_temp[t * nmg + j, ng * 5 + nmg * 2 + nmg + t] = -1
-                A_temp[t * nmg + j, ng * 5 + nmg * 2 + nmg * 2 + t] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg + j] = -1
+                A_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 2 + j] = 1
                 b_temp[t * nmg + j] = pes_ch_u[j]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
@@ -463,11 +469,15 @@ class StochasticDynamicOptimalPowerFlowTess():
                 Aeq_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + j] = -mgs[j]["ESS"]["EFF_CH"]
                 Aeq_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg + j] = 1 / mgs[j]["ESS"]["EFF_DC"]
                 if t == 0:
-                    beq_temp[i * nmg + j] = mgs[j]["ESS"]["E0"]
+                    beq_temp[t * nmg + j] = mgs[j]["ESS"]["E0"]
                 else:
-                    Aeq_temp[i * nmg + j, (i - 1) * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 3 + j] = -1
+                    Aeq_temp[t * nmg + j, (t - 1) * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 3 + j] = -1
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
+
+        for j in range(nmg):
+            lb[t * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 3 + j] = mgs[j]["ESS"]["E0"]
+            ub[t * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 3 + j] = mgs[j]["ESS"]["E0"]
 
         # 8) Pess_ch<=I*Pess_ch_max
         A_temp = lil_matrix((nmg * T, nv_first_stage))
@@ -1102,6 +1112,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         mg_sol["pess_dc"] = zeros((nmg, T))
         mg_sol["eess"] = zeros((nmg, T))
         mg_sol["pmess"] = zeros((nmg, T))
+        mg_sol["ppv"] = zeros((nmg, T))
         for i in range(nmg):
             for t in range(T):
                 mg_sol["pg"][i, t] = sol[_nv_second_stage * T + NX_MG * T * i + NX_MG * t + PG]
@@ -1114,6 +1125,7 @@ class StochasticDynamicOptimalPowerFlowTess():
                 mg_sol["pess_ch"][i, t] = sol[_nv_second_stage * T + NX_MG * T * i + NX_MG * t + PESS_CH]
                 mg_sol["pess_dc"][i, t] = sol[_nv_second_stage * T + NX_MG * T * i + NX_MG * t + PESS_DC]
                 mg_sol["eess"][i, t] = sol[_nv_second_stage * T + NX_MG * T * i + NX_MG * t + EESS]
+                mg_sol["ppv"][i, t] = sol[_nv_second_stage * T + NX_MG * T * i + NX_MG * t + PPV]
                 mg_sol["pmess"][i, t] = sol[_nv_second_stage * T + NX_MG * T * i + NX_MG * t + PMESS]
         mg_sol["gap"] = mg_sol["pbic_ac2dc"].__mul__(mg_sol["pbic_dc2ac"])
         # Solutions for the mess
@@ -1181,6 +1193,7 @@ class StochasticDynamicOptimalPowerFlowTess():
             lb[t * NX_MG + PESS_CH] = 0
             lb[t * NX_MG + PESS_DC] = 0
             lb[t * NX_MG + EESS] = mg["ESS"]["EMIN"]
+            lb[t * NX_MG + PPV] = 0
             lb[t * NX_MG + PMESS] = pmess_l
             ## 1.2) upper boundary
             ub[t * NX_MG + PG] = mg["DG"]["PMAX"]
@@ -1193,11 +1206,13 @@ class StochasticDynamicOptimalPowerFlowTess():
             ub[t * NX_MG + PESS_CH] = mg["ESS"]["PCH_MAX"]
             ub[t * NX_MG + PESS_DC] = mg["ESS"]["PDC_MAX"]
             ub[t * NX_MG + EESS] = mg["ESS"]["EMAX"]
+            ub[t * NX_MG + PPV] = mg["PV"]["PROFILE"][t]
             ub[t * NX_MG + PMESS] = pmess_u
             ## 1.3) Objective functions
             c[t * NX_MG + PG] = mg["DG"]["COST_A"]
             c[t * NX_MG + PESS_CH] = mg["ESS"]["COST_OP"]
             c[t * NX_MG + PESS_DC] = mg["ESS"]["COST_OP"]
+            c[t * NX_MG + PPV] = mg["PV"]["COST"]
             # c[t * NX_MG + PBIC_AC2DC] = mg["ESS"]["COST_OP"]
             # c[t * NX_MG + PBIC_DC2AC] = mg["ESS"]["COST_OP"]
             # c[t * NX_MG + PUG] = mg["DG"]["COST_A"]
@@ -1226,6 +1241,7 @@ class StochasticDynamicOptimalPowerFlowTess():
             Aeq_temp[t, t * NX_MG + PBIC_DC2AC] = -1
             Aeq_temp[t, t * NX_MG + PESS_CH] = -1
             Aeq_temp[t, t * NX_MG + PESS_DC] = 1
+            Aeq_temp[t, t * NX_MG + PPV] = 1
             Aeq_temp[t, t * NX_MG + PMESS] = 1  # The power injection from mobile energy storage systems
             beq_temp[t] = mg["PD"]["DC"][t]
         Aeq = vstack([Aeq, Aeq_temp])
@@ -1537,8 +1553,8 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_tess
 
-    def scenario_generation_reduction(self, micro_grids, profile, pns, update=0, ns=2, ns_reduced=2, std=0.03,
-                                      interval=0.05):
+    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=1, ns=2, ns_reduced=2,
+                                      std=0.03, interval=0.05, std_pv=0.05):
         """
         Scenario generation function for the second-stage scheduling
         Stochastic variables include 1) loads in distribution networks, active loads for 2) AC bus and 3)DC bus.
@@ -1556,36 +1572,44 @@ class StochasticDynamicOptimalPowerFlowTess():
             # 1) scenario generation
             bus_load = zeros((ns, nb * T))
             mg_load = zeros((ns, nmg * T * 2))
+            mg_pv = zeros((ns, nmg * T))
             weight = ones(ns) / ns
             for i in range(ns):
                 for t in range(T):
                     for j in range(nb):
                         bus_load[i, t * nb + j] = pns["bus"][j, PD] * (1 + random.normal(0, std)) * profile[t]
+
+                    pv_rand = random.normal(0, std_pv)  # all PV are correlated!
                     for j in range(nmg):
                         mg_load[i, t * nmg + j] = micro_grids[j]["PD"]["AC"][t] * \
                                                   (1 + random.uniform(-interval, interval))
                         mg_load[i, nmg * T + t * nmg + j] = micro_grids[j]["PD"]["DC"][t] * \
                                                             (1 + random.uniform(-interval, interval))
+                        mg_pv[i, t * nmg + j] = micro_grids[j]["PV"]["PMAX"] * pv_profile[t] * \
+                                                (1 + pv_rand)
 
             # 2) scenario reduction
             scenario_reduction = ScenarioReduction()
             (scenario_reduced, weight_reduced) = \
-                scenario_reduction.run(scenario=concatenate([bus_load, mg_load], axis=1), weight=weight,
+                scenario_reduction.run(scenario=concatenate([bus_load, mg_load, mg_pv], axis=1), weight=weight,
                                        n_reduced=ns_reduced, power=2)
             # 3) Store the data into database
             db_management.create_table("scenarios", nb=nb, nmg=nmg)
             for i in range(ns - ns_reduced):
                 for t in range(T):
+                    # print(scenario_reduced[i, nb * T + nmg * T + t * nmg: nb * T + nmg * T + (t + 1) * nmg].tolist())
                     db_management.insert_data_scenario("scenarios", scenario=i, weight=weight_reduced[i], time=t, nb=nb,
                                                        pd=scenario_reduced[i, t * nb:(t + 1) * nb].tolist(), nmg=nmg,
                                                        pd_ac=scenario_reduced[i, nb * T + t * nmg:
                                                                                  nb * T + (t + 1) * nmg].tolist(),
                                                        pd_dc=scenario_reduced[i, nb * T + nmg * T + t * nmg:
-                                                                                 nb * T + nmg * T + (
-                                                                                         t + 1) * nmg].tolist())
+                                                                                 nb * T + nmg * T + (t + 1) * nmg].tolist(),
+                                                       ppv=scenario_reduced[i, nb * T + nmg * T * 2 + t * nmg:
+                                                                               nb * T + nmg * T * 2 + (t + 1) * nmg].tolist())
+                    # print(t)
         else:
             # 4) if not updated, inquery the database
-            scenario_reduced = zeros((ns - ns_reduced, nb * T + nmg * T * 2))
+            scenario_reduced = zeros((ns - ns_reduced, nb * T + nmg * T * 3))
             weight_reduced = zeros(ns - ns_reduced)
             for i in range(ns - ns_reduced):
                 for t in range(T):
@@ -1594,12 +1618,16 @@ class StochasticDynamicOptimalPowerFlowTess():
                     scenario_reduced[i, nb * t:nb * (t + 1)] = array(data[3:nb + 3])
                     scenario_reduced[i, nb * T + nmg * t:nb * T + nmg * (t + 1)] = array(data[nb + 3:nb + 3 + nmg])
                     scenario_reduced[i, nb * T + nmg * T + nmg * t:nb * T + nmg * T + nmg * (t + 1)] = \
-                        array(data[nb + 3:nb + 3 + nmg])
+                        array(data[nb + 3 + nmg:nb + 3 + nmg * 2])
+                    scenario_reduced[i, nb * T + nmg * T * 2 + nmg * t:nb * T + nmg * T * 2 + nmg * (t + 1)] = \
+                        array(data[nb + 3 + nmg * 2:nb + 3 + nmg * 3])
             # assert sum(weight_reduced) == 1, "The weight factor is not right!"
 
         # 4) return value
         ds_load_profile = scenario_reduced[:, 0:nb * T]
-        mgs_load_profile = scenario_reduced[:, nb * T:]
+        mgs_load_profile = scenario_reduced[:, nb * T:nb * T + nmg * T * 2]
+        pv_load_profile = scenario_reduced[:, nb * T + nmg * T * 2:]
+
         # profile_second_stage = zeros((ns, T))
         microgrids_second_stage = [0] * (ns - ns_reduced)
         # for i in range(ns):
@@ -1609,21 +1637,24 @@ class StochasticDynamicOptimalPowerFlowTess():
         for i in range(ns - ns_reduced):
             microgrids_second_stage[i] = deepcopy(micro_grids)
             for j in range(nmg):
+                microgrids_second_stage[i][j]["PV"]["PROFILE"] = zeros(T)
                 for t in range(T):
                     microgrids_second_stage[i][j]["PD"]["AC"][t] = mgs_load_profile[i, t * nmg + j]
                     microgrids_second_stage[i][j]["QD"]["AC"][t] = mgs_load_profile[i, t * nmg + j] * 0.2
                     microgrids_second_stage[i][j]["PD"]["DC"][t] = mgs_load_profile[i, T * nmg + t * nmg + j]
+                    microgrids_second_stage[i][j]["PV"]["PROFILE"][t] = pv_load_profile[i, t * nmg + j]
 
         return ds_load_profile, microgrids_second_stage, weight_reduced
 
 
 if __name__ == "__main__":
-    # Distribution network information
     mpc = case33.case33()  # Default test case
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
-         0.81, 0.59, 0.35, 0.14, 0.17, 0.41]) * 2
-
+         0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
+    Price_wholesale=array([
+        [0.16,0.16,0.16,0.16,0.16,0.16,0.21,0.21,0.21,0.21,0.21,0.21,0.21,0.21,0.21,0.21,0.45,0.45,0.45,0.45,0.45,0.21, 0.21, 0.21],
+    ])
     # Microgrid information
     Profile = array([
         [0.64, 0.63, 0.65, 0.64, 0.66, 0.69, 0.75, 0.91, 0.95, 0.97, 1.00, 0.97, 0.97, 0.95, 0.98, 0.99, 0.95, 0.95,
@@ -1633,29 +1664,34 @@ if __name__ == "__main__":
         [0.57, 0.55, 0.55, 0.56, 0.62, 0.70, 0.78, 0.83, 0.84, 0.89, 0.87, 0.82, 0.80, 0.80, 0.84, 0.89, 0.94, 0.98,
          1.00, 0.97, 0.87, 0.79, 0.72, 0.62]
     ])
-    # Add start-up, shut-down status, initial status, start-up/shut cost of DGs
-    # The DGs within the DS are optimized!
+    PV_profile = array(
+        [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.03, 0.05, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35,
+         0.14, 0.02, 0.02, 0.00, 0.00, 0.00])
+
     micro_grid_1 = deepcopy(micro_grid)
     micro_grid_1["BUS"] = 2
-    micro_grid_1["PD"]["AC_MAX"] = 100
-    micro_grid_1["PD"]["DC_MAX"] = 100
-    micro_grid_1["UG"]["PMIN"] = -500
-    micro_grid_1["UG"]["PMAX"] = 500
-    micro_grid_1["UG"]["QMIN"] = -500
-    micro_grid_1["UG"]["QMAX"] = 500
-    micro_grid_1["DG"]["PMAX"] = 100
-    micro_grid_1["DG"]["QMAX"] = 100
-    micro_grid_1["DG"]["QMIN"] = -100
-    micro_grid_1["DG"]["COST_A"] = 0.002
-    micro_grid_1["ESS"]["PDC_MAX"] = 50
-    micro_grid_1["ESS"]["COST_OP"] = 0.0005
-    micro_grid_1["ESS"]["PCH_MAX"] = 50
-    micro_grid_1["ESS"]["E0"] = 50
-    micro_grid_1["ESS"]["EMIN"] = 10
-    micro_grid_1["ESS"]["EMAX"] = 100
-    micro_grid_1["BIC"]["PMAX"] = 200
-    micro_grid_1["BIC"]["QMAX"] = 200
-    micro_grid_1["BIC"]["SMAX"] = 200
+    micro_grid_1["PD"]["AC_MAX"] = 1000
+    micro_grid_1["PD"]["DC_MAX"] = 1000
+    micro_grid_1["UG"]["PMIN"] = -5000
+    micro_grid_1["UG"]["PMAX"] = 5000
+    micro_grid_1["UG"]["QMIN"] = -5000
+    micro_grid_1["UG"]["QMAX"] = 5000
+    micro_grid_1["DG"]["PMAX"] = 1000
+    micro_grid_1["DG"]["QMAX"] = 1000
+    micro_grid_1["DG"]["QMIN"] = -1000
+    micro_grid_1["DG"]["COST_A"] = 0.1808
+    micro_grid_1["DG"]["COST_B"] = 3.548*10
+    micro_grid_1["ESS"]["PDC_MAX"] = 500
+    micro_grid_1["ESS"]["COST_OP"] = 0.108/2
+    micro_grid_1["ESS"]["PCH_MAX"] = 500
+    micro_grid_1["ESS"]["E0"] = 500
+    micro_grid_1["ESS"]["EMIN"] = 100
+    micro_grid_1["ESS"]["EMAX"] = 1000
+    micro_grid_1["BIC"]["PMAX"] = 1000
+    micro_grid_1["BIC"]["QMAX"] = 1000
+    micro_grid_1["BIC"]["SMAX"] = 1000
+    micro_grid_1["PV"]["PMAX"] = 1000
+    micro_grid_1["PV"]["COST"] = 0.0376
     micro_grid_1["PD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"]
     micro_grid_1["QD"]["AC"] = Profile[0] * micro_grid_1["PD"]["AC_MAX"] * 0.2
     micro_grid_1["PD"]["DC"] = Profile[0] * micro_grid_1["PD"]["DC_MAX"]
@@ -1664,25 +1700,28 @@ if __name__ == "__main__":
 
     micro_grid_2 = deepcopy(micro_grid)
     micro_grid_2["BUS"] = 4
-    micro_grid_2["PD"]["AC_MAX"] = 100
-    micro_grid_2["PD"]["DC_MAX"] = 100
-    micro_grid_2["UG"]["PMIN"] = -500
-    micro_grid_2["UG"]["PMAX"] = 500
-    micro_grid_1["UG"]["QMIN"] = -500
-    micro_grid_1["UG"]["QMAX"] = 500
-    micro_grid_2["DG"]["PMAX"] = 100
-    micro_grid_1["DG"]["QMAX"] = 100
-    micro_grid_1["DG"]["QMIN"] = -100
-    micro_grid_2["DG"]["COST_A"] = 0.0015
-    micro_grid_2["ESS"]["COST_OP"] = 0.0005
-    micro_grid_2["ESS"]["PDC_MAX"] = 50
-    micro_grid_2["ESS"]["PCH_MAX"] = 50
-    micro_grid_2["ESS"]["E0"] = 15
-    micro_grid_2["ESS"]["EMIN"] = 10
-    micro_grid_2["ESS"]["EMAX"] = 50
-    micro_grid_2["BIC"]["PMAX"] = 200
-    micro_grid_2["BIC"]["QMAX"] = 200
-    micro_grid_2["BIC"]["SMAX"] = 200
+    micro_grid_2["PD"]["AC_MAX"] = 1000
+    micro_grid_2["PD"]["DC_MAX"] = 1000
+    micro_grid_2["UG"]["PMIN"] = -5000
+    micro_grid_2["UG"]["PMAX"] = 5000
+    micro_grid_2["UG"]["QMIN"] = -5000
+    micro_grid_2["UG"]["QMAX"] = 5000
+    micro_grid_2["DG"]["PMAX"] = 1000
+    micro_grid_2["DG"]["QMAX"] = 1000
+    micro_grid_2["DG"]["QMIN"] = -1000
+    micro_grid_2["DG"]["COST_A"] = 0.1808
+    micro_grid_2["DG"]["COST_B"] = 3.548 * 10
+    micro_grid_2["ESS"]["COST_OP"] = 0.108/2
+    micro_grid_2["ESS"]["PDC_MAX"] = 500
+    micro_grid_2["ESS"]["PCH_MAX"] = 500
+    micro_grid_2["ESS"]["E0"] = 500
+    micro_grid_2["ESS"]["EMIN"] = 100
+    micro_grid_2["ESS"]["EMAX"] = 1000
+    micro_grid_2["BIC"]["PMAX"] = 1000
+    micro_grid_2["BIC"]["QMAX"] = 1000
+    micro_grid_2["BIC"]["SMAX"] = 1000
+    micro_grid_2["PV"]["PMAX"] = 1000
+    micro_grid_2["PV"]["COST"] = 0.0376
     micro_grid_2["PD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"]
     micro_grid_2["QD"]["AC"] = Profile[1] * micro_grid_2["PD"]["AC_MAX"] * 0.2
     micro_grid_2["PD"]["DC"] = Profile[1] * micro_grid_2["PD"]["DC_MAX"]
@@ -1691,25 +1730,28 @@ if __name__ == "__main__":
 
     micro_grid_3 = deepcopy(micro_grid)
     micro_grid_3["BUS"] = 10
-    micro_grid_3["PD"]["AC_MAX"] = 100
-    micro_grid_3["PD"]["DC_MAX"] = 100
-    micro_grid_3["UG"]["PMIN"] = -500
-    micro_grid_3["UG"]["PMAX"] = 500
-    micro_grid_3["UG"]["QMIN"] = -500
-    micro_grid_3["UG"]["QMAX"] = 500
-    micro_grid_3["DG"]["PMAX"] = 100
-    micro_grid_3["DG"]["QMAX"] = 100
-    micro_grid_3["DG"]["QMIN"] = -100
-    micro_grid_3["DG"]["COST_A"] = 0.001
-    micro_grid_3["ESS"]["COST_OP"] = 0.0005
-    micro_grid_3["ESS"]["PDC_MAX"] = 50
-    micro_grid_3["ESS"]["PCH_MAX"] = 50
-    micro_grid_3["ESS"]["E0"] = 20
-    micro_grid_3["ESS"]["EMIN"] = 10
-    micro_grid_3["ESS"]["EMAX"] = 50
-    micro_grid_3["BIC"]["PMAX"] = 200
-    micro_grid_3["BIC"]["QMAX"] = 200
-    micro_grid_3["BIC"]["SMAX"] = 200
+    micro_grid_3["PD"]["AC_MAX"] = 1000
+    micro_grid_3["PD"]["DC_MAX"] = 1000
+    micro_grid_3["UG"]["PMIN"] = -5000
+    micro_grid_3["UG"]["PMAX"] = 5000
+    micro_grid_3["UG"]["QMIN"] = -5000
+    micro_grid_3["UG"]["QMAX"] = 5000
+    micro_grid_3["DG"]["PMAX"] = 1000
+    micro_grid_3["DG"]["QMAX"] = 1000
+    micro_grid_3["DG"]["QMIN"] = -1000
+    micro_grid_3["DG"]["COST_A"] = 0.1808
+    micro_grid_3["DG"]["COST_B"] = 3.548 * 10
+    micro_grid_3["ESS"]["COST_OP"] = 0.108/2
+    micro_grid_3["ESS"]["PDC_MAX"] = 500
+    micro_grid_3["ESS"]["PCH_MAX"] = 500
+    micro_grid_3["ESS"]["E0"] = 500
+    micro_grid_3["ESS"]["EMIN"] = 100
+    micro_grid_3["ESS"]["EMAX"] = 1000
+    micro_grid_3["BIC"]["PMAX"] = 1000
+    micro_grid_3["BIC"]["QMAX"] = 1000
+    micro_grid_3["BIC"]["SMAX"] = 1000
+    micro_grid_3["PV"]["PMAX"] = 1000
+    micro_grid_3["PV"]["COST"] = 0.0376
     micro_grid_3["PD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"]
     micro_grid_3["QD"]["AC"] = Profile[2] * micro_grid_3["PD"]["AC_MAX"] * 0.2
     micro_grid_3["PD"]["DC"] = Profile[2] * micro_grid_3["PD"]["DC_MAX"]
@@ -1720,79 +1762,46 @@ if __name__ == "__main__":
     traffic_networks = case3.transportation_network()  # Default transportation networks
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
+               "PCMAX": 500,
+               "PDMAX": 500,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.0005,
+               "E0": 500,
+               "EMAX": 1000,
+               "EMIN": 100,
+               "COST_OP": 0.108/10,
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
-               "PCMAX": 200,
-               "PDMAX": 200,
+               "PCMAX": 500,
+               "PDMAX": 500,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.0005,
+               "E0": 500,
+               "EMAX": 1000,
+               "EMIN": 100,
+               "COST_OP": 0.108/10,
                })
+
     ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
+               "end": array([0, 1, 0]),
+               "PCMAX": 500,
+               "PDMAX": 500,
                "EFF_CH": 0.9,
                "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.0005,
+               "E0": 500,
+               "EMAX": 1000,
+               "EMIN": 100,
+               "COST_OP": 0.108 / 10,
                })
-    """
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),
-               "PCMAX": 200,
-               "PDMAX": 200,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.01,
-               })
-    ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 0, 1]),weight
-               "PCMAX": 200,
-               "PDMAX": 200,
-               "EFF_CH": 0.9,
-               "EFF_DC": 0.9,
-               "E0": 100,
-               "EMAX": 200,
-               "EMIN": 50,
-               "COST_OP": 0.01,
-               })
-    """
 
     stochastic_dynamic_optimal_power_flow = StochasticDynamicOptimalPowerFlowTess()
 
     (sol_first_stgae, sol_second_stage) = stochastic_dynamic_optimal_power_flow.main(power_networks=mpc, mess=ev,
                                                                                      profile=load_profile.tolist(),
+                                                                                     pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=200)
+                                                                                     ns=100)
 
     print(sol_second_stage[0]['DS']['gap'].max())
