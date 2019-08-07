@@ -138,7 +138,7 @@ def case33():
     # 1 startup shutdown n x1 y1 ... xn yn
     # 2 startup shutdown n c(n-1) ... c0
     ppc["gencost"] = array([
-        [2, 0, 0, 3, 0.02, 20, 300]
+        [0, 0, 0, 3, 0.0, 20, 0]
     ])
 
     return ppc
