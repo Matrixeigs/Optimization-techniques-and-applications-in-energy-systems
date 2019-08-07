@@ -37,7 +37,7 @@ from solvers.scenario_reduction import ScenarioReduction
 from multiprocessing import Pool
 import os
 
-
+from matplotlib import pyplot as plt
 class StochasticUnitCommitmentTess():
     def __init__(self):
         self.name = "Unit commitment flow with tess"
@@ -125,11 +125,11 @@ class StochasticUnitCommitmentTess():
             slack_ineq = {}
             cuts = lil_matrix((ns, self.nv_first_stage+ns))
             b_cuts = zeros(ns)
-            # sol = [0] * ns
-            # for i in range(ns):
-            #     sol[i] = sub_problem_solving(sub_problem[i])
-            with Pool(n_processors) as p:
-                sol = list(p.map(sub_problem_solving, sub_problem))
+            sol = [0] * ns
+            for i in range(ns):
+                sol[i] = sub_problem_solving(sub_problem[i])
+            # with Pool(n_processors) as p:
+            #     sol = list(p.map(sub_problem_solving, sub_problem))
 
             for i in range(ns):
                 sol_second_stage[i] = sol[i][0]
@@ -139,33 +139,23 @@ class StochasticUnitCommitmentTess():
                 slack_ineq[i] = sol[i][4]
                 if success_second_stage[i] == 0:
                     if sum(slack_ineq[i])<0:
-                        cuts[i, 0:self.nv_first_stage] = -problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i]
-                        # b_cuts[i] = -(array(slack_ineq[i]).dot(
-                        #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i][0:self.nv_second_stage]) -
-                        #     problem_second_stage[i]["hs"]))
-                        b_cuts[i] = -(obj_second_stage[i] + array(slack_ineq[i]).dot(
+                        cuts[i, 0:self.nv_first_stage] = -problem_second_stage_relaxed[i]["Ts"].transpose() * slack_ineq[i][0: problem_second_stage_relaxed[i]["Ts"].shape[0]]
+                        b_cuts[i] = -(obj_second_stage[i] + array(slack_ineq[i][0: problem_second_stage_relaxed[i]["Ts"].shape[0]]).dot(
                             problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
                     else:
                         cuts[i, 0:self.nv_first_stage] = problem_second_stage_relaxed[i]["Ts"].transpose() * \
                                                          slack_ineq[i]
-                        # b_cuts[i] = -(array(slack_ineq[i]).dot(
-                        #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i][0:self.nv_second_stage]) -
-                        #     problem_second_stage[i]["hs"]))
                         b_cuts[i] = -(obj_second_stage[i] - array(slack_ineq[i]).dot(
                             problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
                 else:  # optimal cuts
                     if sum(slack_ineq[i])<0:
                         cuts[i, 0:self.nv_first_stage] = -problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
                         cuts[i, self.nv_first_stage +i] = -1
-                        #b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
-                        #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i]) - problem_second_stage[i]["hs"]))
                         b_cuts[i] = -(obj_second_stage[i] + array(slack_ineq[i]).dot(
                             problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
                     else:
                         cuts[i, 0:self.nv_first_stage] = problem_second_stage[i]["Ts"].transpose() * slack_ineq[i]
                         cuts[i, self.nv_first_stage + i] = -1
-                        # b_cuts[i] = -(sol_second_stage[i][0] + array(slack_ineq[i]).dot(
-                        #     problem_second_stage[i]["Ws"] * array(sol_second_stage[i]) - problem_second_stage[i]["hs"]))
                         b_cuts[i] = -(obj_second_stage[i] - array(slack_ineq[i]).dot(
                             problem_second_stage[i]["Ts"] * array(sol_first_stage[0:self.nv_first_stage])))
 
@@ -175,7 +165,7 @@ class StochasticUnitCommitmentTess():
             iter += 1
 
             if sum(success_second_stage) < ns:
-                UB_index[iter] = self.bigM
+                UB_index[iter] = min(self.bigM, UB_index[iter - 1])
                 Gap_index[iter] = self.bigM
                 print("The violation is {0}".format(sum(obj_second_stage)))
             else:
@@ -184,7 +174,6 @@ class StochasticUnitCommitmentTess():
                     sum(obj_second_stage), UB_index[iter - 1])
                 Gap_index[iter] = abs(UB_index[iter] - LB_index[iter - 1]) / UB_index[iter]
                 # break
-            # sol_first_stage_0 = array(sol_first_stage[0:self.nv_first_stage])
             (sol_first_stage, obj_first_stage, success) = milp(master_problem["c"], Aeq=master_problem["Aeq"],
                                                                beq=master_problem["beq"],
                                                                A=master_problem["A"], b=master_problem["b"],
@@ -203,6 +192,11 @@ class StochasticUnitCommitmentTess():
             print("The lower boundary is {0}".format(LB_index[iter]))
             print("The upper boundary is {0}".format(UB_index[iter]))
             print("The gap is {0}".format(Gap_index[iter]))
+            if iter % 100 == 0:
+                plt.plot(LB_index)
+                # plt.plot(UB_index)
+                plt.show()
+                plt.close()
 
         # Verify the solutions!
         # 5.1) Second-stage solution
@@ -326,7 +320,7 @@ class StochasticUnitCommitmentTess():
         nx = len(primal_problem["c"])
         primal_problem_relaxed = deepcopy(primal_problem)
         primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(1)])
-        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM])
+        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM* 1e2])
         primal_problem_relaxed["Aeq"] = hstack(
             [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
         primal_problem_relaxed["A"] = hstack(
@@ -334,6 +328,24 @@ class StochasticUnitCommitmentTess():
         primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
         primal_problem_relaxed["q"] = zeros(nx + 1)
         primal_problem["q"] = zeros(nx)
+        # nx = len(primal_problem["c"])
+        # primal_problem_relaxed = deepcopy(primal_problem)
+        # primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(1)])
+        # primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM])
+        # primal_problem_relaxed["A"] = vstack(
+        #     [primal_problem_relaxed["A"], primal_problem_relaxed["Aeq"], -primal_problem_relaxed["Aeq"]])
+        # primal_problem_relaxed["b"] = concatenate(
+        #     [primal_problem_relaxed["b"], primal_problem_relaxed["beq"], -primal_problem_relaxed["beq"]])
+        #
+        # primal_problem_relaxed["A"] = hstack(
+        #     [primal_problem_relaxed["A"], -ones((primal_problem_relaxed["A"].shape[0], 1))]).tolil()
+        # primal_problem_relaxed["Aeq"] = None
+        # primal_problem_relaxed["beq"] = None
+        # primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
+        # primal_problem_relaxed["q"] = zeros(nx + 1)
+        # primal_problem["q"] = zeros(nx)
+
+
 
         # nx_relaxed = primal_problem_relaxed["A"].shape[0]
         # primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(nx_relaxed)])
@@ -789,7 +801,7 @@ class StochasticUnitCommitmentTess():
         vm_u = bus[:, VMAX] ** 2
         pg_u = gen[:, PMAX] / baseMVA
         qg_u = gen[:, QMAX] / baseMVA
-        pd_u = bus[d,PD] / baseMVA
+        pd_u = bus[d, PD] / baseMVA
 
         _nv_second_stage = int(3 * nl + nb + 2 * ng + 2 * nmg + nd)
         self._nv_second_stage = _nv_second_stage  # Number of decision variable within each time slot
@@ -979,9 +991,7 @@ class StochasticUnitCommitmentTess():
                     [1, 1, 1, 1, 1]]
                 Rc_temp[i * T + t] = mgs[i]["BIC"]["SMAX"] ** 2
         Rc = concatenate([Rc, Rc_temp])
-        ## IV. Coupling constraints between the first stage and second stage decision variables
-        # pg, pg_mg, pess_mg, pess_tess
-        # Ts*x+Ws*ys<=hs
+
         ## IV) Formulate the coupling constraints between the first-stage and second-stage problems
         # 1) -Pg -Rg + pg <= 0
         _nv_first_stage = self._nv_first_stage
@@ -1126,6 +1136,7 @@ class StochasticUnitCommitmentTess():
         hs = concatenate((hs, hs_temp))
 
         # sol = miqcp(c, q, Aeq=Aeq, beq=beq, A=None, b=None, Qc=Qc, xmin=lx, xmax=ux)
+        # Modify the Aeq
 
         model_second_stage = {"c": c * weight,
                               "q": q * weight,
@@ -1142,6 +1153,14 @@ class StochasticUnitCommitmentTess():
                               "Ts": Ts,
                               "Ws": Ws,
                               "hs": hs}
+
+        # model_second_stage["c"] = concatenate([model_second_stage["c"], ones(2) * Voll])
+        # model_second_stage["q"] = concatenate([model_second_stage["q"], zeros(2)])
+        # model_second_stage["lb"] = concatenate([model_second_stage["lb"], zeros(2)])
+        # model_second_stage["ub"] = concatenate([model_second_stage["ub"], ones(2)*self.bigM])
+        # model_second_stage["vtypes"] += ["c"]*2
+        # model_second_stage["Aeq"] = hstack([model_second_stage["Aeq"], ones((model_second_stage["Aeq"].shape[0],1)), -ones((model_second_stage["Aeq"].shape[0],1))])
+        # model_second_stage["Ws"] = hstack([model_second_stage["Ws"], zeros((model_second_stage["Ws"].shape[0], 2))])
         # qcqp(model_second_stage["c"],model_second_stage["q"],Aeq=model_second_stage["Aeq"].tolil(),beq=model_second_stage["beq"],A=model_second_stage["A"],b=model_second_stage["b"],xmin=model_second_stage["lb"],xmax=model_second_stage["ub"],Qc=model_second_stage["Qc"],rc=model_second_stage["rc"])
 
         return model_second_stage
@@ -1748,6 +1767,15 @@ def sub_problem_solving(problem_second_stage):
                         b=problem_second_stage[1]["b"],
                         Qc=problem_second_stage[1]["Qc"], rc=problem_second_stage[1]["rc"],
                         xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
+        if sol[2] !=1:
+            problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1]/10
+            sol = list(
+                qcqp(problem_second_stage[1]["c"], problem_second_stage[1]["q"], Aeq=problem_second_stage[1]["Aeq"],
+                     beq=problem_second_stage[1]["beq"], A=problem_second_stage[1]["A"],
+                     b=problem_second_stage[1]["b"],
+                     Qc=problem_second_stage[1]["Qc"], rc=problem_second_stage[1]["rc"],
+                     xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
+
         sol[2] = 0
 
     return sol
@@ -1755,11 +1783,12 @@ def sub_problem_solving(problem_second_stage):
 
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
-    T = 24
+    T = 4
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
          0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
     load_profile = load_profile[0:T]
+
     Price_wholesale = array([
         [0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.21, 0.21, 0.21, 0.21, 0.21, 0.21, 0.21, 0.21, 0.21, 0.21, 0.45, 0.45,
          0.45, 0.45, 0.45, 0.21, 0.21, 0.21],
