@@ -1553,7 +1553,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
         return model_tess
 
-    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=1, ns=2, ns_reduced=2,
+    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=0, ns=2, ns_reduced=2,
                                       std=0.03, interval=0.05, std_pv=0.05):
         """
         Scenario generation function for the second-stage scheduling
@@ -1649,12 +1649,15 @@ class StochasticDynamicOptimalPowerFlowTess():
 
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
+    T = 8
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
          0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
+    load_profile = load_profile[0:T]
     Price_wholesale=array([
         [0.16,0.16,0.16,0.16,0.16,0.16,0.21,0.21,0.21,0.21,0.21,0.21,0.21,0.21,0.21,0.21,0.45,0.45,0.45,0.45,0.45,0.21, 0.21, 0.21],
     ])
+
     # Microgrid information
     Profile = array([
         [0.64, 0.63, 0.65, 0.64, 0.66, 0.69, 0.75, 0.91, 0.95, 0.97, 1.00, 0.97, 0.97, 0.95, 0.98, 0.99, 0.95, 0.95,
@@ -1664,9 +1667,11 @@ if __name__ == "__main__":
         [0.57, 0.55, 0.55, 0.56, 0.62, 0.70, 0.78, 0.83, 0.84, 0.89, 0.87, 0.82, 0.80, 0.80, 0.84, 0.89, 0.94, 0.98,
          1.00, 0.97, 0.87, 0.79, 0.72, 0.62]
     ])
+    Profile = Profile[:,0:T]
     PV_profile = array(
         [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.03, 0.05, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35,
          0.14, 0.02, 0.02, 0.00, 0.00, 0.00])
+    PV_profile = PV_profile[0:T]
 
     micro_grid_1 = deepcopy(micro_grid)
     micro_grid_1["BUS"] = 2
@@ -1802,6 +1807,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=1000)
+                                                                                     ns=500)
 
     print(sol_second_stage[0]['DS']['gap'].max())
