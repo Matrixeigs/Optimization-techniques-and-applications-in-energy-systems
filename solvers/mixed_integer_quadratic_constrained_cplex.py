@@ -174,7 +174,7 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         qmat = [0] * nx
         for i in range(nx):
             qmat[i] = [[i], [q[i]]]
-        prob.objective.set_quadratic(qmat)
+        # prob.objective.set_quadratic(qmat)
 
         if objsense is not None:
             if objsense == "max":
@@ -188,7 +188,7 @@ def mixed_integer_quadratic_constrained_programming(c, q, Aeq=None, beq=None, A=
         # prob.set_results_stream(None)
         # prob.timelimit = 100
         prob.parameters.preprocessing.presolve.set(0)
-        prob.parameters.timelimit.set(10000)
+        prob.parameters.timelimit.set(100000)
         prob.parameters.mip.tolerances.mipgap.set(10 ** -2)
         prob.parameters.emphasis.mip.set(2)
         # prob.parameters.dettimelimit = 100
