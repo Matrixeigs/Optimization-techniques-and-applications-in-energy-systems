@@ -41,9 +41,9 @@ from matplotlib import pyplot as plt
 class StochasticUnitCommitmentTess():
     def __init__(self):
         self.name = "Unit commitment flow with tess"
-        self.bigM = 1e7
+        self.bigM = 1e6
 
-    def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100):
+    def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100,ns_reduced=50):
         """
         Main entrance for network reconfiguration problems
         :param case: electric network information
@@ -72,8 +72,8 @@ class StochasticUnitCommitmentTess():
                                                                                          micro_grids=micro_grids, ns=ns,
                                                                                          pns=power_networks,
                                                                                          pv_profile=pv_profile,
-                                                                                         ns_reduced=round(0.98 * ns))
-        ns -= round(0.98 * ns)
+                                                                                         ns_reduced=ns_reduced)
+        ns -= ns_reduced
         model_second_stage = {}
         for i in range(ns):
             model_second_stage[i] = self.second_stage_problem_formualtion_gdb(pns=power_networks, mgs=mgs_second_stage[i],
@@ -320,12 +320,12 @@ class StochasticUnitCommitmentTess():
         nx = len(primal_problem["c"])
         primal_problem_relaxed = deepcopy(primal_problem)
         primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(1)])
-        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM* 1e2])
+        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM])
         primal_problem_relaxed["Aeq"] = hstack(
             [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
         primal_problem_relaxed["A"] = hstack(
             [primal_problem_relaxed["A"], -ones((primal_problem_relaxed["A"].shape[0], 1))]).tolil()
-        primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
+        primal_problem_relaxed["c"] = concatenate([primal_problem["c"], self.bigM*ones(1)])
         primal_problem_relaxed["q"] = zeros(nx + 1)
         primal_problem["q"] = zeros(nx)
         # nx = len(primal_problem["c"])
@@ -1062,34 +1062,34 @@ class StochasticUnitCommitmentTess():
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
-        # 7) pess_dc - pess_ch <= Pess_dc - Pess_ch + Ress
-        Ts_temp = lil_matrix((nmg * T, nv_first_stage))
-        Ws_temp = lil_matrix((nmg * T, nv_second_stage))
-        hs_temp = zeros(nmg * T)
-        for i in range(T):
-            for j in range(nmg):
-                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 2 + j] = 1  # Charging
-                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 3 + j] = -1  # Dis-charging
-                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 4 + j] = -1  # Reserve
-                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_CH] = -1
-                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_DC] = 1
-        Ts = vstack((Ts, Ts_temp))
-        Ws = vstack((Ws, Ws_temp))
-        hs = concatenate((hs, hs_temp))
-        # 8) pess_ch - pess_dc <= Pess_ch - Pess_dc + Ress
-        Ts_temp = lil_matrix((nmg * T, nv_first_stage))
-        Ws_temp = lil_matrix((nmg * T, nv_second_stage))
-        hs_temp = zeros(nmg * T)
-        for i in range(T):
-            for j in range(nmg):
-                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 2 + j] = -1  # Charging
-                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 3 + j] = 1  # Dis-charging
-                Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 4 + j] = -1  # Reserve
-                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_CH] = 1
-                Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_DC] = -1
-        Ts = vstack((Ts, Ts_temp))
-        Ws = vstack((Ws, Ws_temp))
-        hs = concatenate((hs, hs_temp))
+        # # 7) pess_dc - pess_ch <= Pess_dc - Pess_ch + Ress
+        # Ts_temp = lil_matrix((nmg * T, nv_first_stage))
+        # Ws_temp = lil_matrix((nmg * T, nv_second_stage))
+        # hs_temp = zeros(nmg * T)
+        # for i in range(T):
+        #     for j in range(nmg):
+        #         Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 2 + j] = 1  # Charging
+        #         Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 3 + j] = -1  # Dis-charging
+        #         Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 4 + j] = -1  # Reserve
+        #         Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_CH] = -1
+        #         Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_DC] = 1
+        # Ts = vstack((Ts, Ts_temp))
+        # Ws = vstack((Ws, Ws_temp))
+        # hs = concatenate((hs, hs_temp))
+        # # 8) pess_ch - pess_dc <= Pess_ch - Pess_dc + Ress
+        # Ts_temp = lil_matrix((nmg * T, nv_first_stage))
+        # Ws_temp = lil_matrix((nmg * T, nv_second_stage))
+        # hs_temp = zeros(nmg * T)
+        # for i in range(T):
+        #     for j in range(nmg):
+        #         Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 2 + j] = -1  # Charging
+        #         Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 3 + j] = 1  # Dis-charging
+        #         Ts_temp[i * nmg + j, i * _nv_first_stage + ng * 5 + nmg * 4 + j] = -1  # Reserve
+        #         Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_CH] = 1
+        #         Ws_temp[i * nmg + j, nv_index[j] + i * NX_MG + PESS_DC] = -1
+        # Ts = vstack((Ts, Ts_temp))
+        # Ws = vstack((Ws, Ws_temp))
+        # hs = concatenate((hs, hs_temp))
         # 9) ptss_ch - ptss_dc <= Ptss_ch - Ptss_dc + Rtss
         nv_tra = self.nv_tra
         nl_tra = self.nl_tra
@@ -1661,8 +1661,8 @@ class StochasticUnitCommitmentTess():
 
         return model_tess
 
-    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=0, ns=2, ns_reduced=2,
-                                      std=0.03, interval=0.05, std_pv=0.05):
+    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=1, ns=2, ns_reduced=50,
+                                      std=0.03, interval=0.05, std_pv=0.1):
         """
         Scenario generation function for the second-stage scheduling
         Stochastic variables include 1) loads in distribution networks, active loads for 2) AC bus and 3)DC bus.
@@ -1768,22 +1768,30 @@ def sub_problem_solving(problem_second_stage):
                         Qc=problem_second_stage[1]["Qc"], rc=problem_second_stage[1]["rc"],
                         xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
         if sol[2] !=1:
-            problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1]/10
-            sol = list(
-                qcqp(problem_second_stage[1]["c"], problem_second_stage[1]["q"], Aeq=problem_second_stage[1]["Aeq"],
-                     beq=problem_second_stage[1]["beq"], A=problem_second_stage[1]["A"],
-                     b=problem_second_stage[1]["b"],
-                     Qc=problem_second_stage[1]["Qc"], rc=problem_second_stage[1]["rc"],
-                     xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
+            print("The relaxed problem has not been solved!")
+            for j in range(5):
+                problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] * 10
+                sol = list(qcqp(problem_second_stage[1]["c"],
+                                problem_second_stage[1]["q"],
+                                Aeq=problem_second_stage[1]["Aeq"],
+                                beq=problem_second_stage[1]["beq"],
+                                A=problem_second_stage[1]["A"],
+                                b=problem_second_stage[1]["b"],
+                                Qc=problem_second_stage[1]["Qc"],
+                                rc=problem_second_stage[1]["rc"],
+                                xmin=problem_second_stage[1]["lb"],
+                                xmax=problem_second_stage[1]["ub"]))
+                if sol[2] == 1:
+                    break
 
-        sol[2] = 0
+        # sol[2] = 0
 
     return sol
 
 
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
-    T = 4
+    T = 24
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
          0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
@@ -1945,6 +1953,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=500)
+                                                                                     ns=100, ns_reduced=95)
 
     print(sol_second_stage[0]['DS']['gap'].max())
