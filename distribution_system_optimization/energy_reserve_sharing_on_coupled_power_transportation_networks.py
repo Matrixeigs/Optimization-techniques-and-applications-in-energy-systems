@@ -942,7 +942,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
 
-        # 3) -Pg_mg - Rg_mg + pg_mg <= 0
+        # 5) -Pg_mg - Rg_mg + pg_mg <= 0
         Ts_temp = lil_matrix((nmg * T, nv_first_stage))
         Ws_temp = lil_matrix((nmg * T, nv_second_stage))
         hs_temp = zeros(nmg * T)
@@ -954,7 +954,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
-        # 4) Pg_mg - Rg_mg - pg_mg <= 0
+        # 6) Pg_mg - Rg_mg - pg_mg <= 0
         Ts_temp = lil_matrix((nmg * T, nv_first_stage))
         Ws_temp = lil_matrix((nmg * T, nv_second_stage))
         hs_temp = zeros(nmg * T)
@@ -966,7 +966,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
-        # 5) pess_dc - pess_ch <= Pess_dc - Pess_ch + Ress
+        # 7) pess_dc - pess_ch <= Pess_dc - Pess_ch + Ress
         Ts_temp = lil_matrix((nmg * T, nv_first_stage))
         Ws_temp = lil_matrix((nmg * T, nv_second_stage))
         hs_temp = zeros(nmg * T)
@@ -980,7 +980,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
-        # 6) pess_ch - pess_dc <= Pess_ch - Pess_dc + Ress
+        # 8) pess_ch - pess_dc <= Pess_ch - Pess_dc + Ress
         Ts_temp = lil_matrix((nmg * T, nv_first_stage))
         Ws_temp = lil_matrix((nmg * T, nv_second_stage))
         hs_temp = zeros(nmg * T)
@@ -994,7 +994,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
-        # 7) ptss_ch - ptss_dc <= Ptss_ch - Ptss_dc + Rtss
+        # 9) ptss_ch - ptss_dc <= Ptss_ch - Ptss_dc + Rtss
         nv_tra = self.nv_tra
         nl_tra = self.nl_tra
         Ts_temp = lil_matrix((nmg * T * nmes, nv_first_stage))
@@ -1017,7 +1017,7 @@ class StochasticDynamicOptimalPowerFlowTess():
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
-        # 8) ptss_dc - ptss_ch <= Ptss_dc - Ptss_ch + Rtss
+        # 10) ptss_dc - ptss_ch <= Ptss_dc - Ptss_ch + Rtss
         Ts_temp = lil_matrix((nmg * T * nmes, nv_first_stage))
         Ws_temp = lil_matrix((nmg * T * nmes, nv_second_stage))
         hs_temp = zeros(nmg * T * nmes)
@@ -1649,7 +1649,7 @@ class StochasticDynamicOptimalPowerFlowTess():
 
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
-    T = 8
+    T = 4
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
          0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
