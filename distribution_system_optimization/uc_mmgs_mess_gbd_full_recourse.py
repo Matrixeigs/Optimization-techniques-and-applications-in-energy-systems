@@ -325,7 +325,7 @@ class StochasticUnitCommitmentTess():
             [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
         primal_problem_relaxed["A"] = hstack(
             [primal_problem_relaxed["A"], -ones((primal_problem_relaxed["A"].shape[0], 1))]).tolil()
-        primal_problem_relaxed["c"] = concatenate([primal_problem["c"], self.bigM*ones(1)])
+        primal_problem_relaxed["c"] = concatenate([primal_problem["c"], Voll*ones(1)])
         primal_problem_relaxed["q"] = zeros(nx + 1)
         primal_problem["q"] = zeros(nx)
         # nx = len(primal_problem["c"])
@@ -1592,7 +1592,7 @@ class StochasticUnitCommitmentTess():
 
         A = concatenate([A, Aenergy])
         b = concatenate([b, benergy])
-        c = concatenate([connection_matrix[:, TIME], zeros(n_stops * 4)])
+        c = concatenate([connection_matrix[:, TIME]*10, zeros(n_stops * 4)])
         # sol = milp(zeros(NX_traffic), q=zeros(NX_traffic), Aeq=Aeq, beq=beq, A=A, b=b, xmin=lx, xmax=ux)
 
         model_tess = {"c": c,
@@ -1661,7 +1661,7 @@ class StochasticUnitCommitmentTess():
 
         return model_tess
 
-    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=1, ns=2, ns_reduced=50,
+    def scenario_generation_reduction(self, micro_grids, profile, pns, pv_profile, update=0, ns=2, ns_reduced=50,
                                       std=0.03, interval=0.05, std_pv=0.1):
         """
         Scenario generation function for the second-stage scheduling
@@ -1769,6 +1769,7 @@ def sub_problem_solving(problem_second_stage):
                         xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
         if sol[2] !=1:
             print("The relaxed problem has not been solved!")
+            problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] / 100
             for j in range(5):
                 problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] * 10
                 sol = list(qcqp(problem_second_stage[1]["c"],
@@ -1953,6 +1954,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=100, ns_reduced=95)
+                                                                                     ns=1000, ns_reduced=980)
 
     print(sol_second_stage[0]['DS']['gap'].max())
