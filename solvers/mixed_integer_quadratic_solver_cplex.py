@@ -146,7 +146,8 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
         prob.set_warning_stream(None)
         prob.set_results_stream(None)
         # prob.set_problem_type(type=prob.problem_type.LP)
-        prob.parameters.preprocessing.presolve = 0
+        # prob.parameters.preprocessing.presolve.set(0)
+        prob.parameters.emphasis.mip.set(2)
 
         prob.solve()
 

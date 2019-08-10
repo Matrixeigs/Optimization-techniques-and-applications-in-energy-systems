@@ -30,10 +30,11 @@ class ScenarioReduction():
         c = zeros((n_scenario, n_scenario))
         # Calculate the c matrix
         for i in range(n_scenario):
-            for j in range(n_scenario):
+            for j in range(i+1):
                 c[i, j] = linalg.norm((scenario[i, :] - scenario[j, :]), 2)
                 c[i, j] = max([1, linalg.norm(scenario[i, :], power - 1), linalg.norm(scenario[j, :], power - 1)]) * \
                           c[i, j]
+        c += c.transpose()
 
         J = arange(n_scenario)  # The original index range
         J_reduced = array([])
@@ -67,7 +68,7 @@ class ScenarioReduction():
 
 
 if __name__ == "__main__":
-    n_scenario = 100
+    n_scenario = 200
     scenario = random.random((n_scenario, 10))
     weight = ones(n_scenario) / n_scenario
     n_reduced = int(n_scenario / 2)

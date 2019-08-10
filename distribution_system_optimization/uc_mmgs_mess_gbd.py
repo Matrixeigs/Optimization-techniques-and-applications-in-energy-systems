@@ -596,9 +596,9 @@ class StochasticUnitCommitmentTess():
         b_temp = zeros(nmg * T)
         for t in range(T):
             for j in range(nmg):
-                A_temp[t * nmg + j, ng * 5 + nmg * 2 + t] = 1
-                A_temp[t * nmg + j, ng * 5 + nmg * 2 + nmg + t] = -1
-                A_temp[t * nmg + j, ng * 5 + nmg * 2 + nmg * 2 + t] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage +ng * 5 + nmg * 2 + j] = 1
+                A_temp[t * nmg + j, t * _nv_first_stage +ng * 5 + nmg * 2 + nmg + j] = -1
+                A_temp[t * nmg + j, t * _nv_first_stage +ng * 5 + nmg * 2 + nmg * 2 + j] = 1
                 b_temp[t * nmg + j] = pes_ch_u[j]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
@@ -611,9 +611,9 @@ class StochasticUnitCommitmentTess():
                 Aeq_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + j] = -mgs[j]["ESS"]["EFF_CH"]
                 Aeq_temp[t * nmg + j, t * _nv_first_stage + ng * 5 + nmg * 2 + nmg + j] = 1 / mgs[j]["ESS"]["EFF_DC"]
                 if t == 0:
-                    beq_temp[i * nmg + j] = mgs[j]["ESS"]["E0"]
+                    beq_temp[t * nmg + j] = mgs[j]["ESS"]["E0"]
                 else:
-                    Aeq_temp[i * nmg + j, (i - 1) * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 3 + j] = -1
+                    Aeq_temp[t * nmg + j, (t - 1) * _nv_first_stage + ng * 5 + nmg * 2 + nmg * 3 + j] = -1
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
 

@@ -1,12 +1,14 @@
 """
 Mixed-integer programming using the CPLEX
+only support the coo_matrix in scipy.sparse
 """
 import cplex  # import the cplex solver package
-from scipy import ones, concatenate, zeros
+from scipy import ones, concatenate, zeros, inf
 from cplex.exceptions import CplexError
 
 
-def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None, vtypes=None,
+def mixed_integer_quadratic_programming(c, q=None, Aeq=None, beq=None, A=None, b=None, xmin=None, xmax=None,
+                                        vtypes=None,
                                         opt=None, objsense=None):
     # t0 = time.time()
     if type(c) == list:
@@ -101,6 +103,10 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
             elif vtypes[i] == "d" or vtypes[i] == "D":
                 var_types[i] = prob.variables.type.integer
 
+            if xmin[i] == -inf: xmin[i] = -cplex.infinity
+            if xmax[i] == inf: xmax[i] = cplex.infinity
+
+
         prob.variables.add(obj=c, lb=xmin, ub=xmax, types=var_types, names=varnames)
         # 2) Constraints
         rhs = beq + b
@@ -132,11 +138,12 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
                                         senses=sense)
             prob.linear_constraints.set_coefficients(zip(rows, cols, vals))
         # 3) Objective function
-        qmat = [0] * nx
-        for i in range(nx):
-            qmat[i] = [[i], [q[i]]]
+        if q is not None:
+            qmat = [0] * nx
+            for i in range(nx):
+                qmat[i] = [[i], [q[i]]]
 
-        prob.objective.set_quadratic(qmat)
+            prob.objective.set_quadratic(qmat)
 
         if objsense is not None:
             if objsense == "max":
@@ -144,12 +151,12 @@ def mixed_integer_quadratic_programming(c, q, Aeq=None, beq=None, A=None, b=None
         else:
             prob.objective.set_sense(prob.objective.sense.minimize)
 
-        prob.set_log_stream(None)
-        prob.set_error_stream(None)
-        prob.set_warning_stream(None)
-        prob.set_results_stream(None)
+        # prob.set_log_stream(None)
+        # prob.set_error_stream(None)
+        # prob.set_warning_stream(None)
+        # prob.set_results_stream(None)
         # prob.set_problem_type(type=prob.problem_type.LP)
-        prob.parameters.preprocessing.presolve = 0
+        prob.parameters.preprocessing.presolve.set(0)
 
         prob.solve()
 

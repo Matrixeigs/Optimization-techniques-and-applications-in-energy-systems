@@ -81,8 +81,6 @@ def case33():
     # Qc1min, Qc1max, Qc2min, Qc2max, ramp_agc, ramp_10, ramp_30, ramp_q, apf, start-up time, shut-down time and initial condition!
     ppc["gen"] = array([
         [1, 23.54, 0, 150, -20, 1, 100, 1, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1],
-        [27, 26.91, 0, 48.7, -15, 1, 100, 1, 55, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1],
-        [23, 19.2, 0, 40, -10, 1, 100, 1, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1]
     ])
 
     ## branch data
@@ -140,9 +138,7 @@ def case33():
     # 1 startup shutdown n x1 y1 ... xn yn
     # 2 startup shutdown n c(n-1) ... c0
     ppc["gencost"] = array([
-        [2, 0, 0, 3, 0.02, 2, 3],
-        [2, 0, 0, 3, 0.00834, 3.25, 3],
-        [2, 0, 0, 3, 0.025, 3, 3]
+        [0, 0, 0, 3, 0.0, 20, 0]
     ])
 
     return ppc
