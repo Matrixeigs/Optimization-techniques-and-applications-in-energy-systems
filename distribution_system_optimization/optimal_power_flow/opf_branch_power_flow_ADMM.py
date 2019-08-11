@@ -117,11 +117,11 @@ def run(mpc):
     Obj_index = []
     k = 0
     kmax = 10000
-    ru = 50000
+    ru = 10000
     # The iteration
     mu = 100
     t = 1.5
-    while k <= kmax and Gap > 0.0001:
+    while k <= kmax and Gap > 0.01:
         observatory0 = deepcopy(observatory)
         area0 = deepcopy(area)
         for i in range(nb):
@@ -185,7 +185,7 @@ def run(mpc):
         for i in range(nb):
             obj += area[i]["COST"]
         k = k + 1
-        if k % 10 == 0:
+        if k % 100 == 0:
             print(k)
             print(Gap)
             print(obj)
