@@ -15,7 +15,7 @@ from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming
 class TwoStageRobustOptimization():
     """
     column-and-constraint generation method for two-stage robust optimization
-    one kind of primal-dual cutus methods
+    one kind of primal-dual cuts methods
     """
 
     def __init__(self):
