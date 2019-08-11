@@ -10,6 +10,7 @@ Notes：
 """
 
 from distribution_system_optimization.test_cases import case33
+from distribution_system_optimization.test_cases import case123
 from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate, where, inf
 from scipy.sparse import csr_matrix as sparse
@@ -116,11 +117,11 @@ def run(mpc):
     Obj_index = []
     k = 0
     kmax = 10000
-    ru = 700
+    ru = 500
     # The iteration
-    mu = 5
-    t = 2
-    while k <= kmax and Gap > 0.0001 * 2:
+    mu = 100
+    t = 1.5
+    while k <= kmax and Gap > 0.0001:
         observatory0 = deepcopy(observatory)
         area0 = deepcopy(area)
         for i in range(nb):
@@ -172,9 +173,9 @@ def run(mpc):
             dual_gap += (observatory0[i]["Qij_y"] - observatory[i]["Qij_y"]) ** 2
             dual_gap += (observatory0[i]["Iij_y"] - observatory[i]["Iij_y"]) ** 2
 
-        # if dual_gap * mu < gap:
+        # if sqrt(dual_gap) * mu < Gap:
         #     ru = ru * t
-        # if gap * mu < dual_gap:
+        # if Gap * mu < sqrt(dual_gap):
         #     ru = ru / t
 
         Gap = sqrt(gap)
@@ -184,10 +185,12 @@ def run(mpc):
         for i in range(nb):
             obj += area[i]["COST"]
         k = k + 1
-        print(k)
-        print(Gap)
-        print(obj)
-        print(sqrt(dual_gap))
+        if k % 10 == 0:
+            print(k)
+            print(Gap)
+            print(obj)
+            print(sqrt(dual_gap))
+            # print(ru)
     # compute the objective function
     obj = 0
     for i in range(nb):
@@ -232,6 +235,10 @@ def ancestor_children_generation(branch_f, branch_t, nb, Branch_R, Branch_X, SMA
             AncestorBus = branch_f[where(branch_t == i)]
             temp["Ai"] = int(AncestorBus[0])  # For each bus, there exits only one ancestor bus, as one connected tree
             AncestorBranch = where(branch_t == i)
+            # try:
+            #     temp["Abranch"] = int(AncestorBranch[0])
+            # except:
+            #     temp["Abranch"] = int(AncestorBranch[0][0])
             temp["Abranch"] = int(AncestorBranch[0])
             temp["BR_R"] = Branch_R[temp["Abranch"]]
             temp["BR_X"] = Branch_X[temp["Abranch"]]
@@ -822,11 +829,12 @@ def sub_problem(area, observatory, index, half_ru):
 if __name__ == "__main__":
     from pypower import runopf
 
+    # mpc = case123.case123()  # Default test case
     mpc = case33.case33()  # Default test case
     (obj, residual) = run(mpc)
 
-    result = runopf.runopf(case33.case33())
+    # result = runopf.runopf(mpc)
 
-    gap = 100 * (result["f"] - obj) / obj
+    # gap = 100 * (result["f"] - obj) / obj
 
-    print(gap)
+    print()

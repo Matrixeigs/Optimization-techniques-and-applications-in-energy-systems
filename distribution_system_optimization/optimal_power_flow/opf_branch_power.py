@@ -10,7 +10,7 @@ Note: The proposed method has been verified
 @email: zhaoty@ntu.edu.sg
 """
 
-from distribution_system_optimization.test_cases import case33
+from distribution_system_optimization.test_cases import case33, case123
 from pypower import runopf
 from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate
@@ -51,7 +51,7 @@ def run(mpc):
     Ct = Ct.T
     # Obtain the boundary information
 
-    Slmax = branch[:, RATE_A] / baseMVA
+    Slmax = branch[:, RATE_A]
     Pij_l = -Slmax
     Qij_l = -Slmax
     Iij_l = zeros(nl)
@@ -139,11 +139,12 @@ if __name__ == "__main__":
 
     from pypower import runopf
     mpc = case33.case33()  # Default test case
-    (xx, obj,residual) = run(mpc)
+    # mpc = case123.case123()  # Default test case
+    (xx, obj, residual) = run(mpc)
 
-    result = runopf.runopf(case33.case33())
+    result = runopf.runopf(mpc)
 
-    gap = 100*(result["f"]-obj)/obj
+    # gap = 100*(result["f"]-obj)/obj
 
-    print(gap)
-    print(max(residual))
+    print()
+    # print(max(residual))
