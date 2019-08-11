@@ -111,7 +111,7 @@ class TwoStageRobustOptimization():
         # 4)
         A_second_stage_temp = zeros((nu, nlam + nu + nu))
         b_second_stage_temp = zeros((nu, 1))
-        A_second_stage_temp[:, nlam:nlam + nu] = bigM * eye(nu)
+        A_second_stage_temp[:, nlam:nlam + nu] = -bigM * eye(nu)
         A_second_stage_temp[:, nlam + nu:] = eye(nu)
         A_second_stage = concatenate([A_second_stage, A_second_stage_temp], axis=0)
         b_second_stage = concatenate([b_second_stage, b_second_stage_temp], axis=0)
@@ -150,7 +150,7 @@ class TwoStageRobustOptimization():
         k = 0
         kmax = 1000
 
-        while Gap > 10 ** -2:
+        while Gap > 10 ** -6:
             # Solve the first stage problem
             (yy, obj_first_stage, success_first_stage) = lp(c_first_stage, Aeq=Aeq_first_stage, beq=beq,
                                                             A=A_first_stage,
