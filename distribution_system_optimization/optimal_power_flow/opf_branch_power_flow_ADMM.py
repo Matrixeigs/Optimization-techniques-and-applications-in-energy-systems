@@ -10,7 +10,7 @@ Notes：
 """
 
 from distribution_system_optimization.test_cases import case33
-from distribution_system_optimization.test_cases import case123
+from distribution_system_optimization.test_cases import case123, case69
 from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate, where, inf
 from scipy.sparse import csr_matrix as sparse
@@ -117,11 +117,11 @@ def run(mpc):
     Obj_index = []
     k = 0
     kmax = 10000
-    ru = 10000
+    ru = 100
     # The iteration
     mu = 100
     t = 1.5
-    while k <= kmax and Gap > 0.01:
+    while k <= kmax and Gap > 0.0001:
         observatory0 = deepcopy(observatory)
         area0 = deepcopy(area)
         for i in range(nb):
@@ -185,7 +185,7 @@ def run(mpc):
         for i in range(nb):
             obj += area[i]["COST"]
         k = k + 1
-        if k % 100 == 0:
+        if k % 10 == 0:
             print(k)
             print(Gap)
             print(obj)
@@ -829,8 +829,9 @@ def sub_problem(area, observatory, index, half_ru):
 
 if __name__ == "__main__":
     from pypower import runopf
+    mpc = case69.case69()  # Default test case
 
-    mpc = case123.case123()  # Default test case
+    # mpc = case123.case123()  # Default test case
     # mpc = case33.case33()  # Default test case
     (obj, residual) = run(mpc)
 
