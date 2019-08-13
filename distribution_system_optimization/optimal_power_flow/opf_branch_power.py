@@ -10,7 +10,7 @@ Note: The proposed method has been verified
 @email: zhaoty@ntu.edu.sg
 """
 
-from distribution_system_optimization.test_cases import case33, case123
+from distribution_system_optimization.test_cases import case33, case123, case69
 from pypower import runopf
 from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate
@@ -51,7 +51,7 @@ def run(mpc):
     Ct = Ct.T
     # Obtain the boundary information
 
-    Slmax = branch[:, RATE_A]
+    Slmax = branch[:, RATE_A]/baseMVA
     Pij_l = -Slmax
     Qij_l = -Slmax
     Iij_l = zeros(nl)
@@ -138,8 +138,10 @@ def turn_to_power(list, power=1):
 if __name__ == "__main__":
 
     from pypower import runopf
-    mpc = case33.case33()  # Default test case
+    # mpc = case33.case33()  # Default test case
     # mpc = case123.case123()  # Default test case
+    mpc = case69.case69()  # Default test case
+
     (xx, obj, residual) = run(mpc)
 
     result = runopf.runopf(mpc)

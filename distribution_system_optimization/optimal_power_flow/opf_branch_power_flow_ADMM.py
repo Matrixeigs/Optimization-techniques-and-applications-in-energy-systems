@@ -10,7 +10,7 @@ Notes：
 """
 
 from distribution_system_optimization.test_cases import case33
-from distribution_system_optimization.test_cases import case123
+from distribution_system_optimization.test_cases import case123, case69
 from gurobipy import *
 from numpy import zeros, c_, shape, ix_, ones, r_, arange, sum, diag, concatenate, where, inf
 from scipy.sparse import csr_matrix as sparse
@@ -38,8 +38,8 @@ def run(mpc):
     nb = shape(mpc['bus'])[0]  # number of buses
     nl = shape(mpc['branch'])[0]  # number of branches
     ng = shape(mpc['gen'])[0]  # number of dispatchable injections
-    f = branch[:, F_BUS]  ## list of "from" buses
-    t = branch[:, T_BUS]  ## list of "to" buses
+    f = branch[:, F_BUS].astype(int)  ## list of "from" buses
+    t = branch[:, T_BUS].astype(int)  ## list of "to" buses
 
     # Modify the bus information
     Branch_R = branch[:, BR_R]
@@ -117,7 +117,7 @@ def run(mpc):
     Obj_index = []
     k = 0
     kmax = 10000
-    ru = 500
+    ru = 100
     # The iteration
     mu = 100
     t = 1.5
@@ -240,6 +240,7 @@ def ancestor_children_generation(branch_f, branch_t, nb, Branch_R, Branch_X, SMA
             # except:
             #     temp["Abranch"] = int(AncestorBranch[0][0])
             temp["Abranch"] = int(AncestorBranch[0])
+            print(i)
             temp["BR_R"] = Branch_R[temp["Abranch"]]
             temp["BR_X"] = Branch_X[temp["Abranch"]]
             temp["SMAX"] = SMAX[temp["Abranch"]]
@@ -828,9 +829,10 @@ def sub_problem(area, observatory, index, half_ru):
 
 if __name__ == "__main__":
     from pypower import runopf
+    mpc = case69.case69()  # Default test case
 
     # mpc = case123.case123()  # Default test case
-    mpc = case33.case33()  # Default test case
+    # mpc = case33.case33()  # Default test case
     (obj, residual) = run(mpc)
 
     # result = runopf.runopf(mpc)
