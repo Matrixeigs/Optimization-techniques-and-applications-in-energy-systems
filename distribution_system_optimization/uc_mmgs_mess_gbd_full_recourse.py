@@ -29,7 +29,7 @@ from solvers.mixed_integer_quadratic_constrained_cplex import mixed_integer_quad
 from copy import deepcopy
 
 from distribution_system_optimization.data_format.idx_MG_PV import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, \
-    PMESS, EESS, NX_MG, QBIC, QUG, QG, PPV
+    PMESS, EESS, NX_MG, QBIC, QUG, QG, PPV, PAC,PDC
 
 from distribution_system_optimization.database_management_pv import DataBaseManagement
 from solvers.scenario_reduction import ScenarioReduction
@@ -41,7 +41,7 @@ from matplotlib import pyplot as plt
 class StochasticUnitCommitmentTess():
     def __init__(self):
         self.name = "Unit commitment flow with tess"
-        self.bigM = 1e6
+        self.bigM = 1e4
 
     def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100,ns_reduced=50):
         """
@@ -105,11 +105,11 @@ class StochasticUnitCommitmentTess():
         LB_index = zeros(iter_max)
         UB_index = zeros(iter_max)
         LB_index[iter] = obj_first_stage
-        UB_index[iter] = self.bigM
+        UB_index[iter] = self.bigM * 1e3
         Gap_index[iter] = abs(UB_index[iter] - LB_index[iter]) / UB_index[iter]
         n_processors = os.cpu_count()
 
-        while iter < iter_max and Gap_index[iter] > 1 * 1e-2:
+        while iter < iter_max and Gap_index[iter] > 1e-2:
             problem_second_stage = {}
             problem_second_stage_relaxed = {}
             sub_problem = []
@@ -125,11 +125,11 @@ class StochasticUnitCommitmentTess():
             slack_ineq = {}
             cuts = lil_matrix((ns, self.nv_first_stage+ns))
             b_cuts = zeros(ns)
-            sol = [0] * ns
-            for i in range(ns):
-                sol[i] = sub_problem_solving(sub_problem[i])
-            # with Pool(n_processors) as p:
-            #     sol = list(p.map(sub_problem_solving, sub_problem))
+            # sol = [0] * ns
+            # for i in range(ns):
+            #     sol[i] = sub_problem_solving(sub_problem[i])
+            with Pool(n_processors) as p:
+                sol = list(p.map(sub_problem_solving, sub_problem))
 
             for i in range(ns):
                 sol_second_stage[i] = sol[i][0]
@@ -165,7 +165,7 @@ class StochasticUnitCommitmentTess():
             iter += 1
 
             if sum(success_second_stage) < ns:
-                UB_index[iter] = min(self.bigM, UB_index[iter - 1])
+                UB_index[iter] = min(self.bigM * 1e2, UB_index[iter - 1])
                 Gap_index[iter] = self.bigM
                 print("The violation is {0}".format(sum(obj_second_stage)))
             else:
@@ -325,7 +325,8 @@ class StochasticUnitCommitmentTess():
             [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
         primal_problem_relaxed["A"] = hstack(
             [primal_problem_relaxed["A"], -ones((primal_problem_relaxed["A"].shape[0], 1))]).tolil()
-        primal_problem_relaxed["c"] = concatenate([primal_problem["c"], Voll*ones(1)])
+        primal_problem_relaxed["c"] = concatenate([primal_problem["c"], self.bigM * ones(1)])
+        # primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
         primal_problem_relaxed["q"] = zeros(nx + 1)
         primal_problem["q"] = zeros(nx)
         # nx = len(primal_problem["c"])
@@ -992,6 +993,9 @@ class StochasticUnitCommitmentTess():
                 Rc_temp[i * T + t] = mgs[i]["BIC"]["SMAX"] ** 2
         Rc = concatenate([Rc, Rc_temp])
 
+        ## IV. Coupling constraints between the first stage and second stage decision variables
+        # pg, pg_mg, pess_mg, pess_tess
+        # Ts*x+Ws*ys<=hs
         ## IV) Formulate the coupling constraints between the first-stage and second-stage problems
         # 1) -Pg -Rg + pg <= 0
         _nv_first_stage = self._nv_first_stage
@@ -1062,7 +1066,7 @@ class StochasticUnitCommitmentTess():
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
-        # # 7) pess_dc - pess_ch <= Pess_dc - Pess_ch + Ress
+        # 7) pess_dc - pess_ch <= Pess_dc - Pess_ch + Ress
         # Ts_temp = lil_matrix((nmg * T, nv_first_stage))
         # Ws_temp = lil_matrix((nmg * T, nv_second_stage))
         # hs_temp = zeros(nmg * T)
@@ -1301,6 +1305,8 @@ class StochasticUnitCommitmentTess():
             lb[t * NX_MG + PESS_DC] = 0
             lb[t * NX_MG + EESS] = mg["ESS"]["EMIN"]
             lb[t * NX_MG + PPV] = 0
+            lb[t * NX_MG + PAC] = 0
+            lb[t * NX_MG + PDC] = 0
             lb[t * NX_MG + PMESS] = pmess_l
             ## 1.2) upper boundary
             ub[t * NX_MG + PG] = mg["DG"]["PMAX"]
@@ -1315,11 +1321,15 @@ class StochasticUnitCommitmentTess():
             ub[t * NX_MG + EESS] = mg["ESS"]["EMAX"]
             ub[t * NX_MG + PPV] = mg["PV"]["PROFILE"][t]
             ub[t * NX_MG + PMESS] = pmess_u
+            ub[t * NX_MG + PAC] = mg["PD"]["AC"][t]
+            ub[t * NX_MG + PDC] = mg["PD"]["DC"][t]
             ## 1.3) Objective functions
             c[t * NX_MG + PG] = mg["DG"]["COST_A"]
             c[t * NX_MG + PESS_CH] = mg["ESS"]["COST_OP"]
             c[t * NX_MG + PESS_DC] = mg["ESS"]["COST_OP"]
             c[t * NX_MG + PPV] = mg["PV"]["COST"]
+            c[t * NX_MG + PAC] = Voll * 1000
+            c[t * NX_MG + PDC] = Voll * 1000
             # c[t * NX_MG + PBIC_AC2DC] = mg["ESS"]["COST_OP"]
             # c[t * NX_MG + PBIC_DC2AC] = mg["ESS"]["COST_OP"]
             # c[t * NX_MG + PUG] = mg["DG"]["COST_A"]
@@ -1335,6 +1345,7 @@ class StochasticUnitCommitmentTess():
         Aeq = lil_matrix((T, nv))
         beq = zeros(T)
         for t in range(T):
+            Aeq[t, t * NX_MG + PAC] = 1
             Aeq[t, t * NX_MG + PG] = 1
             Aeq[t, t * NX_MG + PUG] = 1
             Aeq[t, t * NX_MG + PBIC_AC2DC] = -1
@@ -1349,6 +1360,7 @@ class StochasticUnitCommitmentTess():
             Aeq_temp[t, t * NX_MG + PESS_CH] = -1
             Aeq_temp[t, t * NX_MG + PESS_DC] = 1
             Aeq_temp[t, t * NX_MG + PPV] = 1
+            Aeq_temp[t, t * NX_MG + PDC] = 1
             Aeq_temp[t, t * NX_MG + PMESS] = 1  # The power injection from mobile energy storage systems
             beq_temp[t] = mg["PD"]["DC"][t]
         Aeq = vstack([Aeq, Aeq_temp])
@@ -1592,7 +1604,7 @@ class StochasticUnitCommitmentTess():
 
         A = concatenate([A, Aenergy])
         b = concatenate([b, benergy])
-        c = concatenate([connection_matrix[:, TIME]*10, zeros(n_stops * 4)])
+        c = concatenate([connection_matrix[:, TIME]*10, zeros(n_stops * 3), ones(n_stops)*mess["COST_OP"]])
         # sol = milp(zeros(NX_traffic), q=zeros(NX_traffic), Aeq=Aeq, beq=beq, A=A, b=b, xmin=lx, xmax=ux)
 
         model_tess = {"c": c,
@@ -1645,7 +1657,7 @@ class StochasticUnitCommitmentTess():
             else:
                 Aeq[t, n_stops * 2 + t - 1] = -1
 
-        c = concatenate((ones(n_stops * 2) * mess["COST_OP"], zeros(T)))
+        c = concatenate((ones(n_stops * 2) * mess["COST_OP"]* 10 , zeros(T)))
         # sol = milp(c, Aeq=Aeq, beq=beq, A=None, b=None, xmin=lx, xmax=ux)
 
         model_tess = {"c": c,
@@ -1732,9 +1744,9 @@ class StochasticUnitCommitmentTess():
             # assert sum(weight_reduced) == 1, "The weight factor is not right!"
 
         # 4) return value
-        ds_load_profile = scenario_reduced[:, 0:nb * T]
-        mgs_load_profile = scenario_reduced[:, nb * T:nb * T + nmg * T * 2]
-        pv_load_profile = scenario_reduced[:, nb * T + nmg * T * 2:]
+        ds_load_profile = scenario_reduced[:, 0:nb * T] * 2
+        mgs_load_profile = scenario_reduced[:, nb * T:nb * T + nmg * T * 2] * 1
+        pv_load_profile = scenario_reduced[:, nb * T + nmg * T * 2:] * 1.5
 
         # profile_second_stage = zeros((ns, T))
         microgrids_second_stage = [0] * (ns - ns_reduced)
@@ -1769,7 +1781,7 @@ def sub_problem_solving(problem_second_stage):
                         xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
         if sol[2] !=1:
             print("The relaxed problem has not been solved!")
-            problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] / 100
+            problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] / 1000
             for j in range(5):
                 problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] * 10
                 sol = list(qcqp(problem_second_stage[1]["c"],
@@ -1782,10 +1794,14 @@ def sub_problem_solving(problem_second_stage):
                                 rc=problem_second_stage[1]["rc"],
                                 xmin=problem_second_stage[1]["lb"],
                                 xmax=problem_second_stage[1]["ub"]))
-                if sol[2] == 1:
-                    break
+                try:
+                    if sol[2] == 1:
+                        print("The relaxed problem has been solved!")
+                        break
+                except:
+                    continue
 
-        # sol[2] = 0
+        sol[2] = 0
 
     return sol
 
@@ -1919,7 +1935,7 @@ if __name__ == "__main__":
                "E0": 500,
                "EMAX": 1000,
                "EMIN": 100,
-               "COST_OP": 0.108 / 10,
+               "COST_OP": 0.108 / 50,
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
@@ -1930,11 +1946,11 @@ if __name__ == "__main__":
                "E0": 500,
                "EMAX": 1000,
                "EMIN": 100,
-               "COST_OP": 0.108 / 10,
+               "COST_OP": 0.108 / 50,
                })
 
     ev.append({"initial": array([1, 0, 0]),
-               "end": array([0, 1, 0]),
+               "end": array([0, 0, 1]),
                "PCMAX": 500,
                "PDMAX": 500,
                "EFF_CH": 0.9,
@@ -1942,10 +1958,10 @@ if __name__ == "__main__":
                "E0": 500,
                "EMAX": 1000,
                "EMIN": 100,
-               "COST_OP": 0.108 / 10,
+               "COST_OP": 0.108 / 50,
                })
 
-    Voll = 1e4
+    Voll = 4 * 1e3
 
     stochastic_dynamic_optimal_power_flow = StochasticUnitCommitmentTess()
 
