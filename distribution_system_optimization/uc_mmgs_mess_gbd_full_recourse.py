@@ -29,7 +29,7 @@ from solvers.mixed_integer_quadratic_constrained_cplex import mixed_integer_quad
 from copy import deepcopy
 
 from distribution_system_optimization.data_format.idx_MG_PV import PBIC_AC2DC, PG, PESS_DC, PBIC_DC2AC, PUG, PESS_CH, \
-    PMESS, EESS, NX_MG, QBIC, QUG, QG, PPV, PAC,PDC
+    PMESS, EESS, NX_MG, QBIC, QUG, QG, PPV, PAC, PDC
 
 from distribution_system_optimization.database_management_pv import DataBaseManagement
 from solvers.scenario_reduction import ScenarioReduction
@@ -41,7 +41,7 @@ from matplotlib import pyplot as plt
 class StochasticUnitCommitmentTess():
     def __init__(self):
         self.name = "Unit commitment flow with tess"
-        self.bigM = 1e4
+        self.bigM = 1e3
 
     def main(self, power_networks, micro_grids, profile, pv_profile, mess, traffic_networks, ns=100,ns_reduced=50):
         """
@@ -105,17 +105,18 @@ class StochasticUnitCommitmentTess():
         LB_index = zeros(iter_max)
         UB_index = zeros(iter_max)
         LB_index[iter] = obj_first_stage
-        UB_index[iter] = self.bigM * 1e3
+        UB_index[iter] = self.bigM * 1e5
         Gap_index[iter] = abs(UB_index[iter] - LB_index[iter]) / UB_index[iter]
         n_processors = os.cpu_count()
 
-        while iter < iter_max and Gap_index[iter] > 1e-2:
+        while iter < iter_max and Gap_index[iter] > 0.9:
             problem_second_stage = {}
             problem_second_stage_relaxed = {}
             sub_problem = []
             for i in range(ns):
                 (problem_second_stage[i], problem_second_stage_relaxed[i]) = \
                     self.second_stage_problem(x=sol_first_stage[0:self.nv_first_stage], model=model_second_stage[i])
+                # print(max(problem_second_stage[i]["b"]))
                 sub_problem.append([problem_second_stage[i], problem_second_stage_relaxed[i]])
 
             sol_second_stage = {}
@@ -128,6 +129,7 @@ class StochasticUnitCommitmentTess():
             # sol = [0] * ns
             # for i in range(ns):
             #     sol[i] = sub_problem_solving(sub_problem[i])
+
             with Pool(n_processors) as p:
                 sol = list(p.map(sub_problem_solving, sub_problem))
 
@@ -180,6 +182,7 @@ class StochasticUnitCommitmentTess():
                                                                vtypes=master_problem["vtypes"],
                                                                xmax=master_problem["ub"], xmin=master_problem["lb"])
 
+
             assert success == 1, "The master problem is infeasible!"
             LB_index[iter] = obj_first_stage
             # sol_first_stage_checked = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
@@ -200,6 +203,21 @@ class StochasticUnitCommitmentTess():
 
         # Verify the solutions!
         # 5.1) Second-stage solution
+        problem_second_stage = {}
+        problem_second_stage_relaxed = {}
+        sub_problem = []
+        for i in range(ns):
+            (problem_second_stage[i], problem_second_stage_relaxed[i]) = \
+                self.second_stage_problem(x=sol_first_stage[0:self.nv_first_stage], model=model_second_stage[i])
+            # print(max(problem_second_stage[i]["b"]))
+            sub_problem.append([problem_second_stage[i], problem_second_stage_relaxed[i]])
+
+        sol_second_stage = {}
+        sol = [0] * ns
+        for i in range(ns):
+            sol[i] = sub_problem_solving(sub_problem[i])
+            sol_second_stage[i] = sol[i][0]
+
         sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
         # 5.2) Second-stage solution
         sol_second_stage_checked = {}
@@ -452,7 +470,7 @@ class StochasticUnitCommitmentTess():
             [tile(concatenate([c_alpha, c_beta, c_ig, cg, cr, cg_mg, cr_mg, ces_ch, ces_dc, ces, ces_r, ces_i]), T)])
         for t in range(T):
             for j in range(ng):
-                c[t * _nv_first_stage + ng * 3 + j] = Price_wholesale[0,t] * 1000 *baseMVA
+                c[t * _nv_first_stage + ng * 3 + j] = Price_wholesale[0, t] * 1000 *baseMVA
         # Variable types
         vtypes = (["b"] * ng * 3 + ["c"] * (ng * 2 + nmg * 2 + nmg * 4) + ["b"] * nmg) * T
         ## Constraint sets
@@ -682,14 +700,14 @@ class StochasticUnitCommitmentTess():
 
         # Set-points and scheduling of mobile energy storage systems
         nv_tra = self.nv_tra
-        nl_traffic = self.nl_tra
+        nl_tra = self.nl_tra
         n_stops = self.n_stops
         nb_tra_ele = self.nb_tra_ele
         sol_ev = {}
         for i in range(nmes):
             ev_temp = {}
             ev_temp["VRP"] = []
-            for t in range(nl_traffic):
+            for t in range(nl_tra):
                 if sol[_nv_first_stage * T + nv_tra * i + t] > 0:  # obtain the solution for vrp
                     if self.connection_matrix[t, TIME] > 0:
                         for j in range(int(self.connection_matrix[t, TIME])):
@@ -699,19 +717,19 @@ class StochasticUnitCommitmentTess():
                         ev_temp["VRP"].append(((self.connection_matrix[t, F_BUS] - 1) % nmg,
                                                (self.connection_matrix[t, T_BUS] - 1) % nmg))
 
-            ev_temp["idc"] = zeros((nb_tra_ele, T))
-            ev_temp["pmess_dc"] = zeros((nb_tra_ele, T))
-            ev_temp["pmess_ch"] = zeros((nb_tra_ele, T))
-            ev_temp["rmess"] = zeros((nb_tra_ele, T))
+            ev_temp["idc"] = zeros((nmg, T))
+            ev_temp["pmess_dc"] = zeros((nmg, T))
+            ev_temp["pmess_ch"] = zeros((nmg, T))
+            ev_temp["rmess"] = zeros((nmg, T))
             for t in range(T):
-                for k in range(nb_tra_ele):
-                    ev_temp["idc"][k, t] = sol[_nv_first_stage * T + nv_tra * i + nl_traffic + nb_tra_ele * t + k]
-                    ev_temp["pmess_dc"][k, t] = \
-                        sol[_nv_first_stage * T + nv_tra * i + nl_traffic + n_stops + nb_tra_ele * t + k]
-                    ev_temp["pmess_ch"][k, t] = \
-                        sol[_nv_first_stage * T + nv_tra * i + nl_traffic + n_stops * 2 + nb_tra_ele * t + k]
-                    ev_temp["rmess"][k, t] = \
-                        sol[_nv_first_stage * T + nv_tra * i + nl_traffic + n_stops * 3 + nb_tra_ele * t + k]
+                for j in range(nmg):
+                    ev_temp["idc"][j, t] = sol[_nv_first_stage * T + nv_tra * i + nl_tra + nb_tra_ele * t + j]
+                    ev_temp["pmess_dc"][j, t] = \
+                        sol[_nv_first_stage * T + nv_tra * i + nl_tra + n_stops + nb_tra_ele * t + j]
+                    ev_temp["pmess_ch"][j, t] = \
+                        sol[_nv_first_stage * T + nv_tra * i + nl_tra + n_stops * 2 + nb_tra_ele * t + j]
+                    ev_temp["rmess"][j, t] = \
+                        sol[_nv_first_stage * T + nv_tra * i + nl_tra + n_stops * 3 + nb_tra_ele * t + j]
             sol_ev[i] = ev_temp
 
         sol_first_stage = {"alpha": alpha,
@@ -792,7 +810,7 @@ class StochasticUnitCommitmentTess():
         qij_l = -slmax
         lij_l = zeros(nl)
         vm_l = bus[:, VMIN] ** 2
-        pg_l = gen[:, PMIN] / baseMVA
+        pg_l = zeros(ng)
         qg_l = gen[:, QMIN] / baseMVA
         pd_l = zeros(nd)
 
@@ -809,9 +827,13 @@ class StochasticUnitCommitmentTess():
 
         lb = concatenate([tile(concatenate([pij_l, qij_l, lij_l, vm_l, pg_l, qg_l, pmg_l, qmg_l, pd_l]), T)])
         ub = concatenate([tile(concatenate([pij_u, qij_u, lij_u, vm_u, pg_u, qg_u, pmg_u, qmg_u, pd_u]), T)])
+
         vtypes = ["c"] * _nv_second_stage * T
         nv_ds = _nv_second_stage * T  # Number of total decision variables
-
+        self.nv_ds = nv_ds
+        for i in range(T):
+            temp = profile[i * nb:(i + 1) * nb] / baseMVA
+            ub[i*_nv_second_stage+3*nl+nb+2*ng+2*nmg: (i+1)*_nv_second_stage] = temp[d]*2
         # Add system level constraints
         # 1) Active power balance
         Aeq_p = lil_matrix((nb * T, nv_ds))
@@ -926,6 +948,7 @@ class StochasticUnitCommitmentTess():
         # III.1) Merge the models of mirogrids and distribution
         # Formulate the index
         nv_index_ev = zeros(1 + nmes).astype(int)
+        self.nv_index_ev = nv_index_ev
         neq_index_temp = zeros(1 + nmes).astype(int)
         nv_index_ev[0] = int(Aeq_full.shape[1])
         neq_index_temp[0] = int(Aeq_full.shape[0])
@@ -1097,23 +1120,17 @@ class StochasticUnitCommitmentTess():
         # 9) ptss_ch - ptss_dc <= Ptss_ch - Ptss_dc + Rtss
         nv_tra = self.nv_tra
         nl_tra = self.nl_tra
+        n_stops = self.n_stops
+
         Ts_temp = lil_matrix((nmg * T * nmes, nv_first_stage))
         Ws_temp = lil_matrix((nmg * T * nmes, nv_second_stage))
         hs_temp = zeros(nmg * T * nmes)
         for i in range(nmes):
-            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T:_nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 2] = eye(
-                nmg * T)
-            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 2:
-            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 3] = -eye(nmg * T)
-            Ts_temp[i * nmg * T:(i + 1) * nmg * T,
-            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 3:
-            _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 4] = -eye(nmg * T)
-            Ws_temp[i * nmg * T:(i + 1) * nmg * T, nv_index_ev[i] + nmg * T * 0:nv_index_ev[i] + nmg * T * 1] = \
-                -eye(nmg * T)
-            Ws_temp[i * nmg * T:(i + 1) * nmg * T, nv_index_ev[i] + nmg * T * 1:nv_index_ev[i] + nmg * T * 2] = \
-                eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + n_stops: _nv_first_stage * T + nv_tra * i + nl_tra + n_stops*2] = eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + n_stops*2:_nv_first_stage * T + nv_tra * i + nl_tra + n_stops*3] = -eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + n_stops*3:_nv_first_stage * T + nv_tra * i + nl_tra + n_stops*4] = -eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T, nv_index_ev[i] + nmg * T * 0: nv_index_ev[i] + nmg * T * 1] = -eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T, nv_index_ev[i] + nmg * T * 1: nv_index_ev[i] + nmg * T * 2] = eye(nmg * T)
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
@@ -1122,19 +1139,11 @@ class StochasticUnitCommitmentTess():
         Ws_temp = lil_matrix((nmg * T * nmes, nv_second_stage))
         hs_temp = zeros(nmg * T * nmes)
         for i in range(nmes):
-            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T:
-                                                   _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 2] = \
-                -eye(nmg * T)
-            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 2:
-                                                   _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 3] = \
-                eye(nmg * T)
-            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 3:
-                                                   _nv_first_stage * T + nv_tra * i + nl_tra + nmg * T * 4] = \
-                -eye(nmg * T)
-            Ws_temp[i * nmg * T:(i + 1) * nmg * T, int(nv_index_ev[i]) + nmg * T * 0:
-                                                   int(nv_index_ev[i]) + nmg * T * 1] = eye(nmg * T)
-            Ws_temp[i * nmg * T:(i + 1) * nmg * T, int(nv_index_ev[i]) + nmg * T * 1:
-                                                   int(nv_index_ev[i]) + nmg * T * 2] = -eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + n_stops: _nv_first_stage * T + nv_tra * i + nl_tra + n_stops*2] = -eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + n_stops*2:_nv_first_stage * T + nv_tra * i + nl_tra + n_stops*3] = eye(nmg * T)
+            Ts_temp[i * nmg * T:(i + 1) * nmg * T, _nv_first_stage * T + nv_tra * i + nl_tra + n_stops*3:_nv_first_stage * T + nv_tra * i + nl_tra + n_stops*4] = -eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T, nv_index_ev[i] + nmg * T * 0: nv_index_ev[i] + nmg * T * 1] = eye(nmg * T)
+            Ws_temp[i * nmg * T:(i + 1) * nmg * T, nv_index_ev[i] + nmg * T * 1: nv_index_ev[i] + nmg * T * 2] = -eye(nmg * T)
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
@@ -1186,6 +1195,7 @@ class StochasticUnitCommitmentTess():
         # Solutions for distribution networks
         ds_sol = {}
         _nv_second_stage = self._nv_second_stage
+        nv_index_ev = self.nv_index_ev
         ds_sol["pij"] = zeros((nl, T))
         ds_sol["qij"] = zeros((nl, T))
         ds_sol["lij"] = zeros((nl, T))
@@ -1249,14 +1259,10 @@ class StochasticUnitCommitmentTess():
             mess_temp["pmess_ch"] = zeros((nmg, T))
             mess_temp["emess"] = zeros((1, T))
             for t in range(T):
-                mess_temp["pmess_dc"][:, t] = \
-                    sol[_nv_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + nmg * t:
-                        _nv_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + nmg * (t + 1)]
-                mess_temp["pmess_ch"][:, t] = \
-                    sol[_nv_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + n_stops + nmg * t:
-                        _nv_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + n_stops + nmg * (t + 1)]
-                mess_temp["emess"][:, t] = \
-                    sol[_nv_second_stage * T + NX_MG * T * nmg + (2 * n_stops + T) * i + n_stops * 2 + t]
+                for j in range(nmg):
+                    mess_temp["pmess_dc"][j, t] = sol[nv_index_ev[i] + t * self.nb_tra_ele + j]
+                    mess_temp["pmess_ch"][j, t] = sol[nv_index_ev[i] + T * self.nb_tra_ele + t * self.nb_tra_ele + j]
+                mess_temp["emess"][0, t] = sol[nv_index_ev[i] + T * self.nb_tra_ele * 2 + t]
             mess_sol[i] = mess_temp
 
         second_stage_solution = {}
@@ -1328,8 +1334,8 @@ class StochasticUnitCommitmentTess():
             c[t * NX_MG + PESS_CH] = mg["ESS"]["COST_OP"]
             c[t * NX_MG + PESS_DC] = mg["ESS"]["COST_OP"]
             c[t * NX_MG + PPV] = mg["PV"]["COST"]
-            c[t * NX_MG + PAC] = Voll * 1000
-            c[t * NX_MG + PDC] = Voll * 1000
+            c[t * NX_MG + PAC] = Voll/1000
+            c[t * NX_MG + PDC] = Voll/1000
             # c[t * NX_MG + PBIC_AC2DC] = mg["ESS"]["COST_OP"]
             # c[t * NX_MG + PBIC_DC2AC] = mg["ESS"]["COST_OP"]
             # c[t * NX_MG + PUG] = mg["DG"]["COST_A"]
@@ -1604,7 +1610,7 @@ class StochasticUnitCommitmentTess():
 
         A = concatenate([A, Aenergy])
         b = concatenate([b, benergy])
-        c = concatenate([connection_matrix[:, TIME]*10, zeros(n_stops * 3), ones(n_stops)*mess["COST_OP"]])
+        c = concatenate([connection_matrix[:, TIME]*10, zeros(n_stops * 3), ones(n_stops)*mess["COST_OP"]*0.1])
         # sol = milp(zeros(NX_traffic), q=zeros(NX_traffic), Aeq=Aeq, beq=beq, A=A, b=b, xmin=lx, xmax=ux)
 
         model_tess = {"c": c,
@@ -1651,13 +1657,13 @@ class StochasticUnitCommitmentTess():
         for t in range(T):
             Aeq[t, n_stops * 2 + t] = 1
             Aeq[t, n_stops + nb_tra_ele * t:n_stops + nb_tra_ele * (t + 1)] = -mess["EFF_CH"]
-            Aeq[t, nb_tra_ele * t:nb_tra_ele * (t + 1)] = 1 / mess["EFF_DC"]
+            Aeq[t, nb_tra_ele * t: nb_tra_ele * (t + 1)] = 1 / mess["EFF_DC"]
             if t == 0:
                 beq[t] = mess["E0"]
             else:
                 Aeq[t, n_stops * 2 + t - 1] = -1
 
-        c = concatenate((ones(n_stops * 2) * mess["COST_OP"]* 10 , zeros(T)))
+        c = concatenate((ones(n_stops * 2) * mess["COST_OP"]* 0.9, zeros(T)))
         # sol = milp(c, Aeq=Aeq, beq=beq, A=None, b=None, xmin=lx, xmax=ux)
 
         model_tess = {"c": c,
@@ -1772,6 +1778,7 @@ def sub_problem_solving(problem_second_stage):
                     beq=problem_second_stage[0]["beq"], A=problem_second_stage[0]["A"], b=problem_second_stage[0]["b"],
                     Qc=problem_second_stage[0]["Qc"], rc=problem_second_stage[0]["rc"],
                     xmin=problem_second_stage[0]["lb"], xmax=problem_second_stage[0]["ub"]))
+    # print(max(problem_second_stage[0]["A"]*sol[0]-problem_second_stage[0]["b"]))
 
     if sol[2] == 0:
         sol = list(qcqp(problem_second_stage[1]["c"], problem_second_stage[1]["q"], Aeq=problem_second_stage[1]["Aeq"],
@@ -1779,10 +1786,11 @@ def sub_problem_solving(problem_second_stage):
                         b=problem_second_stage[1]["b"],
                         Qc=problem_second_stage[1]["Qc"], rc=problem_second_stage[1]["rc"],
                         xmin=problem_second_stage[1]["lb"], xmax=problem_second_stage[1]["ub"]))
+        sol[2] = 0
         if sol[2] !=1:
             print("The relaxed problem has not been solved!")
-            problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] / 1000
-            for j in range(5):
+            problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] / 100
+            for j in range(10):
                 problem_second_stage[1]["ub"][-1] = problem_second_stage[1]["ub"][-1] * 10
                 sol = list(qcqp(problem_second_stage[1]["c"],
                                 problem_second_stage[1]["q"],
@@ -1808,7 +1816,7 @@ def sub_problem_solving(problem_second_stage):
 
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
-    T = 24
+    T = 6
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
          0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
@@ -1835,7 +1843,7 @@ if __name__ == "__main__":
     PV_profile = PV_profile[0:T]
 
     micro_grid_1 = deepcopy(micro_grid)
-    micro_grid_1["BUS"] = 2
+    micro_grid_1["BUS"] = 5
     micro_grid_1["PD"]["AC_MAX"] = 1000
     micro_grid_1["PD"]["DC_MAX"] = 1000
     micro_grid_1["UG"]["PMIN"] = -5000
@@ -1848,7 +1856,7 @@ if __name__ == "__main__":
     micro_grid_1["DG"]["COST_A"] = 0.1808
     micro_grid_1["DG"]["COST_B"] = 3.548 * 10
     micro_grid_1["ESS"]["PDC_MAX"] = 500
-    micro_grid_1["ESS"]["COST_OP"] = 0.108 / 2
+    micro_grid_1["ESS"]["COST_OP"] = 0.108
     micro_grid_1["ESS"]["PCH_MAX"] = 500
     micro_grid_1["ESS"]["E0"] = 500
     micro_grid_1["ESS"]["EMIN"] = 100
@@ -1865,7 +1873,7 @@ if __name__ == "__main__":
     # micro_grid_1["MG"]["PMAX"] = 0
 
     micro_grid_2 = deepcopy(micro_grid)
-    micro_grid_2["BUS"] = 4
+    micro_grid_2["BUS"] = 15
     micro_grid_2["PD"]["AC_MAX"] = 1000
     micro_grid_2["PD"]["DC_MAX"] = 1000
     micro_grid_2["UG"]["PMIN"] = -5000
@@ -1877,7 +1885,7 @@ if __name__ == "__main__":
     micro_grid_2["DG"]["QMIN"] = -1000
     micro_grid_2["DG"]["COST_A"] = 0.1808
     micro_grid_2["DG"]["COST_B"] = 3.548 * 10
-    micro_grid_2["ESS"]["COST_OP"] = 0.108 / 2
+    micro_grid_2["ESS"]["COST_OP"] = 0.108
     micro_grid_2["ESS"]["PDC_MAX"] = 500
     micro_grid_2["ESS"]["PCH_MAX"] = 500
     micro_grid_2["ESS"]["E0"] = 500
@@ -1895,7 +1903,7 @@ if __name__ == "__main__":
     # micro_grid_2["MG"]["PMAX"] = 0
 
     micro_grid_3 = deepcopy(micro_grid)
-    micro_grid_3["BUS"] = 10
+    micro_grid_3["BUS"] = 20
     micro_grid_3["PD"]["AC_MAX"] = 1000
     micro_grid_3["PD"]["DC_MAX"] = 1000
     micro_grid_3["UG"]["PMIN"] = -5000
@@ -1907,7 +1915,7 @@ if __name__ == "__main__":
     micro_grid_3["DG"]["QMIN"] = -1000
     micro_grid_3["DG"]["COST_A"] = 0.1808
     micro_grid_3["DG"]["COST_B"] = 3.548 * 10
-    micro_grid_3["ESS"]["COST_OP"] = 0.108 / 2
+    micro_grid_3["ESS"]["COST_OP"] = 0.108
     micro_grid_3["ESS"]["PDC_MAX"] = 500
     micro_grid_3["ESS"]["PCH_MAX"] = 500
     micro_grid_3["ESS"]["E0"] = 500
@@ -1930,38 +1938,38 @@ if __name__ == "__main__":
                "end": array([0, 0, 1]),
                "PCMAX": 500,
                "PDMAX": 500,
-               "EFF_CH": 0.9,
+               "EFF_CH": 0.95,
                "EFF_DC": 0.9,
                "E0": 500,
                "EMAX": 1000,
                "EMIN": 100,
-               "COST_OP": 0.108 / 50,
+               "COST_OP": 0.108/2,
                })
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 1, 0]),
                "PCMAX": 500,
                "PDMAX": 500,
-               "EFF_CH": 0.9,
+               "EFF_CH": 0.95,
                "EFF_DC": 0.9,
                "E0": 500,
                "EMAX": 1000,
                "EMIN": 100,
-               "COST_OP": 0.108 / 50,
+               "COST_OP": 0.108/2,
                })
 
     ev.append({"initial": array([1, 0, 0]),
                "end": array([0, 0, 1]),
                "PCMAX": 500,
                "PDMAX": 500,
-               "EFF_CH": 0.9,
+               "EFF_CH": 0.95,
                "EFF_DC": 0.9,
                "E0": 500,
                "EMAX": 1000,
                "EMIN": 100,
-               "COST_OP": 0.108 / 50,
+               "COST_OP": 0.108/2,
                })
 
-    Voll = 4 * 1e3
+    Voll = 38*1e3 # $/MWh
 
     stochastic_dynamic_optimal_power_flow = StochasticUnitCommitmentTess()
 
@@ -1970,6 +1978,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=1000, ns_reduced=980)
+                                                                                     ns=1000, ns_reduced=997)
 
     print(sol_second_stage[0]['DS']['gap'].max())
