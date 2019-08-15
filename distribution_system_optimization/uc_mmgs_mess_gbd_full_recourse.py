@@ -86,7 +86,7 @@ class StochasticUnitCommitmentTess():
         master_problem = deepcopy(model_first_stage)
         master_problem["c"] = concatenate([master_problem["c"], ones(ns)])
         master_problem["lb"] = concatenate([master_problem["lb"], zeros(ns)])
-        master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM])
+        master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM * 100])
         master_problem["vtypes"] = master_problem["vtypes"] + ["c"] * ns
         master_problem["A"] = hstack([master_problem["A"], zeros((master_problem["A"].shape[0], ns))]).tolil()
         master_problem["Aeq"] = hstack([master_problem["Aeq"], zeros((master_problem["Aeq"].shape[0], ns))]).tolil()
@@ -109,7 +109,7 @@ class StochasticUnitCommitmentTess():
         Gap_index[iter] = abs(UB_index[iter] - LB_index[iter]) / UB_index[iter]
         n_processors = os.cpu_count()
 
-        while iter < iter_max and Gap_index[iter] > 0.9:
+        while iter < iter_max and Gap_index[iter] > 0.1:
             problem_second_stage = {}
             problem_second_stage_relaxed = {}
             sub_problem = []
@@ -167,7 +167,7 @@ class StochasticUnitCommitmentTess():
             iter += 1
 
             if sum(success_second_stage) < ns:
-                UB_index[iter] = min(self.bigM * 1e2, UB_index[iter - 1])
+                UB_index[iter] = min(self.bigM * 1e6, UB_index[iter - 1])
                 Gap_index[iter] = self.bigM
                 print("The violation is {0}".format(sum(obj_second_stage)))
             else:
@@ -1809,14 +1809,14 @@ def sub_problem_solving(problem_second_stage):
                 except:
                     continue
 
-        sol[2] = 0
+        # sol[2] = 0
 
     return sol
 
 
 if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
-    T = 6
+    T = 24
     load_profile = array(
         [0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95, 0.81, 0.59, 0.35, 0.14, 0.17, 0.41, 0.63, 0.86, 0.94, 1.00, 0.95,
          0.81, 0.59, 0.35, 0.14, 0.17, 0.41])
@@ -1978,6 +1978,6 @@ if __name__ == "__main__":
                                                                                      pv_profile=PV_profile,
                                                                                      micro_grids=case_micro_grids,
                                                                                      traffic_networks=traffic_networks,
-                                                                                     ns=1000, ns_reduced=997)
+                                                                                     ns=1000, ns_reduced=980)
 
     print(sol_second_stage[0]['DS']['gap'].max())
