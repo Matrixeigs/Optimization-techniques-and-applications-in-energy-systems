@@ -86,7 +86,7 @@ class StochasticUnitCommitmentTess():
         master_problem = deepcopy(model_first_stage)
         master_problem["c"] = concatenate([master_problem["c"], ones(ns)])
         master_problem["lb"] = concatenate([master_problem["lb"], zeros(ns)])
-        master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM * 100])
+        master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM * 1e4])
         master_problem["vtypes"] = master_problem["vtypes"] + ["c"] * ns
         master_problem["A"] = hstack([master_problem["A"], zeros((master_problem["A"].shape[0], ns))]).tolil()
         master_problem["Aeq"] = hstack([master_problem["Aeq"], zeros((master_problem["Aeq"].shape[0], ns))]).tolil()
@@ -109,7 +109,7 @@ class StochasticUnitCommitmentTess():
         Gap_index[iter] = abs(UB_index[iter] - LB_index[iter]) / UB_index[iter]
         n_processors = os.cpu_count()
 
-        while iter < iter_max and Gap_index[iter] > 0.1:
+        while iter < iter_max and Gap_index[iter] > 0.2:
             problem_second_stage = {}
             problem_second_stage_relaxed = {}
             sub_problem = []
@@ -338,7 +338,7 @@ class StochasticUnitCommitmentTess():
         nx = len(primal_problem["c"])
         primal_problem_relaxed = deepcopy(primal_problem)
         primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(1)])
-        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM])
+        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM * 1e3])
         primal_problem_relaxed["Aeq"] = hstack(
             [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
         primal_problem_relaxed["A"] = hstack(
@@ -1843,7 +1843,7 @@ if __name__ == "__main__":
     PV_profile = PV_profile[0:T]
 
     micro_grid_1 = deepcopy(micro_grid)
-    micro_grid_1["BUS"] = 5
+    micro_grid_1["BUS"] = 2
     micro_grid_1["PD"]["AC_MAX"] = 1000
     micro_grid_1["PD"]["DC_MAX"] = 1000
     micro_grid_1["UG"]["PMIN"] = -5000
@@ -1873,7 +1873,7 @@ if __name__ == "__main__":
     # micro_grid_1["MG"]["PMAX"] = 0
 
     micro_grid_2 = deepcopy(micro_grid)
-    micro_grid_2["BUS"] = 15
+    micro_grid_2["BUS"] = 4
     micro_grid_2["PD"]["AC_MAX"] = 1000
     micro_grid_2["PD"]["DC_MAX"] = 1000
     micro_grid_2["UG"]["PMIN"] = -5000
@@ -1903,7 +1903,7 @@ if __name__ == "__main__":
     # micro_grid_2["MG"]["PMAX"] = 0
 
     micro_grid_3 = deepcopy(micro_grid)
-    micro_grid_3["BUS"] = 20
+    micro_grid_3["BUS"] = 10
     micro_grid_3["PD"]["AC_MAX"] = 1000
     micro_grid_3["PD"]["DC_MAX"] = 1000
     micro_grid_3["UG"]["PMIN"] = -5000
