@@ -74,6 +74,7 @@ class StochasticUnitCommitmentTess():
                                                                                          pv_profile=pv_profile,
                                                                                          ns_reduced=ns_reduced)
         ns -= ns_reduced
+        self.ns = ns
         model_second_stage = {}
         for i in range(ns):
             model_second_stage[i] = self.second_stage_problem_formualtion_gdb(pns=power_networks, mgs=mgs_second_stage[i],
@@ -86,7 +87,7 @@ class StochasticUnitCommitmentTess():
         master_problem = deepcopy(model_first_stage)
         master_problem["c"] = concatenate([master_problem["c"], ones(ns)])
         master_problem["lb"] = concatenate([master_problem["lb"], zeros(ns)])
-        master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM * 1e4])
+        master_problem["ub"] = concatenate([master_problem["ub"], ones(ns) * self.bigM * 1e6])
         master_problem["vtypes"] = master_problem["vtypes"] + ["c"] * ns
         master_problem["A"] = hstack([master_problem["A"], zeros((master_problem["A"].shape[0], ns))]).tolil()
         master_problem["Aeq"] = hstack([master_problem["Aeq"], zeros((master_problem["Aeq"].shape[0], ns))]).tolil()
@@ -105,11 +106,11 @@ class StochasticUnitCommitmentTess():
         LB_index = zeros(iter_max)
         UB_index = zeros(iter_max)
         LB_index[iter] = obj_first_stage
-        UB_index[iter] = self.bigM * 1e5
+        UB_index[iter] = self.bigM * 1e3
         Gap_index[iter] = abs(UB_index[iter] - LB_index[iter]) / UB_index[iter]
         n_processors = os.cpu_count()
 
-        while iter < iter_max and Gap_index[iter] > 0.2:
+        while iter < iter_max and Gap_index[iter] > 0.01:
             problem_second_stage = {}
             problem_second_stage_relaxed = {}
             sub_problem = []
@@ -197,11 +198,21 @@ class StochasticUnitCommitmentTess():
             print("The gap is {0}".format(Gap_index[iter]))
             if iter % 100 == 0:
                 plt.plot(LB_index)
-                # plt.plot(UB_index)
+                plt.plot(UB_index)
                 plt.show()
                 plt.close()
+                # Verify the solutions!
+                (sol_first_stage_checked, sol_second_stage_checked) = self.record_results(sol_first_stage, model_second_stage)
 
-        # Verify the solutions!
+        (sol_first_stage_checked, sol_second_stage_checked) = self.record_results(sol_first_stage, model_second_stage)
+
+
+        return sol_first_stage_checked, sol_second_stage_checked
+
+    def record_results(self, sol_first_stage, model_second_stage):
+        ns = self.ns
+        nmes= self.nmes
+        nmg = self.nmg
         # 5.1) Second-stage solution
         problem_second_stage = {}
         problem_second_stage_relaxed = {}
@@ -218,13 +229,12 @@ class StochasticUnitCommitmentTess():
             sol[i] = sub_problem_solving(sub_problem[i])
             sol_second_stage[i] = sol[i][0]
 
-        sol_first_stage = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
+        sol_first_stage_checked = self.first_stage_solution_validation(sol=sol_first_stage[0:self.nv_first_stage])
         # 5.2) Second-stage solution
         sol_second_stage_checked = {}
         for i in range(ns):
             sol_second_stage_checked[i] = self.second_stage_solution_validation(sol_second_stage[i])
-        # 6) Store the solutions into database!
-        db_management = DataBaseManagement()
+
         db_management.create_table(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng)
         db_management.create_table(table_name="micro_grids", nmg=self.nmg)
         db_management.create_table(table_name="mobile_energy_storage_systems", nmg=self.nmg)
@@ -234,32 +244,29 @@ class StochasticUnitCommitmentTess():
         for t in range(T):
             db_management.insert_data_first_stage(table_name="first_stage_solutions", time=t, ng=self.ng,
                                                   nmg=self.nmg,
-                                                  pg=sol_first_stage["pg"][:, t].tolist(),
-                                                  rg=sol_first_stage["rg"][:, t].tolist(),
-                                                  pg_mg=sol_first_stage["pg_mg"][:, t].tolist(),
-                                                  rg_mg=sol_first_stage["rg_mg"][:, t].tolist(),
-                                                  pess_ch=sol_first_stage["pess_ch"][:, t].tolist(),
-                                                  pess_dc=sol_first_stage["pess_dc"][:, t].tolist(),
-                                                  ress=sol_first_stage["ress"][:, t].tolist(),
-                                                  ess=sol_first_stage["eess"][:, t].tolist(),
-                                                  iess=sol_first_stage["iess"][:, t].tolist())
+                                                  pg=sol_first_stage_checked["pg"][:, t].tolist(),
+                                                  rg=sol_first_stage_checked["rg"][:, t].tolist(),
+                                                  pg_mg=sol_first_stage_checked["pg_mg"][:, t].tolist(),
+                                                  rg_mg=sol_first_stage_checked["rg_mg"][:, t].tolist(),
+                                                  pess_ch=sol_first_stage_checked["pess_ch"][:, t].tolist(),
+                                                  pess_dc=sol_first_stage_checked["pess_dc"][:, t].tolist(),
+                                                  ress=sol_first_stage_checked["ress"][:, t].tolist(),
+                                                  ess=sol_first_stage_checked["eess"][:, t].tolist(),
+                                                  iess=sol_first_stage_checked["iess"][:, t].tolist())
         for i in range(nmes):
             for t in range(T):
                 db_management.insert_data_first_stage_mess(table_name="fisrt_stage_mess", nmg=self.nmg, time=t,
-                                                           mess=i,
-                                                           imess=sol_first_stage["MESS"][i]["idc"][:, t].tolist(),
-                                                           rmess=sol_first_stage["MESS"][i]["rmess"][:, t].tolist(),
-                                                           pmess_ch=
-                                                           sol_first_stage["MESS"][i]["pmess_ch"][:, t].tolist(),
-                                                           pmess_dc=
-                                                           sol_first_stage["MESS"][i]["pmess_dc"][:, t].tolist(),
-                                                           mess_f_stop=sol_first_stage["MESS"][i]["VRP"][t + 1][0],
-                                                           mess_t_stop=sol_first_stage["MESS"][i]["VRP"][t + 1][1])
+                                                           mess=i,imess=sol_first_stage_checked["MESS"][i]["idc"][:,t].tolist(),
+                                                           rmess=sol_first_stage_checked["MESS"][i]["rmess"][:,t].tolist(),
+                                                           pmess_ch=sol_first_stage_checked["MESS"][i]["pmess_ch"][:,t].tolist(),
+                                                           pmess_dc=sol_first_stage_checked["MESS"][i]["pmess_dc"][:,t].tolist(),
+                                                           mess_f_stop=sol_first_stage_checked["MESS"][i]["VRP"][t + 1][0],
+                                                           mess_t_stop=sol_first_stage_checked["MESS"][i]["VRP"][t + 1][1])
 
         for i in range(ns):
             for t in range(T):
-                db_management.insert_data_ds(table_name="distribution_networks", nl=self.nl, nb=self.nb, ng=self.ng,
-                                             scenario=i, time=t,
+                db_management.insert_data_ds(table_name="distribution_networks", nl=self.nl, nb=self.nb,
+                                             ng=self.ng,scenario=i, time=t,
                                              pij=sol_second_stage_checked[i]["DS"]["pij"][:, t].tolist(),
                                              qij=sol_second_stage_checked[i]["DS"]["qij"][:, t].tolist(),
                                              lij=sol_second_stage_checked[i]["DS"]["lij"][:, t].tolist(),
@@ -285,14 +292,10 @@ class StochasticUnitCommitmentTess():
         for i in range(ns):
             for j in range(nmes):
                 for t in range(T):
-                    db_management.insert_data_mess(table_name="mobile_energy_storage_systems", scenario=i, time=t,
-                                                   mess=j, nmg=self.nmg,
-                                                   pmess_dc=
-                                                   sol_second_stage_checked[i]["MESS"][j]["pmess_dc"][:,
-                                                   t].tolist(),
-                                                   pmess_ch=
-                                                   sol_second_stage_checked[i]["MESS"][j]["pmess_ch"][:,
-                                                   t].tolist(),
+                    db_management.insert_data_mess(table_name="mobile_energy_storage_systems", scenario=i,
+                                                   time=t,mess=j, nmg=self.nmg,
+                                                   pmess_dc=sol_second_stage_checked[i]["MESS"][j]["pmess_dc"][:,t].tolist(),
+                                                   pmess_ch=sol_second_stage_checked[i]["MESS"][j]["pmess_ch"][:,t].tolist(),
                                                    emess=sol_second_stage_checked[i]["MESS"][j]["emess"][0, t])
         # 7) Cross validation of the first-stage and second-stage decision variables
         tess_check = {}
@@ -301,17 +304,17 @@ class StochasticUnitCommitmentTess():
             for j in range(nmes):
                 tess_temp[j] = sol_second_stage_checked[i]["MESS"][j]["pmess_dc"] - \
                                sol_second_stage_checked[i]["MESS"][j]["pmess_ch"] - \
-                               sol_first_stage["MESS"][j]["pmess_dc"] + \
-                               sol_first_stage["MESS"][j]["pmess_ch"] - \
-                               sol_first_stage["MESS"][j]["rmess"]
+                               sol_first_stage_checked["MESS"][j]["pmess_dc"] + \
+                               sol_first_stage_checked["MESS"][j]["pmess_ch"] - \
+                               sol_first_stage_checked["MESS"][j]["rmess"]
                 tess_temp[j + nmes] = sol_second_stage_checked[i]["MESS"][j]["pmess_ch"] - \
                                       sol_second_stage_checked[i]["MESS"][j]["pmess_dc"] - \
-                                      sol_first_stage["MESS"][j]["pmess_ch"] + \
-                                      sol_first_stage["MESS"][j]["pmess_dc"] - \
-                                      sol_first_stage["MESS"][j]["rmess"]
+                                      sol_first_stage_checked["MESS"][j]["pmess_ch"] + \
+                                      sol_first_stage_checked["MESS"][j]["pmess_dc"] - \
+                                      sol_first_stage_checked["MESS"][j]["rmess"]
             tess_check[i] = tess_temp
 
-        return sol_first_stage, sol_second_stage_checked
+        return sol_first_stage_checked, sol_second_stage_checked
 
     def second_stage_problem(self, x, model):
         """
@@ -338,13 +341,13 @@ class StochasticUnitCommitmentTess():
         nx = len(primal_problem["c"])
         primal_problem_relaxed = deepcopy(primal_problem)
         primal_problem_relaxed["lb"] = concatenate([primal_problem_relaxed["lb"], zeros(1)])
-        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM * 1e3])
+        primal_problem_relaxed["ub"] = concatenate([primal_problem_relaxed["ub"], ones(1) * self.bigM*10])
         primal_problem_relaxed["Aeq"] = hstack(
             [primal_problem_relaxed["Aeq"], zeros((primal_problem_relaxed["Aeq"].shape[0], 1))]).tolil()
         primal_problem_relaxed["A"] = hstack(
             [primal_problem_relaxed["A"], -ones((primal_problem_relaxed["A"].shape[0], 1))]).tolil()
-        primal_problem_relaxed["c"] = concatenate([primal_problem["c"], self.bigM * ones(1)])
-        # primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
+        # primal_problem_relaxed["c"] = concatenate([primal_problem["c"], ones(1)*self.bigM])
+        primal_problem_relaxed["c"] = concatenate([zeros(nx), ones(1)])
         primal_problem_relaxed["q"] = zeros(nx + 1)
         primal_problem["q"] = zeros(nx)
         # nx = len(primal_problem["c"])
@@ -1027,18 +1030,18 @@ class StochasticUnitCommitmentTess():
         hs = zeros(ng * T)
         for i in range(T):
             for j in range(ng):
-                Ts[i * ng + j, i * _nv_first_stage + ng * 3 + j] = -1
-                Ts[i * ng + j, i * _nv_first_stage + ng * 4 + j] = -1
-                Ws[i * ng + j, i * _nv_second_stage + 3 * nl + nb + j] = 1
+                Ts[i * ng + j, i * _nv_first_stage + ng * 3 + j] = -1*self.bigM*1000
+                Ts[i * ng + j, i * _nv_first_stage + ng * 4 + j] = -1*self.bigM*1000
+                Ws[i * ng + j, i * _nv_second_stage + 3 * nl + nb + j] = 1*self.bigM*1000
         # 2) Pg-Rg - pg <= 0
         Ts_temp = lil_matrix((ng * T, nv_first_stage))
         Ws_temp = lil_matrix((ng * T, nv_second_stage))
         hs_temp = zeros(ng * T)
         for i in range(T):
             for j in range(ng):
-                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 3 + j] = 1
-                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 4 + j] = -1
-                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + j] = -1
+                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 3 + j] = 1*self.bigM*1000
+                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 4 + j] = -1*self.bigM*1000
+                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + j] = -1*self.bigM*1000
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
@@ -1048,8 +1051,8 @@ class StochasticUnitCommitmentTess():
         hs_temp = zeros(ng * T)
         for i in range(T):
             for j in range(ng):
-                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 2 + j] = -qg_u[j]
-                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + ng + j] = 1
+                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 2 + j] = -qg_u[j]*self.bigM*1000
+                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + ng + j] = 1*self.bigM*1000
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
@@ -1059,8 +1062,8 @@ class StochasticUnitCommitmentTess():
         hs_temp = zeros(ng * T)
         for i in range(T):
             for j in range(ng):
-                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 2 + j] = qg_l[j]
-                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + ng + j] = -1
+                Ts_temp[i * ng + j, i * _nv_first_stage + ng * 2 + j] = qg_l[j]*self.bigM*1000
+                Ws_temp[i * ng + j, i * _nv_second_stage + 3 * nl + nb + ng + j] = -1*self.bigM*1000
         Ts = vstack((Ts, Ts_temp))
         Ws = vstack((Ws, Ws_temp))
         hs = concatenate((hs, hs_temp))
@@ -1809,7 +1812,7 @@ def sub_problem_solving(problem_second_stage):
                 except:
                     continue
 
-        # sol[2] = 0
+        sol[2] = 0
 
     return sol
 
@@ -1970,7 +1973,7 @@ if __name__ == "__main__":
                })
 
     Voll = 38*1e3 # $/MWh
-
+    db_management = DataBaseManagement()
     stochastic_dynamic_optimal_power_flow = StochasticUnitCommitmentTess()
 
     (sol_first_stgae, sol_second_stage) = stochastic_dynamic_optimal_power_flow.main(power_networks=mpc, mess=ev,
