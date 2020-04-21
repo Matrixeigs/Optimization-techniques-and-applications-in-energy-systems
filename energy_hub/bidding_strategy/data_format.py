@@ -35,7 +35,7 @@ The following groups of variables are considered.
 4.1) VCHP
 4.2) VGAS
 
-In total, there are 24 variables in each time slot
+In total, there are 25 variables in each time slot
 """
 
 ## Group 1: Electricity ##

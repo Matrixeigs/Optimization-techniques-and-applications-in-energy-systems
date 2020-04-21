@@ -414,7 +414,7 @@ class TwoStageStochastic():
         for i in range(N_S):
             obj_CVaR += var[i] / (1 - condifential_level)
         # 3) Problem solving
-        model.setObjective(obj_DA + obj_RT + obj_CVaR)
+        model.setObjective(obj_DA + obj_RT + 0 * obj_CVaR)
         model.Params.MIPGap = 5 * 10 ** -3
         model.optimize()
         # 4) Save the results
