@@ -105,9 +105,9 @@ b1 = array([385, 385, 950])
 # b2 = array([385, 385, 950])
 b2 = array([0, 0, 0])
 Tmax = 200
-Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()[0:Tmax,]
+Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).values[0:Tmax,]
 # Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()
-PV_profile = pd.read_excel(os.getcwd() + '/PV Profile.xlsx', index_col=0).as_matrix()
+PV_profile = pd.read_excel(os.getcwd() + '/PV Profile.xlsx', index_col=0).values
 PV_profile = PV_profile[:, 1:5]*5*0.24/1000
 
 
