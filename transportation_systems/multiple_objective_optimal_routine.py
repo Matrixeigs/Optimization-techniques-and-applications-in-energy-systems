@@ -11,11 +11,11 @@ Using Lexicographic construction of the pay-off table to solve the bi-objective 
 from distribution_system_optimization.test_cases import case33
 from transportation_systems.test_cases import case3, TIME, LOCATION
 
-from scipy import zeros, shape, ones, diag, concatenate, eye
+from numpy import zeros, shape, ones, diag, concatenate, eye
 from scipy.sparse import csr_matrix as sparse
-from scipy.sparse import hstack, vstack
+from scipy.sparse import hstack
 from numpy import flatnonzero as find
-from numpy import array, tile, arange, append
+from numpy import array, tile, arange, append, vstack
 
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, RATE_A
 from pypower.idx_bus import PD, VMAX, VMIN, QD
@@ -56,6 +56,17 @@ class MultiObjectiveRoutine():
         model_distribution_networks = self.problem_formualtion_distribution_networks(case=case, profile=profile,
                                                                                      tess=tess,
                                                                                      traffic_networks=traffic_networks)
+        # (xx, obj, success) = miqcp(model_distribution_networks['c'], model_distribution_networks['q'],
+        #                            Aeq=model_distribution_networks['Aeq'],
+        #                            beq=model_distribution_networks['beq'],
+        #                            vtypes=model_distribution_networks['vtypes'],
+        #                            A=model_distribution_networks['A'],
+        #                            b=model_distribution_networks['b'],
+        #                            Qc=model_distribution_networks['Qc'],
+        #                            rc=model_distribution_networks['rc'],
+        #                            xmin=model_distribution_networks['lb'],
+        #                            xmax=model_distribution_networks['ub'])
+
         # 1.2) Transportation energy storage systems
         model_tess = {}
         for i in range(nev):
@@ -243,7 +254,7 @@ class MultiObjectiveRoutine():
         Pij_u = Slmax
         Qij_u = Slmax
         Iij_u = Slmax
-        Vm_u = bus[:, VMAX] ** 2
+        Vm_u = bus[:, VMAX] ** 2 * 1.2
         Pg_u = 2 * gen[:, PMAX] / baseMVA
         Qg_u = 2 * gen[:, QMAX] / baseMVA
 
@@ -288,7 +299,7 @@ class MultiObjectiveRoutine():
             Aeq_kvl[i * nl:(i + 1) * nl, i * nx + 2 * nl: i * nx + 3 * nl] = diag(Branch_R ** 2) + diag(Branch_X ** 2)
             Aeq_kvl[i * nl:(i + 1) * nl, i * nx + 3 * nl:i * nx + 3 * nl + nb] = (Cf.T - Ct.T).toarray()
 
-        Aeq = vstack([Aeq_p, Aeq_q, Aeq_kvl]).toarray()
+        Aeq = vstack([Aeq_p, Aeq_q, Aeq_kvl])
         beq = concatenate([beq_p, beq_q, beq_kvl])
 
         # 4) Pij**2+Qij**2<=Vi*Iij
@@ -331,6 +342,7 @@ class MultiObjectiveRoutine():
                                    "Aeq": Aeq,
                                    "beq": beq,
                                    "Qc": Qc,
+                                   "rc": zeros(len(Qc)),
                                    "c0": c0,
                                    "Ax2z": Ax2z}
 

@@ -5,7 +5,7 @@ Dynamic optimal power flow with multiple microgrids
 from distribution_system_optimization.test_cases import case33
 from transportation_systems.test_cases import case3, TIME, LOCATION
 
-from scipy import zeros, shape, ones, diag, concatenate, eye, inf
+from numpy import zeros, shape, ones, diag, concatenate, eye, inf
 from scipy.sparse import csr_matrix as sparse
 from scipy.sparse import hstack, vstack
 from numpy import flatnonzero as find
