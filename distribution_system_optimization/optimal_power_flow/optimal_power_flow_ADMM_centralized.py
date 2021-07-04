@@ -322,9 +322,9 @@ if __name__ == "__main__":
     mpc = case33.case33()  # Default test case
     (obj, residual) = run(mpc)
 
-    result = runopf.runopf(case33.case33())
+    # result = runopf.runopf(case33.case33())
+    #
+    # gap = 100 * (result["f"] - obj) / obj
 
-    gap = 100 * (result["f"] - obj) / obj
-
-    print(gap)
+    # print(gap)
     print(residual)
