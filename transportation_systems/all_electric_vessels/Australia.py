@@ -74,8 +74,8 @@ pchMax = 5
 effCharing = 0.95
 effDischaring = 1
 CRF = 0.0963/40
-EcapacityEss = 1e5
-PcapacityEss = 1e3
+EcapacityEss = 10
+PcapacityEss = 6
 CostEssP = 1000*1000*CRF
 CostEssE = 500*1000*CRF
 
@@ -108,7 +108,7 @@ b0 = array([8383, 8383, 360])
 b1 = array([385, 385, 950])
 # b2 = array([385, 385, 950])
 b2 = array([0, 0, 0])
-Tmax = 190
+Tmax = 125
 Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).values[0:Tmax,]
 # Price_port = pd.read_excel(os.getcwd() + '/Prices_modified.xlsx', index_col=0).as_matrix()
 
@@ -123,7 +123,7 @@ PUG_MIN = 0
 
 cp1 = 0.003
 cp2 = 3
-nV = 50
+nV = 10
 vBlock = arange(0, Vfull + Vfull / (nV - 1), Vfull / (nV - 1))
 PproBlock = zeros(nV)
 for i in range(nV): PproBlock[i] = cp1 * vBlock[i] ** cp2
@@ -131,3 +131,14 @@ for i in range(nV): PproBlock[i] = cp1 * vBlock[i] ** cp2
 mBlock = zeros(nV - 1)
 for i in range(nV - 1):
     mBlock[i] = (PproBlock[i + 1] - PproBlock[i]) / (vBlock[i + 1] - vBlock[i])
+
+nD = 11
+sBlock = arange(0, 1.1, 1 / (nD-1))
+LBlock = zeros(nD)
+B1 = 694
+B2 = 0.75 # This parameter is negative
+for i in range(nD): LBlock[i] = B1 * sBlock[i] ** (-B2)
+
+lBlock = zeros(nD - 1)
+for i in range(nD - 1):
+    lBlock[i] = (LBlock[i + 1] - LBlock[i]) / (sBlock[i + 1] - sBlock[i])
