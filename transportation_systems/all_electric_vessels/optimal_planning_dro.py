@@ -627,6 +627,23 @@ class OptimalPlanningESS():
                 A_temp[i, i * NX + I_A0 + j] = -PproBlock[-1]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
+        # The relation among auxiliary variables
+        A_temp = zeros((T*nP*nD, nx))
+        b_temp = zeros(T*nP*nD)
+        for t in range(T):
+            for i in range(nP):
+                for j in range(nD):
+                    A_temp[t * nP * nD + i * nD + j, t * NX + Aux + i * nD + j] = 1
+                    A_temp[t * nP * nD + i * nD + j, t * NX + Aux + nP*nD + i * nD + j] = -1
+                    A_temp[t * nP * nD + i * nD + j, t * NX + Aux + 2*nP*nD + i * nD + j] = -1
+                    if i>0:
+                        if j>0:
+                            A_temp[t * nP * nD + i * nD + j, t * NX + Aux + nP * nD + i * nD + j] = -1
+                            A_temp[t * nP * nD + i * nD + j, t * NX + Aux + nP * nD + (i-1) * nD + j] = -1
+                            A_temp[t * nP * nD + i * nD + j, t * NX + Aux + nP * nD * 2 + i * nD + j] = -1
+                            A_temp[t * nP * nD + i * nD + j, t * NX + Aux + nP * nD * 2 + (i-1) * nD + j] = -1
+        A = vstack([A, A_temp])
+        b = concatenate([b, b_temp])
         # The degradation cost
         Aeq_temp = zeros((T, nx))
         beq_temp = ones(T)
@@ -697,6 +714,8 @@ class OptimalPlanningESS():
         Pug = zeros((T, NPORTs))
         Ppro = zeros(T)
         v = zeros((T, NYs))
+        BLc = zeros(T)
+
 
         for i in range(T):
             for j in range(NYs):
@@ -723,6 +742,8 @@ class OptimalPlanningESS():
             Eess[i] = x[i * NX + EESS]
             Pl[i] = x[i * NX + PL]
             Ppro[i] = x[i * NX + PPRO]
+            BLc[i] = x[i * NX + Lc]
+
 
         essCAP = x[ESSCAP]
         pessCAP = x[PESSCAP]
