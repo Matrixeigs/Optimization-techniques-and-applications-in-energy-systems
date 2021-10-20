@@ -132,13 +132,19 @@ mBlock = zeros(nV - 1)
 for i in range(nV - 1):
     mBlock[i] = (PproBlock[i + 1] - PproBlock[i]) / (vBlock[i + 1] - vBlock[i])
 
-nD = 11
-sBlock = arange(0, 1.1, 1 / (nD-1))
-LBlock = zeros(nD)
+# This function is a two variable function
+nD = 10
+nP = 5
+PBlock = arange(1, 11, 9 / (nP-1))
+EBlock = arange(1, 11, 9 / (nD-1))
+LBlock = zeros((nD,nP))
 B1 = 694
 B2 = 0.75 # This parameter is negative
-for i in range(nD): LBlock[i] = B1 * sBlock[i] ** (-B2)
+for i in range(nD):
+    for j in range(nP):
+        # LBlock[i,j] = B1 * (PBlock[j]/EBlock[i]) ** (-B2)
+        if PBlock[j]>0:
+            LBlock[i,j] = (PBlock[j]/EBlock[i])**(B2)/2/B1/effCharing/effDischaring
 
-lBlock = zeros(nD - 1)
-for i in range(nD - 1):
-    lBlock[i] = (LBlock[i + 1] - LBlock[i]) / (sBlock[i + 1] - sBlock[i])
+
+# print(LBlock)

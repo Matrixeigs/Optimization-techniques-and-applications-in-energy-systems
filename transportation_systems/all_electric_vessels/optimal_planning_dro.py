@@ -5,7 +5,7 @@ Optimal ess planning with navigation routing
 @Date: 2021 Oct 19
 """
 
-from numpy import zeros, concatenate, vstack, array, ones
+from numpy import zeros, concatenate, vstack, array, ones, reshape
 import os, platform
 import pandas as pd
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
@@ -13,7 +13,7 @@ from transportation_systems.all_electric_vessels.Australia import a0, a1, a2, PM
 from transportation_systems.all_electric_vessels.Australia import Vfull, Vhalf, Vin_out, Vmin
 from transportation_systems.all_electric_vessels.Australia import capacityEss, socMax, socMin, effCharing, \
     effDischaring, pchMax, pdcMax, PL_CRUISE, PL_FULL, PL_IN_OUT, PL_STOP, PUG_MAX, PUG_MIN, vBlock, PproBlock, mBlock, \
-    nV, EcapacityEss, PcapacityEss, CostEssE, CostEssP,soc0, LBlock, lBlock
+    nV, EcapacityEss, PcapacityEss, CostEssE, CostEssP,soc0, LBlock, nP, nD, PBlock, EBlock
 
 from numpy import random
 from transportation_systems.all_electric_vessels.Australia import transportation_network, Price_port
@@ -99,9 +99,11 @@ class OptimalPlanningESS():
         V0 = PPRO + 1
         Vn = PPRO + NYs
         # degradation
+        Lc = Vn + 1
+        Aux = Lc + 1
+        # The number of decision within each time period
+        NX = Aux + nP*nD*3
 
-
-        NX = Vn + 1
         ESSCAP = NX*T
         PESSCAP = ESSCAP + 1
 
@@ -123,19 +125,16 @@ class OptimalPlanningESS():
             for j in range(NYs):
                 lb[i * NX + ALPHA_A2S0 + j] = 0
                 ub[i * NX + ALPHA_A2S0 + j] = 1
-                c[i * NX + ALPHA_A2S0 + j] = 0
                 vtypes[i * NX + ALPHA_A2S0 + j] = 'b'
             # ALPHA_S2D
             for j in range(NYs):
                 lb[i * NX + ALPHA_S2D0 + j] = 0
                 ub[i * NX + ALPHA_S2D0 + j] = 1
-                c[i * NX + ALPHA_S2D0 + j] = 0
                 vtypes[i * NX + ALPHA_S2D0 + j] = 'b'
             # ALPHA_D2A
             for j in range(NYs):
                 lb[i * NX + ALPHA_D2A0 + j] = 0
                 ub[i * NX + ALPHA_D2A0 + j] = 1
-                c[i * NX + ALPHA_D2A0 + j] = 0
                 vtypes[i * NX + ALPHA_D2A0 + j] = 'b'
             # ALPHA_D2C
             for j in range(NYs):
@@ -237,6 +236,15 @@ class OptimalPlanningESS():
                 lb[i * NX + V0 + j] = 0
                 ub[i * NX + V0 + j] = Vfull
                 c[i * NX + V0 + j] = 0
+            # Lc
+            lb[i * NX + Lc] = 0
+            ub[i * NX + Lc] = 1e10
+            # Aux
+            lb[i * NX + Aux: i * NX + Aux + nP*nD*3] = 0
+            ub[i * NX + Aux: i * NX + Aux + nP*nD*3] = 1
+            vtypes[i * NX + Aux + nP*nD: i * NX + Aux + nP*nD*3] = ["b"]*nP*nD*2
+            # print(i)
+
         lb[ESSCAP] = 0
         ub[ESSCAP] = EcapacityEss
         c[ESSCAP] = CostEssE
@@ -619,6 +627,44 @@ class OptimalPlanningESS():
                 A_temp[i, i * NX + I_A0 + j] = -PproBlock[-1]
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
+        # The degradation cost
+        Aeq_temp = zeros((T, nx))
+        beq_temp = ones(T)
+        for t in range(T):
+            Aeq_temp[t,t*NX + Aux : t*NX + Aux + nP*nD] = 1
+        Aeq = vstack([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+        # power range
+        Aeq_temp = zeros((T, nx))
+        beq_temp = zeros(T)
+        for t in range(T):
+            for i in range(nP):
+                for j in range(nD):
+                    Aeq_temp[t, t*NX + Aux + i*nD+j] = PBlock[i]
+            Aeq_temp[t, t * NX + PESS_CH] = -1
+            Aeq_temp[t, t * NX + PESS_DC] = -1
+        Aeq = vstack([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+        # energy capacity
+        Aeq_temp = zeros((T, nx))
+        beq_temp = zeros(T)
+        for t in range(T):
+            for i in range(nP):
+                for j in range(nD):
+                    Aeq_temp[t, t*NX + Aux + i*nD+j] = EBlock[j]
+            Aeq_temp[t, ESSCAP] = -1
+        Aeq = vstack([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
+        # lift loss
+        Aeq_temp = zeros((T, nx))
+        beq_temp = zeros(T)
+        for t in range(T):
+            for i in range(nP):
+                for j in range(nD):
+                    Aeq_temp[t, t*NX + Aux + i*nD+j] = LBlock[j,i]
+            Aeq_temp[t, t*NX + Lc] = -1
+        Aeq = vstack([Aeq, Aeq_temp])
+        beq = concatenate([beq, beq_temp])
 
         Aeq_temp = zeros((1, nx))
         beq_temp = zeros(1)
