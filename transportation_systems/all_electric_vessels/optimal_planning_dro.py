@@ -9,7 +9,7 @@ from numpy import zeros, concatenate, vstack, array, ones, reshape
 import os, platform
 import pandas as pd
 from solvers.mixed_integer_solvers_cplex import mixed_integer_linear_programming as milp
-from transportation_systems.all_electric_vessels.Australia import a0, a1, a2, PMIN, PMAX
+from transportation_systems.all_electric_vessels.Australia import a0, a1, a2, PMIN, PMAX, b0, b1, b2
 from transportation_systems.all_electric_vessels.Australia import Vfull, Vhalf, Vin_out, Vmin
 from transportation_systems.all_electric_vessels.Australia import capacityEss, socMax, socMin, effCharing, \
     effDischaring, pchMax, pdcMax, PL_CRUISE, PL_FULL, PL_IN_OUT, PL_STOP, PUG_MAX, PUG_MIN, vBlock, PproBlock, mBlock, \
@@ -30,7 +30,7 @@ class OptimalPlanningESS():
         :param networks:
         :return:
         """
-        lam = 0
+        lam = 0.5
         beta = 0.95
 
         DIS = networks["voyage"][:, 2]  # Distance matrix
@@ -41,15 +41,16 @@ class OptimalPlanningESS():
         #
         ns = 100
         delta = 0.1
-        scenario = random.random((T,3, ns))
-        price_scenario = zeros((T,NPORTs,ns))
+        random.seed(0)
+        scenario = random.random((T, 3, ns))
+        price_scenario = zeros((T, NPORTs, ns))
         for s in range(ns):
             for t in range(T):
-                price_scenario[t, 0, s] = Price_port[t, 0] * (1 - delta + 2 * scenario[t, 0, s] * delta)
-                price_scenario[t, 1, s] = Price_port[t, 1] * (1 - delta + 2 * scenario[t, 0, s] * delta)
-                price_scenario[t, 2, s] = Price_port[t, 2] * (1 - delta + 2 * scenario[t, 1, s] * delta)
-                price_scenario[t, 3, s] = Price_port[t, 3] * (1 - delta + 2 * scenario[t, 1, s] * delta)
-                price_scenario[t, 4, s] = Price_port[t, 4] * (1 - delta + 2 * scenario[t, 2, s] * delta)
+                price_scenario[t, 0, s] = Price_port[t, 0] * (1 - delta + 2 * scenario[t, 0, s] * delta )
+                price_scenario[t, 1, s] = Price_port[t, 1] * (1 - delta + 2 * scenario[t, 0, s] * delta )
+                price_scenario[t, 2, s] = Price_port[t, 2] * (1 - delta + 2 * scenario[t, 1, s] * delta )
+                price_scenario[t, 3, s] = Price_port[t, 3] * (1 - delta + 2 * scenario[t, 1, s] * delta )
+                price_scenario[t, 4, s] = Price_port[t, 4] * (1 - delta + 2 * scenario[t, 2, s] * delta )
         ws = ones(ns)/ns
         d_dro = 0.1
         ng = len(PMIN)
@@ -119,6 +120,7 @@ class OptimalPlanningESS():
         lb = zeros(nx)
         ub = zeros(nx)
         c = zeros(nx)
+        c_emission = zeros(nx)
         vtypes = ['c'] * nx
         for i in range(T):
             # ALPHA_A2S
@@ -154,9 +156,6 @@ class OptimalPlanningESS():
                 ub[i * NX + I_S + j] = 0
                 c[i * NX + I_S + j] = 0
                 vtypes[i * NX + I_S + j] = 'b'
-                # if i == 0:
-                #     lb[i * NX + I_S + 0] = 1  # Should stop at the end of voyage
-                #     ub[i * NX + I_S + 0] = 1  # Should stop at the end of voyage
                 if i == T - 1:
                     lb[i * NX + I_S + j] = I_Sn[j]  # Should stop at the end of voyage
                     ub[i * NX + I_S + j] = I_Sn[j]  # Should stop at the end of voyage
@@ -195,12 +194,14 @@ class OptimalPlanningESS():
                 lb[i * NX + I_G0 + j] = 0
                 ub[i * NX + I_G0 + j] = 1
                 c[i * NX + I_G0 + j] =  a0[j]
+                c_emission[i * NX + I_G0 + j] = b0[j]
                 vtypes[i * NX + I_G0 + j] = 'b'
             # Pg
             for j in range(ng):
                 lb[i * NX + P_G0 + j] = 0
                 ub[i * NX + P_G0 + j] = PMAX[j]
                 c[i * NX + P_G0 + j] =  a1[j]
+                c_emission[i * NX + P_G0 + j] = b1[j]
             # PESS_DC
             lb[i * NX + PESS_DC] = 0
             ub[i * NX + PESS_DC] = PcapacityEss
@@ -213,7 +214,7 @@ class OptimalPlanningESS():
             lb[i * NX + IESS_DC] = 0
             ub[i * NX + IESS_DC] = 1
             c[i * NX + IESS_DC] = 0
-            vtypes[i * NX + IESS_DC] = "b"
+            vtypes[i * NX + IESS_DC] = 'b'
             # EESS
             lb[i * NX + EESS] = 0
             ub[i * NX + EESS] = socMax * EcapacityEss
@@ -242,7 +243,7 @@ class OptimalPlanningESS():
             # Aux
             lb[i * NX + Aux: i * NX + Aux + nP*nD*3] = 0
             ub[i * NX + Aux: i * NX + Aux + nP*nD*3] = 1
-            vtypes[i * NX + Aux + nP*nD: i * NX + Aux + nP*nD*3] = ["b"]*nP*nD*2
+            vtypes[i * NX + Aux + nP*nD: i * NX + Aux + nP*nD*3] = ['b']*nP*nD*2
             # print(i)
 
         lb[ESSCAP] = 0
@@ -283,14 +284,14 @@ class OptimalPlanningESS():
 
 
         # Arrival
-        # lb[41 * NX + I_S + 1] = 1
-        # lb[103 * NX + I_S + 2] = 1
-        # lb[127 * NX + I_S + 3] = 1
+        # lb[41 * NX + I_S + 1] = 1 # Calculate based on the radius
+        # lb[88 * NX + I_S + 2] = 1
+        # lb[95 * NX + I_S + 3] = 1
         # # Departure
         # lb[0 * NX + I_D0 + 0] = 1
-        # lb[55 * NX + I_D0 + 1] = 1
-        # lb[121 * NX + I_D0 + 2] = 1
-        # lb[135 * NX + I_D0 + 3] = 1
+        # lb[41 * NX + I_D0 + 1] = 1
+        # lb[88 * NX + I_D0 + 2] = 1
+        # lb[93 * NX + I_D0 + 3] = 1
         # Constraints set
         # 1) Status change constraint
         # equation 5
@@ -644,6 +645,13 @@ class OptimalPlanningESS():
                             A_temp[t * nP * nD + i * nD + j, t * NX + Aux + nP * nD * 2 + (i-1) * nD + j] = -1
         A = vstack([A, A_temp])
         b = concatenate([b, b_temp])
+        # The life cycle constraint
+        # A_temp = zeros((1, nx))
+        # b_temp = ones(1)*0.05
+        # for t in range(T):
+        #     A_temp[0, t * NX + Lc] = 1
+        # A = vstack([A, A_temp])
+        # b = concatenate([b, b_temp])
         # The degradation cost
         Aeq_temp = zeros((T, nx))
         beq_temp = ones(T)
@@ -672,7 +680,7 @@ class OptimalPlanningESS():
             Aeq_temp[t, ESSCAP] = -1
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
-        # lift loss
+        # life loss
         Aeq_temp = zeros((T, nx))
         beq_temp = zeros(T)
         for t in range(T):
@@ -761,6 +769,7 @@ class OptimalPlanningESS():
 
 
         solution = {"obj": obj,
+                    "emission": c_emission.dot(x),
                     "success": success,
                     "i_S": i_S,
                     "i_D": i_D,
@@ -779,16 +788,19 @@ class OptimalPlanningESS():
                     "Ppro": Ppro,
                     "essCAP": essCAP,
                     "pessCAP": pessCAP,
+                    "Lc": BLc,
                     }
 
         # save the results into excel file
         if platform.system() == "Windows":
-            writer = pd.ExcelWriter(self.pwd + r"\result.xlsx", float_format="10.4%f", index=True)
+            writer = pd.ExcelWriter(self.pwd + r"\result_case_1.xlsx", float_format="10.4%f", index=True)
         else:
-            writer = pd.ExcelWriter(self.pwd + "/result.xlsx", float_format="10.4%f", index=True)
+            writer = pd.ExcelWriter(self.pwd + "/result_case_1.xlsx", float_format="10.4%f", index=True)
 
         df = pd.DataFrame(array([solution["obj"]]))
         df.to_excel(writer, sheet_name='obj')
+        df = pd.DataFrame(array([solution["emission"]]))
+        df.to_excel(writer, sheet_name='emission')
         df = pd.DataFrame(array([solution["essCAP"]]))
         df.to_excel(writer, sheet_name='EESS')
         df = pd.DataFrame(array([solution["pessCAP"]]))
@@ -829,6 +841,8 @@ class OptimalPlanningESS():
         df.to_excel(writer, sheet_name='ESS_charging')
         df = pd.DataFrame(solution["Eess"])
         df.to_excel(writer, sheet_name='ESS_energy_status')
+        df = pd.DataFrame(solution["Lc"])
+        df.to_excel(writer, sheet_name='Lc')
         writer.save()
 
         return solution

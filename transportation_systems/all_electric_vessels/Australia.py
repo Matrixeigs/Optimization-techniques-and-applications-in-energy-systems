@@ -75,7 +75,7 @@ effCharing = 0.95
 effDischaring = 1
 CRF = 0.0963/40
 EcapacityEss = 10
-PcapacityEss = 6
+PcapacityEss = 10
 CostEssP = 1000*1000*CRF
 CostEssE = 500*1000*CRF
 
@@ -133,10 +133,10 @@ for i in range(nV - 1):
     mBlock[i] = (PproBlock[i + 1] - PproBlock[i]) / (vBlock[i + 1] - vBlock[i])
 
 # This function is a two variable function
-nD = 10
+nD = 5
 nP = 5
-PBlock = arange(1, 11, 9 / (nP-1))
-EBlock = arange(1, 11, 9 / (nD-1))
+PBlock = arange(2, 11, 2)
+EBlock = arange(2, 11, 2)
 LBlock = zeros((nD,nP))
 B1 = 694
 B2 = 0.75 # This parameter is negative
@@ -144,7 +144,8 @@ for i in range(nD):
     for j in range(nP):
         # LBlock[i,j] = B1 * (PBlock[j]/EBlock[i]) ** (-B2)
         if PBlock[j]>0:
-            LBlock[i,j] = (PBlock[j]/EBlock[i])**(B2)/2/B1/effCharing/effDischaring
+            if EBlock[j]>0:
+                LBlock[i,j] = (PBlock[j]/EBlock[i])**(B2)/2/B1/effCharing/effDischaring
 
 
 # print(LBlock)
