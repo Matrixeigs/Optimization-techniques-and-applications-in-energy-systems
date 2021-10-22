@@ -40,17 +40,17 @@ class OptimalPlanningESS():
         ## Generate the scenarios
         #
         ns = 100
-        delta = 0.1
+        delta = 0.1 # The derivation range
         random.seed(0)
         scenario = random.random((T, 3, ns))
         price_scenario = zeros((T, NPORTs, ns))
         for s in range(ns):
             for t in range(T):
-                price_scenario[t, 0, s] = Price_port[t, 0] * (1 - delta + 2 * scenario[t, 0, s] * delta )
-                price_scenario[t, 1, s] = Price_port[t, 1] * (1 - delta + 2 * scenario[t, 0, s] * delta )
-                price_scenario[t, 2, s] = Price_port[t, 2] * (1 - delta + 2 * scenario[t, 1, s] * delta )
-                price_scenario[t, 3, s] = Price_port[t, 3] * (1 - delta + 2 * scenario[t, 1, s] * delta )
-                price_scenario[t, 4, s] = Price_port[t, 4] * (1 - delta + 2 * scenario[t, 2, s] * delta )
+                price_scenario[t, 0, s] = Price_port[t, 0] * (1 - delta + 2 * scenario[t, 0, s] * delta)
+                price_scenario[t, 1, s] = Price_port[t, 1] * (1 - delta + 2 * scenario[t, 0, s] * delta)
+                price_scenario[t, 2, s] = Price_port[t, 2] * (1 - delta + 2 * scenario[t, 1, s] * delta)
+                price_scenario[t, 3, s] = Price_port[t, 3] * (1 - delta + 2 * scenario[t, 1, s] * delta)
+                price_scenario[t, 4, s] = Price_port[t, 4] * (1 - delta + 2 * scenario[t, 2, s] * delta)
         ws = ones(ns)/ns
         d_dro = 0.1
         ng = len(PMIN)
@@ -103,7 +103,8 @@ class OptimalPlanningESS():
         Lc = Vn + 1
         Aux = Lc + 1
         # The number of decision within each time period
-        NX = Aux + nP*nD*3
+        It = Aux + nP*nD*3
+        NX = It + 1
 
         ESSCAP = NX*T
         PESSCAP = ESSCAP + 1
@@ -121,6 +122,8 @@ class OptimalPlanningESS():
         ub = zeros(nx)
         c = zeros(nx)
         c_emission = zeros(nx)
+        c_fuel = zeros(nx)
+        c_ess = zeros(nx)
         vtypes = ['c'] * nx
         for i in range(T):
             # ALPHA_A2S
@@ -153,11 +156,11 @@ class OptimalPlanningESS():
             # I_S
             for j in range(NPORTs):
                 lb[i * NX + I_S + j] = 0
-                ub[i * NX + I_S + j] = 0
+                ub[i * NX + I_S + j] = 1
                 c[i * NX + I_S + j] = 0
                 vtypes[i * NX + I_S + j] = 'b'
                 if i == T - 1:
-                    lb[i * NX + I_S + j] = I_Sn[j]  # Should stop at the end of voyage
+                    lb[i * NX + I_S + j] = I_Sn[j]  # Should stop at the  end of voyage
                     ub[i * NX + I_S + j] = I_Sn[j]  # Should stop at the end of voyage
             # I_D
             for j in range(NYs):
@@ -186,7 +189,7 @@ class OptimalPlanningESS():
             # I_C_H
             for j in range(NYs):
                 lb[i * NX + I_C_H0 + j] = 0
-                ub[i * NX + I_C_H0 + j] = 0  # Do not allow half cruise
+                ub[i * NX + I_C_H0 + j] = 1  # Do not allow half cruise
                 c[i * NX + I_C_H0 + j] = 0
                 vtypes[i * NX + I_C_H0 + j] = 'b'
             # Ig
@@ -194,14 +197,16 @@ class OptimalPlanningESS():
                 lb[i * NX + I_G0 + j] = 0
                 ub[i * NX + I_G0 + j] = 1
                 c[i * NX + I_G0 + j] =  a0[j]
-                c_emission[i * NX + I_G0 + j] = b0[j]
+                c_emission[i * NX + I_G0 + j] = 0.0845 * PMAX[j] * 0.846
+                c_fuel[i * NX + I_G0 + j] = a0[j]
                 vtypes[i * NX + I_G0 + j] = 'b'
             # Pg
             for j in range(ng):
                 lb[i * NX + P_G0 + j] = 0
                 ub[i * NX + P_G0 + j] = PMAX[j]
                 c[i * NX + P_G0 + j] =  a1[j]
-                c_emission[i * NX + P_G0 + j] = b1[j]
+                c_emission[i * NX + P_G0 + j] = 0.245 * 0.846
+                c_fuel[i * NX + P_G0 + j] = a1[j]
             # PESS_DC
             lb[i * NX + PESS_DC] = 0
             ub[i * NX + PESS_DC] = PcapacityEss
@@ -245,15 +250,20 @@ class OptimalPlanningESS():
             ub[i * NX + Aux: i * NX + Aux + nP*nD*3] = 1
             vtypes[i * NX + Aux + nP*nD: i * NX + Aux + nP*nD*3] = ['b']*nP*nD*2
             # print(i)
+            lb[i * NX + It] = 0
+            ub[i * NX + It] = 1
+            vtypes[i * NX + It] = 'b'
 
         lb[ESSCAP] = 0
         ub[ESSCAP] = EcapacityEss
         c[ESSCAP] = CostEssE
+        c_ess[ESSCAP] = CostEssE
         vtypes[ESSCAP] = 'd'
 
         lb[PESSCAP] = 0
         ub[PESSCAP] = PcapacityEss
         c[PESSCAP] = CostEssP
+        c_ess[PESSCAP] = CostEssP
         vtypes[PESSCAP] = 'd'
 
         lb[Z] = 0
@@ -334,9 +344,13 @@ class OptimalPlanningESS():
                 Aeq_temp[i * NYs + j, i * NX + ALPHA_D2C0 + j] = -1
                 Aeq_temp[i * NYs + j, i * NX + ALPHA_C2A0 + j] = 1
                 if i == 0:
+                    # beq_temp[i * NYs + j] = i_C0[j] + 1
                     beq_temp[i * NYs + j] = i_C0[j]
                 else:
                     Aeq_temp[i * NYs + j, (i - 1) * NX + I_C0 + j] = -1
+                    # beq_temp[i * NYs + j] = 1
+                # Aeq_temp[i * NYs + j, i * NX + It] = 1
+
         Aeq = vstack([Aeq, Aeq_temp])
         beq = concatenate([beq, beq_temp])
         # # equation 8
@@ -652,6 +666,27 @@ class OptimalPlanningESS():
         #     A_temp[0, t * NX + Lc] = 1
         # A = vstack([A, A_temp])
         # b = concatenate([b, b_temp])
+
+        # The duration
+        # A_temp = zeros((T, nx))
+        # b_temp = zeros(T)
+        # for i in range(T):
+        #     for j in range(NPORTs):
+        #         A_temp[i, i * NX + I_S + j] = 1
+        #     for j in range(NYs):
+        #         A_temp[i, i * NX + I_A0 + j] = 1
+        #         A_temp[i, i * NX + I_D0 + j] = 1
+        #         A_temp[i, i * NX + I_C0 + j] = 1
+        #     A_temp[i, i * NX + It] = -1
+        # A = vstack([A, A_temp])
+        # b = concatenate([b, b_temp])
+
+        # A_temp = zeros((1, nx))
+        # b_temp = ones(1)*125
+        # for i in range(T):
+        #     A_temp[0, i * NX + It] = 1
+        # A = vstack([A, A_temp])
+        # b = concatenate([b, b_temp])
         # The degradation cost
         Aeq_temp = zeros((T, nx))
         beq_temp = ones(T)
@@ -723,7 +758,7 @@ class OptimalPlanningESS():
         Ppro = zeros(T)
         v = zeros((T, NYs))
         BLc = zeros(T)
-
+        it = zeros(T)
 
         for i in range(T):
             for j in range(NYs):
@@ -751,6 +786,7 @@ class OptimalPlanningESS():
             Pl[i] = x[i * NX + PL]
             Ppro[i] = x[i * NX + PPRO]
             BLc[i] = x[i * NX + Lc]
+            it[i] = x[i * NX + It]
 
 
         essCAP = x[ESSCAP]
@@ -770,6 +806,8 @@ class OptimalPlanningESS():
 
         solution = {"obj": obj,
                     "emission": c_emission.dot(x),
+                    "fuel": c_fuel.dot(x),
+                    "ess": c_ess.dot(x),
                     "success": success,
                     "i_S": i_S,
                     "i_D": i_D,
@@ -789,18 +827,23 @@ class OptimalPlanningESS():
                     "essCAP": essCAP,
                     "pessCAP": pessCAP,
                     "Lc": BLc,
+                    "It":it,
                     }
 
         # save the results into excel file
         if platform.system() == "Windows":
-            writer = pd.ExcelWriter(self.pwd + r"\result_case_1.xlsx", float_format="10.4%f", index=True)
+            writer = pd.ExcelWriter(self.pwd + r"\result_case_3.xlsx", float_format="10.4%f", index=True)
         else:
-            writer = pd.ExcelWriter(self.pwd + "/result_case_1.xlsx", float_format="10.4%f", index=True)
+            writer = pd.ExcelWriter(self.pwd + "/result_case_3.xlsx", float_format="10.4%f", index=True)
 
         df = pd.DataFrame(array([solution["obj"]]))
         df.to_excel(writer, sheet_name='obj')
         df = pd.DataFrame(array([solution["emission"]]))
         df.to_excel(writer, sheet_name='emission')
+        df = pd.DataFrame(array([solution["fuel"]]))
+        df.to_excel(writer, sheet_name='fuel')
+        df = pd.DataFrame(array([solution["ess"]]))
+        df.to_excel(writer, sheet_name='ess')
         df = pd.DataFrame(array([solution["essCAP"]]))
         df.to_excel(writer, sheet_name='EESS')
         df = pd.DataFrame(array([solution["pessCAP"]]))
@@ -843,6 +886,8 @@ class OptimalPlanningESS():
         df.to_excel(writer, sheet_name='ESS_energy_status')
         df = pd.DataFrame(solution["Lc"])
         df.to_excel(writer, sheet_name='Lc')
+        df = pd.DataFrame(solution["It"])
+        df.to_excel(writer, sheet_name='It')
         writer.save()
 
         return solution
