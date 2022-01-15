@@ -22,7 +22,7 @@ from solvers.scenario_reduction import ScenarioReduction
 from math import sqrt
 
 def main(N_scenario_first_stage=100, N_scenario_second_stage=1000, alpha=0.9,
-         relaxation_level=0.1, Lam=0.1):
+         relaxation_level=0.0, Lam=0.0):
     # 1) System level configuration
     T = 24
     weight_first_stage = ones((N_scenario_first_stage, 1)) / N_scenario_first_stage

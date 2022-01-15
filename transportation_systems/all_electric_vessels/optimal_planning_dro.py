@@ -667,6 +667,14 @@ class OptimalPlanningESS():
         # A = vstack([A, A_temp])
         # b = concatenate([b, b_temp])
 
+        # Visit specific port
+        # A_temp = zeros((1, nx))
+        # b_temp = -ones(1)
+        # for t in range(T):
+        #     A_temp[0, t * NX + I_S + 1] = -1
+        # A = vstack([A, A_temp])
+        # b = concatenate([b, b_temp])
+
         # The duration
         # A_temp = zeros((T, nx))
         # b_temp = zeros(T)
@@ -832,9 +840,9 @@ class OptimalPlanningESS():
 
         # save the results into excel file
         if platform.system() == "Windows":
-            writer = pd.ExcelWriter(self.pwd + r"\result_case_3.xlsx", float_format="10.4%f", index=True)
+            writer = pd.ExcelWriter(self.pwd + r"\result_case_10_dro_10.xlsx", float_format="10.4%f", index=True)
         else:
-            writer = pd.ExcelWriter(self.pwd + "/result_case_3.xlsx", float_format="10.4%f", index=True)
+            writer = pd.ExcelWriter(self.pwd + "/result_case_10_dro_10.xlsx", float_format="10.4%f", index=True)
 
         df = pd.DataFrame(array([solution["obj"]]))
         df.to_excel(writer, sheet_name='obj')

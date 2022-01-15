@@ -252,6 +252,7 @@ class OptimalPlanningESS():
             # print(i)
             lb[i * NX + It] = 0
             ub[i * NX + It] = 1
+            c[i * NX + It] = 1e3 # The penalty w.r.t time
             vtypes[i * NX + It] = 'b'
 
         lb[ESSCAP] = 0
